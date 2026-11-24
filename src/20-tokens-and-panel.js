@@ -49,6 +49,37 @@
       });
     }
 
+    // 从「正文色 + 底色」现算表面填充：侧栏 / 顶栏 / 窗口按钮区 / 导轨 / 外框。
+    // 抽出来的理由：这五条是纯函数（只读 tokens、只写 tokens），不碰 DOM、不读 pref，
+    // 埋在 applyTokens 中间既难读也没法单独验证。系数注释随实现一起搬，避免两处漂移。
+    function applySurfaceFills(tokens) {
+      const text = tokens['--dsw-alias-label-primary'] || tokens['--dsw-alias-brand-primary'];
+      const base = tokens['--dsw-alias-bg-base'];
+      const toRgb = function (c) {
+        const m = String(c || '').trim().match(/^#([0-9a-f]{6})$/i);
+        if (!m) return null;
+        return [0, 2, 4].map(function (i) { return parseInt(m[1].slice(i, i + 2), 16); });
+      };
+      const hex = function (arr) {
+        return '#' + arr.map(function (v) {
+          return Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0');
+        }).join('');
+      };
+      const T = toRgb(text), B = toRgb(base);
+      if (!T || !B) return;
+      // 侧栏 4% 正文色混入底色：对应宿主原来的 color-mix(text 4%, bg-content)，
+      // 必须按「我们实际渲染的底色」现算，否则像 zhuoer 这种改过底色的主题，
+      // 硬编码的 sidebar-fill 会比底色更暗，顶部就成了一条黑边。
+      tokens['--dsw-specific-sidebar-fill'] = hex(T.map(function (v, i) { return v * 0.04 + B[i] * 0.96; }));
+      // 顶栏 10%（比侧栏明显亮一档，用户要求）；右上窗口按钮区约 5%（由实测反推）。
+      // 窗口按钮是 Windows 原生绘制的（Electron titleBarOverlay），插件改不了它的底色，
+      // 所以不在整条上妥协，而是靠更宽的水平渐变把亮顶栏平滑收敛到按钮色。
+      tokens['--zr-topbar-fill'] = hex(T.map(function (v, i) { return v * 0.10 + B[i] * 0.90; }));
+      tokens['--zr-frame-fill'] = hex(T.map(function (v, i) { return v * 0.10 + B[i] * 0.90; }));
+      tokens['--zr-btn-fill-base'] = hex(T.map(function (v, i) { return v * 0.05 + B[i] * 0.95; }));
+      tokens['--zr-rail-fill'] = hex(B.map(function (v) { return v * 0.82; }));
+    }
+
     function applyTokens(theme, pref) {
       theme = theme || themeRef;
       const scheme = resolveScheme(pref.mode, theme);
@@ -119,46 +150,7 @@
       // 桌面端标题栏（window titlebar）走 --dsw-specific-sidebar-fill；Zhuoer 的竖条色是
       // color-mix(text 4%, bg-content)，必须按「我们实际渲染的底色」现算，否则像 zhuoer 这种
       // 改过底色的主题，硬编码的 sidebar-fill 会比底色更暗，顶部就成了一条黑边。
-      (function () {
-        const text = tokens['--dsw-alias-label-primary'] || tokens['--dsw-alias-brand-primary'];
-        const base = tokens['--dsw-alias-bg-base'];
-        const toRgb = function (c) {
-          const m = String(c || '').trim().match(/^#([0-9a-f]{6})$/i);
-          if (!m) return null;
-          return [0, 2, 4].map(function (i) { return parseInt(m[1].slice(i, i + 2), 16); });
-        };
-        const T = toRgb(text), B = toRgb(base);
-        if (T && B) {
-          const mixed = T.map(function (v, i) { return Math.round(v * 0.04 + B[i] * 0.96); });
-          tokens['--dsw-specific-sidebar-fill'] = '#' + mixed.map(function (v) {
-            return Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0');
-          }).join('');
-          // 顶部标题条再亮一档（10% 文字色混入底色），与侧栏区分开
-          const frameMix = T.map(function (v, i) { return Math.round(v * 0.10 + B[i] * 0.90); });
-          // 顶部条用更亮的一档（10% 文字色），侧栏用更暗的一档（底色 ×0.82）：
-          // 两者拉开到肉眼可分，同时都不碰主栏内容层。
-          // 10%：顶栏要比侧栏明显亮一档（用户要求）。
-          // 右上角窗口按钮是 Windows 原生绘制的（Electron titleBarOverlay），
-          // 它的底色插件改不了 —— 所以不在整条上妥协，而是靠下面那条
-          // 很宽的水平渐变把「亮顶栏」平滑收敛到按钮色，让右侧变暗不可察觉。
-          tokens['--zr-topbar-fill'] = '#' + T.map(function (v, i) {
-            return Math.round(v * 0.10 + B[i] * 0.90);
-          }).map(function (v) { return Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0'); }).join('');
-          // 右上窗口按钮区的底色（Windows 在非客户区画的，插件改不到）。
-          // 实测深色主题下 = #221918。系数由两组实测反推：顶栏 10% → #2a2322、
-          // 1% → #1c1412，跨度 0.09，按钮色落在约 5% 处。不写死，
-          // 照样从当前主题推：浅色主题自动得到浅色按钮区。
-          tokens['--zr-btn-fill-base'] = '#' + T.map(function (v, i) {
-            return Math.max(0, Math.min(255, Math.round(v * 0.05 + B[i] * 0.95)));
-          }).map(function (v) { return v.toString(16).padStart(2, '0'); }).join('');
-          tokens['--zr-rail-fill'] = '#' + B.map(function (v) {
-            return Math.max(0, Math.min(255, Math.round(v * 0.82))).toString(16).padStart(2, '0');
-          }).join('');
-          tokens['--zr-frame-fill'] = '#' + frameMix.map(function (v) {
-            return Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0');
-          }).join('');
-        }
-      })();
+      applySurfaceFills(tokens);
       // 自定义主题的 id（c1:dark 之类）不在 SHADOWS 里，必须按克隆来源取，否则整段阴影覆盖被跳过、
       // 回落到 themes.mjs 的原值 —— 实测 manuscript 深色 panel 阴影因此偏重 8.3 倍。
       const sh = SHADOWS[effTheme];
@@ -703,14 +695,14 @@
       // 给所有子元素压 min-width：flex/grid 子项默认 min-width:auto，
       // 一个长主题名或长字体名就能把面板顶出横向滚动条。
       '.zp-root,.zp-root *{box-sizing:border-box;min-width:0;}',
-      '.zp-hd{display:flex;flex-direction:column;gap:5px;}',
+      '.zp-hd{display:flex;flex-direction:column;gap:4px;}',
       '.zp-hd-t{font-size:15px;font-weight:600;}',
       '.zp-hd-m{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;',
       'font-size:12px;color:var(--dsw-alias-label-tertiary);}',
-      '.zp-tag{display:inline-flex;align-items:center;gap:5px;padding:1px 9px;border-radius:999px;',
+      '.zp-tag{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:999px;',
       'background:var(--dsw-alias-interactive-bg-hover-accent);color:var(--dsw-alias-brand-text);',
       'font-size:12px;font-weight:600;}',
-      '.zp-sec{display:flex;flex-direction:column;gap:12px;padding-top:18px;',
+      '.zp-sec{display:flex;flex-direction:column;gap:12px;padding-top:16px;',
       'border-top:1px solid var(--dsw-alias-border-l1);}',
       '.zp-sec:first-of-type{padding-top:0;border-top:0;}',
       '.zp-sec-hd{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;}',
@@ -718,7 +710,7 @@
       '.zp-sec-n{font-size:12px;color:var(--dsw-alias-label-tertiary);}',
       // 主题卡：132px 起跳，320px 宽能放两列，再宽自动三列/四列，永不横向溢出
       '.zp-ths{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:8px;}',
-      '.zp-th{display:flex;flex-direction:column;gap:7px;padding:7px;border-radius:10px;',
+      '.zp-th{display:flex;flex-direction:column;gap:8px;padding:8px;border-radius:10px;',
       'cursor:pointer;font:inherit;text-align:left;color:inherit;',
       'background:var(--dsw-alias-button-elevated-fill);border:1px solid var(--dsw-alias-border-l1);',
       'transition:background-color .13s ease,border-color .13s ease,box-shadow .13s ease;}',
@@ -742,7 +734,7 @@
       'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
       // 胶囊组：flex-wrap 而不是等分分段——5 档字号在窄容器里换行比压扁可读
       '.zp-seg{display:flex;flex-wrap:wrap;gap:6px;}',
-      '.zp-pill{appearance:none;display:inline-flex;align-items:center;gap:5px;padding:5px 12px;',
+      '.zp-pill{appearance:none;display:inline-flex;align-items:center;gap:4px;padding:5px 12px;',
       'border-radius:999px;font:inherit;font-size:12px;line-height:1.4;cursor:pointer;',
       'background:var(--dsw-alias-button-elevated-fill);border:1px solid var(--dsw-alias-border-l2);',
       'color:var(--dsw-alias-label-secondary);',
@@ -756,7 +748,7 @@
       '.zp-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;}',
       '.zp-lbl{flex:0 0 auto;width:4.4em;font-size:12px;color:var(--dsw-alias-label-tertiary);}',
       '.zp-body{flex:1 1 190px;display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-width:0;}',
-      '.zp-chk{display:inline-flex;align-items:center;gap:7px;padding:3px 2px;border-radius:6px;',
+      '.zp-chk{display:inline-flex;align-items:center;gap:8px;padding:3px 2px;border-radius:6px;',
       'font-size:12px;color:var(--dsw-alias-label-secondary);cursor:pointer;}',
       '.zp-chk:hover{color:var(--dsw-alias-label-primary);}',
       '.zp-chk input{width:14px;height:14px;margin:0;accent-color:var(--dsw-alias-brand-primary);',
@@ -805,7 +797,7 @@
       '.zp-th-add{border-style:dashed;align-items:center;justify-content:center;min-height:78px;}',
       '.zp-th-p-add{display:flex;align-items:center;justify-content:center;height:42px;font-size:20px;line-height:1;color:var(--dsw-alias-label-tertiary);}',
       '.zp-cus-acts{display:flex;gap:8px;flex-wrap:wrap;padding-top:2px;}',
-      '.zp-txt{padding:4px 9px;border-radius:7px;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font-size:12.5px;min-width:110px;}',
+      '.zp-txt{padding:4px 8px;border-radius:8px;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font-size:12.5px;min-width:110px;}',
       '.zp-txt:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;}',
       '.zp-btn-pri{background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground,var(--dsw-alias-bg-base));border-color:transparent;}',
       '.zp-btn-pri:hover{background:var(--dsw-alias-button-primary-hover);}',
@@ -820,7 +812,7 @@
       '.zp-ed-panel{pointer-events:auto;position:absolute;left:0;top:0;bottom:0;width:352px;max-width:94vw;display:flex;flex-direction:column;gap:10px;padding:16px;overflow:auto;background:var(--dsw-alias-bg-base);border-right:1px solid var(--dsw-alias-border-l2);box-shadow:var(--dsw-elevation-panel,0 18px 44px rgba(0,0,0,.28));}',
       '.zp-ed-hd{position:sticky;top:-16px;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:-16px -16px 0;padding:14px 16px 10px;background:var(--dsw-alias-bg-base);border-bottom:1px solid var(--dsw-alias-border-l1);}',
       '.zp-ed-ttl{font-size:14px;font-weight:600;}',
-      '.zp-ed-x{width:26px;height:26px;border-radius:7px;border:1px solid transparent;background:transparent;color:var(--dsw-alias-label-secondary);font-size:18px;line-height:1;cursor:pointer;}',
+      '.zp-ed-x{width:26px;height:26px;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--dsw-alias-label-secondary);font-size:18px;line-height:1;cursor:pointer;}',
       '.zp-ed-x:hover{background:var(--dsw-alias-interactive-bg-hover);}',
       '.zp-ed-list{display:flex;flex-direction:column;gap:2px;}',
       // 标签列宽与 .zp-lbl(4.4em) 对齐、颜色同档 tertiary：
@@ -857,7 +849,7 @@
       '.zp-pal-name{font-size:11px;color:var(--dsw-alias-label-secondary);max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
       '.zp-ed-sec{display:flex;flex-direction:column;gap:6px;padding-top:12px;border-top:1px solid var(--dsw-alias-border-l1);}',
       '.zp-ed-sec:first-of-type{padding-top:0;border-top:0;}',
-      '.zp-json{width:100%;box-sizing:border-box;padding:9px;border-radius:8px;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;line-height:1.5;resize:vertical;}',
+      '.zp-json{width:100%;box-sizing:border-box;padding:8px;border-radius:8px;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;line-height:1.5;resize:vertical;}',
       '.zp-foot{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;padding-top:16px;',
       'border-top:1px solid var(--dsw-alias-border-l1);}',
       '@media (prefers-reduced-motion: reduce){.zp-root *{transition:none !important;',
@@ -1080,28 +1072,26 @@
       );
     }
 
-    function ThemeEditor(props) {
-      const [draft, setDraft] = useState(function () { return JSON.parse(JSON.stringify(props.spec)); });
-      // 模态语义：打开即聚焦、Tab 在面板内循环、Escape 关闭、关闭后把焦点还给打开它的元素。
-      // 之前只有 role="dialog"，键盘用户 Tab 会跑到背后的真实界面上。
-      const panelRef = useRef(null);
+    // 弹层通用可访问性：打开即聚焦、Tab 在面板内循环、Escape 关闭、关闭后把焦点还给打开它的元素。
+    // 编辑器先有这套行为，JSON 弹层漏了 —— 现在两者共用同一份实现。
+    // requestClose 用 ref 传：它每次渲染都是新闭包，塞进 [] 依赖会拿到过期版本。
+    function useModalA11y(panelRef, requestCloseRef, initialFocusRef) {
       useEffect(function () {
         const prev = document.activeElement;
         const el = panelRef.current;
         try {
-          // 打开即聚焦「名称」而不是 DOM 里第一个 button（那是 × 关闭）。
-          if (nameRef.current) nameRef.current.focus();
+          if (initialFocusRef && initialFocusRef.current) initialFocusRef.current.focus();
           else if (el) {
             const first = el.querySelector('button, input, select, textarea');
             if (first) first.focus();
           }
         } catch (e) { /* ignore */ }
         const onKey = function (ev) {
-          // 中文输入法组词时按 Esc 是「取消候选词」，不能当成关闭编辑器。
+          // 中文输入法组词时按 Esc 是「取消候选词」，不能当成关闭弹层。
           if (ev.key === 'Escape') {
             if (ev.isComposing) return;
             ev.preventDefault(); ev.stopPropagation();
-            try { if (requestCloseRef.current) requestCloseRef.current(); } catch (e) { /* ignore */ }
+            try { if (requestCloseRef && requestCloseRef.current) requestCloseRef.current(); } catch (e) { /* ignore */ }
             return;
           }
           if (ev.key !== 'Tab' || !el) return;
@@ -1125,6 +1115,16 @@
           try { if (prev && prev.focus) prev.focus(); } catch (e) { /* ignore */ }
         };
       }, []);
+    }
+
+    function ThemeEditor(props) {
+      const [draft, setDraft] = useState(function () { return JSON.parse(JSON.stringify(props.spec)); });
+      // 模态语义（打开聚焦 / Tab 环 / Esc / 焦点归还）由 useModalA11y 统一提供，
+      // 第三个参数是「打开时要聚焦的元素」——这里给名称输入框，而不是 DOM 第一个 button（× ）。
+      const panelRef = useRef(null);
+      const nameRef = useRef(null);
+      const requestCloseRef = useRef(null);
+      useModalA11y(panelRef, requestCloseRef, nameRef);
       // 默认打开浅色：自定义主题的主体就是浅色锚点，深色由 autoDark 反推。
       // 从深色开始会让用户误以为"改浅色没反应"（其实是被反推覆盖了）。
       const [editScheme, setEditScheme] = useState('light');
@@ -1132,8 +1132,6 @@
       // 以前它们直接 onClose，调色 20 分钟误按一次就全没，且没有任何提示。
       const [dirty, setDirty] = useState(false);
       const [confirmDiscard, setConfirmDiscard] = useState(false);
-      const nameRef = useRef(null);
-      const requestCloseRef = useRef(null);
       // 显示「这一套实际算出来的值」而不是 base 主题原值：
       // autoDark 时深色格子里显示的就是反推结果，用户可以直接在它基础上调。
       const baseTokens = React.useMemo(function () { return buildCustomTokens(draft, editScheme); }, [draft, editScheme]);
@@ -1528,6 +1526,45 @@
       );
     }
 
+    // JSON 导入导出弹层。抽成独立组件是为了让它也能用 useModalA11y ——
+    // 内联在 SkinSettings 里时没法条件调用 hook（hook 必须无条件调用）。
+    function JsonModal(props) {
+      const st = props.state;
+      const panelRef = useRef(null);
+      const closeRef = useRef(null);
+      closeRef.current = function () { props.onClose(); };
+      useModalA11y(panelRef, closeRef, null);
+      return h('div', { className: 'zp-ed', role: 'dialog', 'aria-modal': 'true', 'aria-label': '主题 JSON' },
+        h('div', { className: 'zp-ed-panel', ref: panelRef },
+          h('div', { className: 'zp-ed-hd' },
+            h('div', { className: 'zp-ed-ttl' }, st.mode === 'export' ? '导出主题 JSON' : '导入主题 JSON'),
+            h('button', {
+              type: 'button', className: 'zp-ed-x', 'aria-label': '关闭',
+              onClick: function () { props.onClose(); },
+            }, '×')
+          ),
+          st.err ? h('div', { className: 'zp-ed-err', role: 'alert' }, st.err) : null,
+          h('textarea', {
+            className: 'zp-json', rows: 14, spellCheck: false,
+            value: st.text,
+            'aria-label': '主题 JSON',
+            onChange: function (ev) { props.onChange(ev.target.value); },
+          }),
+          h('div', { className: 'zp-hint' },
+            st.mode === 'export'
+              ? '全选复制即可分享；只含锚点，不含派生出的 222 个 token。'
+              : '粘贴对方导出的 JSON，导入后自动加进主题列表。'
+          ),
+          h('div', { className: 'zp-ed-ft' },
+            h('button', { type: 'button', className: 'zp-btn', onClick: function () { props.onClose(); } }, '关闭'),
+            st.mode === 'import'
+              ? h('button', { type: 'button', className: 'zp-btn zp-btn-pri', onClick: function () { props.onImport(); } }, '导入')
+              : null
+          )
+        )
+      );
+    }
+
     // 面板错误边界：主题面板里任何一处抛错（损坏的 JSON、派生失败）都不该把整个设置页拖黑。
     // 快捷导航早有 Boundary，主题面板此前是裸挂的。
     class PanelBoundary extends React.Component {
@@ -1748,35 +1785,12 @@
       return h('div', { className: 'zp-root' },
         h('style', null, PANEL_CSS),
         jsonIO
-          ? h('div', { className: 'zp-ed', role: 'dialog', 'aria-modal': 'true', 'aria-label': '主题 JSON' },
-              h('div', { className: 'zp-ed-panel' },
-                h('div', { className: 'zp-ed-hd' },
-                  h('div', { className: 'zp-ed-ttl' }, jsonIO.mode === 'export' ? '导出主题 JSON' : '导入主题 JSON'),
-                  h('button', {
-                    type: 'button', className: 'zp-ed-x', 'aria-label': '关闭',
-                    onClick: function () { setJsonIO(null); },
-                  }, '×')
-                ),
-                jsonIO.err ? h('div', { className: 'zp-ed-err' }, jsonIO.err) : null,
-                h('textarea', {
-                  className: 'zp-json', rows: 14, spellCheck: false,
-                  value: jsonIO.text,
-                  'aria-label': '主题 JSON',
-                  onChange: function (ev) { setJsonIO({ mode: jsonIO.mode, text: ev.target.value }); },
-                }),
-                h('div', { className: 'zp-hint' },
-                  jsonIO.mode === 'export'
-                    ? '全选复制即可分享；只含锚点，不含派生出的 202 个 token。'
-                    : '粘贴对方导出的 JSON，导入后自动加进主题列表。'
-                ),
-                h('div', { className: 'zp-ed-ft' },
-                  h('button', { type: 'button', className: 'zp-btn', onClick: function () { setJsonIO(null); } }, '关闭'),
-                  jsonIO.mode === 'import'
-                    ? h('button', { type: 'button', className: 'zp-btn zp-btn-pri', onClick: doImport }, '导入')
-                    : null
-                )
-              )
-            )
+          ? h(JsonModal, {
+              state: jsonIO,
+              onClose: function () { setJsonIO(null); },
+              onChange: function (text) { setJsonIO({ mode: jsonIO.mode, text: text }); },
+              onImport: doImport,
+            })
           : null,
         editing
           ? h(ThemeEditor, {

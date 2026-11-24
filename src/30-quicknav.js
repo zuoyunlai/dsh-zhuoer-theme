@@ -1016,7 +1016,7 @@
               key: 'empty',
               role: 'status',
               style: {
-                fontSize: 11.5,
+                fontSize: 12,
                 lineHeight: 1.35,
                 color: 'var(--dsw-alias-label-tertiary, #9aa0a6)',
                 maxWidth: 160,
@@ -1043,10 +1043,10 @@
                 left: 0,
                 transform: 'translate(-100%, -50%)',
                 padding: '4px 8px',
-                borderRadius: 7,
+                borderRadius: 8,
                 // 单行不换行，宽度自适应内容（2026-11-06 用户要求）
                 whiteSpace: 'nowrap',
-                fontSize: 11.5,
+                fontSize: 12,
                 lineHeight: 1.3,
                 pointerEvents: 'none',
                 // 底色由 effect 按「轨道实际底色 + 明暗方向」混色写入；无边框（2026-11-06 用户要求）
