@@ -19,8 +19,8 @@
 **`applyTokens` 抽出 `applySurfaceFills`。** 侧栏/顶栏/窗口按钮区/导轨/外框这五条
 表面填充是纯函数（只读 tokens、只写 tokens），埋在 632 行的 `applyTokens` 中间既难读
 也没法单测。抽出来 27 行，行为逐 token 不变（`npm test` 35 项全绿作证）。
-剩下 600 行仍是 DOM 与阴影 CSS 注入，与生命周期耦合，**没做**——理由写进
-`docs/backlog.md` 第 1 条，不在这里假装做完了。
+剩下 600 行仍是 DOM 与阴影 CSS 注入，与生命周期耦合，**没做**——理由写进仓库里的 `docs/backlog.md` 第 1 条
+（该目录不打进 npm 包，看这段话时请到 GitHub 上找），不在这里假装做完了。
 
 **文案纠错。** JSON 弹层的提示写着「不含派生出的 202 个 token」，实际是 222 个。
 
