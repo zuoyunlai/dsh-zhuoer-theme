@@ -23,6 +23,16 @@
 | rose | 桃红 · Rose | — | — |
 | tide | 潮汐 · Tide | #10151b | #5ab6d8 |
 
+## 安装
+
+从 npm 安装（推荐）：
+
+```json
+"dsh-zhuoer-theme": "^0.3.6"
+```
+
+开发期用 `link:` 指向工作树，改完重启 DSH 即可生效。
+
 ## 安装（开发期 link）
 
 在 profile 的 `package.json` 里加：
