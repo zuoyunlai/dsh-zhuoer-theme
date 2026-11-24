@@ -8,6 +8,13 @@ export const name = 'dsh-zhuoer-theme';
 
 const VERSION = JSON.parse(fs.readFileSync(new URL('./package.json', import.meta.url), 'utf8')).version;
 const STATUS_DIR = 'dsh-zhuoer-theme';
+// 资源目录契约：url 是对外 URL 前缀，disk 是包内目录，ext 是要服务的扩展名。
+// 唯一声明处 —— index.js 按它注册路由，scripts/verify-assets.mjs 按它对账。
+// 改这里之前先看客户端请求的路径：客户端 URL 必须等于 url + 文件名。
+const ASSET_DIRS = [
+  { url: '/dsh-zhuoer-theme/assets/bg/', disk: 'assets/bg/', ext: '.webp', type: 'image/webp', maxAge: 86400 },
+  { url: '/dsh-zhuoer-theme/assets/fonts/', disk: 'assets/fonts/', ext: '.woff2', type: 'font/woff2', maxAge: 31536000 },
+];
 
 // 来源校验：这两个端点只该由插件自己的客户端调用。
 // 浏览器发起的跨站请求带不上自定义头（会先触发预检，宿主不应答），所以自定义头是硬门槛；
@@ -106,17 +113,25 @@ export function apply(ctx, config) {
           handler: (req, res) => {
             if (!isOwnClient(req)) return rejectForeign(res);
             void (async () => {
-            // 入口日志：用来区分"handler 没被调用"和"handler 调用了但响应写不出去"
-            // 诊断：请求体在 handler 里还读不读得到——readableEnded/complete 为 true 说明宿主已经消费过 body
-            writeJson('gen-request.json', {
-              at: new Date().toISOString(), url: req.url, method: req.method,
-              readableEnded: req.readableEnded, complete: req.complete,
-              destroyed: req.destroyed, headers: req.headers && {
-                'content-type': req.headers['content-type'],
-                'content-length': req.headers['content-length'],
-                'transfer-encoding': req.headers['transfer-encoding'],
-              },
-            });
+            // 入口诊断：用来区分「handler 没被调用」和「handler 调用了但响应写不出去」。
+            // 只写元数据，绝不写 prompt：url 的 query string 里带着用户输入的原文，
+            // 落盘就等于在用户机器上留了一份用户数据副本，与 README 的隐私说明不符。
+            // 需要排查时开 DSH_ZHUOER_DEBUG=1（服务端）或 localStorage debug 键（客户端）。
+            if (process.env.DSH_ZHUOER_DEBUG === '1') {
+              const u0 = new URL(req.url || '/', 'http://localhost');
+              writeJson('gen-request.json', {
+                at: new Date().toISOString(),
+                method: req.method, path: u0.pathname,
+                hasPrompt: u0.searchParams.has('prompt'),
+                promptLength: (u0.searchParams.get('prompt') || '').length,
+                readableEnded: req.readableEnded, complete: req.complete,
+                destroyed: req.destroyed, headers: req.headers && {
+                  'content-type': req.headers['content-type'],
+                  'content-length': req.headers['content-length'],
+                  'transfer-encoding': req.headers['transfer-encoding'],
+                },
+              });
+            }
             // 实测：POST body 在 handler 里读不到（宿主提前截走/消费），
             // 一度表现为客户端拿到空响应。改为从 query string 取参数，绕开请求体。
             let rawBody = '';
@@ -157,7 +172,7 @@ export function apply(ctx, config) {
               '格式：{"label":"主题名","light":{...7个key...},"font":{"body":"","chat":""},"radiusScale":1}',
               'label 是给用户看的主题名：4–10 个汉字，概括风格气质（例：落日晚砂、青苔石阶、旧书暖灯），',
               '不要引号、编号、标点，也不要带「主题」二字；它会直接预填到名称框。',
-              'light 的 7 个 key 必须逐字使用：--dsw-alias-bg-base、--dsw-alias-label-primary、--dsw-alias-border-l1、--dsw-alias-brand-primary、--dsw-alias-trajectory-accent、--dsw-alias-state-error-primary、--dsw-alias-state-warn-primary',
+              'light 的 8 个 key 必须逐字使用：--dsw-alias-bg-base、--dsw-alias-label-primary、--dsw-alias-border-l1、--dsw-alias-brand-primary、--dsw-alias-trajectory-accent、--dsw-alias-state-error-primary、--dsw-alias-state-warn-primary、--dsw-alias-state-success-primary',
               '规则：每个色值必须是 #rrggbb；label-primary 与 bg-base 对比度 ≥ 4.5；',
               'brand-primary 与 trajectory-accent 要来自同一色相族或成互补关系；',
               '复古/终端风格：radiusScale 设 0、font.chat 设 "__mono__"；扁平/极简：radiusScale 设 0；',
@@ -233,35 +248,29 @@ export function apply(ctx, config) {
           },
         });
       } catch (e) { /* 端点注册失败不影响皮肤 */ }
-      // 主题背景图静态资源：逐个文件注册精确路由（prefix 形态宿主不一定支持）
-      try {
-        const themeIds = ['zhuoer', 'knot', 'dash', 'absolutely', 'tide', 'beacon', 'phosphor', 'crt', 'manuscript', 'rose', 'miami'];
-        const serve = (name) => (req, res) => {
-          try {
-            const buf = fs.readFileSync(new URL('./assets/' + name, import.meta.url));
-            res.writeHead(200, { 'content-type': 'image/webp', 'cache-control': 'public, max-age=86400' });
-            res.end(buf);
-          } catch (e) { try { res.writeHead(404); res.end(); } catch (e2) { /* ignore */ } }
-        };
-        for (const id of themeIds) {
-          ws.register({ kind: 'exact', path: '/dsh-zhuoer-theme/assets/' + id + '-dark.webp', handler: serve(id + '-dark.webp') });
-        }
-      } catch (e) { /* 资源路由失败不影响主题 */ }
-      // 主题字体：Zhuoer 自托管 woff2（SIL OFL 1.1），逐个文件注册
-      try {
-        const fontDir = new URL('./assets/fonts/', import.meta.url);
-        const serveFont = (name) => (req, res) => {
-          try {
-            const buf = fs.readFileSync(new URL(name, fontDir));
-            res.writeHead(200, { 'content-type': 'font/woff2', 'cache-control': 'public, max-age=31536000, immutable' });
-            res.end(buf);
-          } catch (e) { try { res.writeHead(404); res.end(); } catch (e2) { /* ignore */ } }
-        };
-        for (const fname of fs.readdirSync(fontDir)) {
-          if (!/\.woff2$/i.test(fname)) continue;
-          ws.register({ kind: 'exact', path: '/dsh-zhuoer-theme/assets/fonts/' + fname, handler: serveFont(fname) });
-        }
-      } catch (e) { /* 字体路由失败不影响主题 */ }
+      // 资源目录契约：每个目录逐文件注册 exact 路由（prefix 形态宿主不一定支持）。
+      // ASSET_DIRS 是「客户端 URL ↔ 服务端路由 ↔ 磁盘文件」三方的唯一声明处，
+      // scripts/verify-assets.mjs 直接解析它做对账。
+      // 路由必须与客户端实际请求的路径一致：客户端要 /assets/bg/bg-*.webp，
+      // 而旧的 <id>-dark.webp 命名在 0.4.0 清理死资产时已被删除 —— 保留那条路由只会
+      // 让每个请求都 404，而客户端要的 /assets/bg/ 下 21 张图一张都取不到。
+      for (const dir of ASSET_DIRS) {
+        try {
+          const diskUrl = new URL(dir.disk, import.meta.url);
+          const serve = (name) => (req, res) => {
+            try {
+              const buf = fs.readFileSync(new URL(name, diskUrl));
+              res.writeHead(200, { 'content-type': dir.type, 'cache-control': 'public, max-age=' + dir.maxAge });
+              res.end(buf);
+            } catch (e) { try { res.writeHead(404); res.end(); } catch (e2) { /* ignore */ } }
+          };
+          for (const fname of fs.readdirSync(diskUrl)) {
+            if (!fname.toLowerCase().endsWith(dir.ext)) continue;
+            ws.register({ kind: 'exact', path: dir.url + fname, handler: serve(fname) });
+          }
+        } catch (e) { /* 资源路由失败不影响主题 */ }
+      }
+
       writeJson('plugin-status.json', {
         version: VERSION, phase: 'endpoint-mounted', at: new Date().toISOString(),
       });

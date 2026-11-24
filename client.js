@@ -42,7 +42,7 @@ window.__ModuleLoader__.load({
       } catch (e) { /* ignore */ }
     }
     // 版本号唯一源：面板文案与自检回传都用它，别再出现「构建 0.1.101」这种漂移。
-    const PVERSION = '0.5.5';
+    const PVERSION = '0.5.6';
     // 诊断探针总闸：默认关闭，开启方式 localStorage['dsh-zhuoer-theme:debug'] = '1'。
     // 下面若干探针会在每次 apply 时全文档遍历 DOM、逐元素 getComputedStyle、扫 styleSheets，
     // 是「启动 / 切主题卡顿」的主要来源之一，只在排障时打开。
@@ -1734,10 +1734,12 @@ window.__ModuleLoader__.load({
             window.__zrSkinObs.observe(document.body, { childList: true, subtree: true });
           }
         } catch (e) { /* 状态标注失败不影响主题 */ }
-        // 同步注入 open shadow root（closed 的无法访问，只能靠继承）
+        // 同步注入 open shadow root（closed 的无法访问，只能靠继承）。
+        // 全 DOM 扫描不便宜：只在 debug 下跑。生产路径靠 CSS 变量继承，
+        // shadow host 拿不到的是个别组件，代价不值得每次 apply 都扫一遍。
         let shadowInjected = 0;
         try {
-          for (const host of document.querySelectorAll('*')) {
+          for (const host of (zrDebug() ? document.querySelectorAll('*') : [])) {
             const sr = host.shadowRoot;
             if (!sr) continue;
             let s = sr.getElementById ? sr.getElementById(STYLE_ID) : null;
@@ -1754,12 +1756,17 @@ window.__ModuleLoader__.load({
         // 自定义主题的 marker 是它自己的 id，但 SHAPES / 边线这类「按主题特性」的规则
         // 要按它克隆的 base 生效，否则自定义一个 beacon base 的主题就拿不到灯塔那套提亮边线。
         document.documentElement.setAttribute('data-zr-base', effTheme);
-        // 探针：底图到底有没有落到 body::before 的计算样式里
+        // 探针：底图到底有没有落到计算样式里。
+        // 查的元素必须与实际挂载点一致：底图挂在 [class*="_centerCol"]::before 上
+        //（见上面 bgCss），此前这里查的是 body::before —— 永远查不到，于是底图
+        // 即使 404 也看不出问题。
         try {
-          const bcs = getComputedStyle(document.body, '::before');
+          const bgHost = document.querySelector('[class*="_centerCol"]') || document.body;
+          const bcs = getComputedStyle(bgHost, '::before');
           const styleEl = document.getElementById(STYLE_ID);
           report({
             phase: 'bg-verify',
+            probeHost: bgHost === document.body ? 'body' : 'centerCol',
             beforeImg: String(bcs.backgroundImage || '').slice(0, 48),
             beforeOpacity: bcs.opacity,
             beforeContent: bcs.content,
@@ -1942,13 +1949,13 @@ window.__ModuleLoader__.load({
       'font-size:12px;color:var(--dsw-alias-label-tertiary);}',
       '.zp-tag{display:inline-flex;align-items:center;gap:5px;padding:1px 9px;border-radius:999px;',
       'background:var(--dsw-alias-interactive-bg-hover-accent);color:var(--dsw-alias-brand-text);',
-      'font-size:11.5px;font-weight:600;}',
+      'font-size:12px;font-weight:600;}',
       '.zp-sec{display:flex;flex-direction:column;gap:12px;padding-top:18px;',
       'border-top:1px solid var(--dsw-alias-border-l1);}',
       '.zp-sec:first-of-type{padding-top:0;border-top:0;}',
       '.zp-sec-hd{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;}',
       '.zp-sec-t{font-size:13px;font-weight:600;}',
-      '.zp-sec-n{font-size:11.5px;color:var(--dsw-alias-label-tertiary);}',
+      '.zp-sec-n{font-size:12px;color:var(--dsw-alias-label-tertiary);}',
       // 主题卡：132px 起跳，320px 宽能放两列，再宽自动三列/四列，永不横向溢出
       '.zp-ths{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:8px;}',
       '.zp-th{display:flex;flex-direction:column;gap:7px;padding:7px;border-radius:10px;',
@@ -1970,7 +1977,7 @@ window.__ModuleLoader__.load({
       '.zp-th-n{display:flex;flex-direction:column;gap:1px;padding:0 2px;}',
       '.zp-th-nm{font-size:12px;font-weight:600;line-height:1.25;',
       'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
-      '.zp-th-id{font-size:10.5px;line-height:1.3;color:var(--dsw-alias-label-tertiary);',
+      '.zp-th-id{font-size:11px;line-height:1.35;color:var(--dsw-alias-label-tertiary);',
       'font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;',
       'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
       // 胶囊组：flex-wrap 而不是等分分段——5 档字号在窄容器里换行比压扁可读
@@ -2033,7 +2040,7 @@ window.__ModuleLoader__.load({
       'border:1px solid var(--dsw-alias-border-l2);background:transparent;}',
       '.zp-thumb{width:56px;height:34px;border-radius:6px;object-fit:cover;',
       'border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);}',
-      '.zp-hint{font-size:11.5px;color:var(--dsw-alias-label-tertiary);}',
+      '.zp-hint{font-size:12px;color:var(--dsw-alias-label-tertiary);}',
       // ---- 自定义主题：卡片 / 编辑器 ----
       '.zp-th-add{border-style:dashed;align-items:center;justify-content:center;min-height:78px;}',
       '.zp-th-p-add{display:flex;align-items:center;justify-content:center;height:42px;font-size:20px;line-height:1;color:var(--dsw-alias-label-tertiary);}',
@@ -2077,7 +2084,7 @@ window.__ModuleLoader__.load({
       '.zp-ed .zp-sec{padding-top:12px;}',
       '.zp-sel-wrap{display:inline-flex;min-width:0;}',
       '.zp-sel{appearance:none;padding-right:26px;background-repeat:no-repeat;background-position:right 8px center;background-size:9px;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position-x:calc(100% - 14px),calc(100% - 9px);background-size:5px 5px,5px 5px;}',
-      '.zp-ed-err{font-size:11.5px;color:var(--dsw-alias-state-error-primary);line-height:1.45;}',
+      '.zp-ed-err{font-size:12px;color:var(--dsw-alias-state-error-primary);line-height:1.45;}',
       '.zp-presets{display:flex;flex-wrap:wrap;gap:6px;}',
       '.zp-preset{padding:5px 10px;border-radius:7px;border:1px solid var(--dsw-alias-border-l2);background:transparent;color:var(--dsw-alias-label-primary);font-size:12px;line-height:1.2;cursor:pointer;transition:border-color .15s,color .15s;}',
       '.zp-preset:hover{border-color:var(--dsw-alias-brand-primary);color:var(--dsw-alias-brand-primary);}',
@@ -2085,8 +2092,8 @@ window.__ModuleLoader__.load({
       '.zp-pal{display:flex;flex-wrap:wrap;gap:8px;padding-top:2px;}',
       '.zp-pal-item{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:56px;}',
       '.zp-pal-sw{width:100%;height:34px;border-radius:7px;border:1px solid var(--dsw-alias-border-l2);}',
-      '.zp-pal-hex{font-size:10.5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--dsw-alias-label-secondary);}',
-      '.zp-pal-share{font-size:10px;color:var(--dsw-alias-label-tertiary);}',
+      '.zp-pal-hex{font-size:11px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--dsw-alias-label-secondary);}',
+      '.zp-pal-share{font-size:11px;color:var(--dsw-alias-label-tertiary);}',
       '.zp-pal-name{font-size:11px;color:var(--dsw-alias-label-secondary);max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
       '.zp-ed-sec{display:flex;flex-direction:column;gap:6px;padding-top:12px;border-top:1px solid var(--dsw-alias-border-l1);}',
       '.zp-ed-sec:first-of-type{padding-top:0;border-top:0;}',

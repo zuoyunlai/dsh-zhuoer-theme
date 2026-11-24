@@ -2,6 +2,51 @@
 
 按时间倒序。每条都写「为什么改」，而不只是改了什么。
 
+## 0.5.6
+
+一次深度审计后的收口。审计方法是**在真实运行实例上打 HTTP 探测**（而不是只读代码），
+因此发现了一个 P0：主题自带底图从未真正工作过。
+
+### P0 · 主题底图全部 404
+
+客户端请求 21 个 `/dsh-zhuoer-theme/assets/bg/bg-*.webp`，而服务端只注册了
+`/dsh-zhuoer-theme/assets/<id>-dark.webp` —— 那是 0.4.0 清理死资产时**已经删掉**的文件名。
+`assets/bg/` 从未被注册过任何路由。实测：字体 200（走的是另一条注册路径），底图 404。
+
+- `index.js` 改为按 `ASSET_DIRS` 契约逐目录注册（启动时扫目录，有多少注册多少），
+  契约同时是 `scripts/verify-assets.mjs` 的解析来源；
+- 删掉那 11 条指向已删文件的死路由；
+- `bg-verify` 探针改查 `[class*="_centerCol"]::before`（底图实际挂载点），
+  此前查的是 `body::before` —— 永远查不到，所以底图坏了也看不出问题。
+
+### P0 复盘：门禁的盲区
+
+底图 404 能进仓库，恰恰因为**没有任何一道门会问「客户端要的 URL，服务端给了吗」**。
+客户端引用与服务端注册各自都"看起来对"，两边命名从来没对过。
+
+- 新增 `scripts/verify-assets.mjs`（`npm run verify:assets`，已接进 `verify:all`）：
+  客户端引用 ↔ 服务端目录契约 ↔ 磁盘文件，三方对账；
+- 这道门刻意不用正则字面量（写门脚本时反斜杠在写入阶段被吃掉，脚本自己先语法错误），
+  全部改成手写字符扫描。
+
+### P1
+
+- **prompt 不再落盘**：此前每次 AI 请求都把 `gen-request.json` 写盘，其中 `url` 带着用户输入原文
+  （实测文件内容含 `?prompt=hi`）。现在只在 `DSH_ZHUOER_DEBUG=1` 时写，且只写元数据
+  （路径、是否有 prompt、长度），不含 prompt 本身。
+- **AI 提示补上 success 锚点**：提示词要 7 个 key，而 `ANCHOR_GROUPS` 是 8 组 ——
+  AI 生成的主题永远没有成功色。现在要求 8 个 key，与编辑器可见的锚点一致。
+- **两处全 DOM 扫描纳入 zrDebug**：0.4.0 只 gate 了 `styleSheets` 与 late-probe，
+  shadow-root 注入的 `querySelectorAll("*")` 与逐元素 `getComputedStyle` 仍在每次 apply 跑。
+- **README 数字对齐**：锚点 6 → 8 组（补品牌次色、成功两组）；功能表补「编辑配色页」一行。
+
+### P2
+
+- **npm 包瘦身**：`themes.mjs` 只在开发期用（运行时用 client.js 里的内联副本），却被打进包。
+  移出 `files` 后 tarball 5.1 MB → 4.85 MB，文件数 53 → 52。
+- **面板字号刻度化**：10px / 10.5px / 11.5px 三档并到 11px / 12px（hex 值、占比、主题 id、
+  分区副标题、提示与错误文案）——10px 下中文笔画糊，而这些恰恰是需要读准的数值。
+
 ## 0.5.5
 
 仅文档：**让 npm 页面上的安装说明与仓库一致**。

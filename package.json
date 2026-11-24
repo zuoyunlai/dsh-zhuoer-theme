@@ -1,6 +1,6 @@
 {
   "name": "dsh-zhuoer-theme",
-  "version": "0.5.5",
+  "version": "0.5.6",
   "type": "module",
   "scripts": {
     "coverage": "node scripts/coverage-report.mjs",
@@ -12,9 +12,10 @@
     "build": "node build.mjs",
     "verify:build": "node scripts/verify-build.mjs",
     "verify:release": "node scripts/verify-release-clean.mjs",
+    "verify:assets": "node scripts/verify-assets.mjs",
     "test": "npm run --silent verify:all && node scripts/test-derive.mjs",
     "verify:version": "node scripts/verify-version.mjs",
-    "verify:all": "node scripts/verify-build.mjs && node scripts/verify-version.mjs && node scripts/verify-contrast.mjs && node scripts/verify-scale.mjs && node scripts/verify-themes.mjs && node scripts/verify-host-contract.mjs && node scripts/token-surface.mjs && node --check client.js"
+    "verify:all": "node scripts/verify-build.mjs && node scripts/verify-version.mjs && node scripts/verify-assets.mjs && node scripts/verify-contrast.mjs && node scripts/verify-scale.mjs && node scripts/verify-themes.mjs && node scripts/verify-host-contract.mjs && node scripts/token-surface.mjs && node --check client.js"
   },
   "license": "MIT",
   "publishConfig": {
@@ -48,7 +49,6 @@
   "files": [
     "index.js",
     "client.js",
-    "themes.mjs",
     "cordis.patch.yml",
     "README.md",
     "CHANGELOG.md",

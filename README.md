@@ -13,9 +13,10 @@
 |---|---|
 | 内置主题 | 11 套，每套含明/暗两档，各 222 个 token |
 | 风格预设 | 12 套（玻璃拟态、新粗野主义、瑞士国际、编辑排版、奢华极简、有机自然、莫兰迪柔和、纸张灰白、赛博终端、极光界面、开发者终端、深空黑），一键填齐锚点 + 圆角 + 字体 |
-| 自定义主题 | 克隆当前内置主题，只调 6 个锚点色，其余按相对偏移派生；存的是锚点不是全量 token |
+| 自定义主题 | 克隆当前内置主题，只调 8 组锚点色，其余按相对偏移派生；存的是锚点不是全量 token |
 | AI 生成 | 用宿主当前模型把一句风格描述转成锚点；**返回主题名并自动预填「名称」框**（0.5.2） |
 | 图片取色 | 选一张图本地提 6 个主色填入锚点，图片不上传 |
+| 编辑配色页 | 左侧 352px 抽屉 + 右侧真实界面实时预览；分六段，头尾吸顶吸底；未保存改动关闭会先确认 |
 | 主题底图 | 可给每个自定义主题绑一张图，存 IndexedDB（单张上限 3 MiB） |
 | 界面字号 | 90 / 100 / 110 / 125 / 140 五档，**整体缩放**（字、间距、边框一起变） |
 | 强调色 | 每套主题给一组候选色，也可自由取色；写入后会派生按钮前景色保证可读 |
@@ -96,16 +97,18 @@ dsh plugin --profile <profile> add github:zuoyunlai/dsh-zhuoer-theme#v0.5.4
 
 > 实现前的设计与权衡记录见 [docs/ai-theme-plan.md](docs/ai-theme-plan.md)（文档保留设计推演，落地版本以 CHANGELOG 为准）。
 
-新建时**克隆当前选中的内置主题**，只调 6 个锚点：
+新建时**克隆当前选中的内置主题**，只调 8 组锚点：
 
 | 组 | 锚点 | 自动派生 |
 |---|---|---|
 | 底色 | `--dsw-alias-bg-base` | layer-1/2/3/4、overlay、card、settings-card、skeleton |
 | 文字 | `--dsw-alias-label-primary` | secondary / tertiary / quaternary |
 | 边框 | `--dsw-alias-border-l1` | l2 / l3 / l4 / selected |
-| 品牌 | `--dsw-alias-brand-primary` | 按钮填充与 hover、brand-text、trajectory、onboarding |
+| 品牌主色 | `--dsw-alias-brand-primary` | 按钮填充与 hover、brand-text、invert、business、trajectory、onboarding |
+| 品牌次色 | `--dsw-alias-trajectory-accent` | trajectory、business 的衍生色 |
 | 危险 | `--dsw-alias-state-error-primary` | label-error、error-secondary |
 | 警告 | `--dsw-alias-state-warn-primary` | warn-label、warn-secondary |
+| 成功 | `--dsw-alias-state-success-primary` | success-secondary、success-tertiary |
 
 派生用**相对偏移**：组内其它 token 按它们与锚点的 RGB 差值整体平移，换底色不会破坏原有层次关系。
 
