@@ -59,7 +59,9 @@ dsh plugin --profile <profile> add github:zuoyunlai/dsh-zhuoer-theme#v0.5.4
 
 `<profile>` 换成你在用的那个，例如 `desktop` 或 `web`（对应 `~/.dsh/profiles/<profile>`）。装完**重启 DSH** 生效。
 
-> 为什么推荐 `@latest`：刚发布后的一小段时间里，pnpm 的包元数据缓存仍可能把「裸包名」解析成上一版（0.5.3 发布后实测装到 0.5.1）。写 `@latest` 会强制按最新解析；要锁定版本则写 `@x.y.z`，二者都绕开这个缓存。
+> 为什么推荐 `@latest`：刚发布后的一小段时间里，包元数据缓存可能把「裸包名」解析成上一版（0.5.3 发布后实测装到 0.5.1）。写 `@latest` 会强制按最新解析；要锁定版本则写 `@x.y.z`。
+>
+> **如果你的默认 registry 是 npmmirror（淘宝镜像），镜像同步通常滞后几分钟到几十分钟**：此时 `@latest` 拿到的可能仍是旧版。实测 0.5.6 发布后，npmjs 已是 `latest=0.5.6`，npmmirror 仍显示 0.5.5。绕过办法是显式指定 registry：`dsh plugin --profile <profile> add dsh-zhuoer-theme@latest --registry=https://registry.npmjs.org/`。
 
 > 如果输出 `declares no dsh.bundle — installed as a plain dependency, not a profile layer`，说明该包没声明 bundle（不是本插件的情况）；此时才需要手动把包名补进该 profile `package.json` 的 `dsh.profile.bundles`。
 >

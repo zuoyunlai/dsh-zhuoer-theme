@@ -2,6 +2,17 @@
 
 按时间倒序。每条都写「为什么改」，而不只是改了什么。
 
+## 0.5.7
+
+仅文档：补一条实测到的安装陷阱。
+
+0.5.6 发布后实测：`npmjs` 的 `latest` 已是 0.5.6，而 **npmmirror（淘宝镜像）仍显示 0.5.5**，
+此时 `dsh plugin add dsh-zhuoer-theme@latest` 会因为「latest 就是 0.5.5」而拒绝安装 0.5.6。
+这不是 pnpm 缓存，是镜像同步滞后。
+
+- README 的安装段补上：默认 registry 是 npmmirror 时，镜像同步滞后期间需要显式指定
+  `--registry=https://registry.npmjs.org/`。
+
 ## 0.5.6
 
 一次深度审计后的收口。审计方法是**在真实运行实例上打 HTTP 探测**（而不是只读代码），
