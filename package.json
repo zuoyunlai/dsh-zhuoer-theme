@@ -1,0 +1,97 @@
+{
+  "name": "dsh-zhuoer-theme",
+  "version": "0.3.6",
+  "type": "module",
+  "scripts": {
+    "coverage": "node scripts/coverage-report.mjs",
+    "surface": "node scripts/token-surface.mjs",
+    "verify:themes": "node scripts/verify-themes.mjs",
+    "sync:themes": "node scripts/sync-themes.mjs",
+    "check:themes": "node scripts/sync-themes.mjs --check",
+    "verify:host": "node scripts/verify-host-contract.mjs",
+    "test": "npm run --silent verify:all && node scripts/test-derive.mjs",
+    "verify:version": "node scripts/verify-version.mjs",
+    "verify:all": "node scripts/verify-version.mjs && node scripts/verify-themes.mjs && node scripts/verify-host-contract.mjs && node scripts/token-surface.mjs && node --check client.js"
+  },
+  "license": "MIT",
+  "description": "卓尔主题（DSH Zhu'er Theme）：11 套内置配色 + 自定义主题编辑器（取色 / AI 生成 / 风格预设），纯本地 token 注入",
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "dsh-plugin",
+    "theme",
+    "zhuoer"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zuoyunlai/dsh-zhuoer-theme.git"
+  },
+  "homepage": "https://github.com/zuoyunlai/dsh-zhuoer-theme#readme",
+  "bugs": {
+    "url": "https://github.com/zuoyunlai/dsh-zhuoer-theme/issues"
+  },
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./client.js": "./client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "themes.mjs",
+    "cordis.patch.yml",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "assets"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "manifestVersion": 1,
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-theme",
+        "@deepseek-ai/dsh-client-ui-settings"
+      ]
+    },
+    "capabilities": [
+      "fs:read",
+      "fs:write",
+      "web:serve"
+    ],
+    "commitments": {
+      "no-session-upload": true,
+      "no-credential-enumeration": true,
+      "no-webhook-auto-session": true
+    },
+    "compatibility": {
+      "dsh": ">=0.2.2-0 <0.3.0",
+      "profiles": [
+        "desktop",
+        "web"
+      ]
+    },
+    "disclosure": {
+      "endpoints": [
+        "POST /dsh-zhuoer-theme/api/report（宿主 webServer 同源端点，接收本插件客户端的诊断写盘）",
+        "GET /dsh-zhuoer-theme/api/gen-theme（同源端点，调用宿主已配置的模型生成主题 JSON）"
+      ],
+      "retention": "诊断日志写 $DSH_HOME/dsh-zhuoer-theme/client-report.log（超 2 MiB 轮转为 .1，最多两份）；探针默认关闭，localStorage 设 dsh-zhuoer-theme:debug=1 才采集；主题偏好只存本机 localStorage；不上传任何数据"
+    }
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0",
+    "dsh": ">=0.2.2-0 <0.3.0"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-client-ui-theme": ">=0.2.2-0 <0.3.0",
+    "@deepseek-ai/dsh-client-ui-settings": ">=0.2.2-0 <0.3.0"
+  }
+}

@@ -1,0 +1,157 @@
+{
+  "$comment": [
+    "dsh-zhuoer-theme 依赖的 DSH 宿主契约。",
+    "DSH 升级后类名 hash 后缀会变，但这里记录的是稳定子串；属性名一般更稳定。",
+    "改完 client.js 跑 `npm run verify:host`：代码里新增/移除了宿主依赖会被点出来，",
+    "强制你更新这份清单（并提醒同步 README 与验证）。"
+  ],
+  "host": {
+    "classFragments": [
+      {
+        "fragment": "_frame",
+        "usedFor": "整体框架；桌面端标题栏条 ::before 与窗口按钮区",
+        "breaksIfMissing": "顶栏渐变与按钮底色失效"
+      },
+      {
+        "fragment": "_centerCol",
+        "usedFor": "主栏容器；底图挂载点与背景色",
+        "breaksIfMissing": "自定义底图不显示"
+      },
+      {
+        "fragment": "_mainPanel",
+        "usedFor": "主面板容器；与 _centerCol 同处理",
+        "breaksIfMissing": "底图与底色只作用于一半容器"
+      },
+      {
+        "fragment": "_root",
+        "usedFor": "根容器；字体族继承点",
+        "breaksIfMissing": "字体回落到宿主默认"
+      },
+      {
+        "fragment": "_msg",
+        "usedFor": "消息列表；字体族继承点",
+        "breaksIfMissing": "消息正文不跟主题字体"
+      },
+      {
+        "fragment": "_content",
+        "usedFor": "内容区；字体族继承点",
+        "breaksIfMissing": "内容区不跟主题字体"
+      },
+      {
+        "fragment": "composerHero",
+        "usedFor": "首页大输入框；判定「空会话」状态",
+        "breaksIfMissing": "data-zr-state 判空失准，底图/蒙层条件错"
+      },
+      {
+        "fragment": "_empty_",
+        "usedFor": "空状态容器；与 composerHero 一起判空",
+        "breaksIfMissing": "同上"
+      },
+      {
+        "fragment": "sidebarCol",
+        "usedFor": "左侧栏容器；右缘竖线 border-right",
+        "breaksIfMissing": "侧栏分隔线不画（灯塔主题尤其明显）"
+      },
+      {
+        "fragment": "sidebar",
+        "usedFor": "字体采样选择器",
+        "breaksIfMissing": "字体采样退化为 main"
+      },
+      {
+        "fragment": "_mark",
+        "usedFor": "轮次刻度尺刻度（::before 线）",
+        "breaksIfMissing": "刻度不左对齐"
+      },
+      {
+        "fragment": "_preview",
+        "usedFor": "刻度悬停预览浮层定位",
+        "breaksIfMissing": "预览浮层跑到屏幕外"
+      },
+      {
+        "fragment": "ivider_",
+        "usedFor": "侧栏拖拽分隔条悬停高亮",
+        "breaksIfMissing": "拖动时无高亮反馈"
+      },
+      {
+        "fragment": "_markdown_",
+        "usedFor": "markdown 容器样式",
+        "breaksIfMissing": "markdown 局部样式失效"
+      },
+      {
+        "fragment": "_card",
+        "usedFor": "对话输入卡片容器（DSH 写死 28px 圆角，不读 --dsw-radius-*）",
+        "breaksIfMissing": "自定义圆角对对话卡片不生效"
+      },
+      {
+        "fragment": "_modal",
+        "usedFor": "设置面板等弹窗容器（圆角由 --zr-card-radius 接管）",
+        "breaksIfMissing": "自定义圆角对设置面板不生效"
+      },
+      {
+        "fragment": "_card_",
+        "usedFor": "同 _card，兼容 hash 前后缀两种写法",
+        "breaksIfMissing": "同上"
+      },
+      {
+        "fragment": "code",
+        "usedFor": "字体采样：在页面里找 <code>/<kbd>/代码容器采样等宽字体",
+        "breaksIfMissing": "等宽字体采样失准，代码块字体可能回落到正文体"
+      },
+      {
+        "fragment": "-menu",
+        "usedFor": "TODO 补语义：用在哪",
+        "breaksIfMissing": "TODO 补语义：失效后果"
+      },
+      {
+        "fragment": "_menu",
+        "usedFor": "TODO 补语义：用在哪",
+        "breaksIfMissing": "TODO 补语义：失效后果"
+      },
+      {
+        "fragment": "dsh-pet",
+        "usedFor": "TODO 补语义：用在哪",
+        "breaksIfMissing": "TODO 补语义：失效后果"
+      },
+      {
+        "fragment": "zp-",
+        "usedFor": "TODO 补语义：用在哪",
+        "breaksIfMissing": "TODO 补语义：失效后果"
+      }
+    ],
+    "attributes": [
+      {
+        "attribute": "data-windows-titlebar",
+        "usedFor": "桌面端 Windows 标题栏存在标记",
+        "breaksIfMissing": "桌面端顶栏渐变与高度偏移失效"
+      },
+      {
+        "attribute": "data-window-drag-controls",
+        "usedFor": "原生窗口按钮区",
+        "breaksIfMissing": "按钮区底色不可控，出现亮块"
+      },
+      {
+        "attribute": "data-sidebar-right-expand",
+        "usedFor": "右侧栏展开按钮（快捷导航锚点）",
+        "breaksIfMissing": "快捷导航找不到锚点，退到默认位置"
+      },
+      {
+        "attribute": "data-ds-dark-theme",
+        "usedFor": "宿主暗色主题标记（写在 body 上）",
+        "breaksIfMissing": "明暗判定失效，按明暗取色的逻辑走错分支"
+      }
+    ]
+  },
+  "own": {
+    "$comment": "本插件自己写在 html 上的属性，用于状态切换；不受宿主升级影响，但删除前要确认没有 CSS 依赖。",
+    "attributes": [
+      "data-dsh-zhuoer",
+      "data-zr-base",
+      "data-zr-state",
+      "data-zr-bg-empty",
+      "data-zr-bg-session",
+      "data-on",
+      "data-tone",
+      "data-rqn-tail"
+    ]
+  }
+}

@@ -1,0 +1,6 @@
+# dsh-zhuoer-theme —— bundle patch
+- insert:
+    - id: dsh-zhuoer-theme
+      name: 'dsh-zhuoer-theme'
+      config:
+        theme: zhuoer

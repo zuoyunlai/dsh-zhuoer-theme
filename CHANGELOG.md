@@ -1,0 +1,51 @@
+# CHANGELOG
+
+按时间倒序。每条都写「为什么改」，而不只是改了什么。
+
+## 0.3.6
+
+- **两个本地端点加来源校验**（`index.js`）。`/api/report` 与 `/api/gen-theme` 此前接受任意来源请求：
+  报告端点可被灌日志，生成端点可被本机任意网页触发模型调用（花的是用户额度）。
+  现在要求自定义头 `x-zhuoer-client: 1`（跨站请求要先过预检，宿主的 webServer 不应答），
+  同源请求若头被中间层剥掉，再用 Referer/Origin 的 host 比对兜底。客户端两处 fetch 已同步带头。
+- **定时器与观察器纳入生命周期**（`client.js`）。那个监视 `document.body` 子树的 MutationObserver
+  和 200ms 去抖定时器此前从不释放，插件卸载/HMR 之后仍在跑；宿主 `theme/change` 合并重算用的
+  `setTimeout` 同理。现在都挂在 effect 的清理函数里断开。
+- **加 `npm test` 与版本一致性门**（`scripts/verify-version.mjs`）。`verify:all` 现在第一步就校验
+  `package.json` 与 `client.js` 的 `PVERSION` 相等、且没有 `0.1.xxx` 残留字样。
+
+## 0.3.5
+
+- 底图从 `client.js` 里的 3 行 base64（764 KB）改为 `assets/bg/*.webp`（21 张，329 KB），
+  客户端体积 988 KB → 551 KB。**宿主的插件资源路由只服务启动时已存在的文件，升级后必须重启才显示底图。**
+- 全局 `*{…!important}`（230 个自定义属性对全 DOM 每个元素各算一遍）改为 `html,body` +
+  只命中「style 里显式写了这些变量」的元素。
+- 每次 apply 都会跑的 4 轮全文档 DOM 遍历（含逐元素 `getComputedStyle`、扫 `styleSheets`）
+  挂上 `zrDebug()` 总闸，默认关闭；排障时 `localStorage['dsh-zhuoer-theme:debug']='1'`。
+- 版本号三处漂移（`0.1.101` / `0.3.9` / `0.3.4`）收敛为单一 `PVERSION`。
+- `peerDependencies` 与 `engines.dsh` 统一为 `>=0.2.2-0 <0.3.0`，与 `dsh.compatibility.dsh` 一致。
+- `dsh.disclosure` 改成真实端点与真实留存（原先把另一个插件的 Gateway 与目录写了进来）。
+- README 安装示例里的 `link:` 路径指向 `dsh-zhuoer-panel`（另一个仓），改为本仓。
+
+## 0.3.4
+
+- 修复 0.3.3 引入的**同步死循环**：`theme.overrideTokens()` 自己会 emit `theme/change`，
+  无条件 `emitChange()` 造成 `apply → overrideTokens → theme/change → emitChange → apply`，
+  表现为启动极卡、设置页点不动、整窗卡死。
+- `theme/change` 订阅改为「按偏好值去重 + 只注册一次 + 异步合并」，并加逃生阀
+  `localStorage['dsh-zhuoer-theme:mute-sync']='1'`。
+
+## 0.3.3
+
+- 配色主题页的「模式」三态与宿主偏好双向同步（顺序改为 浅色 / 深色 / 跟随系统）。
+- **这版引入了上面的死循环，请勿回退到此版本。**
+
+## 0.3.2
+
+- 自定义主题抽屉的标题不再压住桌面端标题栏的「应用 / 编辑」菜单：
+  `html[data-windows-titlebar]` 下用 `--dsh-windows-titlebar-height` 下移。
+
+## 0.3.1
+
+- 中文字体改名 `OC Sans SC`/`OC Serif SC` → `Zhuoer Sans SC`/`Zhuoer Serif SC`，新增 `Zhuoer Kai SC`。
+- 自选字体补 generic 与中文回退（此前中文会落到系统雅黑/宋体）。
