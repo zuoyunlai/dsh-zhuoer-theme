@@ -76,7 +76,7 @@ const EXEMPT = {
   '--dsw-alias-label-on-color': '彩底文字：恒白/恒黑',
   '--dsw-alias-tooltip-label': 'tooltip 文字：跟随 tooltip 底的反色，不跟正文色',
   '--dsw-alias-toast-bg': 'toast 底：浅色主题里刻意用深色反色面，跟底色会失去浮起感',
-  '--dsw-specific-sidebar-fill': '由 applyTokens 按标题栏色现算（client.js:1129），纳入组会被覆盖',
+  '--dsw-specific-sidebar-fill': '由 applyTokens 按标题栏色现算（见 client.js 里 applyTokens 的 specific-sidebar-fill 计算），纳入组会被覆盖',
 }
 
 const base = process.argv[3] === '--base' ? process.argv[4] : 'dash'

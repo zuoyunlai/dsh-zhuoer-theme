@@ -42,7 +42,7 @@ window.__ModuleLoader__.load({
       } catch (e) { /* ignore */ }
     }
     // 版本号唯一源：面板文案与自检回传都用它，别再出现「构建 0.1.101」这种漂移。
-    const PVERSION = '0.4.0';
+    const PVERSION = '0.4.1';
     // 诊断探针总闸：默认关闭，开启方式 localStorage['dsh-zhuoer-theme:debug'] = '1'。
     // 下面若干探针会在每次 apply 时全文档遍历 DOM、逐元素 getComputedStyle、扫 styleSheets，
     // 是「启动 / 切主题卡顿」的主要来源之一，只在排障时打开。
@@ -1199,6 +1199,16 @@ window.__ModuleLoader__.load({
     const BG_SOFT = {"absolutely":"/dsh-zhuoer-theme/assets/bg/bg-soft-absolutely.webp","beacon":"/dsh-zhuoer-theme/assets/bg/bg-soft-beacon.webp","zhuoer":"/dsh-zhuoer-theme/assets/bg/bg-soft-zhuoer.webp","crt":"/dsh-zhuoer-theme/assets/bg/bg-soft-crt.webp","dash":"/dsh-zhuoer-theme/assets/bg/bg-soft-dash.webp","manuscript":"/dsh-zhuoer-theme/assets/bg/bg-soft-manuscript.webp","miami":"/dsh-zhuoer-theme/assets/bg/bg-soft-miami.webp","phosphor":"/dsh-zhuoer-theme/assets/bg/bg-soft-phosphor.webp","rose":"/dsh-zhuoer-theme/assets/bg/bg-soft-rose.webp","tide":"/dsh-zhuoer-theme/assets/bg/bg-soft-tide.webp"};;
     const BG = {"zhuoer":"/dsh-zhuoer-theme/assets/bg/bg-zhuoer.webp","knot":"/dsh-zhuoer-theme/assets/bg/bg-knot.webp","dash":"/dsh-zhuoer-theme/assets/bg/bg-dash.webp","absolutely":"/dsh-zhuoer-theme/assets/bg/bg-absolutely.webp","tide":"/dsh-zhuoer-theme/assets/bg/bg-tide.webp","beacon":"/dsh-zhuoer-theme/assets/bg/bg-beacon.webp","phosphor":"/dsh-zhuoer-theme/assets/bg/bg-phosphor.webp","crt":"/dsh-zhuoer-theme/assets/bg/bg-crt.webp","manuscript":"/dsh-zhuoer-theme/assets/bg/bg-manuscript.webp","rose":"/dsh-zhuoer-theme/assets/bg/bg-rose.webp","miami":"/dsh-zhuoer-theme/assets/bg/bg-miami.webp"};;
 
+    function ensureStyleById(id) {
+      let el = document.getElementById(id);
+      if (!el) {
+        el = document.createElement('style');
+        el.id = id;
+      }
+      (document.head || document.documentElement).appendChild(el);
+      return el;
+    }
+
     function ensureStyle() {
       let el = document.getElementById(STYLE_ID);
       if (!el) {
@@ -1216,7 +1226,27 @@ window.__ModuleLoader__.load({
     // ctx.theme。applyTokens 每次都算出了 scheme，这里共享出来给面板读。
     let liveScheme = 'dark';
 
+    // 预览路径（编辑器 / 取色器 / 滑块）此前传 null，导致 overrideTokens 拿不到服务、抛错被吞，
+    // 编辑期间只剩 CSS 兜底层。这里留一个模块级引用，任何调用点都能拿到宿主主题服务。
+    let themeRef = null;
+
+    // 预览路径（取色器拖动、滑块、颜色输入）每个事件都会触发一次完整 apply，
+    // 用 rAF 合并成「每帧至多一次」，拖动时不再重建几十次样式表。
+    let previewPending = null;
+    let previewRaf = 0;
+    function schedulePreview(spec) {
+      previewPending = spec;
+      if (previewRaf) return;
+      previewRaf = window.requestAnimationFrame(function () {
+        previewRaf = 0;
+        const s = previewPending;
+        previewPending = null;
+        try { applyTokens(themeRef, s); } catch (e) { /* ignore */ }
+      });
+    }
+
     function applyTokens(theme, pref) {
+      theme = theme || themeRef;
       const scheme = resolveScheme(pref.mode, theme);
       liveScheme = scheme;
       const tokens = Object.assign({}, tokensForPref(pref, scheme));
@@ -1264,7 +1294,13 @@ window.__ModuleLoader__.load({
         '--dsw-radius-lg': 16, '--dsw-radius-xl': 20, '--dsw-radius-panel': 28,
       };
       const rScale = csFont && typeof csFont.radiusScale === 'number' ? csFont.radiusScale : 1;
-      tokens['--zr-card-radius'] = Math.round(28 * rScale) + 'px';
+      // 基准从宿主自己的圆角刻度取（--dsw-radius-panel，实测 28px）；
+      // 写死 28 会让 crt 这类直角主题也拿到 28px 卡片。
+      const panelBase = (function () {
+        const m = String(tokens['--dsw-radius-panel'] || '').match(/(\d+(?:\.\d+)?)px/);
+        return m ? parseFloat(m[1]) : 28;
+      })();
+      tokens['--zr-card-radius'] = Math.round(panelBase * rScale) + 'px';
       if (rScale !== 1) {
         Object.keys(RADIUS_BASE).forEach(function (k) {
           const m = String(tokens[k] || '').match(/^(\d+(?:\.\d+)?)px$/);
@@ -1366,6 +1402,16 @@ window.__ModuleLoader__.load({
         // 图挂在伪元素上（opacity 0.7）与底色混合，底色必须保持实色；
         // 若这里再把 bg-base 改半透明，会变成「半透明底 + 半透明图」两层互透，糊成一片。
         // 底色由主题自身决定（zhuoer 深色 = #1a1210 暖棕），切换主题自动跟随。
+      }
+      // 字号缩放：只缩放字体 token 自身的 px，不动坐标系。
+      if (pref.fontScale && pref.fontScale !== 100) {
+        const k = pref.fontScale / 100;
+        Object.keys(tokens).forEach(function (key) {
+          if (!/^--dsw-font/.test(key)) return;
+          tokens[key] = String(tokens[key]).replace(/(^|[^0-9.])(\d+(?:\.\d+)?)px/g, function (m, pre, num) {
+            return pre + (Math.round(parseFloat(num) * k * 100) / 100) + 'px';
+          });
+        });
       }
       // 每次 applyTokens 前先撤销上一次的 override。
       // 之前只存了 dispose 从不调用：如果宿主内部是按 SOURCE 累加而非替换，
@@ -1574,9 +1620,9 @@ window.__ModuleLoader__.load({
           + 'transform-origin:0% center !important;}'
           + 'html [class*="_mark"]:focus-visible::before{transform:translateY(-50%) scaleX(1) !important;}'
           + 'html [class*="_mark"]:focus-visible::after{inset:0 auto 0 0 !important;}';
-        if (pref.fontScale !== 100) {
-          fxCss += 'body{zoom:' + (pref.fontScale / 100) + ' !important;}';
-        }
+        // 字号缩放不再用 body{zoom}：zoom 会把 fixed 定位与 getBoundingClientRect 的坐标系
+        // 一起放大，右侧快捷导航那种按 px 绝对定位的面板会跟着错位。
+        // 改成在下面直接缩放 --dsw-font-* 的 px 值（见 tokens 组装末尾）。
         if (pref.uiFont) {
           const fam = '"' + pref.uiFont.replace(/"/g, '') + '", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
           // html body 提高特异性：宿主用 font shorthand 写在 body 上，单条 body 规则会被重置。
@@ -1585,12 +1631,35 @@ window.__ModuleLoader__.load({
         }
         // 只在内容真的变了才重写：一次 textContent 赋值等于整表重新解析 + 全文档样式重算，
         // 而 apply 会被主题切换、底图可见度、字号滑块反复触发（每次 26–45 KB）。
-        const nextCss = fontFaceCss + css + extra + bgCss + fxCss;
+        // @font-face 是常量：单独一张表，只写一次，避免每次 apply 把 4.6 MB 字体声明
+        // 跟着 token 表一起重新解析。
+        try {
+          const fontEl = ensureStyleById(STYLE_ID + '-fonts');
+          if (fontEl.__zrCss !== fontFaceCss) {
+            fontEl.textContent = fontFaceCss;
+            fontEl.__zrCss = fontFaceCss;
+          }
+        } catch (e) { /* ignore */ }
+        const nextCss = css + extra + bgCss + fxCss;
         const styleEl = ensureStyle();
         if (styleEl.__zrCss !== nextCss) {
           styleEl.textContent = nextCss;
           styleEl.__zrCss = nextCss;
         }
+        // extra（菜单 / 代码块定向修正）最容易被别的插件压掉：各自 <style> 后插入就赢。
+        // adoptedStyleSheets 排在文档样式表之后，同优先级稳定胜出；不支持的环境退回 <style>。
+        try {
+          if (document.adoptedStyleSheets && typeof CSSStyleSheet === 'function') {
+            if (!window.__zrExtraSheet) {
+              window.__zrExtraSheet = new CSSStyleSheet();
+              document.adoptedStyleSheets = document.adoptedStyleSheets.concat([window.__zrExtraSheet]);
+            }
+            if (window.__zrExtraText !== extra) {
+              window.__zrExtraSheet.replaceSync(extra);
+              window.__zrExtraText = extra;
+            }
+          }
+        } catch (e) { /* 老 Chromium 没有 adoptedStyleSheets */ }
         // 背景显示开关：标注当前是「空态」还是「会话中」，供上面的 CSS 选择器使用
         try {
           const rootEl = document.documentElement;
@@ -2616,7 +2685,7 @@ window.__ModuleLoader__.load({
           mode: previewScheme === 'light' || previewScheme === 'dark' ? previewScheme : pref.mode,
         });
         setPref(merged);
-        applyTokens(null, merged);
+        schedulePreview(merged);
       };
       // ---- 从图片取色（纯本地，不上传）----
       const openEditor = function (spec) {
@@ -2643,7 +2712,7 @@ window.__ModuleLoader__.load({
         setEditing(null);
         setModeBeforeEdit(null);
         setPref(readPref());
-        applyTokens(null, readPref());
+        applyTokens(themeRef, readPref());
       };
       const duplicateCustom = function () {
         if (!currentCustom) return;
@@ -3007,6 +3076,7 @@ window.__ModuleLoader__.load({
         // 订阅必须走 subscribeHostChange()：按偏好值去重 + 只注册一次 + 异步合并，
         // 否则会被 overrideTokens 回灌的 theme/change 拖进死循环（见该函数注释）。
         try { hostThemeApi = (ctx && ctx.theme) || hostThemeApi; } catch (e) { /* ignore */ }
+        try { themeRef = hostThemeApi; } catch (e) { /* ignore */ }
         subscribeHostChange(ctx);
         // 延迟探针：等消息渲染完成后再扫「亮底」元素（内联 code 白底）。
         // 它会对全 DOM 逐元素 getComputedStyle，生产里纯属开销，只在 debug 下挂。

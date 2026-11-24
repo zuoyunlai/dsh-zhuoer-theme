@@ -28,7 +28,7 @@
 从 npm 安装（推荐）：
 
 ```json
-"dsh-zhuoer-theme": "^0.3.6"
+"dsh-zhuoer-theme": "^0.4.1"
 ```
 
 开发期用 `link:` 指向工作树，改完重启 DSH 即可生效。
