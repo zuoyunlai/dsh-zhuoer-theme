@@ -9,7 +9,7 @@
  * 直接从 client.js 的 #region derive 抠真实实现来跑（与 test-derive 同一手法），
  * 所以测的就是线上那份 pickOnColor / buildCustomTokens。
  */
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -59,9 +59,13 @@ const ratio = (a, b) => {
 
 const MIN = 4.5;
 const bad = [];
+// 每次测量都记下来：门禁除了「过线」，还要回答「有没有比上次更差」。
+// 只过线是不够的 —— 某主题卡在 4.51:1 时，下次调色碰一下就越界，而门禁到时才发现。
+const measurements = [];
 const check = (where, fg, bg) => {
   const r = ratio(fg, bg);
   if (r === null) { bad.push(where + ' 无法计算（' + fg + ' / ' + bg + '）'); return; }
+  measurements.push({ key: where, fg: fg, bg: bg, ratio: Number(r.toFixed(3)) });
   if (r < MIN) bad.push(where + ' ' + r.toFixed(2) + ':1（' + fg + ' on ' + bg + '）');
 };
 
@@ -105,9 +109,42 @@ for (const fill of ['#ffffff', '#000000', '#00ff41', '#f5f5f5', '#4a7fd4', '#a88
   check('pickOnColor(' + fill + ')', api.pickOnColor(fill), fill);
 }
 
+// ---- 余量台账 ----
+// 默认模式：既查「过不过线」，也查「有没有比台账更低」。
+// --update：把当前实测写成新台账（只有明确知情时才该跑，否则等于自己给自己降标准）。
+const BASELINE = join(root, 'contracts', 'contrast-baseline.json');
+const wantUpdate = process.argv.indexOf('--update') >= 0;
+if (wantUpdate) {
+  writeFileSync(BASELINE, JSON.stringify({
+    note: '由 npm run contrast:update 生成。ratio 是实测对比度；门禁要求任何一组都不得比它低 0.01 以上。',
+    min: MIN,
+    count: measurements.length,
+    pairs: measurements,
+  }, null, 2) + '\n');
+  console.log('OK    余量台账已写入 ' + measurements.length + ' 组 → contracts/contrast-baseline.json');
+  process.exit(0);
+}
+let baseline = null;
+try { baseline = JSON.parse(readFileSync(BASELINE, 'utf8')); } catch (e) { baseline = null; }
+const drops = [];
+if (baseline && baseline.pairs) {
+  const prev = {};
+  for (const p of baseline.pairs) prev[p.key] = p.ratio;
+  for (const m of measurements) {
+    if (prev[m.key] === undefined) continue;
+    if (m.ratio < prev[m.key] - 0.01) drops.push(m.key + ' ' + prev[m.key] + ':1 → ' + m.ratio + ':1');
+  }
+}
 if (bad.length) {
   console.error('[verify:contrast] ' + bad.length + ' 项低于 ' + MIN + ':1');
   for (const b of bad.slice(0, 20)) console.error('  - ' + b);
   process.exit(1);
 }
-console.log('OK    对比度：内置 ' + THEME_IDS.length + ' 套 + 预设 ' + api.STYLE_PRESETS.length + ' 套 × 两态均 >= ' + MIN + ':1');
+if (drops.length) {
+  console.error('[verify:contrast] ' + drops.length + ' 组比台账更差（不是过不过线的问题，是退步）：');
+  for (const d of drops.slice(0, 20)) console.error('  - ' + d);
+  console.error('  确认是有意改动就 npm run contrast:update 并说明原因。');
+  process.exit(1);
+}
+const ledger = baseline ? '（台账 ' + baseline.pairs.length + ' 组，无回退）' : '（无台账，先跑 npm run contrast:update）';
+console.log('OK    对比度：内置 ' + THEME_IDS.length + ' 套 + 预设 ' + api.STYLE_PRESETS.length + ' 套 × 两态均 >= ' + MIN + ':1 ' + ledger);

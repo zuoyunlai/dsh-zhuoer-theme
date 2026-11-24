@@ -42,7 +42,7 @@ window.__ModuleLoader__.load({
       } catch (e) { /* ignore */ }
     }
     // 版本号唯一源：面板文案与自检回传都用它，别再出现「构建 0.1.101」这种漂移。
-    const PVERSION = '0.5.8';
+    const PVERSION = '0.5.9';
     // 诊断探针总闸：默认关闭，开启方式 localStorage['dsh-zhuoer-theme:debug'] = '1'。
     // 下面若干探针会在每次 apply 时全文档遍历 DOM、逐元素 getComputedStyle、扫 styleSheets，
     // 是「启动 / 切主题卡顿」的主要来源之一，只在排障时打开。
@@ -1320,6 +1320,26 @@ window.__ModuleLoader__.load({
       tokens['--zr-rail-fill'] = hex(B.map(function (v) { return v * 0.82; }));
     }
 
+    // 阴影三档 + shadow-lv3。自定义主题的 id（c1:dark 之类）不在 SHADOWS 里，
+    // 调用方传入的是 effectiveThemeId（克隆来源），否则整段覆盖被跳过、回落到 themes.mjs 原值
+    // —— 实测 manuscript 深色 panel 阴影因此偏重 8.3 倍。
+    function applyElevations(tokens, effTheme, scheme) {
+      const sh = SHADOWS[effTheme];
+      if (!sh) return;
+      const k = SHADOW_STRENGTH[scheme] || SHADOW_STRENGTH.dark;
+      tokens['--dsw-elevation-soft'] = scaleShadow(sh.sm, k);
+      tokens['--dsw-elevation-panel'] = scaleShadow(sh.lg, k);
+      tokens['--dsw-elevation-prominent'] = scaleShadow(sh.xl, k);
+      tokens['--dsw-shadow-lv3'] = scaleShadow(sh.lg, k);
+    }
+
+    // 带 !important 的变量声明串。写在 html,body 上压过宿主同名定义（DSH 在 body 上也有一份）。
+    function importantDecls(tokens) {
+      return Object.keys(tokens).map(function (k) {
+        return k + ':' + tokens[k] + ' !important;';
+      }).join('');
+    }
+
     function applyTokens(theme, pref) {
       theme = theme || themeRef;
       const scheme = resolveScheme(pref.mode, theme);
@@ -1391,16 +1411,7 @@ window.__ModuleLoader__.load({
       // color-mix(text 4%, bg-content)，必须按「我们实际渲染的底色」现算，否则像 zhuoer 这种
       // 改过底色的主题，硬编码的 sidebar-fill 会比底色更暗，顶部就成了一条黑边。
       applySurfaceFills(tokens);
-      // 自定义主题的 id（c1:dark 之类）不在 SHADOWS 里，必须按克隆来源取，否则整段阴影覆盖被跳过、
-      // 回落到 themes.mjs 的原值 —— 实测 manuscript 深色 panel 阴影因此偏重 8.3 倍。
-      const sh = SHADOWS[effTheme];
-      if (sh) {
-        const k = SHADOW_STRENGTH[scheme] || SHADOW_STRENGTH.dark;
-        tokens['--dsw-elevation-soft'] = scaleShadow(sh.sm, k);
-        tokens['--dsw-elevation-panel'] = scaleShadow(sh.lg, k);
-        tokens['--dsw-elevation-prominent'] = scaleShadow(sh.xl, k);
-        tokens['--dsw-shadow-lv3'] = scaleShadow(sh.lg, k);
-      }
+      applyElevations(tokens, effTheme, scheme);
       if (pref.accent) {
         ['--dsw-alias-button-primary-fill', '--dsw-alias-button-primary-hover',
          '--dsw-alias-button-info-fill', '--dsw-alias-button-info-hover',
@@ -1472,9 +1483,7 @@ window.__ModuleLoader__.load({
       try {
         // 关键：DSH 在 body 上另有一份同名变量定义，只写 :root 会被 body 覆盖。
         // 因此同时覆盖 html 与 body，并带 !important 确保压过宿主的定义。
-        const decls = Object.keys(tokens).map(function (k) {
-          return k + ':' + tokens[k] + ' !important;';
-        }).join('');
+        const decls = importantDecls(tokens);
         // 自定义属性天生继承：写在 html,body 上，全部后代都能取到，不必逐元素命中。
         // 历史：这里原本是 '*{' + decls + '}'，想压过「容器自己重新定义」，代价是 230+ 个属性
         // 对全 DOM 每个元素各算一遍（样式共享失效、每次 apply 全量重算）。
@@ -1961,7 +1970,7 @@ window.__ModuleLoader__.load({
       'box-shadow:inset 0 0 0 1px var(--dsw-alias-brand-primary);}',
       '.zp-th:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;}',
       '.zp-th-p{display:flex;flex-direction:column;justify-content:center;gap:4px;height:42px;',
-      'border-radius:6px;padding:0 9px;overflow:hidden;position:relative;',
+      'border-radius:6px;padding:0 8px;overflow:hidden;position:relative;',
       'background:var(--dsw-alias-bg-layer-2);}',
       '.zp-th-c{height:9px;border-radius:3px;}',
       '.zp-th-b{height:4px;width:54%;border-radius:2px;opacity:.5;}',
@@ -1974,7 +1983,7 @@ window.__ModuleLoader__.load({
       'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
       // 胶囊组：flex-wrap 而不是等分分段——5 档字号在窄容器里换行比压扁可读
       '.zp-seg{display:flex;flex-wrap:wrap;gap:6px;}',
-      '.zp-pill{appearance:none;display:inline-flex;align-items:center;gap:4px;padding:5px 12px;',
+      '.zp-pill{appearance:none;display:inline-flex;align-items:center;gap:4px;padding:4px 12px;',
       'border-radius:999px;font:inherit;font-size:12px;line-height:1.4;cursor:pointer;',
       'background:var(--dsw-alias-button-elevated-fill);border:1px solid var(--dsw-alias-border-l2);',
       'color:var(--dsw-alias-label-secondary);',
@@ -1998,13 +2007,13 @@ window.__ModuleLoader__.load({
       'accent-color:var(--dsw-alias-brand-primary);cursor:pointer;}',
       '.zp-val{min-width:38px;text-align:right;font-size:12px;',
       'color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums;}',
-      '.zp-inp{flex:1 1 180px;padding:6px 9px;border-radius:7px;font:inherit;font-size:12px;',
+      '.zp-inp{flex:1 1 180px;padding:6px 8px;border-radius:8px;font:inherit;font-size:12px;',
       'background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l2);',
       'color:var(--dsw-alias-label-primary);}',
       '.zp-inp::placeholder{color:var(--dsw-alias-label-dimmed);}',
       '.zp-inp:focus{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;',
       'border-color:var(--dsw-alias-brand-primary);}',
-      '.zp-btn{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:7px;',
+      '.zp-btn{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:8px;',
       'font:inherit;font-size:12px;cursor:pointer;',
       'background:var(--dsw-alias-button-elevated-fill);border:1px solid var(--dsw-alias-border-l2);',
       'color:var(--dsw-alias-label-primary);',
@@ -2037,7 +2046,7 @@ window.__ModuleLoader__.load({
       '.zp-th-add{border-style:dashed;align-items:center;justify-content:center;min-height:78px;}',
       '.zp-th-p-add{display:flex;align-items:center;justify-content:center;height:42px;font-size:20px;line-height:1;color:var(--dsw-alias-label-tertiary);}',
       '.zp-cus-acts{display:flex;gap:8px;flex-wrap:wrap;padding-top:2px;}',
-      '.zp-txt{padding:4px 8px;border-radius:8px;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font-size:12.5px;min-width:110px;}',
+      '.zp-txt{padding:4px 8px;border-radius:8px;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font-size:13px;min-width:110px;}',
       '.zp-txt:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;}',
       '.zp-btn-pri{background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground,var(--dsw-alias-bg-base));border-color:transparent;}',
       '.zp-btn-pri:hover{background:var(--dsw-alias-button-primary-hover);}',
@@ -2051,7 +2060,7 @@ window.__ModuleLoader__.load({
       // 以前写死 rgba(0,0,0,.5)，浅色主题下会压出一圈 50% 黑边。
       '.zp-ed-panel{pointer-events:auto;position:absolute;left:0;top:0;bottom:0;width:352px;max-width:94vw;display:flex;flex-direction:column;gap:10px;padding:16px;overflow:auto;background:var(--dsw-alias-bg-base);border-right:1px solid var(--dsw-alias-border-l2);box-shadow:var(--dsw-elevation-panel,0 18px 44px rgba(0,0,0,.28));}',
       '.zp-ed-hd{position:sticky;top:-16px;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:-16px -16px 0;padding:14px 16px 10px;background:var(--dsw-alias-bg-base);border-bottom:1px solid var(--dsw-alias-border-l1);}',
-      '.zp-ed-ttl{font-size:14px;font-weight:600;}',
+      '.zp-ed-ttl{font-size:15px;font-weight:600;}',
       '.zp-ed-x{width:26px;height:26px;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--dsw-alias-label-secondary);font-size:18px;line-height:1;cursor:pointer;}',
       '.zp-ed-x:hover{background:var(--dsw-alias-interactive-bg-hover);}',
       '.zp-ed-list{display:flex;flex-direction:column;gap:2px;}',
@@ -2078,18 +2087,18 @@ window.__ModuleLoader__.load({
       '.zp-sel{appearance:none;padding-right:26px;background-repeat:no-repeat;background-position:right 8px center;background-size:9px;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position-x:calc(100% - 14px),calc(100% - 9px);background-size:5px 5px,5px 5px;}',
       '.zp-ed-err{font-size:12px;color:var(--dsw-alias-state-error-primary);line-height:1.45;}',
       '.zp-presets{display:flex;flex-wrap:wrap;gap:6px;}',
-      '.zp-preset{padding:5px 10px;border-radius:7px;border:1px solid var(--dsw-alias-border-l2);background:transparent;color:var(--dsw-alias-label-primary);font-size:12px;line-height:1.2;cursor:pointer;transition:border-color .15s,color .15s;}',
+      '.zp-preset{padding:4px 10px;border-radius:8px;border:1px solid var(--dsw-alias-border-l2);background:transparent;color:var(--dsw-alias-label-primary);font-size:12px;line-height:1.2;cursor:pointer;transition:border-color .15s,color .15s;}',
       '.zp-preset:hover{border-color:var(--dsw-alias-brand-primary);color:var(--dsw-alias-brand-primary);}',
       '.zp-ed-ai{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0;}',
       '.zp-pal{display:flex;flex-wrap:wrap;gap:8px;padding-top:2px;}',
       '.zp-pal-item{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:56px;}',
-      '.zp-pal-sw{width:100%;height:34px;border-radius:7px;border:1px solid var(--dsw-alias-border-l2);}',
+      '.zp-pal-sw{width:100%;height:34px;border-radius:8px;border:1px solid var(--dsw-alias-border-l2);}',
       '.zp-pal-hex{font-size:11px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--dsw-alias-label-secondary);}',
       '.zp-pal-share{font-size:11px;color:var(--dsw-alias-label-tertiary);}',
       '.zp-pal-name{font-size:11px;color:var(--dsw-alias-label-secondary);max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
       '.zp-ed-sec{display:flex;flex-direction:column;gap:6px;padding-top:12px;border-top:1px solid var(--dsw-alias-border-l1);}',
       '.zp-ed-sec:first-of-type{padding-top:0;border-top:0;}',
-      '.zp-json{width:100%;box-sizing:border-box;padding:8px;border-radius:8px;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;line-height:1.5;resize:vertical;}',
+      '.zp-json{width:100%;box-sizing:border-box;padding:8px;border-radius:8px;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.5;resize:vertical;}',
       '.zp-foot{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;padding-top:16px;',
       'border-top:1px solid var(--dsw-alias-border-l1);}',
       '@media (prefers-reduced-motion: reduce){.zp-root *{transition:none !important;',

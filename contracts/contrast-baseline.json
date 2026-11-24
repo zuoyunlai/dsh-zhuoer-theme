@@ -1,0 +1,1129 @@
+{
+  "note": "由 npm run contrast:update 生成。ratio 是实测对比度；门禁要求任何一组都不得比它低 0.01 以上。",
+  "min": 4.5,
+  "count": 187,
+  "pairs": [
+    {
+      "key": "zhuoer/light 正文",
+      "fg": "#403c35",
+      "bg": "#f4f1ec",
+      "ratio": 9.73
+    },
+    {
+      "key": "zhuoer/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#bd4531",
+      "ratio": 5.173
+    },
+    {
+      "key": "zhuoer/dark 正文",
+      "fg": "#bcbcc0",
+      "bg": "#0e1015",
+      "ratio": 10.051
+    },
+    {
+      "key": "zhuoer/dark 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#d13c3c",
+      "ratio": 4.748
+    },
+    {
+      "key": "absolutely/light 正文",
+      "fg": "#353531",
+      "bg": "#f7f6f5",
+      "ratio": 11.411
+    },
+    {
+      "key": "absolutely/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#a5654b",
+      "ratio": 4.602
+    },
+    {
+      "key": "absolutely/dark 正文",
+      "fg": "#ddddd7",
+      "bg": "#1b1b1a",
+      "ratio": 12.639
+    },
+    {
+      "key": "absolutely/dark 按钮文字",
+      "fg": "#241f1b",
+      "bg": "#d97757",
+      "ratio": 5.227
+    },
+    {
+      "key": "beacon/light 正文",
+      "fg": "#000000",
+      "bg": "#f8f8f8",
+      "ratio": 19.774
+    },
+    {
+      "key": "beacon/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#6e4a00",
+      "ratio": 7.947
+    },
+    {
+      "key": "beacon/dark 正文",
+      "fg": "#ffffff",
+      "bg": "#000000",
+      "ratio": 21
+    },
+    {
+      "key": "beacon/dark 按钮文字",
+      "fg": "#000000",
+      "bg": "#ffc233",
+      "ratio": 13.017
+    },
+    {
+      "key": "crt/light 正文",
+      "fg": "#373737",
+      "bg": "#f4f4f4",
+      "ratio": 10.823
+    },
+    {
+      "key": "crt/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#1f1f1f",
+      "ratio": 16.483
+    },
+    {
+      "key": "crt/dark 正文",
+      "fg": "#c6c6c6",
+      "bg": "#090a09",
+      "ratio": 11.61
+    },
+    {
+      "key": "crt/dark 按钮文字",
+      "fg": "#111111",
+      "bg": "#e8e8e8",
+      "ratio": 15.411
+    },
+    {
+      "key": "dash/light 正文",
+      "fg": "#4a3828",
+      "bg": "#ebe5e0",
+      "ratio": 8.91
+    },
+    {
+      "key": "dash/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#8a512c",
+      "ratio": 6.375
+    },
+    {
+      "key": "dash/dark 正文",
+      "fg": "#d8c8b8",
+      "bg": "#1a1210",
+      "ratio": 11.313
+    },
+    {
+      "key": "dash/dark 按钮文字",
+      "fg": "#1a1210",
+      "bg": "#cf8b4d",
+      "ratio": 6.55
+    },
+    {
+      "key": "knot/light 正文",
+      "fg": "#3a3a42",
+      "bg": "#f4f4f7",
+      "ratio": 10.264
+    },
+    {
+      "key": "knot/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#c41e30",
+      "ratio": 5.873
+    },
+    {
+      "key": "knot/dark 正文",
+      "fg": "#c6c6cb",
+      "bg": "#080808",
+      "ratio": 11.77
+    },
+    {
+      "key": "knot/dark 按钮文字",
+      "fg": "#fafafa",
+      "bg": "#d92a3f",
+      "ratio": 4.622
+    },
+    {
+      "key": "manuscript/light 正文",
+      "fg": "#322d22",
+      "bg": "#f1f0ea",
+      "ratio": 11.989
+    },
+    {
+      "key": "manuscript/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#31549b",
+      "ratio": 7.312
+    },
+    {
+      "key": "manuscript/dark 正文",
+      "fg": "#d8d0bc",
+      "bg": "#211e18",
+      "ratio": 10.817
+    },
+    {
+      "key": "manuscript/dark 按钮文字",
+      "fg": "#101c33",
+      "bg": "#8fa8e0",
+      "ratio": 7.157
+    },
+    {
+      "key": "miami/light 正文",
+      "fg": "#3c3244",
+      "bg": "#f6f2f5",
+      "ratio": 10.935
+    },
+    {
+      "key": "miami/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#b0246f",
+      "ratio": 6.31
+    },
+    {
+      "key": "miami/dark 正文",
+      "fg": "#cfc7e8",
+      "bg": "#140f1e",
+      "ratio": 11.629
+    },
+    {
+      "key": "miami/dark 按钮文字",
+      "fg": "#3c0a24",
+      "bg": "#f472b6",
+      "ratio": 6.288
+    },
+    {
+      "key": "phosphor/light 正文",
+      "fg": "#2a352b",
+      "bg": "#f1f4f1",
+      "ratio": 11.537
+    },
+    {
+      "key": "phosphor/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#10693a",
+      "ratio": 6.766
+    },
+    {
+      "key": "phosphor/dark 正文",
+      "fg": "#cfe0cf",
+      "bg": "#0a0f0a",
+      "ratio": 14.016
+    },
+    {
+      "key": "phosphor/dark 按钮文字",
+      "fg": "#07120a",
+      "bg": "#4ade80",
+      "ratio": 10.956
+    },
+    {
+      "key": "rose/light 正文",
+      "fg": "#3e3857",
+      "bg": "#f1eeea",
+      "ratio": 9.516
+    },
+    {
+      "key": "rose/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#9c4f66",
+      "ratio": 5.639
+    },
+    {
+      "key": "rose/dark 正文",
+      "fg": "#d5d2eb",
+      "bg": "#191724",
+      "ratio": 11.979
+    },
+    {
+      "key": "rose/dark 按钮文字",
+      "fg": "#3f2224",
+      "bg": "#ebbcba",
+      "ratio": 8.484
+    },
+    {
+      "key": "tide/light 正文",
+      "fg": "#333c45",
+      "bg": "#f1f3f5",
+      "ratio": 10.079
+    },
+    {
+      "key": "tide/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#1f6f8f",
+      "ratio": 5.632
+    },
+    {
+      "key": "tide/dark 正文",
+      "fg": "#c9d2da",
+      "bg": "#10151b",
+      "ratio": 11.976
+    },
+    {
+      "key": "tide/dark 按钮文字",
+      "fg": "#0b1116",
+      "bg": "#5ab6d8",
+      "ratio": 8.244
+    },
+    {
+      "key": "zhuoer/light label-tertiary",
+      "fg": "#716c65",
+      "bg": "#f4f1ec",
+      "ratio": 4.619
+    },
+    {
+      "key": "zhuoer/light label-caption",
+      "fg": "#726e67",
+      "bg": "#f4f1ec",
+      "ratio": 4.501
+    },
+    {
+      "key": "zhuoer/light label-dimmed",
+      "fg": "#6f6b63",
+      "bg": "#f4f1ec",
+      "ratio": 4.708
+    },
+    {
+      "key": "zhuoer/light state-success-primary",
+      "fg": "#2a7c35",
+      "bg": "#f4f1ec",
+      "ratio": 4.622
+    },
+    {
+      "key": "zhuoer/dark label-tertiary",
+      "fg": "#7c7c85",
+      "bg": "#0e1015",
+      "ratio": 4.602
+    },
+    {
+      "key": "zhuoer/dark label-caption",
+      "fg": "#7f7f87",
+      "bg": "#0e1015",
+      "ratio": 4.792
+    },
+    {
+      "key": "zhuoer/dark label-dimmed",
+      "fg": "#7f7f88",
+      "bg": "#0e1015",
+      "ratio": 4.797
+    },
+    {
+      "key": "zhuoer/dark state-success-primary",
+      "fg": "#3fb950",
+      "bg": "#0e1015",
+      "ratio": 7.491
+    },
+    {
+      "key": "absolutely/light label-tertiary",
+      "fg": "#6f6f6b",
+      "bg": "#f7f6f5",
+      "ratio": 4.675
+    },
+    {
+      "key": "absolutely/light label-caption",
+      "fg": "#70706b",
+      "bg": "#f7f6f5",
+      "ratio": 4.612
+    },
+    {
+      "key": "absolutely/light label-dimmed",
+      "fg": "#706f6b",
+      "bg": "#f7f6f5",
+      "ratio": 4.66
+    },
+    {
+      "key": "absolutely/light state-success-primary",
+      "fg": "#2a7c35",
+      "bg": "#f7f6f5",
+      "ratio": 4.824
+    },
+    {
+      "key": "absolutely/dark label-tertiary",
+      "fg": "#85857f",
+      "bg": "#1b1b1a",
+      "ratio": 4.645
+    },
+    {
+      "key": "absolutely/dark label-caption",
+      "fg": "#93928b",
+      "bg": "#1b1b1a",
+      "ratio": 5.52
+    },
+    {
+      "key": "absolutely/dark label-dimmed",
+      "fg": "#878681",
+      "bg": "#1b1b1a",
+      "ratio": 4.726
+    },
+    {
+      "key": "absolutely/dark state-success-primary",
+      "fg": "#3fb950",
+      "bg": "#1b1b1a",
+      "ratio": 6.786
+    },
+    {
+      "key": "beacon/light label-tertiary",
+      "fg": "#6a6a6a",
+      "bg": "#f8f8f8",
+      "ratio": 5.093
+    },
+    {
+      "key": "beacon/light label-caption",
+      "fg": "#575757",
+      "bg": "#f8f8f8",
+      "ratio": 6.804
+    },
+    {
+      "key": "beacon/light label-dimmed",
+      "fg": "#6e6e6e",
+      "bg": "#f8f8f8",
+      "ratio": 4.801
+    },
+    {
+      "key": "beacon/light state-success-primary",
+      "fg": "#2a7c35",
+      "bg": "#f8f8f8",
+      "ratio": 4.903
+    },
+    {
+      "key": "beacon/dark label-tertiary",
+      "fg": "#a1a1a1",
+      "bg": "#000000",
+      "ratio": 8.128
+    },
+    {
+      "key": "beacon/dark label-caption",
+      "fg": "#b5b5b5",
+      "bg": "#000000",
+      "ratio": 10.242
+    },
+    {
+      "key": "beacon/dark label-dimmed",
+      "fg": "#8d8d8d",
+      "bg": "#000000",
+      "ratio": 6.327
+    },
+    {
+      "key": "beacon/dark state-success-primary",
+      "fg": "#3fb950",
+      "bg": "#000000",
+      "ratio": 8.267
+    },
+    {
+      "key": "crt/light label-tertiary",
+      "fg": "#707070",
+      "bg": "#f4f4f4",
+      "ratio": 4.502
+    },
+    {
+      "key": "crt/light label-caption",
+      "fg": "#707070",
+      "bg": "#f4f4f4",
+      "ratio": 4.502
+    },
+    {
+      "key": "crt/light label-dimmed",
+      "fg": "#6f6f6f",
+      "bg": "#f4f4f4",
+      "ratio": 4.569
+    },
+    {
+      "key": "crt/light state-success-primary",
+      "fg": "#2a7c35",
+      "bg": "#f4f4f4",
+      "ratio": 4.734
+    },
+    {
+      "key": "crt/dark label-tertiary",
+      "fg": "#7c7c7c",
+      "bg": "#090a09",
+      "ratio": 4.751
+    },
+    {
+      "key": "crt/dark label-caption",
+      "fg": "#8b8b8b",
+      "bg": "#090a09",
+      "ratio": 5.82
+    },
+    {
+      "key": "crt/dark label-dimmed",
+      "fg": "#7d7d7d",
+      "bg": "#090a09",
+      "ratio": 4.817
+    },
+    {
+      "key": "crt/dark state-success-primary",
+      "fg": "#3fb950",
+      "bg": "#090a09",
+      "ratio": 7.806
+    },
+    {
+      "key": "dash/light label-tertiary",
+      "fg": "#6e6157",
+      "bg": "#ebe5e0",
+      "ratio": 4.79
+    },
+    {
+      "key": "dash/light label-caption",
+      "fg": "#736256",
+      "bg": "#ebe5e0",
+      "ratio": 4.658
+    },
+    {
+      "key": "dash/light label-dimmed",
+      "fg": "#726459",
+      "bg": "#ebe5e0",
+      "ratio": 4.566
+    },
+    {
+      "key": "dash/light state-success-primary",
+      "fg": "#287532",
+      "bg": "#ebe5e0",
+      "ratio": 4.569
+    },
+    {
+      "key": "dash/dark label-tertiary",
+      "fg": "#8e7d6f",
+      "bg": "#1a1210",
+      "ratio": 4.669
+    },
+    {
+      "key": "dash/dark label-caption",
+      "fg": "#958477",
+      "bg": "#1a1210",
+      "ratio": 5.136
+    },
+    {
+      "key": "dash/dark label-dimmed",
+      "fg": "#907f72",
+      "bg": "#1a1210",
+      "ratio": 4.802
+    },
+    {
+      "key": "dash/dark state-success-primary",
+      "fg": "#3fb950",
+      "bg": "#1a1210",
+      "ratio": 7.265
+    },
+    {
+      "key": "knot/light label-tertiary",
+      "fg": "#6d6b72",
+      "bg": "#f4f4f7",
+      "ratio": 4.787
+    },
+    {
+      "key": "knot/light label-caption",
+      "fg": "#6e6d73",
+      "bg": "#f4f4f7",
+      "ratio": 4.668
+    },
+    {
+      "key": "knot/light label-dimmed",
+      "fg": "#706f77",
+      "bg": "#f4f4f7",
+      "ratio": 4.523
+    },
+    {
+      "key": "knot/light state-success-primary",
+      "fg": "#2a7c35",
+      "bg": "#f4f4f7",
+      "ratio": 4.743
+    },
+    {
+      "key": "knot/dark label-tertiary",
+      "fg": "#7a7a83",
+      "bg": "#080808",
+      "ratio": 4.71
+    },
+    {
+      "key": "knot/dark label-caption",
+      "fg": "#7d7d86",
+      "bg": "#080808",
+      "ratio": 4.911
+    },
+    {
+      "key": "knot/dark label-dimmed",
+      "fg": "#77777f",
+      "bg": "#080808",
+      "ratio": 4.511
+    },
+    {
+      "key": "knot/dark state-success-primary",
+      "fg": "#3fb950",
+      "bg": "#080808",
+      "ratio": 7.884
+    },
+    {
+      "key": "manuscript/light label-tertiary",
+      "fg": "#706a5e",
+      "bg": "#f1f0ea",
+      "ratio": 4.701
+    },
+    {
+      "key": "manuscript/light label-caption",
+      "fg": "#736b5c",
+      "bg": "#f1f0ea",
+      "ratio": 4.614
+    },
+    {
+      "key": "manuscript/light label-dimmed",
+      "fg": "#6f695d",
+      "bg": "#f1f0ea",
+      "ratio": 4.772
+    },
+    {
+      "key": "manuscript/light state-success-primary",
+      "fg": "#2a7c35",
+      "bg": "#f1f0ea",
+      "ratio": 4.561
+    },
+    {
+      "key": "manuscript/dark label-tertiary",
+      "fg": "#8f856e",
+      "bg": "#211e18",
+      "ratio": 4.549
+    },
+    {
+      "key": "manuscript/dark label-caption",
+      "fg": "#9d9279",
+      "bg": "#211e18",
+      "ratio": 5.398
+    },
+    {
+      "key": "manuscript/dark label-dimmed",
+      "fg": "#938872",
+      "bg": "#211e18",
+      "ratio": 4.753
+    },
+    {
+      "key": "manuscript/dark state-success-primary",
+      "fg": "#3fb950",
+      "bg": "#211e18",
+      "ratio": 6.542
+    },
+    {
+      "key": "miami/light label-tertiary",
+      "fg": "#756b7a",
+      "bg": "#f6f2f5",
+      "ratio": 4.574
+    },
+    {
+      "key": "miami/light label-caption",
+      "fg": "#766c7c",
+      "bg": "#f6f2f5",
+      "ratio": 4.502
+    },
+    {
+      "key": "miami/light label-dimmed",
+      "fg": "#736879",
+      "bg": "#f6f2f5",
+      "ratio": 4.752
+    },
+    {
+      "key": "miami/light state-success-primary",
+      "fg": "#2a7c35",
+      "bg": "#f6f2f5",
+      "ratio": 4.696
+    },
+    {
+      "key": "miami/dark label-tertiary",
+      "fg": "#8278a1",
+      "bg": "#140f1e",
+      "ratio": 4.612
+    },
+    {
+      "key": "miami/dark label-caption",
+      "fg": "#897fad",
+      "bg": "#140f1e",
+      "ratio": 5.106
+    },
+    {
+      "key": "miami/dark label-dimmed",
+      "fg": "#847ca0",
+      "bg": "#140f1e",
+      "ratio": 4.81
+    },
+    {
+      "key": "miami/dark state-success-primary",
+      "fg": "#3fb950",
+      "bg": "#140f1e",
+      "ratio": 7.402
+    },
+    {
+      "key": "phosphor/light label-tertiary",
+      "fg": "#647365",
+      "bg": "#f1f4f1",
+      "ratio": 4.531
+    },
+    {
+      "key": "phosphor/light label-caption",
+      "fg": "#5f6f61",
+      "bg": "#f1f4f1",
+      "ratio": 4.818
+    },
+    {
+      "key": "phosphor/light label-dimmed",
+      "fg": "#637265",
+      "bg": "#f1f4f1",
+      "ratio": 4.594
+    },
+    {
+      "key": "phosphor/light state-success-primary",
+      "fg": "#2a7c35",
+      "bg": "#f1f4f1",
+      "ratio": 4.699
+    },
+    {
+      "key": "phosphor/dark label-tertiary",
+      "fg": "#788d79",
+      "bg": "#0a0f0a",
+      "ratio": 5.421
+    },
+    {
+      "key": "phosphor/dark label-caption",
+      "fg": "#859c87",
+      "bg": "#0a0f0a",
+      "ratio": 6.542
+    },
+    {
+      "key": "phosphor/dark label-dimmed",
+      "fg": "#6f8370",
+      "bg": "#0a0f0a",
+      "ratio": 4.75
+    },
+    {
+      "key": "phosphor/dark state-success-primary",
+      "fg": "#3fb950",
+      "bg": "#0a0f0a",
+      "ratio": 7.615
+    },
+    {
+      "key": "rose/light label-tertiary",
+      "fg": "#6f6688",
+      "bg": "#f1eeea",
+      "ratio": 4.618
+    },
+    {
+      "key": "rose/light label-caption",
+      "fg": "#6c6486",
+      "bg": "#f1eeea",
+      "ratio": 4.772
+    },
+    {
+      "key": "rose/light label-dimmed",
+      "fg": "#6d6584",
+      "bg": "#f1eeea",
+      "ratio": 4.723
+    },
+    {
+      "key": "rose/light state-success-primary",
+      "fg": "#2a7c35",
+      "bg": "#f1eeea",
+      "ratio": 4.502
+    },
+    {
+      "key": "rose/dark label-tertiary",
+      "fg": "#86839c",
+      "bg": "#191724",
+      "ratio": 4.826
+    },
+    {
+      "key": "rose/dark label-caption",
+      "fg": "#8e8aa6",
+      "bg": "#191724",
+      "ratio": 5.327
+    },
+    {
+      "key": "rose/dark label-dimmed",
+      "fg": "#848197",
+      "bg": "#191724",
+      "ratio": 4.682
+    },
+    {
+      "key": "rose/dark state-success-primary",
+      "fg": "#3fb950",
+      "bg": "#191724",
+      "ratio": 6.951
+    },
+    {
+      "key": "tide/light label-tertiary",
+      "fg": "#666e77",
+      "bg": "#f1f3f5",
+      "ratio": 4.648
+    },
+    {
+      "key": "tide/light label-caption",
+      "fg": "#677078",
+      "bg": "#f1f3f5",
+      "ratio": 4.532
+    },
+    {
+      "key": "tide/light label-dimmed",
+      "fg": "#646d75",
+      "bg": "#f1f3f5",
+      "ratio": 4.736
+    },
+    {
+      "key": "tide/light state-success-primary",
+      "fg": "#2a7c35",
+      "bg": "#f1f3f5",
+      "ratio": 4.681
+    },
+    {
+      "key": "tide/dark label-tertiary",
+      "fg": "#818d99",
+      "bg": "#10151b",
+      "ratio": 5.417
+    },
+    {
+      "key": "tide/dark label-caption",
+      "fg": "#8f9ca9",
+      "bg": "#10151b",
+      "ratio": 6.546
+    },
+    {
+      "key": "tide/dark label-dimmed",
+      "fg": "#78838f",
+      "bg": "#10151b",
+      "ratio": 4.752
+    },
+    {
+      "key": "tide/dark state-success-primary",
+      "fg": "#3fb950",
+      "bg": "#10151b",
+      "ratio": 7.219
+    },
+    {
+      "key": "预设:glass/light 正文",
+      "fg": "#1a2b3c",
+      "bg": "#eef4fa",
+      "ratio": 13.031
+    },
+    {
+      "key": "预设:glass/light 按钮文字",
+      "fg": "#0b0b0c",
+      "bg": "#4a7fd4",
+      "ratio": 4.944
+    },
+    {
+      "key": "预设:glass/dark 正文",
+      "fg": "#c3d4e5",
+      "bg": "#0d1d2d",
+      "ratio": 11.269
+    },
+    {
+      "key": "预设:glass/dark 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#2b60b5",
+      "ratio": 6.099
+    },
+    {
+      "key": "预设:brutal/light 正文",
+      "fg": "#0a0a0a",
+      "bg": "#fff8e7",
+      "ratio": 18.698
+    },
+    {
+      "key": "预设:brutal/light 按钮文字",
+      "fg": "#0b0b0c",
+      "bg": "#ff3d00",
+      "ratio": 5.546
+    },
+    {
+      "key": "预设:brutal/dark 正文",
+      "fg": "#f5f5f5",
+      "bg": "#3b2a00",
+      "ratio": 12.696
+    },
+    {
+      "key": "预设:brutal/dark 按钮文字",
+      "fg": "#0b0b0c",
+      "bg": "#ff3d00",
+      "ratio": 5.546
+    },
+    {
+      "key": "预设:swiss/light 正文",
+      "fg": "#1a1a1a",
+      "bg": "#f5f5f5",
+      "ratio": 15.964
+    },
+    {
+      "key": "预设:swiss/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#e30613",
+      "ratio": 4.882
+    },
+    {
+      "key": "预设:swiss/dark 正文",
+      "fg": "#e5e5e5",
+      "bg": "#1d1d1d",
+      "ratio": 13.382
+    },
+    {
+      "key": "预设:swiss/dark 按钮文字",
+      "fg": "#0b0b0c",
+      "bg": "#f91c29",
+      "ratio": 4.896
+    },
+    {
+      "key": "预设:editorial/light 正文",
+      "fg": "#1a1614",
+      "bg": "#faf7f0",
+      "ratio": 16.793
+    },
+    {
+      "key": "预设:editorial/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#8b1a1a",
+      "ratio": 9.29
+    },
+    {
+      "key": "预设:editorial/dark 正文",
+      "fg": "#ebe7e5",
+      "bg": "#2c230f",
+      "ratio": 12.621
+    },
+    {
+      "key": "预设:editorial/dark 按钮文字",
+      "fg": "#0b0b0c",
+      "bg": "#e57474",
+      "ratio": 6.635
+    },
+    {
+      "key": "预设:luxe/light 正文",
+      "fg": "#1c1a17",
+      "bg": "#f7f4ef",
+      "ratio": 15.826
+    },
+    {
+      "key": "预设:luxe/light 按钮文字",
+      "fg": "#0b0b0c",
+      "bg": "#a8894a",
+      "ratio": 5.942
+    },
+    {
+      "key": "预设:luxe/dark 正文",
+      "fg": "#e8e6e3",
+      "bg": "#272014",
+      "ratio": 12.939
+    },
+    {
+      "key": "预设:luxe/dark 按钮文字",
+      "fg": "#0b0b0c",
+      "bg": "#b59657",
+      "ratio": 6.994
+    },
+    {
+      "key": "预设:organic/light 正文",
+      "fg": "#2a2f24",
+      "bg": "#f2efe6",
+      "ratio": 11.934
+    },
+    {
+      "key": "预设:organic/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#5a7247",
+      "ratio": 5.34
+    },
+    {
+      "key": "预设:organic/dark 正文",
+      "fg": "#d6dbd0",
+      "bg": "#282315",
+      "ratio": 11.109
+    },
+    {
+      "key": "预设:organic/dark 按钮文字",
+      "fg": "#0b0b0c",
+      "bg": "#a0b88d",
+      "ratio": 9.121
+    },
+    {
+      "key": "预设:morandi/light 正文",
+      "fg": "#3a3532",
+      "bg": "#eeeae8",
+      "ratio": 10.125
+    },
+    {
+      "key": "预设:morandi/light 按钮文字",
+      "fg": "#0b0b0c",
+      "bg": "#a67c7c",
+      "ratio": 5.43
+    },
+    {
+      "key": "预设:morandi/dark 正文",
+      "fg": "#cdc8c5",
+      "bg": "#231d1a",
+      "ratio": 10.034
+    },
+    {
+      "key": "预设:morandi/dark 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#835959",
+      "ratio": 5.935
+    },
+    {
+      "key": "预设:paper/light 正文",
+      "fg": "#22211f",
+      "bg": "#f4f3f0",
+      "ratio": 14.498
+    },
+    {
+      "key": "预设:paper/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#4a5568",
+      "ratio": 7.526
+    },
+    {
+      "key": "预设:paper/dark 正文",
+      "fg": "#e0dfdd",
+      "bg": "#222019",
+      "ratio": 12.236
+    },
+    {
+      "key": "预设:paper/dark 按钮文字",
+      "fg": "#0b0b0c",
+      "bg": "#97a2b5",
+      "ratio": 7.636
+    },
+    {
+      "key": "预设:cyber/light 正文",
+      "fg": "#0a1a0e",
+      "bg": "#f0fff4",
+      "ratio": 17.408
+    },
+    {
+      "key": "预设:cyber/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#00853a",
+      "ratio": 4.755
+    },
+    {
+      "key": "预设:cyber/dark 正文",
+      "fg": "#e5f5e9",
+      "bg": "#003a0f",
+      "ratio": 11.518
+    },
+    {
+      "key": "预设:cyber/dark 按钮文字",
+      "fg": "#0b0b0c",
+      "bg": "#7affb4",
+      "ratio": 15.73
+    },
+    {
+      "key": "预设:aurora/light 正文",
+      "fg": "#1b2140",
+      "bg": "#f0f2fb",
+      "ratio": 14.048
+    },
+    {
+      "key": "预设:aurora/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#6a4ce0",
+      "ratio": 5.641
+    },
+    {
+      "key": "预设:aurora/dark 正文",
+      "fg": "#bfc5e4",
+      "bg": "#0c122e",
+      "ratio": 10.794
+    },
+    {
+      "key": "预设:aurora/dark 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#3d1fb3",
+      "ratio": 10.267
+    },
+    {
+      "key": "预设:devterm/light 正文",
+      "fg": "#252526",
+      "bg": "#f6f6f6",
+      "ratio": 14.17
+    },
+    {
+      "key": "预设:devterm/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#8a5a00",
+      "ratio": 5.927
+    },
+    {
+      "key": "预设:devterm/dark 正文",
+      "fg": "#d9d9da",
+      "bg": "#1d1d1d",
+      "ratio": 11.951
+    },
+    {
+      "key": "预设:devterm/dark 按钮文字",
+      "fg": "#0b0b0c",
+      "bg": "#ffcf75",
+      "ratio": 13.522
+    },
+    {
+      "key": "预设:deepspace/light 正文",
+      "fg": "#1a1a1e",
+      "bg": "#f4f4f6",
+      "ratio": 15.794
+    },
+    {
+      "key": "预设:deepspace/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#2f6ad9",
+      "ratio": 5.019
+    },
+    {
+      "key": "预设:deepspace/dark 正文",
+      "fg": "#e1e1e5",
+      "bg": "#1a1a20",
+      "ratio": 13.28
+    },
+    {
+      "key": "预设:deepspace/dark 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#2661d0",
+      "ratio": 5.671
+    },
+    {
+      "key": "pickOnColor(#ffffff)",
+      "fg": "#0b0b0c",
+      "bg": "#ffffff",
+      "ratio": 19.674
+    },
+    {
+      "key": "pickOnColor(#000000)",
+      "fg": "#ffffff",
+      "bg": "#000000",
+      "ratio": 21
+    },
+    {
+      "key": "pickOnColor(#00ff41)",
+      "fg": "#0b0b0c",
+      "bg": "#00ff41",
+      "ratio": 14.409
+    },
+    {
+      "key": "pickOnColor(#f5f5f5)",
+      "fg": "#0b0b0c",
+      "bg": "#f5f5f5",
+      "ratio": 18.046
+    },
+    {
+      "key": "pickOnColor(#4a7fd4)",
+      "fg": "#0b0b0c",
+      "bg": "#4a7fd4",
+      "ratio": 4.944
+    },
+    {
+      "key": "pickOnColor(#a8894a)",
+      "fg": "#0b0b0c",
+      "bg": "#a8894a",
+      "ratio": 5.942
+    },
+    {
+      "key": "pickOnColor(#e30613)",
+      "fg": "#ffffff",
+      "bg": "#e30613",
+      "ratio": 4.882
+    }
+  ]
+}
