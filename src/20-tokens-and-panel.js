@@ -808,20 +808,33 @@
       // 抽屉若从 top:0 开始就会把面板标题压在那两个菜单上。桌面端整体下移一条标题栏的高度；
       // Web 端没有 data-windows-titlebar，这条不生效，仍是满高。
       'html[data-windows-titlebar] .zp-ed-panel{top:var(--dsh-windows-titlebar-height,34px);}',
-      '.zp-ed-panel{pointer-events:auto;position:absolute;left:0;top:0;bottom:0;width:352px;max-width:94vw;display:flex;flex-direction:column;gap:10px;padding:16px;overflow:auto;background:var(--dsw-alias-bg-base);border-right:1px solid var(--dsw-alias-border-l2);box-shadow:0 0 48px rgba(0,0,0,.5);}',
-      '.zp-ed-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;}',
+      // 抽屉 352px：头尾吸顶/吸底，中间滚动；阴影改用主题自己的 elevation，
+      // 以前写死 rgba(0,0,0,.5)，浅色主题下会压出一圈 50% 黑边。
+      '.zp-ed-panel{pointer-events:auto;position:absolute;left:0;top:0;bottom:0;width:352px;max-width:94vw;display:flex;flex-direction:column;gap:10px;padding:16px;overflow:auto;background:var(--dsw-alias-bg-base);border-right:1px solid var(--dsw-alias-border-l2);box-shadow:var(--dsw-elevation-panel,0 18px 44px rgba(0,0,0,.28));}',
+      '.zp-ed-hd{position:sticky;top:-16px;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:-16px -16px 0;padding:14px 16px 10px;background:var(--dsw-alias-bg-base);border-bottom:1px solid var(--dsw-alias-border-l1);}',
       '.zp-ed-ttl{font-size:14px;font-weight:600;}',
       '.zp-ed-x{width:26px;height:26px;border-radius:7px;border:1px solid transparent;background:transparent;color:var(--dsw-alias-label-secondary);font-size:18px;line-height:1;cursor:pointer;}',
       '.zp-ed-x:hover{background:var(--dsw-alias-interactive-bg-hover);}',
-      '.zp-ed-list{display:flex;flex-direction:column;gap:8px;}',
-      '.zp-ed-item{display:grid;grid-template-columns:58px 26px minmax(0,1fr) 46px 24px;gap:8px;align-items:center;}',
-      '.zp-ed-lbl{font-size:12px;color:var(--dsw-alias-label-secondary);}',
+      '.zp-ed-list{display:flex;flex-direction:column;gap:2px;}',
+      // 标签列宽与 .zp-lbl(4.4em) 对齐、颜色同档 tertiary：
+      // 原来 58px + secondary，与上面的表单块左边缘差 5px 且深浅不同，看着不像同一张表单。
+      '.zp-ed-item{display:grid;grid-template-columns:4.6em 26px minmax(0,1fr) 62px 26px;gap:6px 8px;align-items:center;padding:3px 0 3px 2px;border-radius:6px;}',
+      '.zp-ed-lbl{font-size:12px;color:var(--dsw-alias-label-tertiary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
+      // 已改过的行：标签提亮并加底色，和「继承自主题」的值区分开。
+      '.zp-ed-item.is-dirty .zp-ed-lbl{color:var(--dsw-alias-label-primary);font-weight:600;}',
+      '.zp-ed-item.is-dirty{background:var(--dsw-alias-interactive-bg-hover);}',
       '.zp-ed-hex{min-width:0;width:100%;}',
       '.zp-ed-ratio{font-size:11px;text-align:right;color:var(--dsw-alias-label-tertiary);}',
       '.zp-ed-ratio.is-low{color:var(--dsw-alias-state-warn-primary);font-weight:600;}',
       '.zp-ed-reset{width:24px;height:24px;border-radius:6px;border:1px solid transparent;background:transparent;color:var(--dsw-alias-label-tertiary);cursor:pointer;}',
       '.zp-ed-reset:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary);}',
-      '.zp-ed-ft{display:flex;gap:8px;justify-content:flex-end;padding-top:10px;border-top:1px solid var(--dsw-alias-border-l1);}',
+      // 未改过的行 ↺ 置灰不可点：以前 8 个常亮，点了没反应，像坏了。
+      '.zp-ed-reset[disabled]{opacity:.28;cursor:default;background:transparent;color:var(--dsw-alias-label-tertiary);}',
+      '.zp-ed-reset:focus-visible,.zp-ed-x:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;}',
+      '.zp-color:focus-visible,.zp-preset:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;}',
+      '.zp-ed-ft{position:sticky;bottom:-16px;z-index:2;display:flex;align-items:center;gap:8px;justify-content:flex-end;margin:0 -16px -16px;padding:10px 16px 14px;background:var(--dsw-alias-bg-base);border-top:1px solid var(--dsw-alias-border-l1);}',
+      '.zp-ed-confirm{flex:1;font-size:12px;line-height:1.4;color:var(--dsw-alias-state-warn-primary);}',
+      '.zp-ed .zp-sec{padding-top:12px;}',
       '.zp-sel-wrap{display:inline-flex;min-width:0;}',
       '.zp-sel{appearance:none;padding-right:26px;background-repeat:no-repeat;background-position:right 8px center;background-size:9px;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position-x:calc(100% - 14px),calc(100% - 9px);background-size:5px 5px,5px 5px;}',
       '.zp-ed-err{font-size:11.5px;color:var(--dsw-alias-state-error-primary);line-height:1.45;}',
@@ -834,6 +847,9 @@
       '.zp-pal-sw{width:100%;height:34px;border-radius:7px;border:1px solid var(--dsw-alias-border-l2);}',
       '.zp-pal-hex{font-size:10.5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--dsw-alias-label-secondary);}',
       '.zp-pal-share{font-size:10px;color:var(--dsw-alias-label-tertiary);}',
+      '.zp-pal-name{font-size:11px;color:var(--dsw-alias-label-secondary);max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
+      '.zp-ed-sec{display:flex;flex-direction:column;gap:6px;padding-top:12px;border-top:1px solid var(--dsw-alias-border-l1);}',
+      '.zp-ed-sec:first-of-type{padding-top:0;border-top:0;}',
       '.zp-json{width:100%;box-sizing:border-box;padding:9px;border-radius:8px;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;line-height:1.5;resize:vertical;}',
       '.zp-foot{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;padding-top:16px;',
       'border-top:1px solid var(--dsw-alias-border-l1);}',
@@ -1016,6 +1032,47 @@
       return (hi + 0.05) / (lo + 0.05);
     }
 
+    // 锚点行：hex 输入框有本地缓冲，才能逐字输入。
+    // 之前直接把受控值绑到 draft 且只在 /^#[0-9a-f]{6}$/ 时才提交：
+    // 输入中途一律不合法 → 每次按键都被 React 回弹，实际只剩「选中单个字符替换」能用。
+    function AnchorRow(props) {
+      const cur = props.value;
+      const [text, setText] = useState(cur);
+      const [bad, setBad] = useState(false);
+      useEffect(function () { setText(cur); setBad(false); }, [cur]);
+      const submit = function (raw) {
+        const v = String(raw || '').trim();
+        const hex = /^#/.test(v) ? v : '#' + v;
+        if (/^#[0-9a-fA-F]{6}$/.test(hex)) { setBad(false); props.onChange(hex.toLowerCase()); }
+        else setBad(true);
+      };
+      return h('div', { className: 'zp-ed-item' + (props.dirty ? ' is-dirty' : '') },
+        h('div', { className: 'zp-ed-lbl', title: props.anchor }, props.label),
+        h('input', {
+          type: 'color', className: 'zp-color', value: cur,
+          'aria-label': props.label + ' 取色器',
+          onChange: function (ev) { props.onChange(ev.target.value); },
+        }),
+        h('input', {
+          type: 'text', className: 'zp-txt zp-ed-hex', value: text, maxLength: 7,
+          spellCheck: false, 'aria-label': props.label + ' 十六进制色值',
+          'aria-invalid': bad ? 'true' : 'false',
+          onChange: function (ev) { setText(ev.target.value); submit(ev.target.value); },
+          onBlur: function () { submit(text); if (!/^#[0-9a-fA-F]{6}$/.test(text)) setText(cur); },
+        }),
+        props.ratio == null
+          ? h('span', { className: 'zp-ed-ratio' }, '')
+          : h('span', { className: 'zp-ed-ratio' + (props.low ? ' is-low' : ''), 'aria-live': 'polite' },
+              props.ratio.toFixed(1) + ':1' + (props.low ? ' 偏低' : '')),
+        h('button', {
+          type: 'button', className: 'zp-ed-reset', disabled: !props.dirty,
+          'aria-label': '恢复' + props.label + '为克隆主题的值',
+          title: props.dirty ? '恢复为克隆主题的值' : '当前就是克隆主题的值',
+          onClick: function () { if (props.dirty) props.onChange(''); },
+        }, '↺')
+      );
+    }
+
     function ThemeEditor(props) {
       const [draft, setDraft] = useState(function () { return JSON.parse(JSON.stringify(props.spec)); });
       // 模态语义：打开即聚焦、Tab 在面板内循环、Escape 关闭、关闭后把焦点还给打开它的元素。
@@ -1025,14 +1082,28 @@
         const prev = document.activeElement;
         const el = panelRef.current;
         try {
-          if (el) {
+          // 打开即聚焦「名称」而不是 DOM 里第一个 button（那是 × 关闭）。
+          if (nameRef.current) nameRef.current.focus();
+          else if (el) {
             const first = el.querySelector('button, input, select, textarea');
             if (first) first.focus();
           }
         } catch (e) { /* ignore */ }
         const onKey = function (ev) {
-          if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); try { props.onClose(); } catch (e) { /* ignore */ } return; }
+          // 中文输入法组词时按 Esc 是「取消候选词」，不能当成关闭编辑器。
+          if (ev.key === 'Escape') {
+            if (ev.isComposing) return;
+            ev.preventDefault(); ev.stopPropagation();
+            try { if (requestCloseRef.current) requestCloseRef.current(); } catch (e) { /* ignore */ }
+            return;
+          }
           if (ev.key !== 'Tab' || !el) return;
+          // 焦点被点到面板外（穿透区）时，Tab 直接回收进面板，别在背景里游走。
+          if (!el.contains(document.activeElement)) {
+            const firstIn = el.querySelector('button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (firstIn) { ev.preventDefault(); firstIn.focus(); }
+            return;
+          }
           const nodes = Array.prototype.slice.call(el.querySelectorAll('button, input, select, textarea, [tabindex]:not([tabindex="-1"])'))
             .filter(function (n) { return !n.disabled && n.offsetParent !== null; });
           if (!nodes.length) return;
@@ -1050,9 +1121,15 @@
       // 默认打开浅色：自定义主题的主体就是浅色锚点，深色由 autoDark 反推。
       // 从深色开始会让用户误以为"改浅色没反应"（其实是被反推覆盖了）。
       const [editScheme, setEditScheme] = useState('light');
+      // 未保存改动与「放弃确认」：× / Esc / 取消 三条路径都会丢弃 draft，
+      // 以前它们直接 onClose，调色 20 分钟误按一次就全没，且没有任何提示。
+      const [dirty, setDirty] = useState(false);
+      const [confirmDiscard, setConfirmDiscard] = useState(false);
+      const nameRef = useRef(null);
+      const requestCloseRef = useRef(null);
       // 显示「这一套实际算出来的值」而不是 base 主题原值：
       // autoDark 时深色格子里显示的就是反推结果，用户可以直接在它基础上调。
-      const baseTokens = buildCustomTokens(draft, editScheme);
+      const baseTokens = React.useMemo(function () { return buildCustomTokens(draft, editScheme); }, [draft, editScheme]);
       const bg = (draft.bg && typeof draft.bg === 'object')
         ? draft.bg
         : { source: '', key: '', opacity: null, style: '' };
@@ -1100,7 +1177,20 @@
       draftRef.current = draft;
       const commit = function (next) {
         setDraft(next);
+        setDirty(true);
         props.onPreview(next, editScheme);
+      };
+      // 切 scheme 的场景：先落 draft，再按目标 scheme 预览一次。
+      // 以前是 commit() + onPreview() 各一次 → 预设/填入要跑两遍 applyTokens（26–45KB CSS 重建两次）。
+      const commitWith = function (next, scheme) {
+        setDraft(next);
+        setDirty(true);
+        if (scheme && scheme !== editScheme) setEditScheme(scheme);
+        props.onPreview(next, scheme || editScheme);
+      };
+      requestCloseRef.current = function () {
+        if (dirty) setConfirmDiscard(true);
+        else props.onClose();
       };
       const setAnchor = function (key, value) {
         const next = JSON.parse(JSON.stringify(draft));
@@ -1114,15 +1204,15 @@
       const applyPreset = function (p) {
         if (!p) return;
         const n = JSON.parse(JSON.stringify(draft));
-        n.light = Object.assign({}, n.light || {}, p.light);
-        if (p.dark) n.dark = Object.assign({}, n.dark || {}, p.dark);
+        // 替换而不是合并：预设是一整套配色。若只 merge，先套「赛博终端」再套「玻璃拟态」时，
+        // 玻璃拟态没有 dark 表，赛博留下的深色锚点会继续支配深色态（浅色对、深色错）。
+        n.light = Object.assign({}, p.light);
+        n.dark = p.dark ? Object.assign({}, p.dark) : {};
         n.autoDark = p.autoDark;
         n.radiusScale = p.radius;
         n.font = { body: p.body || '', chat: p.chat || '' };
-        commit(n);
         const scheme = p.autoDark ? 'light' : 'dark';
-        setEditScheme(scheme);
-        props.onPreview(n, scheme);
+        commitWith(n, scheme);
         if (p.autoDark && props.onSwitchToLight) props.onSwitchToLight();
       };
       // AI 生成的锚点一律落进 light（模型只给浅色），并强制打开 autoDark，
@@ -1144,11 +1234,8 @@
         const suggested = cleanAiLabel(aiResult.label, aiPrompt);
         if (suggested && (!n.label || /^自定义\s*\d*$/.test(String(n.label).trim()))) n.label = suggested;
         n.autoDark = true;
-        commit(n);
-        // 关键：AI 给的是浅色锚点，而 autoDark 会在深色模式下把它们反推成深色。
-        // 不切预览的话，用户在深色模式下点「填入」只会看到一片深色，误以为取色取错了。
-        setEditScheme('light');
-        props.onPreview(n, 'light');
+        // AI 给的是浅色锚点；autoDark 下必须切到浅色预览，否则深色模式下看不到变化。
+        commitWith(n, 'light');
         if (props.onSwitchToLight) props.onSwitchToLight();
         setAiResult(null); setAiPrompt('');
       };
@@ -1191,11 +1278,8 @@
         const n = JSON.parse(JSON.stringify(draft));
         n.light = Object.assign({}, n.light || {}, anchorsFromImage);
         n.autoDark = true;
-        commit(n);
-        // 同上：取到的色是照片原色，立刻切到浅色预览让用户看到它，
-        // 而不是被深色反推覆盖掉。
-        setEditScheme('light');
-        props.onPreview(n, 'light');
+        // 取到的是照片原色，切浅色预览才能看见（否则被深色反推盖住）。
+        commitWith(n, 'light');
         if (props.onSwitchToLight) props.onSwitchToLight();
         setPalette(null);
       };
@@ -1203,20 +1287,20 @@
       return h('div', { className: 'zp-ed', role: 'dialog', 'aria-modal': 'true', 'aria-label': '自定义主题编辑器' },
         h('div', { className: 'zp-ed-panel', ref: panelRef },
           h('div', { className: 'zp-ed-hd' },
-            h('div', { className: 'zp-ed-ttl' }, '自定义主题'),
+            h('div', { className: 'zp-ed-ttl' }, '编辑配色'),
             h('button', {
-              type: 'button', className: 'zp-ed-x', 'aria-label': '关闭',
-              onClick: function () { props.onClose(); },
+              type: 'button', className: 'zp-ed-x', 'aria-label': '关闭编辑器',
+              title: '关闭（有未保存改动会先确认）',
+              onClick: function () { requestCloseRef.current(); },
             }, '×')
           ),
+          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, '外观'), h('div', { className: 'zp-sec-n' }, '克隆自 ' + (THEMES[props.spec.base] ? (THEMES[props.spec.base].label || props.spec.base) : props.spec.base) + '，其余 token 按差值派生'))),
           h(Row, { label: '名称' },
             h('input', {
               type: 'text', className: 'zp-txt', value: draft.label, maxLength: 24,
-              onChange: function (ev) { const n = JSON.parse(JSON.stringify(draft)); n.label = ev.target.value; setDraft(n); },
+              ref: nameRef, 'aria-label': '主题名称',
+              onChange: function (ev) { const n = JSON.parse(JSON.stringify(draft)); n.label = ev.target.value; setDraft(n); setDirty(true); },
             })
-          ),
-          h(Row, { label: '底色基准' },
-            h('span', { className: 'zp-hint' }, '克隆自 ' + (THEMES[props.spec.base] ? (THEMES[props.spec.base].label || props.spec.base) : props.spec.base) + '，其余 token 按差值派生')
           ),
           h(Row, { label: '深色' },
             h('label', { className: 'zp-chk' },
@@ -1231,6 +1315,34 @@
               h('span', null, '由浅色自动反推（底色/文字/边框反明度，品牌与语义色沿用）')
             )
           ),
+          h(Row, { label: '编辑' },
+            h(Pills, {
+              label: '编辑明暗',
+              opts: [['light', '浅色'], ['dark', '深色']],
+              value: editScheme,
+              onChange: function (v) {
+                setEditScheme(v);
+                // 切明暗立刻按新 scheme 预览，否则面板显示浅色、界面仍是深色
+                props.onPreview(JSON.parse(JSON.stringify(draftRef.current)), v);
+              },
+            })
+          ),
+          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, '配色锚点'), h('div', { className: 'zp-sec-n' }, '改这里，右侧真实界面实时跟着变；只有「保存」才落盘'))),
+          h('div', { className: 'zp-ed-list' },
+            ANCHOR_GROUPS.map(function (g) {
+              const own = anchors[g.anchor];
+              const cur = own || baseTokens[g.anchor] || '#000000';
+              const bgHex = anchors['--dsw-alias-bg-base'] || baseTokens['--dsw-alias-bg-base'] || '#000000';
+              const ratio = g.key === 'bg' ? null : contrastRatio(cur, bgHex);
+              return h(AnchorRow, {
+                key: g.key, label: g.label, anchor: g.anchor, value: cur,
+                ratio: ratio, low: ratio != null && ratio < 4.5,
+                dirty: Boolean(own),
+                onChange: function (v) { setAnchor(g.anchor, v); },
+              });
+            })
+          ),
+          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, '风格预设'), h('div', { className: 'zp-sec-n' }, '整套替换：锚点、圆角、字体一起换'))),
           h(Row, { label: '风格预设' },
             h('div', { className: 'zp-presets' },
               STYLE_PRESETS.map(function (p) {
@@ -1242,10 +1354,11 @@
               })
             )
           ),
+          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, 'AI 与取色'), h('div', { className: 'zp-sec-n' }, '生成结果先预览，点「填入」才改草稿'))),
           h(Row, { label: 'AI 生成' },
             h('div', { className: 'zp-ed-ai' },
               h('textarea', {
-                className: 'zp-json', rows: 2,
+                className: 'zp-json', rows: 3, 'aria-label': '风格描述',
                 placeholder: '描述风格，例如：复古终端，灰底，黄色主色蓝色次色，等宽字体，直角边框',
                 value: aiPrompt,
                 onChange: function (ev) { setAiPrompt(ev.target.value); },
@@ -1256,7 +1369,7 @@
                   disabled: aiBusy,
                   onClick: function () { aiGenerate(); },
                 }, aiBusy ? '生成中…' : '生成'),
-                aiErr ? h('span', { className: 'zp-hint' }, aiErr) : null
+                aiErr ? h('span', { className: 'zp-ed-err', role: 'alert' }, aiErr) : null
               ),
               aiResult
                 ? h('div', null,
@@ -1264,8 +1377,10 @@
                       (aiResult.dropped && aiResult.dropped.length ? '（丢弃 ' + aiResult.dropped.length + ' 个不认识的 key）' : '')),
                     h('div', { className: 'zp-pal' },
                       Object.keys(aiResult.light).map(function (k) {
+                        const grp = ANCHOR_GROUPS.filter(function (g) { return g.anchor === k; })[0];
                         return h('div', { className: 'zp-pal-item', key: k },
                           h('span', { className: 'zp-pal-sw', style: { background: aiResult.light[k] } }),
+                          h('span', { className: 'zp-pal-name' }, grp ? grp.label : k.replace('--dsw-alias-', '')),
                           h('span', { className: 'zp-pal-hex' }, aiResult.light[k])
                         );
                       })
@@ -1289,7 +1404,7 @@
               h('label', { className: 'zp-btn zp-file' }, paletteBusy ? '取色中…' : '选择图片…',
                 h('input', { type: 'file', accept: 'image/*', onChange: function (ev) { pickPalette(ev); } })
               ),
-              paletteErr ? h('span', { className: 'zp-hint' }, paletteErr) : null,
+              paletteErr ? h('span', { className: 'zp-ed-err', role: 'alert' }, paletteErr) : null,
               palette
                 ? h('div', { className: 'zp-pal' },
                     palette.map(function (c) {
@@ -1315,19 +1430,8 @@
                 : null
             )
           ),
-          h(Row, { label: '编辑' },
-            h(Pills, {
-              // 浅色在前：自定义主题的主体就是浅色锚点，深色由 autoDark 反推，
-              // 默认落在浅色上才符合实际使用顺序。
-              label: '编辑明暗', opts: [['light', '浅色'], ['dark', '深色']],
-              value: editScheme,
-              onChange: function (v) {
-                setEditScheme(v);
-                // 切明暗时立即按新 scheme 重算预览，否则面板显示浅色、界面却还是深色
-                props.onPreview(JSON.parse(JSON.stringify(draftRef.current)), v);
-              },
-            })
-          ),
+
+          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, '底图'), h('div', { className: 'zp-sec-n' }, '单张 ≤ 3 MiB，存本机 IndexedDB'))),
           h(Row, { label: '底图' },
             h(Pills, {
               label: '主题底图来源',
@@ -1360,6 +1464,7 @@
                 h('span', { className: 'zp-val' }, (typeof bg.opacity === 'number' ? bg.opacity : 85) + '%')
               )
             : null,
+          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, '形状与字体'), h('div', { className: 'zp-sec-n' }, '只影响本主题，不动其他主题'))),
           h(Row, { label: '圆角' },
             h(Pills, {
               label: '圆角大小',
@@ -1400,39 +1505,17 @@
               },
             })
           ),
-          h('div', { className: 'zp-ed-list' },
-            ANCHOR_GROUPS.map(function (g) {
-              const cur = anchors[g.anchor] || baseTokens[g.anchor] || '#000000';
-              const bg = anchors['--dsw-alias-bg-base'] || baseTokens['--dsw-alias-bg-base'] || '#000000';
-              const ratio = g.key === 'bg' ? null : contrastRatio(cur, bg);
-              const low = ratio != null && ratio < 4.5;
-              return h('div', { className: 'zp-ed-item', key: g.key },
-                h('div', { className: 'zp-ed-lbl' }, g.label),
-                h('input', {
-                  type: 'color', className: 'zp-color', value: cur,
-                  'aria-label': g.label + '颜色',
-                  onChange: function (ev) { setAnchor(g.anchor, ev.target.value); },
-                }),
-                h('input', {
-                  type: 'text', className: 'zp-txt zp-ed-hex', value: cur, maxLength: 7,
-                  onChange: function (ev) {
-                    const v = ev.target.value.trim();
-                    if (/^#[0-9a-fA-F]{6}$/.test(v)) setAnchor(g.anchor, v);
-                  },
-                }),
-                ratio != null
-                  ? h('span', { className: 'zp-ed-ratio' + (low ? ' is-low' : '') }, ratio.toFixed(1) + ':1')
-                  : h('span', { className: 'zp-ed-ratio' }, ''),
-                h('button', {
-                  type: 'button', className: 'zp-ed-reset', title: '恢复 ' + props.spec.base + ' 主题的值',
-                  onClick: function () { setAnchor(g.anchor, ''); },
-                }, '↺')
-              );
-            })
-          ),
+
           h('div', { className: 'zp-ed-ft' },
-            h('button', { type: 'button', className: 'zp-btn', onClick: function () { props.onClose(); } }, '取消'),
-            h('button', { type: 'button', className: 'zp-btn zp-btn-pri', onClick: function () { props.onSave(draft); } }, '保存')
+            confirmDiscard
+              ? h('span', { className: 'zp-ed-confirm', role: 'alert' }, '有未保存改动，确定放弃？')
+              : h('span', { className: 'zp-hint' }, dirty ? '有未保存改动' : ''),
+            confirmDiscard
+              ? h('button', { type: 'button', className: 'zp-btn', onClick: function () { setConfirmDiscard(false); } }, '继续编辑')
+              : h('button', { type: 'button', className: 'zp-btn', onClick: function () { requestCloseRef.current(); } }, '取消'),
+            confirmDiscard
+              ? h('button', { type: 'button', className: 'zp-btn', 'data-tone': 'danger', onClick: function () { props.onClose(); } }, '放弃改动')
+              : h('button', { type: 'button', className: 'zp-btn zp-btn-pri', onClick: function () { props.onSave(draft); } }, '保存')
           )
         )
       );
@@ -1443,12 +1526,23 @@
     class PanelBoundary extends React.Component {
       constructor(props) { super(props); this.state = { err: null }; }
       static getDerivedStateFromError(err) { return { err: err }; }
+      // 记一笔到控制台：getDerivedStateFromError 之后 React 会清掉调用栈，
+      // 不在这里留痕的话，用户只能看到那一行 message。
+      componentDidCatch(err) {
+        try { console.error('[zhuoer-theme] 面板渲染出错', err); } catch (e) { /* ignore */ }
+      }
       render() {
         if (this.state.err) {
           const msg = String((this.state.err && this.state.err.message) || this.state.err);
+          const self = this;
           return h('div', { className: 'zp-root' },
             h('div', { className: 'zp-hint' }, '主题面板渲染出错：' + msg),
-            h('div', { className: 'zp-hint' }, '可以刷新页面后重试；如果反复出现，把上面的信息发给作者。')
+            // 以前只有一句「刷新页面」；现在可以直接重试，草稿在编辑器里、重挂载后仍在 localStorage。
+            h('div', { className: 'zp-cus-acts' },
+              h('button', { type: 'button', className: 'zp-btn', onClick: function () { self.setState({ err: null }); } }, '重试'),
+              h('button', { type: 'button', className: 'zp-btn', onClick: function () { try { window.location.reload(); } catch (e) { /* ignore */ } } }, '刷新页面')
+            ),
+            h('div', { className: 'zp-hint' }, '如果反复出现，把上面的信息发给作者。')
           );
         }
         return this.props.children;
@@ -1495,6 +1589,8 @@
       };
       // ---- 从图片取色（纯本地，不上传）----
       const openEditor = function (spec) {
+        // 两个弹层互斥：同时开着会叠两层 aria-modal，键盘行为互相打架。
+        setJsonIO(null);
         setModeBeforeEdit(pref.mode);
         setEditing(spec);
       };
@@ -1511,12 +1607,18 @@
         const next = customs.map(function (c) { return c.id === draft.id ? draft : c; });
         // mode 用进编辑器前的值还原：预览期间它被临时改成正在编辑的 scheme。
         set({ customThemes: next, theme: draft.id, mode: modeBeforeEdit || pref.mode });
+        // 保存同样要把宿主明暗还原成编辑前的值，否则两端又会不一致。
+        if (modeBeforeEdit) { try { writeHostMode(modeBeforeEdit); } catch (e) { /* ignore */ } }
         setEditing(null);
         setModeBeforeEdit(null);
       };
       const cancelCustom = function () {
+        // 取消必须把宿主明暗一起还原：编辑期间「填入」会调 onSwitchToLight，
+        // 那是真的把宿主 preference 写成 light —— 只重置本地 state 会让整个应用停在浅色。
+        const back = modeBeforeEdit;
         setEditing(null);
         setModeBeforeEdit(null);
+        if (back) { try { writeHostMode(back); } catch (e) { /* ignore */ } }
         setPref(readPref());
         applyTokens(themeRef, readPref());
       };
@@ -1530,6 +1632,8 @@
       };
       const exportCustom = function () {
         if (!currentCustom) return;
+        // 与编辑器互斥：同时开两个弹层会让 aria-modal 叠加、Tab 行为打架。
+        setEditing(null);
         setJsonIO({ mode: 'export', text: JSON.stringify(currentCustom, null, 2) });
       };
       const doImport = function () {
@@ -1738,7 +1842,7 @@
           h('div', { className: 'zp-cus-acts' },
             h('button', {
               type: 'button', className: 'zp-btn',
-              onClick: function () { setJsonIO({ mode: 'import', text: '' }); },
+              onClick: function () { setEditing(null); setJsonIO({ mode: 'import', text: '' }); },
             }, '导入 JSON')
           )
         ),
