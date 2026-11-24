@@ -5,7 +5,7 @@
 - 配色走宿主主题服务：`ctx.theme.overrideTokens()` 把每套主题映射到 DSH 的 `--dsw-alias-*` token（每套 222 个），不劫持 DOM 结构、不注入宿主组件。
 - **纯本地**：没有账号、没有遥测、不请求外部网络。唯一的联网行为是你在编辑器里点「AI 生成」时，插件通过**宿主自己的模型**补一组锚点色。
 - 明暗三态（浅色 / 深色 / 跟随系统）与宿主「通用设置 → 外观」**双向同步**，两边改任一边都会一起变。
-- 当前版本 **0.5.2**，MIT。
+- 当前版本 **0.5.3**，MIT。
 
 ## 功能一览
 
@@ -43,19 +43,30 @@
 
 ## 安装
 
-从 npm 安装（推荐）：
+要求：DSH 桌面端或 Web 端，插件随 profile 安装。
+
+### 从 npm 安装（推荐）
+
+在 profile 的 `package.json` 里加一行，然后 `pnpm install`：
 
 ```json
-"dsh-zhuoer-theme": "^0.5.2"
+"dsh-zhuoer-theme": "^0.5.3"
 ```
 
-开发期用 `link:` 指向工作树，改完代码重启 DSH 即可生效：
+### 从 GitHub 安装
+
+想跟源码或锁定某个 tag（`v0.5.3` 是带 provenance 的发布提交）：
 
 ```json
-"dsh-zhuoer-theme": "link:E:/Documents/deepseek-harness/default-workspace/dsh-openclaw-skin"
+"dsh-zhuoer-theme": "github:zuoyunlai/dsh-zhuoer-theme#v0.5.3"
 ```
 
-然后把 `dsh-zhuoer-theme` 加进 profile 的 `dsh.profile.bundles`，`pnpm install`，重启 DSH。
+也可以直接给仓库地址：`github:zuoyunlai/dsh-zhuoer-theme`。
+
+### 装完还要做两件事
+
+1. 把 `dsh-zhuoer-theme` 加进同一份 profile 的 `dsh.profile.bundles` 数组——只加依赖不登记 bundle，宿主不会加载它。
+2. 重启 DSH。
 
 > **资源文件必须重启才可见**：宿主的插件资源路由只服务启动时已存在的文件。新增/替换 `assets/` 下的字体或底图后，对应 URL 会 404（页面本身正常，只是字或底图缺失），重启即可。
 >
