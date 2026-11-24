@@ -1153,15 +1153,27 @@ window.__ModuleLoader__.load({
       } catch (e) { /* ignore */ }
       return '';
     }
-    /** 写宿主偏好（auto → system）；宿主不可用时返回 false，调用方退回只落本地。 */
+    /**
+     * 写宿主偏好（auto → system）；宿主不可用时返回 false，调用方退回只落本地。
+     * 成功后先把 hostPrefSeen 对齐到目标值：宿主会回灌一条 theme/change，
+     * 不预置的话订阅端会把它当成「外部改动」再走一遍镜像+重算（白跑一轮）。
+     */
     function writeHostMode(mode) {
+      const raw = mode === 'auto' ? 'system' : mode;
       try {
         if (hostThemeApi && typeof hostThemeApi.setTheme === 'function') {
-          hostThemeApi.setTheme(mode === 'auto' ? 'system' : mode);
+          hostThemeApi.setTheme(raw);
+          hostPrefSeen = raw;
           return true;
         }
       } catch (e) { /* ignore */ }
       return false;
+    }
+    /** 宿主偏好原值 → 本页三态（light | dark | auto | 空串）。 */
+    function mapHostPref(p) {
+      if (p === 'light' || p === 'dark') return p;
+      if (p === 'system') return 'auto';
+      return '';
     }
     // 宿主 theme/change 订阅：**只对「偏好值真的变了」作出反应，且只注册一次**。
     // 踩过的坑：theme.overrideTokens() 自己也会 emit theme/change（宿主文档原话
@@ -1189,6 +1201,13 @@ window.__ModuleLoader__.load({
       try { if (window.localStorage.getItem('dsh-zhuoer-theme:mute-sync') === '1') return; } catch (e) { /* ignore */ }
       if (!ctx || typeof ctx.on !== 'function' || !hostThemeApi) return;
       hostSubscribed = true;
+      // 启动即对齐：宿主的 preference 是唯一真源，本页存的 mode 只是镜像。
+      // 旧版本存在两端不一致的存档（宿主深色、本页 mode=light），这里先纠正一次，
+      // 否则首屏会按错的 mode 渲染。
+      try {
+        const boot = mapHostPref(hostPrefRaw());
+        if (boot && readPref().mode !== boot) writePref({ mode: boot });
+      } catch (e) { /* ignore */ }
       hostPrefSeen = hostPrefRaw();
       try {
         ctx.on('theme/change', function () {
@@ -1197,13 +1216,20 @@ window.__ModuleLoader__.load({
             // 同值 = 我们自己 overrideTokens / setTheme 引起的回灌，直接丢弃。
             if (p === hostPrefSeen) return;
             hostPrefSeen = p;
-            // 异步合并：一次操作可能连发多个事件，只重算一次。
+            // 宿主改明暗：① 把三态镜像回本页（否则 mode 停在旧值，resolveScheme 会盖住宿主偏好）
+            // ② 必须重算 token —— 之前这里只 emitChange()，面板数字会变、画面不变。
+            // 两条都放在同一个异步回调里合并，一次操作只跑一遍。
             if (hostReapplyQueued) return;
             hostReapplyQueued = true;
             hostReapplyTimer = setTimeout(function () {
               hostReapplyTimer = 0;
               hostReapplyQueued = false;
-              try { emitChange(); } catch (e) { /* ignore */ }
+              try {
+                const mapped = mapHostPref(hostPrefSeen);
+                if (mapped && readPref().mode !== mapped) writePref({ mode: mapped });
+                applyTokens(themeRef, readPref());
+                emitChange();
+              } catch (e) { /* ignore */ }
             }, 0);
           } catch (e) { /* ignore */ }
         });
