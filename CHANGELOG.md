@@ -2,6 +2,53 @@
 
 按时间倒序。每条都写「为什么改」，而不只是改了什么。
 
+## 0.4.0
+
+按一次前端审计（11 套主题 × 两态 + 12 套预设的 WCAG 全量计算 + 运行时日志反查）修的口径，
+三批一起发：先止血、再体验、最后拆结构。
+
+### P1 · 止血
+
+- **诊断探针真正关闭**。0.3.5 只关了 4 处循环，`document.styleSheets` 全表正则、8 秒后的
+  late-probe（全 DOM + 逐元素 `getComputedStyle`）仍在每次 apply 跑；日志实录 297 次 apply
+  ≈ 1,780 条写盘。现在 `report()` 默认早退，两处重扫描也挂上 `zrDebug()`。
+- **阴影取错键**：`SHADOWS[pref.theme]` 对自定义主题恒为 undefined，整段阴影覆盖被跳过，
+  manuscript 深色 panel 阴影因此偏重 8.3×。改为按克隆来源取（`effTheme`）。
+- **彩色底上的文字**：新增 `pickOnColor` / `ensureReadableOn`（在 `#region derive` 内，可被
+  无头脚本抠出验证）。预设 12 套 × 两态的按钮文字从 1.25–4.02:1 提到 ≥4.5:1；强调色写入后
+  再收口一次。新增 `scripts/verify-contrast.mjs` 并接入 `verify:all`，覆盖内置 11 套、
+  预设 12 套、提示级与 success 语义色。
+- 提示级文字（tertiary / caption / dimmed）与 `state-success-primary` 在 57 处达不到 4.5:1，
+  已按各主题底色抬到达标（themes.mjs 改完 `sync:themes` 生成）。
+
+### P2 · 体验与资产
+
+- 样式表**只在内容变化时重写**（此前每次 apply 都重赋 26–45 KB，等于整表重新解析）。
+- MutationObserver 与 `data-zr-state` 只在启用底图时工作（此前无条件挂在 body 全子树）。
+- 自定义主题编辑器与 JSON 弹层补上模态语义：`aria-modal`、打开即聚焦、Tab 在面板内循环、
+  Escape 关闭、关闭后焦点归还。
+- 设置面板加错误边界（此前损坏的 JSON 或派生失败会把整块设置页拖黑）。
+- 删除 31 个未被引用的 `assets/*.webp`（451 KB；0.3.5 起客户端只用 `assets/bg/`）。
+- `QUICKNAV_VERSION` 并入 `PVERSION`：0.3.9 那个独立常量逃过了 `verify-version`
+  （门只认三位 patch），控制台打出的版本与 package.json 对不上。
+
+### 结构 · 源码分片 + 构建
+
+- `client.js` 现在是**产物**：`src/00-core.js` / `10-themes.js`（sync-themes 生成）/
+  `20-tokens-and-panel.js` / `30-quicknav.js` 由 `build.mjs` 按文件名顺序拼接。
+  不引入打包器：运行时仍必须是单文件（合并请求下 `import.meta.url` 不可靠），
+  分片只服务维护。
+- 新增 `verify:build` 门：client.js 必须等于分片重新拼接的结果，直接改产物会红。
+- `sync:themes` 改为写入 `src/10-themes.js` 并顺带构建。
+
+### 刻意没做
+
+- **阴影数据并回 themes.mjs**：需要为 11 套主题重新定一套 shadow 刻度（现有 `SHADOWS` 与
+  themes.mjs 原值本就两套），属于数据设计而非清理；取错键的 bug 已在本版修掉，合并留待单独一轮。
+- **CJK 字体加 `unicode-range`**：每支中文字体目前是**单个** woff2（整段 CJK），
+  `unicode-range` 只有在按区间拆成多文件、让浏览器按需下载时才有意义；不拆分等于无效属性。
+  真正能省的是把衬线中文字体从默认链路里摘掉（它本来就按使用触发下载）。
+
 ## 0.3.7
 
 - **发版改走 CI 的 OIDC 可信发布**（`.github/workflows/publish.yml`）。

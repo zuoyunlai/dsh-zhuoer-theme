@@ -51,7 +51,12 @@
 ```bash
 npm test          # verify:all（含版本一致性门）+ 派生纯函数测试
 npm run coverage  # token 覆盖率与「刻意不跟锚点」的豁免清单
+npm run build     # src/*.js → client.js（产物必须与源码一致，verify:build 会查）
 ```
+
+客户端代码在 `src/` 下分四片（core / themes / tokens-and-panel / quicknav），由 `build.mjs`
+按文件名顺序拼成单文件 `client.js`。**改代码请改 `src/`，不要直接改 client.js**；
+主题色仍只改 `themes.mjs`，然后 `npm run sync:themes`（会写入 `src/10-themes.js` 并构建）。
 
 ## 主题开发
 

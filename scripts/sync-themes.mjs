@@ -18,12 +18,13 @@ import { dirname, join } from 'node:path'
 const here = dirname(fileURLToPath(import.meta.url))
 const root = join(here, '..')
 const { THEMES } = await import(pathToFileURL(join(root, 'themes.mjs')).href)
-const clientPath = join(root, 'client.js')
+// 生成目标从 client.js 改为源分片：client.js 现在是 build.mjs 的产物，直接改它会被下一次构建覆盖。
+const clientPath = join(root, 'src', '10-themes.js')
 const src = readFileSync(clientPath, 'utf8')
 
 const marker = 'const THEMES = '
 const at = src.indexOf(marker)
-if (at < 0) throw new Error('client.js 里找不到 `const THEMES = `')
+if (at < 0) throw new Error('src/10-themes.js 里找不到 `const THEMES = `')
 const start = src.indexOf('{', at)
 let depth = 0, end = -1, inStr = false, esc = false
 for (let i = start; i < src.length; i++) {
@@ -73,7 +74,7 @@ const nextSrc = src.slice(0, start) + next + src.slice(end)
 const changed = !semanticEqual
 
 if (process.argv.includes('--check')) {
-  console.log(changed ? 'STALE  client.js 内联副本与 themes.mjs 不一致，请运行 node scripts/sync-themes.mjs' : 'OK    内联副本已是最新')
+  console.log(changed ? 'STALE  内联副本与 themes.mjs 不一致，请运行 npm run sync:themes（会顺带 build）' : 'OK    内联副本已是最新')
   process.exit(changed ? 1 : 0)
 }
 if (!changed) { console.log('OK    无需改动'); process.exit(0) }
