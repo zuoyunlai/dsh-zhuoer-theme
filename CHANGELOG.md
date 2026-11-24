@@ -2,6 +2,17 @@
 
 按时间倒序。每条都写「为什么改」，而不只是改了什么。
 
+## 0.3.7
+
+- **发版改走 CI 的 OIDC 可信发布**（`.github/workflows/publish.yml`）。
+  原因：本机默认 registry 是 npmmirror 只读镜像、npm 侧的 token 也早已失效，
+  每次发版都要人工网页 2FA，且 CLI 发布拿不到 provenance 证明。
+  现在打 tag 即触发：校验 tag 与 package.json 版本一致、tag 必须落在默认分支历史上、
+  跑完门禁后由 GitHub OIDC 直接向 npm 发布（带 provenance），再补 GitHub Release。
+- `package.json` 增加 `publishConfig`（固定 registry.npmjs.org、access=public），
+  避免本机默认镜像导致发错地方。
+- README 增加 npm 安装写法。
+
 ## 0.3.6
 
 - **两个本地端点加来源校验**（`index.js`）。`/api/report` 与 `/api/gen-theme` 此前接受任意来源请求：
