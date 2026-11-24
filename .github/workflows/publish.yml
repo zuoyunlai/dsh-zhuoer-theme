@@ -39,6 +39,11 @@ jobs:
       - name: Toolchain
         run: node -v && npm -v
 
+      # 工作区必须等于 HEAD（按内容哈希，不看 stat）：git 的 stat 缓存会把同长度、
+      # mtime 未变的编辑当成未修改，0.3.7 与 0.5.3 两次发版都因此把版本号留在旧值。
+      - name: Preflight (workspace == HEAD)
+        run: npm run --silent verify:release
+
       # 发布来源闸：tag 必须等于 package.json 的版本，且 tag 必须落在默认分支历史上
       - name: Verify tag matches package version
         if: startsWith(github.ref, 'refs/tags/')

@@ -208,7 +208,7 @@ assets/bg/           21 张主题底图（webp）
 发版走标签触发的 CI，不在本地 `npm publish`：
 
 1. 升版本：`package.json` + `src/00-core.js` 的 `PVERSION`，写 CHANGELOG。
-2. `npm test` 全绿后提交，打 tag `v<version>` 并推送。
+2. `npm test` 全绿后提交，**再跑 `npm run verify:release`**（按内容哈希比对工作区与 HEAD，抓「同长度编辑被 git stat 缓存吞掉」这种坑），然后打 tag `v<version>` 并推送。
 3. GitHub Actions 校验 tag 与版本一致、跑门禁，然后 OIDC 发布到 npm 并生成 Release。
    产物带 `slsa.dev/provenance/v1` 证明。
 

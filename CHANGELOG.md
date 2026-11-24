@@ -2,6 +2,23 @@
 
 按时间倒序。每条都写「为什么改」，而不只是改了什么。
 
+## 0.5.4
+
+发版预检：把「同长度编辑被 git stat 缓存吞掉」这一类事故变成机械门禁。
+
+两次发版栽在同一处（0.3.7、0.5.3）：版本号 `0.3.6→0.3.7` / `0.5.1→0.5.3` 长度相同，文件 mtime 又没变，
+git 认为文件未修改，`git add -A` 静默跳过；`git status` 也随之显示干净。本地所有门禁读的是工作区，所以全绿；
+CI 才在「tag 与 package.json 一致」这步报错（`tag=0.5.3 package=0.5.1`）。
+
+- 新增 `scripts/verify-release-clean.mjs`（`npm run verify:release`）：逐个跟踪文件比对内容 sha256 与 `HEAD:<path>`，
+  不看 stat；另查未跟踪文件、以及版本三元组（HEAD `package.json` / HEAD `PVERSION` / 产物 `client.js`）与工作区一致，
+  CI 里还核对 `GITHUB_REF_NAME` 的 tag。
+- 接入 `publish.yml` 的 `Preflight (workspace == HEAD)` 步骤（在 tag 校验与门禁之前）。
+- README 发布流程补上这一步。
+
+自证方式（本轮实跑）：把 `README.md` 里「安装」改成「装安」（同字节长度），再用 `touch -r` 把 mtime 还原；
+`git status` 显示干净，`verify:release` 判红并指名 `README.md`。还原后门禁恢复绿。
+
 ## 0.5.3
 
 「编辑配色 / 自定义主题」页重构。两位专家（UI 设计 + 前端）各自审了一遍，交叉后按「会丢东西 → 读不懂 → 不好看」排序修。
