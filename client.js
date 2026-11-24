@@ -42,7 +42,7 @@ window.__ModuleLoader__.load({
       } catch (e) { /* ignore */ }
     }
     // 版本号唯一源：面板文案与自检回传都用它，别再出现「构建 0.1.101」这种漂移。
-    const PVERSION = '0.5.1';
+    const PVERSION = '0.5.2';
     // 诊断探针总闸：默认关闭，开启方式 localStorage['dsh-zhuoer-theme:debug'] = '1'。
     // 下面若干探针会在每次 apply 时全文档遍历 DOM、逐元素 getComputedStyle、扫 styleSheets，
     // 是「启动 / 切主题卡顿」的主要来源之一，只在排障时打开。
@@ -678,6 +678,26 @@ window.__ModuleLoader__.load({
     // 把模型返回的文本解析成主题：剥掉可能的 markdown 围栏，只收 ANCHOR_GROUPS 里
     // 真实存在的 anchor 与 #rrggbb 色值。模型编出来的 key 一律丢弃并记录在 dropped。
     // 提到模块级是因为编辑器和设置面板都要用（原来只在 SkinSettings 里）。
+    // AI 建议主题名：清洗成可直接落进「名称」输入框的短标签。
+    // 模型偶尔会带引号/书名号/序号/结尾标点，或者干脆不给 label；
+    // 不给时退回用户描述的前 12 个字，仍比「自定义 3」有信息量。
+    function cleanAiLabel(label, prompt) {
+      const strip = function (s) {
+        return String(s == null ? '' : s)
+          .replace(/[\r\n\t]+/g, ' ')
+          .trim()
+          .replace(/^[「『“‘"'（(\[]+/, '')
+          .replace(/[」』”’"'）)\]]+$/, '')
+          .replace(/^\d+[.、)．]\s*/, '')
+          .replace(/[，。；;,.!！?？:：]+$/, '')
+          .trim();
+      };
+      const given = strip(label);
+      if (given) return Array.from(given).slice(0, 12).join('');
+      const fromPrompt = strip(prompt);
+      return fromPrompt ? Array.from(fromPrompt).slice(0, 12).join('') : '';
+    }
+
     function extractAiTheme(raw) {
       if (!raw || typeof raw !== 'string') return null;
       let s = raw.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
@@ -2332,6 +2352,11 @@ window.__ModuleLoader__.load({
           });
         }
         if (typeof aiResult.radiusScale === 'number') n.radiusScale = aiResult.radiusScale;
+        // 名称：system 提示本来就要求模型给 label，但此前只把它显示在预览里，没写回 draft，
+        // 于是「名称」输入框一直停在「自定义 N」。只在用户还没自己命名时采用建议名，
+        // 避免把已经手输的名字覆盖掉。
+        const suggested = cleanAiLabel(aiResult.label, aiPrompt);
+        if (suggested && (!n.label || /^自定义\s*\d*$/.test(String(n.label).trim()))) n.label = suggested;
         n.autoDark = true;
         commit(n);
         // 关键：AI 给的是浅色锚点，而 autoDark 会在深色模式下把它们反推成深色。

@@ -155,6 +155,8 @@ export function apply(ctx, config) {
               '你是 DSH 主题生成器。把用户描述转成一套浅色主题锚点。',
               '只输出 JSON，不要解释、不要 markdown 代码块、不要多余文字。',
               '格式：{"label":"主题名","light":{...7个key...},"font":{"body":"","chat":""},"radiusScale":1}',
+              'label 是给用户看的主题名：4–10 个汉字，概括风格气质（例：落日晚砂、青苔石阶、旧书暖灯），',
+              '不要引号、编号、标点，也不要带「主题」二字；它会直接预填到名称框。',
               'light 的 7 个 key 必须逐字使用：--dsw-alias-bg-base、--dsw-alias-label-primary、--dsw-alias-border-l1、--dsw-alias-brand-primary、--dsw-alias-trajectory-accent、--dsw-alias-state-error-primary、--dsw-alias-state-warn-primary',
               '规则：每个色值必须是 #rrggbb；label-primary 与 bg-base 对比度 ≥ 4.5；',
               'brand-primary 与 trajectory-accent 要来自同一色相族或成互补关系；',

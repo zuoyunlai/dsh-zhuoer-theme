@@ -1138,6 +1138,11 @@
           });
         }
         if (typeof aiResult.radiusScale === 'number') n.radiusScale = aiResult.radiusScale;
+        // 名称：system 提示本来就要求模型给 label，但此前只把它显示在预览里，没写回 draft，
+        // 于是「名称」输入框一直停在「自定义 N」。只在用户还没自己命名时采用建议名，
+        // 避免把已经手输的名字覆盖掉。
+        const suggested = cleanAiLabel(aiResult.label, aiPrompt);
+        if (suggested && (!n.label || /^自定义\s*\d*$/.test(String(n.label).trim()))) n.label = suggested;
         n.autoDark = true;
         commit(n);
         // 关键：AI 给的是浅色锚点，而 autoDark 会在深色模式下把它们反推成深色。

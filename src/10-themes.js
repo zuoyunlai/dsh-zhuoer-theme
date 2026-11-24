@@ -617,6 +617,26 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
     // 把模型返回的文本解析成主题：剥掉可能的 markdown 围栏，只收 ANCHOR_GROUPS 里
     // 真实存在的 anchor 与 #rrggbb 色值。模型编出来的 key 一律丢弃并记录在 dropped。
     // 提到模块级是因为编辑器和设置面板都要用（原来只在 SkinSettings 里）。
+    // AI 建议主题名：清洗成可直接落进「名称」输入框的短标签。
+    // 模型偶尔会带引号/书名号/序号/结尾标点，或者干脆不给 label；
+    // 不给时退回用户描述的前 12 个字，仍比「自定义 3」有信息量。
+    function cleanAiLabel(label, prompt) {
+      const strip = function (s) {
+        return String(s == null ? '' : s)
+          .replace(/[\r\n\t]+/g, ' ')
+          .trim()
+          .replace(/^[「『“‘"'（(\[]+/, '')
+          .replace(/[」』”’"'）)\]]+$/, '')
+          .replace(/^\d+[.、)．]\s*/, '')
+          .replace(/[，。；;,.!！?？:：]+$/, '')
+          .trim();
+      };
+      const given = strip(label);
+      if (given) return Array.from(given).slice(0, 12).join('');
+      const fromPrompt = strip(prompt);
+      return fromPrompt ? Array.from(fromPrompt).slice(0, 12).join('') : '';
+    }
+
     function extractAiTheme(raw) {
       if (!raw || typeof raw !== 'string') return null;
       let s = raw.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
