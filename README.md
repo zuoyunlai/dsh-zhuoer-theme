@@ -46,14 +46,19 @@
 用 DSH 自带的插件管理命令。它把参数转发给 profile 目录里的 pnpm，**并对声明了 `dsh.bundle` 的包自动登记成 profile 图层**——本插件声明了，所以装完只需要重启。
 
 ```bash
-# 从 npm 安装（推荐）
-dsh plugin --profile <profile> add dsh-zhuoer-theme
+# 从 npm 安装（推荐；@latest 会强制查最新，绕开发版后 pnpm 的元数据缓存）
+dsh plugin --profile <profile> add dsh-zhuoer-theme@latest
+
+# 需要可复现的固定版本时（把 x.y.z 换成你要的版本）
+dsh plugin --profile <profile> add dsh-zhuoer-theme@0.5.4
 
 # 从 GitHub 安装（锁定带 provenance 的发布 tag）
-dsh plugin --profile <profile> add github:zuoyunlai/dsh-zhuoer-theme#v0.5.3
+dsh plugin --profile <profile> add github:zuoyunlai/dsh-zhuoer-theme#v0.5.4
 ```
 
 `<profile>` 换成你在用的那个，例如 `desktop` 或 `web`（对应 `~/.dsh/profiles/<profile>`）。装完**重启 DSH** 生效。
+
+> 为什么推荐 `@latest`：刚发布后的一小段时间里，pnpm 的包元数据缓存仍可能把「裸包名」解析成上一版（0.5.3 发布后实测装到 0.5.1）。写 `@latest` 会强制按最新解析；要锁定版本则写 `@x.y.z`，二者都绕开这个缓存。
 
 > 如果输出 `declares no dsh.bundle — installed as a plain dependency, not a profile layer`，说明该包没声明 bundle（不是本插件的情况）；此时才需要手动把包名补进该 profile `package.json` 的 `dsh.profile.bundles`。
 >
