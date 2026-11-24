@@ -43,30 +43,21 @@
 
 ## 安装
 
-要求：DSH 桌面端或 Web 端，插件随 profile 安装。
+用 DSH 自带的插件管理命令。它把参数转发给 profile 目录里的 pnpm，**并对声明了 `dsh.bundle` 的包自动登记成 profile 图层**——本插件声明了，所以装完只需要重启。
 
-### 从 npm 安装（推荐）
+```bash
+# 从 npm 安装（推荐）
+dsh plugin --profile <profile> add dsh-zhuoer-theme
 
-在 profile 的 `package.json` 里加一行，然后 `pnpm install`：
-
-```json
-"dsh-zhuoer-theme": "^0.5.3"
+# 从 GitHub 安装（锁定带 provenance 的发布 tag）
+dsh plugin --profile <profile> add github:zuoyunlai/dsh-zhuoer-theme#v0.5.3
 ```
 
-### 从 GitHub 安装
+`<profile>` 换成你在用的那个，例如 `desktop` 或 `web`（对应 `~/.dsh/profiles/<profile>`）。装完**重启 DSH** 生效。
 
-想跟源码或锁定某个 tag（`v0.5.3` 是带 provenance 的发布提交）：
-
-```json
-"dsh-zhuoer-theme": "github:zuoyunlai/dsh-zhuoer-theme#v0.5.3"
-```
-
-也可以直接给仓库地址：`github:zuoyunlai/dsh-zhuoer-theme`。
-
-### 装完还要做两件事
-
-1. 把 `dsh-zhuoer-theme` 加进同一份 profile 的 `dsh.profile.bundles` 数组——只加依赖不登记 bundle，宿主不会加载它。
-2. 重启 DSH。
+> 如果输出 `declares no dsh.bundle — installed as a plain dependency, not a profile layer`，说明该包没声明 bundle（不是本插件的情况）；此时才需要手动把包名补进该 profile `package.json` 的 `dsh.profile.bundles`。
+>
+> 喜欢手工管理也可以：在 profile 的 `package.json` 加依赖 → `pnpm install` → 把包名加进 `dsh.profile.bundles` → 重启。命令只是把这几步合并了。
 
 > **资源文件必须重启才可见**：宿主的插件资源路由只服务启动时已存在的文件。新增/替换 `assets/` 下的字体或底图后，对应 URL 会 404（页面本身正常，只是字或底图缺失），重启即可。
 >
