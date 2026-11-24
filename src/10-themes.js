@@ -5,11 +5,21 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
     // 已删除，默认档直接吃宿主原生刻度。只有需要「圆角明显更小」的主题才在这里覆盖。
     // 同理「灯塔高对比边线」在 DSH 侧也没体现，一并按真值补齐。
     const SHAPES = {
+      // 形状语言按主题身份分档：终端类直角、纸张类小圆角、软色类大圆角。
+      // 只动 --dsw-radius-*，不碰配色（配色真源在 themes.mjs）。
+      absolutely: { '--dsw-radius-xs': '0px', '--dsw-radius-sm': '0px', '--dsw-radius-md': '0px', '--dsw-radius-lg': '0px', '--dsw-radius-xl': '0px', '--dsw-radius-panel': '0px' },
+      manuscript: { '--dsw-radius-xs': '2px', '--dsw-radius-sm': '4px', '--dsw-radius-md': '6px', '--dsw-radius-lg': '8px', '--dsw-radius-xl': '12px', '--dsw-radius-panel': '16px' },
       crt: {
         '--dsw-radius-xs': '2px', '--dsw-radius-sm': '2px', '--dsw-radius-md': '3px',
         '--dsw-radius-lg': '4px', '--dsw-radius-xl': '6px', '--dsw-radius-panel': '8px',
         '--dsw-corner-shape': 'superellipse(1)',
       },
+      knot: { '--dsw-radius-xs': '4px', '--dsw-radius-sm': '6px', '--dsw-radius-md': '10px', '--dsw-radius-lg': '14px', '--dsw-radius-xl': '18px', '--dsw-radius-panel': '24px' },
+      dash: { '--dsw-radius-xs': '4px', '--dsw-radius-sm': '6px', '--dsw-radius-md': '8px', '--dsw-radius-lg': '10px', '--dsw-radius-xl': '14px', '--dsw-radius-panel': '18px' },
+      miami: { '--dsw-radius-xs': '6px', '--dsw-radius-sm': '10px', '--dsw-radius-md': '14px', '--dsw-radius-lg': '18px', '--dsw-radius-xl': '22px', '--dsw-radius-panel': '28px' },
+      tide: { '--dsw-radius-xs': '4px', '--dsw-radius-sm': '8px', '--dsw-radius-md': '12px', '--dsw-radius-lg': '16px', '--dsw-radius-xl': '20px', '--dsw-radius-panel': '24px' },
+      phosphor: { '--dsw-radius-xs': '2px', '--dsw-radius-sm': '2px', '--dsw-radius-md': '3px', '--dsw-radius-lg': '4px', '--dsw-radius-xl': '6px', '--dsw-radius-panel': '8px' },
+      rose: { '--dsw-radius-xs': '8px', '--dsw-radius-sm': '12px', '--dsw-radius-md': '16px', '--dsw-radius-lg': '20px', '--dsw-radius-xl': '24px', '--dsw-radius-panel': '32px' },
       beacon: {
         '--dsw-alias-border-l1': '#4a4a4a', '--dsw-alias-border-l2': '#6e6e6e',
         '--dsw-alias-border-l3': '#8a8a8a', '--dsw-alias-border-l4': '#9a9a9a',
@@ -144,19 +154,7 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
     // 收到 0.48（−23%），层次还在，边缘不再发闷。
     // 浅色压到 0.22，只留一点贴边层次，不再是黑框。
     const SHADOW_STRENGTH = { dark: 0.48, light: 0.22 };
-    const SHADOWS = {
-      zhuoer:       { sm: '0 1px 2px #00000040',                lg: '0 12px 32px #0006',                xl: '0 24px 48px #00000080' },
-      knot:       { sm: '0 1px 2px rgba(0, 0, 0, 0.4)',      lg: '0 12px 32px rgba(0, 0, 0, 0.6)',    xl: '0 24px 48px rgba(0, 0, 0, 0.7)' },
-      dash:       { sm: '0 1px 2px rgba(10, 6, 4, 0.35)',    lg: '0 12px 32px rgba(10, 6, 4, 0.55)',  xl: '0 24px 48px rgba(10, 6, 4, 0.65)' },
-      absolutely: { sm: '0 1px 2px rgba(0, 0, 0, 0.35)',     lg: '0 12px 32px rgba(0, 0, 0, 0.55)',   xl: '0 24px 48px rgba(0, 0, 0, 0.65)' },
-      tide:       { sm: '0 1px 2px rgba(2, 6, 12, 0.4)',     lg: '0 12px 32px rgba(2, 6, 12, 0.6)',   xl: '0 24px 48px rgba(2, 6, 12, 0.7)' },
-      beacon:     { sm: '0 1px 2px rgba(0, 0, 0, 0.9)',      lg: '0 12px 32px rgba(0, 0, 0, 0.95)',   xl: '0 24px 48px rgba(0, 0, 0, 0.98)' },
-      phosphor:   { sm: '0 1px 2px rgba(0, 6, 2, 0.4)',      lg: '0 12px 32px rgba(0, 6, 2, 0.6)',    xl: '0 24px 48px rgba(0, 6, 2, 0.7)' },
-      crt:        { sm: '0 1px 2px rgba(0, 0, 0, 0.45)',     lg: '0 12px 32px rgba(0, 0, 0, 0.65)',   xl: '0 24px 48px rgba(0, 0, 0, 0.75)' },
-      manuscript: { sm: '0 1px 2px rgba(60, 45, 20, 0.06)',  lg: '0 12px 28px rgba(60, 45, 20, 0.1)', xl: '0 24px 48px rgba(60, 45, 20, 0.14)' },
-      rose:       { sm: '0 1px 2px rgba(6, 4, 12, 0.4)',     lg: '0 12px 32px rgba(6, 4, 12, 0.6)',   xl: '0 24px 48px rgba(6, 4, 12, 0.7)' },
-      miami:      { sm: '0 1px 2px rgba(4, 0, 14, 0.45)',    lg: '0 12px 32px rgba(4, 0, 14, 0.65)',  xl: '0 24px 48px rgba(4, 0, 14, 0.75)' },
-    };
+    const SHADOWS = {"zhuoer":{"sm":"0 1px 2px #00000040","lg":"0 12px 32px #0006","xl":"0 24px 48px #00000080"},"absolutely":{"sm":"0 1px 2px rgba(0, 0, 0, 0.35)","lg":"0 12px 32px rgba(0, 0, 0, 0.55)","xl":"0 24px 48px rgba(0, 0, 0, 0.65)"},"beacon":{"sm":"0 1px 2px rgba(0, 0, 0, 0.9)","lg":"0 12px 32px rgba(0, 0, 0, 0.95)","xl":"0 24px 48px rgba(0, 0, 0, 0.98)"},"crt":{"sm":"0 1px 2px rgba(0, 0, 0, 0.45)","lg":"0 12px 32px rgba(0, 0, 0, 0.65)","xl":"0 24px 48px rgba(0, 0, 0, 0.75)"},"dash":{"sm":"0 1px 2px rgba(10, 6, 4, 0.35)","lg":"0 12px 32px rgba(10, 6, 4, 0.55)","xl":"0 24px 48px rgba(10, 6, 4, 0.65)"},"knot":{"sm":"0 1px 2px rgba(0, 0, 0, 0.4)","lg":"0 12px 32px rgba(0, 0, 0, 0.6)","xl":"0 24px 48px rgba(0, 0, 0, 0.7)"},"manuscript":{"sm":"0 1px 2px rgba(60, 45, 20, 0.06)","lg":"0 12px 28px rgba(60, 45, 20, 0.1)","xl":"0 24px 48px rgba(60, 45, 20, 0.14)"},"miami":{"sm":"0 1px 2px rgba(4, 0, 14, 0.45)","lg":"0 12px 32px rgba(4, 0, 14, 0.65)","xl":"0 24px 48px rgba(4, 0, 14, 0.75)"},"phosphor":{"sm":"0 1px 2px rgba(0, 6, 2, 0.4)","lg":"0 12px 32px rgba(0, 6, 2, 0.6)","xl":"0 24px 48px rgba(0, 6, 2, 0.7)"},"rose":{"sm":"0 1px 2px rgba(6, 4, 12, 0.4)","lg":"0 12px 32px rgba(6, 4, 12, 0.6)","xl":"0 24px 48px rgba(6, 4, 12, 0.7)"},"tide":{"sm":"0 1px 2px rgba(2, 6, 12, 0.4)","lg":"0 12px 32px rgba(2, 6, 12, 0.6)","xl":"0 24px 48px rgba(2, 6, 12, 0.7)"}};
 
     function readPref() {
       try {

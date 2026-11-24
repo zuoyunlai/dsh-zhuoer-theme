@@ -70,8 +70,36 @@ const sortKeys = (o) => {
 }
 const semanticEqual = JSON.stringify(sortKeys(merged)) === JSON.stringify(sortKeys(current))
 const next = JSON.stringify(merged)
-const nextSrc = src.slice(0, start) + next + src.slice(end)
-const changed = !semanticEqual
+let nextSrc = src.slice(0, start) + next + src.slice(end)
+
+// SHADOWS 也从 themes.mjs 生成：每套主题的 shadow 字段。
+// 以前 client 里单独维护一份 SHADOWS，等于阴影有两个真源（自定义主题还查不到）。
+const shadows = {}
+for (const id of Object.keys(THEMES)) {
+  if (THEMES[id] && THEMES[id].shadow) shadows[id] = THEMES[id].shadow
+}
+const shMarker = 'const SHADOWS = '
+const shAt = nextSrc.indexOf(shMarker)
+let shadowsChanged = false
+if (shAt >= 0 && Object.keys(shadows).length) {
+  const shOpen = nextSrc.indexOf('{', shAt)
+  let depth = 0, shEnd = -1
+  // SHADOWS 的值里没有花括号，按括号计数即可，不必处理字符串转义。
+  for (let i = shOpen; i < nextSrc.length; i++) {
+    const c = nextSrc[i]
+    if (c === '{') depth++
+    else if (c === '}') { depth--; if (depth === 0) { shEnd = i + 1; break } }
+  }
+  if (shEnd > 0) {
+    const oldText = nextSrc.slice(shOpen, shEnd)
+    const oldSh = new Function('return ' + oldText)()
+    // 值不同 → 需要同步；值相同但字面量不是生成的紧凑形态 → 也要重写成生成物，
+    // 否则「SHADOWS 由 themes.mjs 生成」只是口号，实际仍是手写的那份。
+    shadowsChanged = JSON.stringify(sortKeys(oldSh)) !== JSON.stringify(sortKeys(shadows)) || oldText !== JSON.stringify(shadows)
+    nextSrc = nextSrc.slice(0, shOpen) + JSON.stringify(shadows) + nextSrc.slice(shEnd)
+  }
+}
+const changed = !semanticEqual || shadowsChanged
 
 if (process.argv.includes('--check')) {
   console.log(changed ? 'STALE  内联副本与 themes.mjs 不一致，请运行 npm run sync:themes（会顺带 build）' : 'OK    内联副本已是最新')
@@ -79,4 +107,4 @@ if (process.argv.includes('--check')) {
 }
 if (!changed) { console.log('OK    无需改动'); process.exit(0) }
 writeFileSync(clientPath, nextSrc)
-console.log(`WROTE 已同步 ${Object.keys(merged).length} 套主题 → client.js（${next.length} 字符）`)
+console.log(`WROTE 已同步 ${Object.keys(merged).length} 套主题 → src/10-themes.js（${next.length} 字符）`)

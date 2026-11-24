@@ -1,6 +1,6 @@
 {
   "name": "dsh-zhuoer-theme",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "type": "module",
   "scripts": {
     "coverage": "node scripts/coverage-report.mjs",

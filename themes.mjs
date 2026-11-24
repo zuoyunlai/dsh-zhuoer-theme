@@ -1,5 +1,6 @@
 export const THEMES = {
   "zhuoer": {
+    "shadow": {"sm":"0 1px 2px #00000040","lg":"0 12px 32px #0006","xl":"0 24px 48px #00000080"},
     "label": "Zhuoer 原版红",
     "dark": {
       "--dsw-alias-bg-base": "#0e1015",
@@ -451,6 +452,7 @@ export const THEMES = {
     }
   },
   "absolutely": {
+    "shadow": {"sm":"0 1px 2px rgba(0, 0, 0, 0.35)","lg":"0 12px 32px rgba(0, 0, 0, 0.55)","xl":"0 24px 48px rgba(0, 0, 0, 0.65)"},
     "label": "Absolutely · 极简",
     "dark": {
       "--dsw-alias-bg-base": "#1b1b1a",
@@ -902,6 +904,7 @@ export const THEMES = {
     }
   },
   "beacon": {
+    "shadow": {"sm":"0 1px 2px rgba(0, 0, 0, 0.9)","lg":"0 12px 32px rgba(0, 0, 0, 0.95)","xl":"0 24px 48px rgba(0, 0, 0, 0.98)"},
     "label": "灯塔 · Beacon",
     "dark": {
       "--dsw-alias-bg-base": "#000000",
@@ -1353,6 +1356,7 @@ export const THEMES = {
     }
   },
   "crt": {
+    "shadow": {"sm":"0 1px 2px rgba(0, 0, 0, 0.45)","lg":"0 12px 32px rgba(0, 0, 0, 0.65)","xl":"0 24px 48px rgba(0, 0, 0, 0.75)"},
     "label": "CRT · 终端",
     "dark": {
       "--dsw-alias-bg-base": "#090a09",
@@ -1804,6 +1808,7 @@ export const THEMES = {
     }
   },
   "dash": {
+    "shadow": {"sm":"0 1px 2px rgba(10, 6, 4, 0.35)","lg":"0 12px 32px rgba(10, 6, 4, 0.55)","xl":"0 24px 48px rgba(10, 6, 4, 0.65)"},
     "label": "Dash · 琥珀",
     "dark": {
       "--dsw-alias-bg-base": "#1a1210",
@@ -2255,6 +2260,7 @@ export const THEMES = {
     }
   },
   "knot": {
+    "shadow": {"sm":"0 1px 2px rgba(0, 0, 0, 0.4)","lg":"0 12px 32px rgba(0, 0, 0, 0.6)","xl":"0 24px 48px rgba(0, 0, 0, 0.7)"},
     "label": "Knot · 绳结",
     "dark": {
       "--dsw-alias-bg-base": "#080808",
@@ -2706,6 +2712,7 @@ export const THEMES = {
     }
   },
   "manuscript": {
+    "shadow": {"sm":"0 1px 2px rgba(60, 45, 20, 0.06)","lg":"0 12px 28px rgba(60, 45, 20, 0.1)","xl":"0 24px 48px rgba(60, 45, 20, 0.14)"},
     "label": "手稿 · Manuscript",
     "dark": {
       "--dsw-alias-bg-base": "#211e18",
@@ -3157,6 +3164,7 @@ export const THEMES = {
     }
   },
   "miami": {
+    "shadow": {"sm":"0 1px 2px rgba(4, 0, 14, 0.45)","lg":"0 12px 32px rgba(4, 0, 14, 0.65)","xl":"0 24px 48px rgba(4, 0, 14, 0.75)"},
     "label": "迈阿密 · Miami",
     "dark": {
       "--dsw-alias-bg-base": "#140f1e",
@@ -3608,6 +3616,7 @@ export const THEMES = {
     }
   },
   "phosphor": {
+    "shadow": {"sm":"0 1px 2px rgba(0, 6, 2, 0.4)","lg":"0 12px 32px rgba(0, 6, 2, 0.6)","xl":"0 24px 48px rgba(0, 6, 2, 0.7)"},
     "label": "荧光 · Phosphor",
     "dark": {
       "--dsw-alias-bg-base": "#0a0f0a",
@@ -4059,6 +4068,7 @@ export const THEMES = {
     }
   },
   "rose": {
+    "shadow": {"sm":"0 1px 2px rgba(6, 4, 12, 0.4)","lg":"0 12px 32px rgba(6, 4, 12, 0.6)","xl":"0 24px 48px rgba(6, 4, 12, 0.7)"},
     "label": "桃红 · Rose",
     "dark": {
       "--dsw-alias-bg-base": "#191724",
@@ -4510,6 +4520,7 @@ export const THEMES = {
     }
   },
   "tide": {
+    "shadow": {"sm":"0 1px 2px rgba(2, 6, 12, 0.4)","lg":"0 12px 32px rgba(2, 6, 12, 0.6)","xl":"0 24px 48px rgba(2, 6, 12, 0.7)"},
     "label": "潮汐 · Tide",
     "dark": {
       "--dsw-alias-bg-base": "#10151b",
