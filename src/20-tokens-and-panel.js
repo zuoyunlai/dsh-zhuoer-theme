@@ -207,16 +207,9 @@
         // 若这里再把 bg-base 改半透明，会变成「半透明底 + 半透明图」两层互透，糊成一片。
         // 底色由主题自身决定（zhuoer 深色 = #1a1210 暖棕），切换主题自动跟随。
       }
-      // 字号缩放：只缩放字体 token 自身的 px，不动坐标系。
-      if (pref.fontScale && pref.fontScale !== 100) {
-        const k = pref.fontScale / 100;
-        Object.keys(tokens).forEach(function (key) {
-          if (!/^--dsw-font/.test(key)) return;
-          tokens[key] = String(tokens[key]).replace(/(^|[^0-9.])(\d+(?:\.\d+)?)px/g, function (m, pre, num) {
-            return pre + (Math.round(parseFloat(num) * k * 100) / 100) + 'px';
-          });
-        });
-      }
+      // 字号缩放不在这里做。--dsw-font-* 是对话正文用的 shorthand token，
+      // 宿主侧栏 / 按钮 / 面板的文字尺寸另有来源；只缩放这些 token 的结果
+      // 就是「只有主栏正文变大」（0.4.1 的用户实测）。全局缩放见下面的 body{zoom}。
       // 每次 applyTokens 前先撤销上一次的 override。
       // 之前只存了 dispose 从不调用：如果宿主内部是按 SOURCE 累加而非替换，
       // 上一次主题里"这一次不再提供"的 token 就会留在页面上——
@@ -424,9 +417,13 @@
           + 'transform-origin:0% center !important;}'
           + 'html [class*="_mark"]:focus-visible::before{transform:translateY(-50%) scaleX(1) !important;}'
           + 'html [class*="_mark"]:focus-visible::after{inset:0 auto 0 0 !important;}';
-        // 字号缩放不再用 body{zoom}：zoom 会把 fixed 定位与 getBoundingClientRect 的坐标系
-        // 一起放大，右侧快捷导航那种按 px 绝对定位的面板会跟着错位。
-        // 改成在下面直接缩放 --dsw-font-* 的 px 值（见 tokens 组装末尾）。
+        // 字号缩放必须用 body{zoom}：宿主界面大量文字尺寸是写死 px / 另有变量，
+        // 只有 zoom 能整体放大（字、间距、边框一起变）——这也是 0.5.0 之前的行为。
+        // 曾担心 zoom 放大 getBoundingClientRect 坐标系会让右侧轨道错位，那是静态推断；
+        // 实测按 px 绝对定位的轨道与 zoom 后的坐标空间一致。
+        if (pref.fontScale && pref.fontScale !== 100) {
+          fxCss += 'body{zoom:' + (pref.fontScale / 100) + ' !important;}';
+        }
         if (pref.uiFont) {
           const fam = '"' + pref.uiFont.replace(/"/g, '') + '", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
           // html body 提高特异性：宿主用 font shorthand 写在 body 上，单条 body 规则会被重置。
