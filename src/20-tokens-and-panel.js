@@ -1747,7 +1747,10 @@ function applyTokens(theme, pref) {
       // 选项文案随语言变化：用函数在渲染时取，避免把语言烤进常量。
         const sources = function () { return [['none', t('panel.bg.optNone')], ['theme', t('panel.bg.optTheme')], ['image', t('panel.bg.optImage')]]; };
       const styles = function () { return [['fade', t('panel.bg.optFade')], ['full', t('panel.bg.optFull')]]; };
-      const scales = [[90, '小'], [100, '默认'], [110, '大'], [125, '特大'], [140, '超大']];
+      // 字号档位文案随语言变化：用函数在渲染时取词。
+    const scales = function () {
+      return [[90, t('panel.scale.small')], [100, t('panel.scale.default')], [110, t('panel.scale.large')], [125, t('panel.scale.xl')], [140, t('panel.scale.xxl')]];
+    };
       const labelOf = function (list, v) {
         for (let i = 0; i < list.length; i++) { if (list[i][0] === v) return list[i][1]; }
         return String(v);
@@ -2029,57 +2032,57 @@ function applyTokens(theme, pref) {
             : null
         ),
 
-        h(Section, { title: '排版', note: '影响整个界面，含对话正文' },
-          h(Row, { label: '文字大小' },
-            h(Pills, { label: '界面字号', opts: scales, value: pref.fontScale,
+        h(Section, { title: t('panel.type.title'), note: t('panel.type.note') },
+          h(Row, { label: t('panel.type.sizeRow') },
+            h(Pills, { label: t('panel.type.sizeAria'), opts: scales(), value: pref.fontScale,
               onChange: function (v) { set({ fontScale: v }); } }),
-            h('span', { className: 'zp-hint' }, '正文约 ' + scalePx + 'px')
+            h('span', { className: 'zp-hint' }, t('panel.type.pxHint', { px: scalePx }))
           ),
-          h(Row, { label: '字体' },
+          h(Row, { label: t('panel.type.fontRow') },
             h('input', {
               type: 'text', className: 'zp-inp', value: pref.uiFont,
-              placeholder: '留空 = 主题自带字体',
-              'aria-label': '界面字体族',
+              placeholder: t('panel.type.fontPh'),
+              'aria-label': t('panel.type.fontAria'),
               onChange: function (ev) { set({ uiFont: String(ev.target.value || '').slice(0, 60) }); },
             }),
-            h('span', { className: 'zp-hint' }, '如 DM Sans / 微软雅黑')
+            h('span', { className: 'zp-hint' }, t('panel.type.fontHint'))
           )
         ),
 
-        h(Section, { title: '强调色', note: '替换主题品牌色，作用于按钮与链接' },
-          h(Row, { label: '颜色' },
+        h(Section, { title: t('panel.accent.title'), note: t('panel.accent.note') },
+          h(Row, { label: t('panel.accent.row') },
             h('div', { className: 'zp-sws' },
               accents.map(function (c) {
                 const on = String(pref.accent || '').toLowerCase() === c.toLowerCase();
                 return h('button', {
                   key: c, type: 'button', className: 'zp-sw',
                   'data-on': on ? '1' : '0', 'aria-pressed': on,
-                  'aria-label': '强调色 ' + c, title: c,
+                  'aria-label': t('panel.accent.swatchAria', { hex: c }), title: c,
                   style: { background: c },
                   onClick: function () { set({ accent: c }); },
                 });
               }),
               h('input', {
                 type: 'color', className: 'zp-color', value: accentNow,
-                'aria-label': '自定义强调色', title: '自定义强调色',
+                'aria-label': t('panel.accent.custom'), title: t('panel.accent.custom'),
                 onChange: function (ev) { set({ accent: String(ev.target.value || '') }); },
               }),
               pref.accent
                 ? h('button', {
                     type: 'button', className: 'zp-btn',
                     onClick: function () { set({ accent: '' }); },
-                  }, '恢复主题色')
+                  }, t('panel.accent.reset'))
                 : null
             )
           )
         ),
 
-        h(Section, { title: '右侧栏快捷导航', note: '顶栏「打开右侧边栏」下方的图标轨，点一下直达对应标签' },
-          h(Row, { label: '显示' },
+        h(Section, { title: t('panel.qn.title'), note: t('panel.qn.note') },
+          h(Row, { label: t('panel.qn.row') },
             h(Pills, {
-              label: '快捷导航显示方式',
+              label: t('panel.qn.aria'),
               value: pref.quicknav || 'three',
-              opts: [['three', '三个 · 悬停展开'], ['all', '全部显示'], ['off', '关闭']],
+              opts: [['three', t('panel.qn.optThree')], ['all', t('panel.qn.optAll')], ['off', t('panel.qn.optOff')]],
               onChange: function (v) { set({ quicknav: v }); },
             })
           )
@@ -2090,11 +2093,11 @@ function applyTokens(theme, pref) {
             type: 'button', className: 'zp-btn',
             'data-tone': resetArmed ? 'danger' : 'normal',
             onClick: function () { if (resetArmed) { resetAll(); } else { setResetArmed(true); } },
-          }, resetArmed ? '再点一次确认' : '恢复默认设置'),
+          }, resetArmed ? t('panel.reset.armed') : t('panel.reset.label')),
           h('div', { className: 'zp-hint' },
             resetArmed
-              ? '将清除主题、模式、底图、字号、强调色与字体的全部自定义'
-              : '构建 ' + PVERSION + ' · 持续保持样式表末位，压制并存插件的覆盖 · 偏好只存本机 localStorage'
+              ? t('panel.reset.hint')
+              : t('panel.foot.build', { ver: PVERSION })
           )
         )
       );
