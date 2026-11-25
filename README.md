@@ -5,7 +5,7 @@
 - 配色走宿主主题服务：`ctx.theme.overrideTokens()` 把每套主题映射到 DSH 的 `--dsw-alias-*` token（每套 222 个），不劫持 DOM 结构、不注入宿主组件。
 - **纯本地**：没有账号、没有遥测、不请求外部网络。唯一的联网行为是你在编辑器里点「AI 生成」时，插件通过**宿主自己的模型**补一组锚点色。
 - 明暗三态（浅色 / 深色 / 跟随系统）与宿主「通用设置 → 外观」**双向同步**，两边改任一边都会一起变。
-- 当前版本 **0.5.3**，MIT。
+- 当前版本 **0.6.17**，MIT。
 
 ## 功能一览
 
@@ -27,6 +27,7 @@
 | 界面字体 | 可覆盖 UI 字体族；中文字形由随包子集兜底 |
 | 右侧快捷导航 | 三个档位：关闭 / 只露三个（悬停展开）/ 全部常驻 |
 | 导入导出 | 自定义主题与全部偏好可导出 JSON、导入还原；「恢复默认设置」需两步确认 |
+| 多语言 | 界面文案中英双语，跟随宿主语言**实时**切换；非中文语言回落英文（主题名按设计不译） |
 
 ## 主题清单
 
@@ -55,10 +56,10 @@
 dsh plugin --profile <profile> add dsh-zhuoer-theme@latest
 
 # 需要可复现的固定版本时（把 x.y.z 换成你要的版本）
-dsh plugin --profile <profile> add dsh-zhuoer-theme@0.5.4
+dsh plugin --profile <profile> add dsh-zhuoer-theme@0.6.17
 
 # 从 GitHub 安装（锁定带 provenance 的发布 tag）
-dsh plugin --profile <profile> add github:zuoyunlai/dsh-zhuoer-theme#v0.5.4
+dsh plugin --profile <profile> add github:zuoyunlai/dsh-zhuoer-theme#v0.6.17
 ```
 
 `<profile>` 换成你在用的那个，例如 `desktop` 或 `web`（对应 `~/.dsh/profiles/<profile>`）。装完**重启 DSH** 生效。
@@ -77,7 +78,7 @@ dsh plugin --profile <profile> add github:zuoyunlai/dsh-zhuoer-theme#v0.5.4
 
 ## 使用
 
-设置 → **Zhuor 主题**。
+设置 → **Zhuoer 主题**。
 
 - **配色主题**：11 套内置卡 + 「新建主题」卡。卡片上的预览块用该主题自己的 token 上色，所以能直接看出差别。
 - **模式**：浅色 / 深色 / 跟随系统。它与宿主「通用设置 → 外观」是同一个 preference，两边任改一边都会同步。
@@ -118,7 +119,7 @@ dsh plugin --profile <profile> add github:zuoyunlai/dsh-zhuoer-theme#v0.5.4
 
 派生用**相对偏移**：组内其它 token 按它们与锚点的 RGB 差值整体平移，换底色不会破坏原有层次关系。
 
-编辑器是**左侧** 352px 抽屉，右半区完全透明、点击穿透 —— **真实界面就是预览**。抽屉分六段（外观 / 配色锚点 / 风格预设 / 形状与字体 / AI 与取色 / 底图），头尾吸顶吸底；有未保存改动时关闭会先确认。要点：
+编辑器是**左侧** 352px 抽屉，右半区完全透明、点击穿透 —— **真实界面就是预览**。抽屉分六段（外观 / 配色锚点 / 风格预设 / AI 与取色 / 底图 / 形状与字体），头尾吸顶吸底；有未保存改动时关闭会先确认。要点：
 
 - 明暗分开编辑；编辑器里切「编辑深/浅」只影响预览，不改应用自身的明暗偏好。
 - 每个色板实时显示对比度，低于 4.5 标黄提示，但不阻止保存。
@@ -136,12 +137,26 @@ dsh plugin --profile <profile> add github:zuoyunlai/dsh-zhuoer-theme#v0.5.4
 - 删主题会自动清掉它绑的图
 - 导出 JSON 不含底图（二进制不进 JSON），换机器需重新选图
 
+## 多语言（中文 / English）
+
+界面文案走一份共享词典 `src/05-i18n.js`（`I18N.zh` / `I18N.en`，当前 202 条），取词统一用 `t('键', { 占位 })`：
+
+- 语言来源是宿主 locale 服务；**非 `zh*` 一律回落英文**（面向国际用户）；
+- 宿主里改语言会实时切换，不需要刷新页面；
+- 面板、编辑器、JSON 浮层、错误提示、`aria-label` / `title` / `placeholder` / `alt` 全部走词典；
+- 主题名与风格预设名**不译**（决策 A1，品牌标识）：英文界面里剩下的中文应当只有这些名字。
+
+新增文案的做法：把字符串写进 `05-i18n.js` 的两套词典 → 代码里改成 `t('panel.xxx')` → 跑
+`node scripts/verify-text.mjs --update`（渲染得到的文案）与 `node scripts/verify-keys.mjs`（键与占位符）。
+裸中文有棘轮门 `verify:i18n` 兜底：只许减少，多一条就红。规划与进度见 [docs/i18n-plan.md](docs/i18n-plan.md)。
+
 ## 开发
 
-客户端代码在 `src/` 下分四片，由 `build.mjs` 按文件名顺序拼成单文件 `client.js`：
+客户端代码在 `src/` 下分五片，由 `build.mjs` 按文件名顺序拼成单文件 `client.js`：
 
 ```
 src/00-core.js              运行时开销、版本常量、诊断
+src/05-i18n.js              共享词典（I18N.zh / I18N.en）+ zrT / zrLang / zrSetLang
 src/10-themes.js            THEMES/SHAPES/SHADOWS/字体表/派生纯函数/宿主同步
 src/20-tokens-and-panel.js  applyTokens、面板与编辑器、AI 与取色
 src/30-quicknav.js          右侧快捷导航（独立模块）
@@ -186,38 +201,44 @@ npm run coverage      # token 覆盖率与「刻意不跟锚点」的豁免清�
 | `verify:themes` | 内联副本与真源逐 token 相等、两档 token 集合齐全、对比度达标 |
 | `verify:host` | 宿主选择器与契约对账，另查两类「静默失效」：契约登记的 id 片段是否还在代码里、`package.json` 的插件图标三件套（`icon` / `files` / `exports`）是否齐全 |
 | `verify:keys` | **词典门**（静态）：源码里 `t('…')` 用到的键必须在 zh/en 都存在，且同名键占位符集合一致；缺键或 `{n}`/`{count}` 不一致即红。审的是「渲染不到」的文案（抽屉、错误、ARIA） |
-| `verify:text` | **文案门**（确定性）：Node 端渲染面板，把 131 条文案与属性（`title`/`aria-label`/`placeholder`/`alt`）与 `contracts/text-snapshot/{zh,en}.json` 逐条比对，版本号归一化。改文案要配 `--update`，否则红 |
+| `verify:text` | **文案门**（确定性）：Node 端渲染面板，把 130 条文案与属性（`title`/`aria-label`/`placeholder`/`alt`）与 `contracts/text-snapshot/{zh,en}.json` 逐条比对，版本号归一化。改文案要配 `--update`，否则红 |
 | `verify:visual` | 面板截图像素比对（**已从 `verify:all` 摘除**）：同状态连续两次截 `.zp-root` 在光态下互差 2.3%，无法复现的像素门等于安全错觉。脚本保留，需要人工看图时再跑 |
 | `verify:csssnap` | 把插件**实际注入**的 CSS 文本与 `contracts/css-snapshot/` 逐字节比对；差异会报出首个偏移与上下文。没有 `visual/css-current/` 时 SKIP，`--strict` 才硬判 |
-| `verify:i18n` | 裸中文字面量**棘轮**：按文件记基线，只许减少；多一条就红（文案要写进 `src/05-i18n.js` 的 `I18N` 再 `t()` 取）。当前合计 150 条 |
+| `verify:i18n` | 裸中文字面量**棘轮**：按文件记基线，只许减少；多一条就红（文案要写进 `src/05-i18n.js` 的 `I18N` 再 `t()` 取）。当前合计 104 条 |
 | `verify:panel` | **面板冒烟**：Node 端用最小宿主替身加载 `client.js`、调 `apply()`，把 `settings.section` 真渲染一遍；任何渲染期抛错即红（0.6.11 的 `t is not defined` 就是它该抓的） |
 | `verify:git` | `.git` 元数据（`HEAD`/`config`/`index`）是否完好；损坏时 `node scripts/git-doctor.mjs --fix` 一键重建（见 `docs/git-integrity.md`） |
+| `verify:release` | 发版预检：按内容哈希比对工作区与 HEAD（抓「同长度编辑被 git stat 缓存吞掉」），并校验版本三元组 |
 | `token-surface` | 覆盖了哪些宿主 token、哪些是刻意不跟锚点的 |
 | `node --check` | 产物语法 |
 | `test-derive` | 从 `#region derive` 抠出派生函数无头跑：151 键 × 4 基色 × 2 态 |
 
 主题卡预览、AI 与取色逻辑都在真实界面里验；门禁只保证「可机械判定」的那部分。**改完配色请自己切一圈主题**，见「已知边界」。
 
-视觉基线怎么采（需要能打开的宿主界面，CI 里没有）。**采集必须固定状态**——同一构建两次采集
-能差 15%，这是实测过的，不是理论：
+### 为什么没有像素基线了
 
-```text
-视口固定 1264×771（Emulation.setDeviceMetricsOverride）
-1. 账号菜单 → 设置 → 左栏「Zhuoer 主题」
-2. 断言：document.querySelector('.zp-root') 存在
-3. 点「浅色」/「深色」，断言 body 背景色变成 rgb(244,241,236) / rgb(14,16,21)（最多轮询 5s）
-4. 钉状态：window.scrollTo(0,0)；所有元素 scrollTop=0；activeElement.blur()
-5. 截图整屏 → visual/current/settings-<mode>.png
-```
+0.6.15 起，「面板截图逐像素比对」被**撤出 `verify:all`**。原因不是懒得维护，而是它无法自我复现：
+在同一个实例、同一个状态、零代码改动的前提下连续截两次 `.zp-root`，**光态互差 2.301%**
+（61,624 vs 61,130 字节），暗态却逐字节相同；冻结动画（`transition:none;animation:none`）、
+把祖先滚动条归零之后依旧不复现。一个红了说明不了代码坏、绿了也说明不了代码好的门，
+给的是安全错觉。脚本保留（`scripts/verify-visual.mjs`），需要人眼看图时再手动跑。
+
+替代它的是两条**确定性**的机器判据：
+
+- `verify:text` —— 面板渲染出的文案与属性存成 zh/en 快照，逐条比对（版本号归一化）；
+- `verify:keys` —— 静态校验 `t('…')` 的键两侧齐全、占位符集合一致；
+- 样式仍由 `verify:csssnap` 逐字节把关（当前两态各 60,049 B）。
+
+改文案后刷新快照：
 
 ```bash
-node scripts/verify-visual.mjs                                               # 比对（>0.10% 判红）
-node scripts/verify-visual.mjs --capture visual/current --viewport 1264x771  # 提升为新基线
+node scripts/smoke-panel.mjs                       # 先确认面板还能渲染
+node scripts/verify-text.mjs --update              # 重新生成 contracts/text-snapshot/{zh,en}.json
+node scripts/verify-css-snapshot.mjs --capture visual/css-current   # 改过 CSS 才需要
 ```
 
-**两遍独立采集必须 0.000%** 才能当基线（0.6.8 起按这条执行）。不一致说明状态没钉住，
-先修采集再谈基线。目前只有 2 张（设置页明/暗）过了这条；编辑器抽屉与 JSON 弹层还差，
-见 `docs/backlog.md` 第 2 条。
+要在真实界面上验证（改了布局、颜色、或要复检英文界面），按 [docs/live-verify.md](docs/live-verify.md)
+用一次性 profile 起一个可访问的宿主实例——桌面端 profile 由 Electron 独占，`dsh web` 用的是另一个 profile，
+两者都不适合直接验证本插件。
 
 ## 宿主契约
 
@@ -236,11 +257,12 @@ node scripts/verify-visual.mjs --capture visual/current --viewport 1264x771  # �
 client.js            构建产物（宿主加载入口，勿手改）
 index.js             服务端一半：/api/report、/api/gen-theme、静态资源路由
 themes.mjs           主题色 + 阴影的唯一真源
-src/                 客户端源码四分片
+src/                 客户端源码五分片（00-core / 05-i18n / 10-themes / 20-panel / 30-quicknav）
 build.mjs            src → client.js 拼接
 scripts/             verify-* 门禁、sync-themes、coverage、token-surface
 contracts/           宿主契约清单（含 positives / negatives：哪些契约成立、哪些实测不成立）
-docs/                设计与权衡记录（含 git-integrity.md：.git 元数据事故的现场与修复约定）
+docs/                设计与权衡记录与操作规程：i18n-plan.md（多语言规划与进度）、
+                     live-verify.md（起一次性 profile 做真机验证）、git-integrity.md（.git 事故与修复约定）
 assets/fonts/        23 个 woff2（14 个西文族 + 3 个中文子集）+ 来源说明
 assets/bg/           21 张主题底图（webp）
 assets/logo/         zhuoer.svg（品牌位自带 logo，走 /assets/logo/ 路由）
@@ -269,6 +291,7 @@ icon.svg             插件页图标（package.json 的 "icon" 指向它）
 - **CJK 字体不做 unicode-range 拆包**。三支中文字体本就是约 4400 字的子集，按常用字表再拆只能省 11–12%，却要为不连续码位内联约 2.2 万字符的 range，并把「按需下载一次」变成「可能两次」。楷体拆出去只剩 3 个字。真正影响首屏的是「默认链路不放衬线中文字体」——它已经只在用户选 serif 时触发。
 - **阴影刻度**：`themes.mjs` 的 `--dsw-elevation-*` 与插件自己的 `shadow` 是两套刻度（后者按明暗强度缩放）。合并需要重定一套视觉刻度，属数据设计而非清理，留待单独一轮。
 - **主题色与形状需要人眼确认**：门禁能保证对比度与完整性，保证不了「这套圆角在你的显示器上好不好看」。
+- **主题名与预设名不译**（决策 A1）：11 套内置主题、12 套风格预设的 `label` 保持中文，因为它们是品牌标识的一部分；编辑器里的分组名、按钮、说明、错误提示全部译。英文界面里剩下的中文只应是这些名字。
 - **DSH 升级可能打破契约**：类名子串与属性名不是公开 API，`verify:host` 只能告诉你「代码用了什么」，命不命中要真机验。
 - **设置页分区图标走槽、不走字段**：在 `settings.section` 注册对象上写 `icon` 字段无效（0.6.2 实测被丢弃，显示内置齿轮）；正确做法是往 `settings.section.icon` 槽注册，且注册 `id` 必须等于分区 `id`，宿主按 `{ size, active }` 调用它（0.6.6 起自带红 Z）。三件事——`package.json` 的 `icon`、槽贡献、注册字段——互不通用，证据都在 `contracts/host-contract.json` 的 `positives` / `negatives` 里。
 
