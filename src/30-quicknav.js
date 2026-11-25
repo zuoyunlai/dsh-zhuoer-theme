@@ -59,54 +59,15 @@
       }
     }
 
-    /* ================= 词典（自带 zh/en；locale 服务可用时以其为准） ================= */
+    /* ================= 词典与语言（真源在 05-i18n.js） =================
+     * 词典与「当前语言」都是模块级共享状态：面板也要用，留在轨道的闭包里取不到。
+     * 这里只保留别名，调用点（t('rail.…')）一个字都不用改。 */
 
-    const DICT = {
-      zh: {
-        'rail.ariaLabel': '右侧栏快捷导航',
-        'rail.anchorLabel': '快捷导航锚点',
-        'rail.empty': '右侧栏还没有可直达的标签页',
-        'rail.noService': '当前宿主没有右侧栏服务，无法直达',
-        'rail.openFailed': '打开失败：该标签当前不可用',
-      },
-      en: {
-        'rail.ariaLabel': 'Right sidebar quick nav',
-        'rail.anchorLabel': 'Quick nav anchor',
-        'rail.empty': 'No right-sidebar tabs to jump to',
-        'rail.noService': 'This host has no right-sidebar service',
-        'rail.openFailed': 'Could not open that tab',
-      },
-    }
-
-    /**
-     * 探测系统语言：locale 服务不可用时的兜底。
-     * 只有明确是中文才用中文，**其余一律英文** —— 面向国际用户，
-     * 「未知语言显示中文」比「显示英文」更容易让人看不懂。
-     */
-    function navLang() {
-      try {
-        const l = typeof navigator !== 'undefined' && navigator.language ? String(navigator.language).toLowerCase() : ''
-        return l.indexOf('zh') === 0 ? 'zh' : 'en'
-      } catch (e) {
-        return 'en'
-      }
-    }
-
-    /**
-     * 当前界面语言。
-     * 初值取系统语言（不依赖 ctx），随后由 locale 服务探测覆盖；
-     * 宿主语言以 'zh' 开头才算中文，其余（en / en-US / 未来新增的 ja、es…）都用英文。
-     */
-    let LANG = navLang()
+    const DICT = I18N
+    const t = zrT
 
     /** 轨道实例序号：保证同一 profile 下多个实例的 DOM id 不重复。 */
     let instanceSeq = 0
-
-    /** 取词典条目。 */
-    function t(key) {
-      const d = DICT[LANG] || DICT.zh
-      return d[key] || DICT.en[key] || key
-    }
 
     /* ================= 工具 ================= */
 
@@ -401,9 +362,9 @@
             const active = snap && snap.active ? String(snap.active).toLowerCase() : ''
             // 宿主有语言偏好就听宿主的：只有 zh* 算中文，其余一律英文
             // （含 en / en-US 以及宿主以后新增的 ja、es 等，都比中文更可能被看懂）
-            const next = active ? (active.indexOf('zh') === 0 ? 'zh' : 'en') : navLang()
-            if (next !== LANG) {
-              LANG = next
+            const next = active ? (active.indexOf('zh') === 0 ? 'zh' : 'en') : zrLang()
+            if (next !== zrLang()) {
+              zrSetLang(next)
               setLangTick((n) => n + 1)
             }
           } catch (e) {
