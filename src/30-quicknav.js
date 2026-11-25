@@ -406,6 +406,9 @@
           if (ctx && typeof ctx.on === 'function') {
             const off = ctx.on('locale/change', () => {
               detectLang()
+              // 设置面板也要跟着换语言：它订阅的是 emitChange 那条广播，
+              // 只刷快捷导航的话，面板开着时文案会停在旧语言直到重开。
+              try { emitChange() } catch (e) { /* ignore */ }
               readEntries()
             })
             if (typeof off === 'function') offs.push(off)
