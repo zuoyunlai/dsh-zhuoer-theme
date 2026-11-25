@@ -1212,7 +1212,7 @@
               name: 'settings.section',
               id: 'zhuoer-theme',
               order: 4,
-              label: function () { return 'Zhuoer 主题'; },
+              label: function () { return t('panel.section.title'); },
               // 注意：register() 上的 icon 字段是**无效**的（0.6.2 试过，宿主直接丢弃）。
               // 分区图标走另一个槽 settings.section.icon，见下面那段。
               inject: function () { return {}; },

@@ -20,6 +20,7 @@ const argv = process.argv.slice(2)
 const argOf = (flag) => { const i = argv.indexOf(flag); return i >= 0 ? argv[i + 1] : '' }
 const bundlePath = argOf('--file') || join(root, 'client.js')
 const dumpPath = argOf('--dump')
+const forceLang = argOf('--lang')
 const code = readFileSync(bundlePath, 'utf8')
 
 let hookCursor = 0
@@ -73,7 +74,7 @@ const store = new Map()
 const win = {
   document: doc,
   localStorage: { getItem: (k) => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, String(v)), removeItem: (k) => store.delete(k) },
-  navigator: { language: 'zh-CN' },
+  navigator: { language: forceLang === 'en' ? 'en-US' : 'zh-CN' },
   location: { href: 'http://localhost/', search: '' },
   matchMedia: () => ({ matches: false, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {} }),
   addEventListener() {}, removeEventListener() {},

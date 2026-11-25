@@ -2,6 +2,36 @@
 
 按时间倒序。每条都写「为什么改」，而不只是改了什么。
 
+## 0.6.15（P1c 批次一：编辑器抽屉 37 键；发现像素门不可复现，换成文案门）
+
+**编辑器抽屉整段入词典**（37 键，zh/en 各一套）：标题/关闭按钮与 title、各段标题与说明、
+锚点行的取色器与十六进制 aria、对比度「偏低」、克隆值还原的三条 title、AI 生成与取色两条流程的
+按钮与错误、底图来源与可见度、圆角与字体的行标签、底部「保存 / 取消 / 放弃改动 / 继续编辑」。
+分区标题本身也本地化了（en 下设置导航显示 `Zhuoer theme`）。
+
+**这次两种语言都真验过**：中文侧与 0.6.14 的渲染**逐条相同**（131 条文案与属性，唯一差异是版本号
+那一行）；英文侧在临时 profile 里把宿主语言切成 English，实测读出 `Edit colors` / `Color anchors` /
+`Cancel` / `Save` / `Theme name` / `Already the cloned theme value`，随后把语言切回中文
+（已确认 `<html lang="zh-CN">` 还原）。
+
+**一个更重要的发现：像素门在这个环境里不可复现。** 为了给 0.6.15 重采基线，我在同一实例里
+**连续两次**截 `.zp-root`（同一状态、无代码改动）：光态互差 **2.301%**（61,624 vs 61,130 字节），
+暗态却逐字节相同。加上冻结动画（`transition:none;animation:none`）、把祖先滚动条归零，光态依旧不复现。
+结论：这个像素门红了说明不了代码坏、绿了也说明不了代码好——它给的是安全错觉。
+
+于是把它从 `verify:all` 里**摘掉**（脚本保留，需要时手动跑），换成确定性的
+**`verify:text` 文案门**：在 Node 里渲染面板，把 131 条文案与属性存成 zh/en 两份快照逐条比对，
+版本号归一化。同一输入必然同一输出，这才是能挡住「改文案改坏」的机器判据。
+`verify:csssnap`（注入 CSS 逐字节）留在链上：本轮重采后仍是 **60,004 B 逐字节一致**。
+
+**English summary** — batch 1 of the i18n rollout: the custom-theme editor (37 keys) and the settings
+section label now resolve via the shared dictionary; Chinese rendering is unchanged (131 strings/attrs
+identical, only the version line moved) and English was verified live by switching the host locale
+both ways. Also retires the pixel baseline from `verify:all`: two consecutive captures of the same
+state differed by 2.301% in light mode (dark was byte-identical), so the gate could not discriminate a
+regression; it is replaced by a deterministic `verify:text` snapshot gate (zh + en) while
+`verify:csssnap` keeps covering the injected CSS byte-for-byte.
+
 ## 0.6.14（面板冒烟门 + 外观/配色 20 条入词典）
 
 **新增一道真能抓到「面板渲染时炸」的门：`verify:panel`。** 0.6.11 那个

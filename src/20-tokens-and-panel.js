@@ -938,11 +938,11 @@ function applyTokens(theme, pref) {
           value: cur,
           onChange: function (ev) { props.onChange(ev.target.value); },
         },
-          h('option', { value: '__empty__' }, props.emptyLabel || '跟随主题'),
+          h('option', { value: '__empty__' }, props.emptyLabel || t('panel.sel.follow')),
           opts.map(function (o) {
             return h('option', { key: o[0], value: o[0] }, o[1]);
           }),
-          cur && !known ? h('option', { key: '__cur__', value: cur }, cur + '（当前）') : null
+          cur && !known ? h('option', { key: '__cur__', value: cur }, t('panel.sel.current', { value: cur })) : null
         )
       );
     }
@@ -1083,12 +1083,12 @@ function applyTokens(theme, pref) {
         h('div', { className: 'zp-ed-lbl', title: props.anchor }, props.label),
         h('input', {
           type: 'color', className: 'zp-color', value: cur,
-          'aria-label': props.label + ' 取色器',
+          'aria-label': t('panel.ed.pickerAria', { label: props.label }),
           onChange: function (ev) { props.onChange(ev.target.value); },
         }),
         h('input', {
           type: 'text', className: 'zp-txt zp-ed-hex', value: text, maxLength: 7,
-          spellCheck: false, 'aria-label': props.label + ' 十六进制色值',
+          spellCheck: false, 'aria-label': t('panel.ed.hexAria', { label: props.label }),
           'aria-invalid': bad ? 'true' : 'false',
           onChange: function (ev) { setText(ev.target.value); submit(ev.target.value); },
           onBlur: function () { submit(text); if (!/^#[0-9a-fA-F]{6}$/.test(text)) setText(cur); },
@@ -1096,11 +1096,11 @@ function applyTokens(theme, pref) {
         props.ratio == null
           ? h('span', { className: 'zp-ed-ratio' }, '')
           : h('span', { className: 'zp-ed-ratio' + (props.low ? ' is-low' : ''), 'aria-live': 'polite' },
-              props.ratio.toFixed(1) + ':1' + (props.low ? ' 偏低' : '')),
+              props.ratio.toFixed(1) + ':1' + (props.low ? t('panel.ed.low') : '')),
         h('button', {
           type: 'button', className: 'zp-ed-reset', disabled: !props.dirty,
-          'aria-label': '恢复' + props.label + '为克隆主题的值',
-          title: props.dirty ? '恢复为克隆主题的值' : '当前就是克隆主题的值',
+          'aria-label': t('panel.ed.resetAria', { label: props.label }),
+          title: props.dirty ? t('panel.ed.resetTitleDirty') : t('panel.ed.resetTitleClean'),
           onClick: function () { if (props.dirty) props.onChange(''); },
         }, '↺')
       );
@@ -1287,13 +1287,13 @@ function applyTokens(theme, pref) {
           .then(function (resp) { return resp.json(); })
           .then(function (data) {
             if (!data || !data.ok) {
-              throw new Error((data && (data.message || data.error)) || '生成失败');
+              throw new Error((data && (data.message || data.error)) || t('panel.ai.failed'));
             }
             const parsed = extractAiTheme(data.text);
-            if (!parsed) throw new Error('模型没返回可解析的主题 JSON，换个说法再试');
+            if (!parsed) throw new Error(t('panel.ai.badJson'));
             setAiResult(parsed);
           })
-          .catch(function (e) { setAiErr((e && e.message) || '生成失败'); })
+          .catch(function (e) { setAiErr((e && e.message) || t('panel.ai.failed')); })
           .then(function () { setAiBusy(false); });
       };
       const pickPalette = function (ev) {
@@ -1303,17 +1303,17 @@ function applyTokens(theme, pref) {
         setPaletteBusy(true); setPaletteErr('');
         imageToImageData(file, 960).then(function (data) {
           const colors = extractPalette(data, 6);
-          if (!colors.length) { setPaletteErr('这张图没取到可用颜色'); setPalette(null); }
+          if (!colors.length) { setPaletteErr(t('panel.palette.noColors')); setPalette(null); }
           else setPalette(colors);
           setPaletteBusy(false);
         }).catch(function (e) {
-          setPaletteErr((e && e.message) || '取色失败'); setPaletteBusy(false);
+          setPaletteErr((e && e.message) || t('panel.palette.failed')); setPaletteBusy(false);
         });
       };
       const applyPaletteToDraft = function () {
         if (!palette) return;
         const anchorsFromImage = paletteToAnchors(palette);
-        if (!anchorsFromImage) { setPaletteErr('色值不足以分配锚点'); return; }
+        if (!anchorsFromImage) { setPaletteErr(t('panel.palette.notEnough')); return; }
         const n = JSON.parse(JSON.stringify(draft));
         n.light = Object.assign({}, n.light || {}, anchorsFromImage);
         n.autoDark = true;
@@ -1323,25 +1323,25 @@ function applyTokens(theme, pref) {
         setPalette(null);
       };
 
-      return h('div', { className: 'zp-ed', role: 'dialog', 'aria-modal': 'true', 'aria-label': '自定义主题编辑器' },
+      return h('div', { className: 'zp-ed', role: 'dialog', 'aria-modal': 'true', 'aria-label': t('panel.ed.dialogAria') },
         h('div', { className: 'zp-ed-panel', ref: panelRef },
           h('div', { className: 'zp-ed-hd' },
-            h('div', { className: 'zp-ed-ttl' }, '编辑配色'),
+            h('div', { className: 'zp-ed-ttl' }, t('panel.ed.title')),
             h('button', {
-              type: 'button', className: 'zp-ed-x', 'aria-label': '关闭编辑器',
-              title: '关闭（有未保存改动会先确认）',
+              type: 'button', className: 'zp-ed-x', 'aria-label': t('panel.ed.closeAria'),
+              title: t('panel.ed.closeTitle'),
               onClick: function () { requestCloseRef.current(); },
             }, '×')
           ),
-          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, '外观'), h('div', { className: 'zp-sec-n' }, '克隆自 ' + (THEMES[props.spec.base] ? (THEMES[props.spec.base].label || props.spec.base) : props.spec.base) + '，其余 token 按差值派生'))),
-          h(Row, { label: '名称' },
+          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, t('panel.ed.secAppearance')), h('div', { className: 'zp-sec-n' }, t('panel.ed.clonedFrom', { theme: THEMES[props.spec.base] ? (THEMES[props.spec.base].label || props.spec.base) : props.spec.base })))),
+          h(Row, { label: t('panel.ed.name') },
             h('input', {
               type: 'text', className: 'zp-txt', value: draft.label, maxLength: 24,
-              ref: nameRef, 'aria-label': '主题名称',
+              ref: nameRef, 'aria-label': t('panel.ed.nameAria'),
               onChange: function (ev) { const n = JSON.parse(JSON.stringify(draft)); n.label = ev.target.value; setDraft(n); setDirty(true); },
             })
           ),
-          h(Row, { label: '深色' },
+          h(Row, { label: t('panel.ed.dark') },
             h('label', { className: 'zp-chk' },
               h('input', {
                 type: 'checkbox', checked: draft.autoDark === true,
@@ -1351,13 +1351,13 @@ function applyTokens(theme, pref) {
                   commit(n);
                 },
               }),
-              h('span', null, '由浅色自动反推（底色/文字/边框反明度，品牌与语义色沿用）')
+              h('span', null, t('panel.ed.autoDark'))
             )
           ),
-          h(Row, { label: '编辑' },
+          h(Row, { label: t('panel.ed.editRow') },
             h(Pills, {
-              label: '编辑明暗',
-              opts: [['light', '浅色'], ['dark', '深色']],
+              label: t('panel.ed.schemeAria'),
+              opts: [['light', t('panel.ed.light')], ['dark', t('panel.ed.dark')]],
               value: editScheme,
               onChange: function (v) {
                 setEditScheme(v);
@@ -1366,7 +1366,7 @@ function applyTokens(theme, pref) {
               },
             })
           ),
-          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, '配色锚点'), h('div', { className: 'zp-sec-n' }, '改这里，右侧真实界面实时跟着变；只有「保存」才落盘'))),
+          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, t('panel.ed.anchors')), h('div', { className: 'zp-sec-n' }, t('panel.ed.anchorsNote')))),
           h('div', { className: 'zp-ed-list' },
             ANCHOR_GROUPS.map(function (g) {
               const own = anchors[g.anchor];
@@ -1547,14 +1547,14 @@ function applyTokens(theme, pref) {
 
           h('div', { className: 'zp-ed-ft' },
             confirmDiscard
-              ? h('span', { className: 'zp-ed-confirm', role: 'alert' }, '有未保存改动，确定放弃？')
-              : h('span', { className: 'zp-hint' }, dirty ? '有未保存改动' : ''),
+              ? h('span', { className: 'zp-ed-confirm', role: 'alert' }, t('panel.ed.confirmDiscard'))
+              : h('span', { className: 'zp-hint' }, dirty ? t('panel.ed.dirtyHint') : ''),
             confirmDiscard
-              ? h('button', { type: 'button', className: 'zp-btn', onClick: function () { setConfirmDiscard(false); } }, '继续编辑')
-              : h('button', { type: 'button', className: 'zp-btn', onClick: function () { requestCloseRef.current(); } }, '取消'),
+              ? h('button', { type: 'button', className: 'zp-btn', onClick: function () { setConfirmDiscard(false); } }, t('panel.ed.keepEditing'))
+              : h('button', { type: 'button', className: 'zp-btn', onClick: function () { requestCloseRef.current(); } }, t('panel.ed.cancel')),
             confirmDiscard
-              ? h('button', { type: 'button', className: 'zp-btn', 'data-tone': 'danger', onClick: function () { props.onClose(); } }, '放弃改动')
-              : h('button', { type: 'button', className: 'zp-btn zp-btn-pri', onClick: function () { props.onSave(draft); } }, '保存')
+              ? h('button', { type: 'button', className: 'zp-btn', 'data-tone': 'danger', onClick: function () { props.onClose(); } }, t('panel.ed.discard'))
+              : h('button', { type: 'button', className: 'zp-btn zp-btn-pri', onClick: function () { props.onSave(draft); } }, t('panel.ed.save'))
           )
         )
       );
