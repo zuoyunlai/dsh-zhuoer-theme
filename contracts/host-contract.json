@@ -5,12 +5,21 @@
     "改完 client.js 跑 `npm run verify:host`：代码里新增/移除了宿主依赖会被点出来，",
     "强制你更新这份清单（并提醒同步 README 与验证）。"
   ],
+  "positives": [
+    {
+      "id": "package.json.icon",
+      "claim": "package.json 顶层 icon + 根目录 icon.svg（files 与 exports 各留一条）能让设置 → 插件 列表显示自定义图标",
+      "verdict": "true",
+      "evidence": "同族插件四人组写法一致：dsh-chronicle / dsh-pet / dsh-rightbar-quicknav / dsh-theme-palette 都是 icon: ./icon.svg；0.6.4 照此落地，verify:host 已加包清单三件套检查",
+      "date": "2026-11-25"
+    }
+  ],
   "negatives": [
     {
       "id": "settings.section.icon",
-      "claim": "给 settings.section 注册对象传 icon 可以让分区显示自定义图标",
+      "claim": "在 settings.section 的注册对象里传 icon，可以让设置页左侧分区显示自定义图标",
       "verdict": "false",
-      "evidence": "0.6.2 重启实测：左侧仍为宿主默认齿轮，且路径未被渲染成文本 → 字段被丢弃",
+      "evidence": "0.6.2 重启实测：左侧仍为宿主默认齿轮，且路径未被渲染成文本 → 字段被丢弃。与 package.json 的 icon 是两回事（那条见 positives）",
       "date": "2026-11-25"
     }
   ],

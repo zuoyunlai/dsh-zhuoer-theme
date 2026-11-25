@@ -15,7 +15,7 @@
  *
  * 这只覆盖「静态依赖清单」。DSH 升级后某个选择器是否真能命中，仍需在真实页面上跑一次。
  */
-import { readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 
@@ -79,6 +79,28 @@ const attrPool = [
 ]
 const foundAttrs = uniq(attrPool.filter((a) => !ownAttrs.has(a)))
 
+// —— id 片段：契约 → 代码（0.6.5 补）——
+// classFragments 走「代码 → 契约」，查不出「代码里把唯一一条 id 依赖删了」这种情况
+// （代码没了 class*=，对账自然无话可说）。品牌位的 svg:has(#dsh-wordmark-badge-clip)
+// 就是唯一一条 id 依赖，删掉它品牌位会静默失效，所以反过来再查一遍。
+const knownIdFragments = (contract.host.idFragments ?? []).map((e) => e.fragment)
+const missingIdFragments = knownIdFragments.filter((f) => !scanSrc.includes(f))
+
+// —— 包清单图标三件套（0.6.4 起）——
+// 设置 → 插件 列表那一格读的是 package.json 的 "icon"，同族插件
+// （dsh-chronicle / dsh-pet / dsh-rightbar-quicknav / dsh-theme-palette）写法一致。
+// 这些字段写漏不会有任何报错，只会静默少一个图标，所以放进门里。
+const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
+const iconRel = typeof pkg.icon === 'string' ? pkg.icon.replace(/^\.\//, '') : ''
+const manifestProblems = []
+if (!pkg.icon) manifestProblems.push('package.json 缺 "icon"（插件页会回落到宿主默认图标）')
+else if (!iconRel) manifestProblems.push('"icon" 必须是字符串路径')
+if (iconRel && !existsSync(join(root, iconRel))) manifestProblems.push('"icon" 指向的文件不存在：' + iconRel)
+if (iconRel && !/\.svg$/i.test(iconRel)) manifestProblems.push('"icon" 必须指向 .svg：' + iconRel)
+if (iconRel && !(pkg.files ?? []).includes(iconRel)) manifestProblems.push('"files" 未包含 ' + iconRel + '（发布包会缺图标）')
+if (iconRel && pkg.exports?.['./icon'] !== './' + iconRel) manifestProblems.push('exports 缺少 "./icon": "./' + iconRel + '"')
+
+
 const knownFragments = new Set(contract.host.classFragments.map((e) => e.fragment))
 const knownAttrs = new Set(contract.host.attributes.map((e) => e.attribute))
 
@@ -101,13 +123,15 @@ if (update) {
   console.log(`WROTE 契约已更新：+${addedFragments.length + addedAttrs.length} / -${removedFragments.length + removedAttrs.length}`)
 }
 
-console.log(`契约 host 部分：${knownFragments.size} 个类名片段 + ${knownAttrs.size} 个属性；代码实测 ${foundFragments.length} + ${foundAttrs.length}`)
+console.log(`契约 host 部分：${knownFragments.size} 个类名片段 + ${knownAttrs.size} 个属性 + ${knownIdFragments.length} 个 id 片段；代码实测 ${foundFragments.length} + ${foundAttrs.length}`)
 
 const lines = []
 for (const f of addedFragments) lines.push(`ADDED    类名片段 [class*="${f}"] 未登记`)
 for (const a of addedAttrs) lines.push(`ADDED    属性 [${a}] 未登记`)
 for (const f of removedFragments) lines.push(`REMOVED  契约里的 [class*="${f}"] 代码已不再使用`)
 for (const a of removedAttrs) lines.push(`REMOVED  契约里的 [${a}] 代码已不再使用`)
+for (const f of missingIdFragments) lines.push(`MISSING  契约里的 id 片段 #${f} 代码已不再使用（品牌位会静默失效）`)
+for (const p of manifestProblems) lines.push('MANIFEST ' + p)
 
 if (lines.length && !update) {
   console.error('')

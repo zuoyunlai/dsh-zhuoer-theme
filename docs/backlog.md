@@ -52,3 +52,27 @@
 
 **唯一能减的方向**：中文子集再压——但它已经按字符集子集化过（1.2 MB ≈ 3500 字），
 再压需要构建期字体工具链，会打破「零构建、纯单文件 ESM」这个前提。**暂时不做。**
+
+## 5. 插件页图标 —— 已修（0.6.4）
+
+**结论**：宿主读的是 **`package.json` 的 `icon` 字段**。同族插件四人组（chronicle / pet /
+rightbar-quicknav / theme-palette）写法一致：根目录 `icon.svg` + `"icon": "./icon.svg"` +
+`files` / `exports["./icon"]` 各一条。
+
+**怎么定的**：不是猜——先读这四个仓的清单再照抄。**0.6.2 那次判断是错的**（当时只查了
+`src/` 与 `cordis.patch.yml`，没看 package.json，也没看隔壁仓）。
+
+**现在由门禁守住**：`verify:host` 里加了包清单三件套检查——这类字段写漏**不报错**，
+只会静默少一个图标，靠记性守不住。
+
+**残留**：设置页左侧「Zhuoer 主题」导航行那个图标仍然做不到（slot 注册对象的 `icon` 被丢弃，
+见 `contracts/host-contract.json` 的 negatives）。要做只有两条路：宿主支持，或拿到导航行真实 DOM。
+
+## 6. `.git` 元数据事故 —— 已有工具（0.6.3）
+
+症状 / 证据 / 归因边界 / 修复命令全在 [`docs/git-integrity.md`](git-integrity.md)。
+
+两条要记住的：① 不是本仓脚本造成的（canary 逐命令验过），也不必再手工重建——
+`node scripts/git-doctor.mjs --fix`；② `git add -A` 会漏掉**等长改写**
+（0.6.2→0.6.3、0.6.3→0.6.4 两次踩中），提交前一律 `git add -A && git add --renormalize .`。
+

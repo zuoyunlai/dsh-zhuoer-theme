@@ -18,6 +18,7 @@
 | 图片取色 | 选一张图本地提 6 个主色填入锚点，图片不上传 |
 | 编辑配色页 | 左侧 352px 抽屉 + 右侧真实界面实时预览；分六段，头尾吸顶吸底；未保存改动关闭会先确认 |
 | 主题底图 | 可给每个自定义主题绑一张图，存 IndexedDB（单张上限 3 MiB） |
+| 插件页图标 | 根目录 `icon.svg` + `package.json` 的 `"icon"`；设置 → 插件 列表里显示深灰底红 Z（与市场卡片同源） |
 | 市场图标 | `assets/icon-180.png`（180×180，由 `assets/logo/zhuoer.svg` 栅格化），用于插件市场卡片 |
 | 品牌位 | 替换左上角 deepseek HARNESS 徽标；默认关闭。开启后默认用主题自带 logo（红色 Z 方形标），上传图片则覆盖它（压到最长边 512px） |
 | 界面字号 | 90 / 100 / 110 / 125 / 140 五档，**整体缩放**（字、间距、边框一起变） |
@@ -182,7 +183,8 @@ npm run coverage      # token 覆盖率与「刻意不跟锚点」的豁免清�
 | `verify:contrast` | 内置 11 套 × 两态的正文/提示/success 与按钮前景色 ≥ 4.5:1；12 套预设走真实 `buildCustomTokens` 复算 |
 | `verify:scale` | 字号缩放必须是全局 `body{zoom}`，且不允许再出现「只缩放字体 token 的 px」（0.4.1 的回归就是这种写法） |
 | `verify:themes` | 内联副本与真源逐 token 相等、两档 token 集合齐全、对比度达标 |
-| `verify:host` | 代码实际用到的宿主选择器与 `contracts/host-contract.json` 对账 |
+| `verify:host` | 宿主选择器与契约对账，另查两类「静默失效」：契约登记的 id 片段是否还在代码里、`package.json` 的插件图标三件套（`icon` / `files` / `exports`）是否齐全 |
+| `verify:git` | `.git` 元数据（`HEAD`/`config`/`index`）是否完好；损坏时 `node scripts/git-doctor.mjs --fix` 一键重建（见 `docs/git-integrity.md`） |
 | `token-surface` | 覆盖了哪些宿主 token、哪些是刻意不跟锚点的 |
 | `node --check` | 产物语法 |
 | `test-derive` | 从 `#region derive` 抠出派生函数无头跑：151 键 × 4 基色 × 2 态 |
