@@ -2869,14 +2869,26 @@ function applyTokens(theme, pref) {
         //   background-image  = 左侧亮条 + 右端收敛到同一个按钮色
         // 渐变生效 → 亮条自然过渡进按钮区；渐变若失效 → 整条直接等于按钮色，
         // 也不会出现"亮条紧贴一个暗块"的断层。
+        // 顶栏要同时满足两件事：① 比侧栏亮一点（层次）；② 紧邻窗口按钮区那一段必须与按钮区同色。
+        // 实测：宿主把「量到的 --dsw-specific-sidebar-fill」通过 windowsAppearance IPC 推给原生
+        // titleBarOverlay（zhuoer 深色 #15171c，与截图按钮区像素一致），而按钮区从窗口右缘往左
+        // 约 264px 就开始覆盖。原实现让渐变在「第 100% 像素」才收敛，所以 264px 处还没收敛完，
+        // 留下一条硬边。
+        // 现在的形状：亮带 → 在离右缘 560px 处开始过渡 → 到 320px 处完全变成按钮色 → 最后 320px
+        // 保持纯按钮色（320 > 264，留了 56px 余量）。这样既有亮带，又保证覆盖边界落在纯色区里。
+        // --zr-topbar-hold 可调那 320px：换到更高 DPI 若按钮区变宽（按钮宽随缩放变大），
+        // 把这个值调大即可；调小到 <264 就会重新出现硬边。
         fxCss += 'html[data-windows-titlebar] [class*="_frame"]::before{'
           + '--zr-btn-fill:var(--zr-titlebar-btn-fill,'
-          + ' var(--zr-btn-fill-base, #221918));'
+          + ' var(--dsw-specific-sidebar-fill, #15171c));'
+          + '--zr-topbar-band:var(--zr-topbar-fill, #2a2322);'
+          + '--zr-topbar-hold:var(--zr-topbar-hold-px, 320px);'
           + 'z-index:2 !important;'
           + 'background-color:var(--zr-btn-fill) !important;'
           + 'background-image:linear-gradient(to right,'
-          + 'var(--zr-topbar-fill, #2a2322) 0,'
-          + 'var(--zr-topbar-fill, #2a2322) calc(100% - 420px),'
+          + 'var(--zr-topbar-band) 0,'
+          + 'var(--zr-topbar-band) calc(100% - 560px),'
+          + 'var(--zr-btn-fill) calc(100% - var(--zr-topbar-hold)),'
           + 'var(--zr-btn-fill) 100%) !important;}';
         // 右上角最小化/最大化/关闭那一组按钮自绘在 [data-window-drag-controls] 容器里，
         // 容器自己带底色，会盖住上面那条亮色。把它的背景清成透明，让 ::before 的亮色透出来。
