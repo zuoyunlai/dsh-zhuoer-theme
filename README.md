@@ -211,10 +211,13 @@ themes.mjs           主题色 + 阴影的唯一真源
 src/                 客户端源码四分片
 build.mjs            src → client.js 拼接
 scripts/             verify-* 门禁、sync-themes、coverage、token-surface
-contracts/           宿主契约清单
-docs/                设计与权衡记录
+contracts/           宿主契约清单（含 positives / negatives：哪些契约成立、哪些实测不成立）
+docs/                设计与权衡记录（含 git-integrity.md：.git 元数据事故的现场与修复约定）
 assets/fonts/        23 个 woff2（14 个西文族 + 3 个中文子集）+ 来源说明
 assets/bg/           21 张主题底图（webp）
+assets/logo/         zhuoer.svg（品牌位自带 logo，走 /assets/logo/ 路由）
+assets/icon-180.png  市场卡片图标（180×180，由 zhuoer.svg 栅格化）
+icon.svg             插件页图标（package.json 的 "icon" 指向它）
 ```
 
 ## 发布
@@ -233,6 +236,7 @@ assets/bg/           21 张主题底图（webp）
 - **阴影刻度**：`themes.mjs` 的 `--dsw-elevation-*` 与插件自己的 `shadow` 是两套刻度（后者按明暗强度缩放）。合并需要重定一套视觉刻度，属数据设计而非清理，留待单独一轮。
 - **主题色与形状需要人眼确认**：门禁能保证对比度与完整性，保证不了「这套圆角在你的显示器上好不好看」。
 - **DSH 升级可能打破契约**：类名子串与属性名不是公开 API，`verify:host` 只能告诉你「代码用了什么」，命不命中要真机验。
+- **设置页左侧分区图标不可自定义**：`settings.section` 注册对象的 `icon` 字段被宿主**丢弃**（0.6.2 重启实测：显示宿主默认齿轮，也没把路径当文本渲染）。插件页列表那一格的图标是另一套机制（`package.json` 的 `icon`），可用。这两件事的证据都在 `contracts/host-contract.json` 的 `negatives` / `positives` 里。
 
 ## 隐私
 
