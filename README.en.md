@@ -90,20 +90,26 @@ Replace `<profile>` with the profile you actually use, e.g. `desktop` or `web` (
 
 ## Add it to the plugin market (self-hosted index)
 
-DSH **ships no index source** (the official docs are explicit: indexes are third-party content that users add themselves). This repository includes one, ready to add:
+DSH **ships no index source** (the official docs are explicit: indexes are third-party content that users add themselves). This repository includes one; this **public URL was verified to work**:
 
 ```text
-https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/market/index.json
+https://ghproxy.net/https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/market/index.json
 ```
 
 Usage: **Plugins → Experimental plugins → enable “Custom plugin index” → Discover → Add index source → paste the URL above.** The card then appears in Discover, with title, description, icon, versions and author taken from that index.
 
-The index is [`market/index.json`](market/index.json); it lists only the three safe versions (0.6.18 / 0.6.17 / 0.6.13) and deliberately skips 0.6.11, which shipped a broken settings panel. > **Reachability (measured 2026-11-25)**: from this machine’s Node runtime, `raw.githubusercontent.com` / `github.com`
-> and several GitHub mirrors (jsDelivr, statically, githack) all fail with `ECONNRESET` / timeout, while
-> `registry.npmjs.org` and `gitee.com` work. DSH fetches the index inside the host process, so on such a network
-> the raw link reports `Could not fetch …`. Workaround: mirror [`market/index.json`](market/index.json) to any static
-> host you can reach (object storage, your own server, a LAN http server) and add that URL instead. That is exactly how
-> this index was verified locally — plain HTTP is fine, it does not have to be https.
+**Reachability (measured 2026-11-25, DSH 0.2.2-rc.5)** — DSH fetches the index inside the host process and requires it to return 2xx **without a redirect**:
+
+| URL | Result |
+|---|---|
+| `ghproxy.net/...` (above) | ✅ 200, no redirect; Discover renders the index title and the card |
+| `gh-proxy.com/...` (same format, spare) | ✅ 200, usable as a fallback |
+| `raw.githubusercontent.com/...` | ❌ `ECONNRESET` on the Node side (curl working does not imply the host can fetch it) |
+| `gitee.com/<owner>/<repo>/raw/...` | ❌ 302 to a signed `raw.giteeusercontent.com` URL; DSH reports `unexpected redirect` |
+
+Fallback: mirror [`market/index.json`](market/index.json) to any static host you can reach (object storage, your own server, a LAN http server; plain HTTP is fine) and add that URL instead.
+
+The index lists only the three safe versions (0.6.18 / 0.6.17 / 0.6.13) and deliberately skips 0.6.11, which shipped a broken settings panel. Run `npm run verify:market` after editing — it checks the official schema (LocalizedText must contain `en`, exact SemVer, `source.type`, `engines.dsh`) and cross-checks it against this package’s `package.json`.
 
 Run `npm run verify:market` after editing — it checks the official schema (LocalizedText must contain `en`, exact SemVer, `source.type`, `engines.dsh`) and cross-checks it against this package’s `package.json`.
 

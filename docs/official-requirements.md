@@ -49,8 +49,8 @@
 | 不 require Harness Client 包 | ✅ | 客户端只 `require('react')`（宿主 module loader 提供）；`peerDependencies` 只声明注入所需的两个 client 包 |
 | UI 只用 slot + `--dsw-alias-*` | ✅ | `verify:host` 对账 `contracts/host-contract.json`；`token-surface` 报覆盖与豁免 |
 | 市场 `LocalizedText` 含 `en` | ✅ | `locale/en.json` 存在且 `meta.title` = `Zhuoer Theme` |
-| 市场索引（自建） | ✅ 机制已验证 | `market/index.json` 按官方 schema 写，`verify:market` 守门。**DSH 不内置索引源**，用户自行添加 URL。实测（0.2.2-rc.5）：本地 `http://127.0.0.1:18765/index.json` 添加后「发现」正常显示索引标题与插件卡片（标题/说明/0.6.18/作者/`已安装`） |
-| 公共托管（raw 链） | ⚠️ 本网络不可达 | 同一份文件换成 `raw.githubusercontent.com` 的 URL 后，DSH 报 `Could not fetch …`。原因已定位：本机 **Node 侧**对 github.com / raw / jsDelivr / statically / githack 全部 `ECONNRESET`/超时，而 `registry.npmjs.org`、`gitee.com` 正常（curl 能通不代表宿主 fetch 能通）。→ 索引需镜像到可访问的静态主机 |
+| 市场索引（自建） | ✅ 已可公开加载 | market/index.json 按官方 schema 写，verify:market 守门。**DSH 不内置索引源**，用户自行添加 URL。公共 URL 用 ghproxy 镜像（见下），已在 DSH 0.2.2-rc.5「发现」里实测：索引标题与插件卡片（标题/说明/0.6.18/作者/已安装）全部正常 |
+| 索引托管的硬约束 | ⚠️ 两条都踩过 | DSH 要求索引**不经重定向**返回 2xx。raw.githubusercontent.com 在本网络于 **Node 侧** ECONNRESET（curl 通不代表宿主通）；gitee.com/<owner>/<repo>/raw/… 会 302 跳到带签名的 raw.giteeusercontent.com，DSH 直接报 unexpected redirect。可用的公共 URL：https://ghproxy.net/https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/market/index.json（备用 gh-proxy.com 同格式） |
 | 社区清单 | ⏳ | 4 个 awesome-list 的 PR 仍 OPEN（见 `docs/catalog-submissions.md`），与官方市场无关 |
 
 ## 3. 自检工具与两个坑

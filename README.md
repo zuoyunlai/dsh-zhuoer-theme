@@ -90,21 +90,27 @@ dsh plugin --profile <profile> add github:zuoyunlai/dsh-zhuoer-theme#v0.6.17
 
 ## 添加到插件市场（自建索引源）
 
-DSH **不内置任何索引源**（官方文档：索引是第三方内容，由用户自己添加）。本仓自带一份索引文件，可直接加进「发现」：
+DSH **不内置任何索引源**（官方文档：索引是第三方内容，由用户自己添加）。本仓自带一份索引文件，**实测可用的公共 URL**：
 
 ```text
-https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/market/index.json
+https://ghproxy.net/https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/market/index.json
 ```
 
-用法：**插件 → 实验性插件 → 打开「自定义插件索引」→「发现」→「添加索引源」→ 粘贴上面的 URL**。完成后「发现」里会出现本插件卡片，标题、说明、图标、版本与作者都来自这份索引。
+用法：**插件 → 实验性插件 → 打开「自定义插件索引」→「发现」→「添加索引源」→ 粘贴上面的 URL**。完成后「发现」里会出现本插件卡片（标题、说明、图标、版本、作者都来自这份索引）。
 
-索引文件是 [`market/index.json`](market/index.json)：只列 **0.6.18 / 0.6.17 / 0.6.13** 三个可安全使用的版本（刻意跳过 0.6.11 那版面板报错的）。> **网络可用性（实测，2026-11-25）**：本机 Node 侧对 `raw.githubusercontent.com` / `github.com` 与几个 GitHub 镜像
-> （jsDelivr、statically、githack）全部 `ECONNRESET` / 超时，而 `registry.npmjs.org`、`gitee.com` 正常。
-> DSH 的索引是在宿主进程里 fetch 的，所以**上述网络环境下直接加 raw 链会报 `Could not fetch …`**。
-> 解决办法：把 [`market/index.json`](market/index.json) 镜像到你能访问的静态主机（对象存储 / 自己的服务器 / 内网 http），
-> 再添加那个 URL 即可。本机验证就是这么做的（`python -m http.server` 或任意静态服务，HTTP 即可，不要求 https）。
+**可达性实测（2026-11-25，DSH 0.2.2-rc.5）**——DSH 在宿主进程里 fetch 索引，且要求它**不经重定向**返回 2xx：
 
-改完索引跑 `npm run verify:market`——它按官方 schema 校验 LocalizedText 必含 `en`、SemVer、`source.type`、`engines.dsh` 与本仓 `package.json` 的一致性。
+| URL | 结果 |
+|---|---|
+| `ghproxy.net/...`（上面那条） | ✅ 200、无重定向，「发现」正常显示索引标题与卡片 |
+| `gh-proxy.com/https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/market/index.json`（同格式备用） | ✅ 200，可作备用 |
+| `raw.githubusercontent.com/...` | ❌ Node 侧 `ECONNRESET`（curl 能通不代表宿主能通） |
+| `gitee.com/<owner>/<repo>/raw/...` | ❌ 302 跳到带签名的 `raw.giteeusercontent.com`，DSH 报 `unexpected redirect` |
+
+兜底：把 [`market/index.json`](market/index.json) 镜像到你能访问的静态主机（对象存储 / 自己的服务器 / 内网 http；HTTP 即可，不要求 https），再添加那个 URL。
+
+索引只列 **0.6.18 / 0.6.17 / 0.6.13** 三个可安全使用的版本（刻意跳过 0.6.11 那版面板报错的）。改完跑 `npm run verify:market`——它按官方 schema 校验 LocalizedText 必含 `en`、SemVer、`source.type`、`engines.dsh`，并与 `package.json` 交叉对账。
+
 
 ## 使用
 
