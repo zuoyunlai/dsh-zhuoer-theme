@@ -245,6 +245,8 @@ To verify in the real UI (layout or colour changes, or an English pass), follow 
 
 This only covers the **static dependency list**; whether a selector actually matches still has to be checked in the real page (the contract's `breaksIfMissing` is there for exactly that step).
 
+Official hard requirements (package contract + market index schema), this plugin's per-clause evidence, and two pitfalls of the self-check CLI live in [docs/official-requirements.md](docs/official-requirements.md) — walk it before every release.
+
 ## Layout
 
 ```
@@ -256,7 +258,7 @@ src/                 five client shards (incl. 05-i18n.js dictionary)
 build.mjs            src → client.js concatenation
 scripts/             verify-* gates, sync-themes, coverage, token-surface
 contracts/           host contract lists (positives / negatives: what holds and what does not)
-docs/                design notes and runbooks: i18n-plan.md, live-verify.md, git-integrity.md
+docs/                design notes and runbooks: i18n-plan.md, live-verify.md, official-requirements.md, git-integrity.md
 assets/fonts/        23 woff2 files (14 Latin families + 3 CJK subsets) plus provenance
 assets/bg/           21 theme backgrounds (webp)
 assets/logo/         zhuoer.svg (brand-slot logo, served under /assets/logo/)

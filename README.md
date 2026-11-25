@@ -253,6 +253,9 @@ node scripts/verify-css-snapshot.mjs --capture visual/css-current   # 改过 CSS
 
 这套只覆盖**静态依赖清单**；某个选择器是否真能命中，仍需在真实页面上验一次（契约里的 `breaksIfMissing` 就是给那一步看的）。
 
+官方对插件的硬要求（包契约 + 市场索引 schema）、本插件的逐条合规证据、以及自检工具的两个坑，
+统一记在 [docs/official-requirements.md](docs/official-requirements.md) —— 发版前照着勾一遍。
+
 ## 目录结构
 
 ```
@@ -265,7 +268,8 @@ build.mjs            src → client.js 拼接
 scripts/             verify-* 门禁、sync-themes、coverage、token-surface
 contracts/           宿主契约清单（含 positives / negatives：哪些契约成立、哪些实测不成立）
 docs/                设计与权衡记录与操作规程：i18n-plan.md（多语言规划与进度）、
-                     live-verify.md（起一次性 profile 做真机验证）、git-integrity.md（.git 事故与修复约定）
+                     live-verify.md（起一次性 profile 做真机验证）、official-requirements.md（官方硬要求与合规对照）、
+                     git-integrity.md（.git 事故与修复约定）
 assets/fonts/        23 个 woff2（14 个西文族 + 3 个中文子集）+ 来源说明
 assets/bg/           21 张主题底图（webp）
 assets/logo/         zhuoer.svg（品牌位自带 logo，走 /assets/logo/ 路由）
