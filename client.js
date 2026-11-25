@@ -2277,7 +2277,9 @@ function applyTokens(theme, pref) {
           fxCss += 'body{zoom:' + (pref.fontScale / 100) + ' !important;}'
             // 面板自己不该跟着缩：90% 档会把 11px 的说明文字压到 9.9px，
             // 恰恰在最需要读清楚的设置页变得最难读。反向补偿一步抵掉。
-            + 'html .zp-root{zoom:' + (Math.round(10000 / pref.fontScale) / 10000) + ' !important;}';
+            // 反向补偿 = 100 / scale：110 档 → 0.909。注意别写成「10000/scale 再除 10000」，
+            // 那等于 1/100，面板会被缩到 1%，看起来就是「设置页一片空白只剩几条细线」。
+            + 'html .zp-root{zoom:' + (Math.round(10000 / pref.fontScale) / 100) + ' !important;}';
         }
         if (pref.uiFont) {
           const fam = '"' + pref.uiFont.replace(/"/g, '') + '", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';

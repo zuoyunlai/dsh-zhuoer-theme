@@ -25,6 +25,15 @@ if (/px\/g,\s*function \(m, pre, num\)/.test(code) || /parseFloat\(num\) \* k \*
   fails.push('检测到按 --dsw-font-* 改写 px 的实现：它会与 body{zoom} 叠加或只放大正文')
 }
 
+// 面板反向补偿：必需存在，且除数是 100（漏写会让面板缩到 1%，表现为「设置页一片空白」）。
+if (/zp-root\{zoom:/.test(code)) {
+  if (!/Math\.round\(10000 \/ pref\.fontScale\) \/ 100\b/.test(code)) {
+    fails.push('面板反向补偿的算式不是 100/scale：写成 /10000 会把面板缩到 1%（0.6.19 真实事故）')
+  }
+} else {
+  fails.push('缺少 html .zp-root{zoom:1/scale}：字号缩放会连带缩小设置面板')
+}
+
 if (fails.length) {
   console.error('[verify:scale] 失败')
   for (const f of fails) console.error('  - ' + f)
