@@ -38,6 +38,27 @@ back to English. Three new deterministic gates replace the pixel baseline (which
 itself: 2.301% between two captures of the same state): `verify:panel` renders the panel in Node,
 `verify:text` snapshots the rendered copy, `verify:keys` enforces key and placeholder parity.
 
+## 0.6.18（发布汇总：官方契约对齐 + 文档双语化）
+
+本版**没有改客户端 UI 逻辑**（面板/编辑器代码与 0.6.17 一致），全是「让包符合官方契约」与「把文档补齐」：
+
+**1）官方展示元数据**（`locale/*.json`）——官方要求插件交 `meta.title` / `meta.description` 配合导出的 `./icon`，
+此前只有运行时 `loc.register()`，市场/插件页的展示名可能回落成包名。现在 `locale/{zh,en}.json` 就位，
+`exports` 增加 `"./locale/*.json"`，`files` 收录；并新增 **`verify:locale`** 门禁（en 必存、`meta.title` 非空、
+`exports`/`files` 齐全、图标 ≤256 KiB 且两处指向一致）。
+
+**2）文档双语化**：新增 **`README.en.md`**（与中文版同结构、顶部互链），并把中文版按 0.6.17 的实际状态整体校对；
+两版都加了 **3 张截图**（浅色面板 / 深色面板 / 编辑器，2x，取自空配置的一次性 profile，无个人信息），
+用绝对 raw URL 引用，GitHub 与 npm 页面都能渲染。
+
+**3）新增 `docs/official-requirements.md`**：官方硬要求（包契约 7 条 + 市场索引 schema）、本插件逐条合规证据、
+以及自检工具的两个坑（位置参数会被忽略，须 `cd` 进仓库；`files` 按字面比较会误报 `./index.js`）。
+
+**English summary** — release batch: ships the official display metadata (`locale/{zh,en}.json` plus the
+`"./locale/*.json"` export and a new `verify:locale` gate), a full English README with three UI screenshots,
+and `docs/official-requirements.md` recording the official hard requirements, our per-clause evidence, and two
+pitfalls of the self-check CLI. No client UI behaviour changed since 0.6.17.
+
 ## 未发布（插件契约：展示元数据 locale/*.json）
 
 官方要求插件交展示元数据：`locale/<lang>.json` 的 `meta.title` / `meta.description`，配合导出的 `./icon`。
