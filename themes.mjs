@@ -4,6 +4,8 @@ export const THEMES = {
     "label": "@theme.zhuoer",
     "dark": {
       "--dsw-alias-bg-base": "#0e1015",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #0e1015 20.19%, #0e101500 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #17191e 20.19%, #17191e00 100%)",
       "--dsw-alias-bg-layer-1": "#13151a",
       "--dsw-alias-bg-layer-2": "#17191e",
       "--dsw-alias-bg-layer-3": "#1a1c21",
@@ -228,6 +230,8 @@ export const THEMES = {
     },
     "light": {
       "--dsw-alias-bg-base": "#f4f1ec",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #f4f1ec 20.19%, #f4f1ec00 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #efece7 20.19%, #efece700 100%)",
       "--dsw-alias-bg-layer-1": "#f0ede8",
       "--dsw-alias-bg-layer-2": "#efece7",
       "--dsw-alias-bg-layer-3": "#edeae5",
@@ -456,6 +460,8 @@ export const THEMES = {
     "label": "@theme.absolutely",
     "dark": {
       "--dsw-alias-bg-base": "#1b1b1a",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #1b1b1a 20.19%, #1b1b1a00 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #252523 20.19%, #25252300 100%)",
       "--dsw-alias-bg-layer-1": "#212120",
       "--dsw-alias-bg-layer-2": "#252523",
       "--dsw-alias-bg-layer-3": "#292927",
@@ -680,6 +686,8 @@ export const THEMES = {
     },
     "light": {
       "--dsw-alias-bg-base": "#f7f6f5",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #f7f6f5 20.19%, #f7f6f500 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #f1f0ef 20.19%, #f1f0ef00 100%)",
       "--dsw-alias-bg-layer-1": "#f3f2f1",
       "--dsw-alias-bg-layer-2": "#f1f0ef",
       "--dsw-alias-bg-layer-3": "#efeeed",
@@ -908,6 +916,8 @@ export const THEMES = {
     "label": "@theme.beacon",
     "dark": {
       "--dsw-alias-bg-base": "#000000",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #000000 20.19%, #00000000 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #0d0d0d 20.19%, #0d0d0d00 100%)",
       "--dsw-alias-bg-layer-1": "#080808",
       "--dsw-alias-bg-layer-2": "#0d0d0d",
       "--dsw-alias-bg-layer-3": "#121212",
@@ -1132,6 +1142,8 @@ export const THEMES = {
     },
     "light": {
       "--dsw-alias-bg-base": "#f8f8f8",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #f8f8f8 20.19%, #f8f8f800 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #f1f1f1 20.19%, #f1f1f100 100%)",
       "--dsw-alias-bg-layer-1": "#f3f3f3",
       "--dsw-alias-bg-layer-2": "#f1f1f1",
       "--dsw-alias-bg-layer-3": "#eeeeee",
@@ -1360,6 +1372,8 @@ export const THEMES = {
     "label": "@theme.crt",
     "dark": {
       "--dsw-alias-bg-base": "#090a09",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #090a09 20.19%, #090a0900 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #121312 20.19%, #12131200 100%)",
       "--dsw-alias-bg-layer-1": "#0f100f",
       "--dsw-alias-bg-layer-2": "#121312",
       "--dsw-alias-bg-layer-3": "#161716",
@@ -1584,6 +1598,8 @@ export const THEMES = {
     },
     "light": {
       "--dsw-alias-bg-base": "#f4f4f4",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #f4f4f4 20.19%, #f4f4f400 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #eeeeee 20.19%, #eeeeee00 100%)",
       "--dsw-alias-bg-layer-1": "#f0f0f0",
       "--dsw-alias-bg-layer-2": "#eeeeee",
       "--dsw-alias-bg-layer-3": "#ececec",
@@ -1812,6 +1828,8 @@ export const THEMES = {
     "label": "@theme.dash",
     "dark": {
       "--dsw-alias-bg-base": "#1a1210",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #1a1210 20.19%, #1a121000 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #241b18 20.19%, #241b1800 100%)",
       "--dsw-alias-bg-layer-1": "#201715",
       "--dsw-alias-bg-layer-2": "#241b18",
       "--dsw-alias-bg-layer-3": "#271f1c",
@@ -2036,6 +2054,8 @@ export const THEMES = {
     },
     "light": {
       "--dsw-alias-bg-base": "#ebe5e0",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #ebe5e0 20.19%, #ebe5e000 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #e6e0da 20.19%, #e6e0da00 100%)",
       "--dsw-alias-bg-layer-1": "#e8e2dc",
       "--dsw-alias-bg-layer-2": "#e6e0da",
       "--dsw-alias-bg-layer-3": "#e5ded9",
@@ -2264,6 +2284,8 @@ export const THEMES = {
     "label": "@theme.knot",
     "dark": {
       "--dsw-alias-bg-base": "#080808",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #080808 20.19%, #08080800 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #121212 20.19%, #12121200 100%)",
       "--dsw-alias-bg-layer-1": "#0e0e0e",
       "--dsw-alias-bg-layer-2": "#121212",
       "--dsw-alias-bg-layer-3": "#151516",
@@ -2488,6 +2510,8 @@ export const THEMES = {
     },
     "light": {
       "--dsw-alias-bg-base": "#f4f4f7",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #f4f4f7 20.19%, #f4f4f700 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #eeeef2 20.19%, #eeeef200 100%)",
       "--dsw-alias-bg-layer-1": "#f0f0f3",
       "--dsw-alias-bg-layer-2": "#eeeef2",
       "--dsw-alias-bg-layer-3": "#ededf0",
@@ -2716,6 +2740,8 @@ export const THEMES = {
     "label": "@theme.manuscript",
     "dark": {
       "--dsw-alias-bg-base": "#211e18",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #211e18 20.19%, #211e1800 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #2a2720 20.19%, #2a272000 100%)",
       "--dsw-alias-bg-layer-1": "#26231d",
       "--dsw-alias-bg-layer-2": "#2a2720",
       "--dsw-alias-bg-layer-3": "#2e2a23",
@@ -2940,6 +2966,8 @@ export const THEMES = {
     },
     "light": {
       "--dsw-alias-bg-base": "#f1f0ea",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #f1f0ea 20.19%, #f1f0ea00 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #ebeae4 20.19%, #ebeae400 100%)",
       "--dsw-alias-bg-layer-1": "#edece6",
       "--dsw-alias-bg-layer-2": "#ebeae4",
       "--dsw-alias-bg-layer-3": "#e9e8e2",
@@ -3168,6 +3196,8 @@ export const THEMES = {
     "label": "@theme.miami",
     "dark": {
       "--dsw-alias-bg-base": "#140f1e",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #140f1e 20.19%, #140f1e00 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #1d1828 20.19%, #1d182800 100%)",
       "--dsw-alias-bg-layer-1": "#1a1524",
       "--dsw-alias-bg-layer-2": "#1d1828",
       "--dsw-alias-bg-layer-3": "#211c2c",
@@ -3392,6 +3422,8 @@ export const THEMES = {
     },
     "light": {
       "--dsw-alias-bg-base": "#f6f2f5",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #f6f2f5 20.19%, #f6f2f500 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #f0ecf0 20.19%, #f0ecf000 100%)",
       "--dsw-alias-bg-layer-1": "#f2eef1",
       "--dsw-alias-bg-layer-2": "#f0ecf0",
       "--dsw-alias-bg-layer-3": "#efeaee",
@@ -3620,6 +3652,8 @@ export const THEMES = {
     "label": "@theme.phosphor",
     "dark": {
       "--dsw-alias-bg-base": "#0a0f0a",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #0a0f0a 20.19%, #0a0f0a00 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #141914 20.19%, #14191400 100%)",
       "--dsw-alias-bg-layer-1": "#101510",
       "--dsw-alias-bg-layer-2": "#141914",
       "--dsw-alias-bg-layer-3": "#181e18",
@@ -3844,6 +3878,8 @@ export const THEMES = {
     },
     "light": {
       "--dsw-alias-bg-base": "#f1f4f1",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #f1f4f1 20.19%, #f1f4f100 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #ebeeeb 20.19%, #ebeeeb00 100%)",
       "--dsw-alias-bg-layer-1": "#edf0ed",
       "--dsw-alias-bg-layer-2": "#ebeeeb",
       "--dsw-alias-bg-layer-3": "#e9ece9",
@@ -4072,6 +4108,8 @@ export const THEMES = {
     "label": "@theme.rose",
     "dark": {
       "--dsw-alias-bg-base": "#191724",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #191724 20.19%, #19172400 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #22202e 20.19%, #22202e00 100%)",
       "--dsw-alias-bg-layer-1": "#1f1d2a",
       "--dsw-alias-bg-layer-2": "#22202e",
       "--dsw-alias-bg-layer-3": "#262432",
@@ -4296,6 +4334,8 @@ export const THEMES = {
     },
     "light": {
       "--dsw-alias-bg-base": "#f1eeea",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #f1eeea 20.19%, #f1eeea00 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #ece9e6 20.19%, #ece9e600 100%)",
       "--dsw-alias-bg-layer-1": "#edeae7",
       "--dsw-alias-bg-layer-2": "#ece9e6",
       "--dsw-alias-bg-layer-3": "#eae7e4",
@@ -4524,6 +4564,8 @@ export const THEMES = {
     "label": "@theme.tide",
     "dark": {
       "--dsw-alias-bg-base": "#10151b",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #10151b 20.19%, #10151b00 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #191e25 20.19%, #191e2500 100%)",
       "--dsw-alias-bg-layer-1": "#161b21",
       "--dsw-alias-bg-layer-2": "#191e25",
       "--dsw-alias-bg-layer-3": "#1d2228",
@@ -4748,6 +4790,8 @@ export const THEMES = {
     },
     "light": {
       "--dsw-alias-bg-base": "#f1f3f5",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #f1f3f5 20.19%, #f1f3f500 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #ebeef0 20.19%, #ebeef000 100%)",
       "--dsw-alias-bg-layer-1": "#edeff1",
       "--dsw-alias-bg-layer-2": "#ebeef0",
       "--dsw-alias-bg-layer-3": "#e9ecee",
@@ -4981,6 +5025,8 @@ export const THEMES = {
     "label": "@theme.vintagePaper",
     "dark": {
       "--dsw-alias-bg-base": "#2d2621",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #2d2621 20.19%, #2d262100 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #362f29 20.19%, #362f2900 100%)",
       "--dsw-alias-bg-layer-1": "#3a322c",
       "--dsw-alias-bg-layer-2": "#362f29",
       "--dsw-alias-bg-layer-3": "#312b26",
@@ -5205,6 +5251,8 @@ export const THEMES = {
     },
     "light": {
       "--dsw-alias-bg-base": "#f5f1e6",
+      "--dsw-linear-gradient-think": "linear-gradient(180deg, #f5f1e6 20.19%, #f5f1e600 100%)",
+      "--dsw-linear-think-select": "linear-gradient(180deg, #f6f1e7 20.19%, #f6f1e700 100%)",
       "--dsw-alias-bg-layer-1": "#fffcf5",
       "--dsw-alias-bg-layer-2": "#f6f1e7",
       "--dsw-alias-bg-layer-3": "#ece5d8",
