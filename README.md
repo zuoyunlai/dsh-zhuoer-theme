@@ -331,6 +331,17 @@ locale/{zh,en}.json  展示元数据（meta.title / meta.description，宿主与
 2. `npm test` 全绿后提交，**再跑 `npm run verify:release`**（按内容哈希比对工作区与 HEAD，抓「同长度编辑被 git stat 缓存吞掉」这种坑），然后打 tag `v<version>` 并推送。
 3. GitHub Actions 校验 tag 与版本一致、跑门禁，然后 OIDC 发布到 npm 并生成 Release。
    产物带 `slsa.dev/provenance/v1` 证明。
+4. **发版前若升级过 DSH**：先跑 `npm run gen:hosttext` 重抽宿主字号表（`src/15-host-text.js`），
+   再 `node build.mjs`。不跑不会报错，只会让部分界面字号对不上表里的旧值。
+5. **发布后核对结果时要带缓存穿透**——npm 的 CDN 会缓存上一版，直接读会误判成「发布失败」：
+
+```bash
+curl -s "https://registry.npmjs.org/dsh-zhuoer-theme?t=$(date +%s)" | \
+  node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const j=JSON.parse(s);console.log(j['dist-tags'].latest, Object.keys(j.versions).slice(-3).join(','))})"
+gh release view v<version> -R zuoyunlai/dsh-zhuoer-theme --json isDraft --jq .isDraft
+```
+
+   三条判据同时成立才算发出去：`latest` 等于新版本、版本表尾部含新版本、Release 存在且 `draft=false`。
 
 ## 已知边界与刻意不做
 

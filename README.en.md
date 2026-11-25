@@ -316,6 +316,16 @@ Releases are tag-triggered in CI; never `npm publish` locally.
 1. **At release time** bump once: `package.json` and `PVERSION`, plus a summary entry at the top of CHANGELOG listing the batches it contains.
 2. Commit with `npm test` green, then run `npm run verify:release` (content hashes against HEAD), then tag `v<version>` and push.
 3. GitHub Actions validates the tag against the version, runs the gates, publishes to npm via OIDC and creates a Release with `slsa.dev/provenance/v1` attestation.
+4. **If DSH itself was upgraded before this release**: run `npm run gen:hosttext` first (re-extracts the host font-size table into `src/15-host-text.js`), then `node build.mjs`. Skipping it does not fail any gate; it only leaves some UI text sizes pointing at the previous host's numbers.
+5. **Verify the publish with a cache-busting read** — the npm CDN caches the previous version, so a plain read can look like a failed publish:
+
+```bash
+curl -s "https://registry.npmjs.org/dsh-zhuoer-theme?t=$(date +%s)" | \
+  node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const j=JSON.parse(s);console.log(j['dist-tags'].latest, Object.keys(j.versions).slice(-3).join(','))})"
+gh release view v<version> -R zuoyunlai/dsh-zhuoer-theme --json isDraft --jq .isDraft
+```
+
+   All three must hold: `latest` is the new version, the version list tail contains it, and the Release exists with `draft=false`.
 
 ## Known limits
 
