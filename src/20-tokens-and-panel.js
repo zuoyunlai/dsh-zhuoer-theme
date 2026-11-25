@@ -246,7 +246,24 @@ function applyTokens(theme, pref) {
           const docAdopted = Array.prototype.slice.call(document.adoptedStyleSheets || []);
           stats.sheets = docSheets.length;
           stats.adopted = docAdopted.length;
-          const main = build(docSheets.concat(docAdopted));
+          // 兜底：真实客户端里 CSSOM 常常一条 font-size 都读不到（面板此前就显示「未生效」），
+          // 而宿主 CSS 里明确有 1700+ 条 px 字号。于是构建期用 gen-host-text.mjs 把规则抽成静态表，
+          // 运行期在 CSSOM 读空时直接用它——不依赖任何样式表可读性。
+          const fromTable = function () {
+            if (typeof HOST_TEXT_RULES === 'undefined' || !HOST_TEXT_RULES.length) return null;
+            const out = [];
+            for (let i = 0; i < HOST_TEXT_RULES.length; i++) {
+              const row = HOST_TEXT_RULES[i];
+              out.push(row[0] + '{font-size:' + (Math.round(row[1] * k * 100) / 100) + 'px !important;}');
+            }
+            return out;
+          };
+          let main = build(docSheets.concat(docAdopted));
+          stats.mode = 'cssom';
+          if (main.length < 20) {
+            const tbl = fromTable();
+            if (tbl) { main = tbl; stats.mode = 'table'; }
+          }
           el.textContent = main.join('');
           el.__zrK = k;
           stats.rules = main.length;
@@ -262,7 +279,8 @@ function applyTokens(theme, pref) {
                 if (root.styleSheets) for (let s = 0; s < root.styleSheets.length; s++) sheets.push(root.styleSheets[s]);
                 const ad = root.adoptedStyleSheets || [];
                 for (let s = 0; s < ad.length; s++) sheets.push(ad[s]);
-                const rules = build(sheets);
+                let rules = build(sheets);
+                if (rules.length < 20) { const tbl = fromTable(); if (tbl) rules = tbl; }
                 stats.shadowRules += rules.length;
                 const prev = root.querySelector ? root.querySelector('style[data-zr-hosttext]') : null;
                 if (!rules.length) { if (prev && prev.parentNode) prev.parentNode.removeChild(prev); continue; }

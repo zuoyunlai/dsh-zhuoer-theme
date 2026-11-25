@@ -3,6 +3,7 @@
   "version": "0.6.18",
   "type": "module",
   "scripts": {
+    "gen:hosttext": "node scripts/gen-host-text.mjs",
     "coverage": "node scripts/coverage-report.mjs",
     "surface": "node scripts/token-surface.mjs",
     "verify:themes": "node scripts/verify-themes.mjs",

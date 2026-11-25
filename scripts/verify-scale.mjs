@@ -35,6 +35,9 @@ if (!/database\.styleSheets/.test(code) && !/document\.styleSheets/.test(code)) 
 if (!/selectorText \+ '\{font-size:'/.test(code)) {
   fails.push('缺少界面文字的 font-size 覆盖规则：只放大 token 文字等于回到 0.4.1 的半套缩放')
 }
+if (!/HOST_TEXT_RULES/.test(code)) {
+  fails.push('缺少 HOST_TEXT_RULES 兜底：真实客户端里 CSSOM 读不到字号规则时，界面文字就不会变')
+}
 if (!/adoptedStyleSheets/.test(code)) {
   fails.push('缺少 adoptedStyleSheets 通路：宿主若用 constructable stylesheet 注入样式，遍历 document.styleSheets 会一条都读不到')
 }
