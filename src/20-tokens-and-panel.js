@@ -1743,8 +1743,9 @@ function applyTokens(theme, pref) {
 
       // 顺序与宿主「设置-通用设置」的三态一致：浅色 / 深色 / 跟随系统。
       const modes = [['light', '浅色'], ['dark', '深色'], ['auto', '跟随系统']];
-      const sources = [['none', '无'], ['theme', '主题底图'], ['image', '自定义图片']];
-      const styles = [['fade', '淡化'], ['full', '全幅']];
+      // 选项文案随语言变化：用函数在渲染时取，避免把语言烤进常量。
+        const sources = function () { return [['none', t('panel.bg.optNone')], ['theme', t('panel.bg.optTheme')], ['image', t('panel.bg.optImage')]]; };
+      const styles = function () { return [['fade', t('panel.bg.optFade')], ['full', t('panel.bg.optFull')]]; };
       const scales = [[90, '小'], [100, '默认'], [110, '大'], [125, '特大'], [140, '超大']];
       const labelOf = function (list, v) {
         for (let i = 0; i < list.length; i++) { if (list[i][0] === v) return list[i][1]; }
@@ -1929,14 +1930,14 @@ function applyTokens(theme, pref) {
           )
         ),
 
-        h(Section, { title: '背景底图', note: '只铺主栏，左栏与输入框保持主题实色' },
+        h(Section, { title: t('panel.bg.title'), note: t('panel.bg.note') },
           h(Row, { label: '来源' },
-            h(Pills, { label: '底图来源', opts: sources, value: pref.bgSource,
+            h(Pills, { label: t('panel.bg.sourceAria'), opts: sources(), value: pref.bgSource,
               onChange: function (v) { set({ bgSource: v }); } })
           ),
           pref.bgSource === 'image'
-            ? h(Row, { label: '图片' },
-                h('label', { className: 'zp-btn zp-file' }, '选择图片…',
+            ? h(Row, { label: t('panel.bg.imageRow') },
+                h('label', { className: 'zp-btn zp-file' }, t('panel.bg.pick'),
                   h('input', {
                     type: 'file', accept: 'image/*',
                     onChange: function (ev) {
@@ -1947,46 +1948,46 @@ function applyTokens(theme, pref) {
                     },
                   })
                 ),
-                pref.bgImage ? h('img', { className: 'zp-thumb', alt: '当前底图预览', src: pref.bgImage }) : null,
+                pref.bgImage ? h('img', { className: 'zp-thumb', alt: t('panel.bg.previewAlt'), src: pref.bgImage }) : null,
                 pref.bgImage
                   ? h('button', {
                       type: 'button', className: 'zp-btn',
                       onClick: function () { set({ bgImage: '', bgSource: 'none' }); },
-                    }, '移除')
-                  : h('span', { className: 'zp-hint' }, 'JPEG / PNG / WebP · 最大 8 MiB')
+                    }, t('panel.bg.remove'))
+                  : h('span', { className: 'zp-hint' }, t('panel.bg.formatHint'))
               )
             : null,
           h('div', null,
             h(Row, { label: '样式' },
-              h(Pills, { label: '底图样式', opts: styles, value: pref.bgStyle,
+              h(Pills, { label: t('panel.bg.styleAria'), opts: styles(), value: pref.bgStyle,
                 onChange: function (v) { set({ bgStyle: v }); } })
             ),
-            h(Row, { label: '可见度' },
+            h(Row, { label: t('panel.bg.opacityRow') },
               h('input', {
                 type: 'range', className: 'zp-range', min: 0, max: 100,
-                value: pref.bgOpacity, 'aria-label': '底图可见度',
+                value: pref.bgOpacity, 'aria-label': t('panel.bg.opacityAria'),
                 onChange: function (ev) { set({ bgOpacity: Number(ev.target.value) || 0 }); },
               }),
               h('span', { className: 'zp-val' }, pref.bgOpacity + '%')
             ),
-            h(Row, { label: '显示' },
+            h(Row, { label: t('panel.bg.showRow') },
               h('label', { className: 'zp-chk' },
                 h('input', {
                   type: 'checkbox', checked: pref.bgOnEmpty !== false,
                   onChange: function (ev) { set({ bgOnEmpty: Boolean(ev.target.checked) }); },
                 }),
-                '新建会话页'
+                t('panel.bg.showEmpty')
               ),
               h('label', { className: 'zp-chk' },
                 h('input', {
                   type: 'checkbox', checked: pref.bgOnSession !== false,
                   onChange: function (ev) { set({ bgOnSession: Boolean(ev.target.checked) }); },
                 }),
-                '会话中'
+                t('panel.bg.showSession')
               )
             )
           ),
-          bgOn ? null : h('div', { className: 'zp-hint' }, '当前未启用底图，以上样式会在选中来源后生效。')
+          bgOn ? null : h('div', { className: 'zp-hint' }, t('panel.bg.offHint'))
         ),
 
         h(Section, { title: t('panel.brand.title'), note: t('panel.brand.note') },

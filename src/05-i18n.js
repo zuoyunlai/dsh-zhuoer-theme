@@ -30,6 +30,30 @@
         'panel.brand.remove': '移除',
         'panel.brand.autoHint': '不选图 = 用主题自带 logo；上传则压到最长边 512px',
         'panel.brand.replacedHint': '已替换。宿主若升级改动徽标结构，这里会静默回退到原生。',
+
+        // 设置面板 · 背景底图
+        'panel.bg.title': '背景底图',
+        'panel.bg.note': '只铺主栏，左栏与输入框保持主题实色',
+        'panel.bg.sourceRow': '来源',
+        'panel.bg.sourceAria': '底图来源',
+        'panel.bg.optNone': '无',
+        'panel.bg.optTheme': '主题底图',
+        'panel.bg.optImage': '自定义图片',
+        'panel.bg.imageRow': '图片',
+        'panel.bg.pick': '选择图片…',
+        'panel.bg.previewAlt': '当前底图预览',
+        'panel.bg.remove': '移除',
+        'panel.bg.formatHint': 'JPEG / PNG / WebP · 最大 8 MiB',
+        'panel.bg.styleRow': '样式',
+        'panel.bg.styleAria': '底图样式',
+        'panel.bg.optFade': '淡化',
+        'panel.bg.optFull': '全幅',
+        'panel.bg.opacityRow': '可见度',
+        'panel.bg.opacityAria': '底图可见度',
+        'panel.bg.showRow': '显示',
+        'panel.bg.showEmpty': '新建会话页',
+        'panel.bg.showSession': '会话中',
+        'panel.bg.offHint': '当前未启用底图，以上样式会在选中来源后生效。',
       },
       en: {
         'rail.ariaLabel': 'Right sidebar quick nav',
@@ -51,6 +75,30 @@
         'panel.brand.remove': 'Remove',
         'panel.brand.autoHint': 'No image = built-in logo; uploads are downscaled to 512px max edge',
         'panel.brand.replacedHint': 'Replaced. If a host upgrade changes the badge structure, this silently falls back to native.',
+
+        // Settings panel · background image
+        'panel.bg.title': 'Background image',
+        'panel.bg.note': 'Only the main column; sidebar and composer keep the theme solid color',
+        'panel.bg.sourceRow': 'Source',
+        'panel.bg.sourceAria': 'Background source',
+        'panel.bg.optNone': 'None',
+        'panel.bg.optTheme': 'Theme texture',
+        'panel.bg.optImage': 'Custom image',
+        'panel.bg.imageRow': 'Image',
+        'panel.bg.pick': 'Choose image…',
+        'panel.bg.previewAlt': 'Current background preview',
+        'panel.bg.remove': 'Remove',
+        'panel.bg.formatHint': 'JPEG / PNG / WebP · up to 8 MiB',
+        'panel.bg.styleRow': 'Style',
+        'panel.bg.styleAria': 'Background style',
+        'panel.bg.optFade': 'Faded',
+        'panel.bg.optFull': 'Full bleed',
+        'panel.bg.opacityRow': 'Visibility',
+        'panel.bg.opacityAria': 'Background visibility',
+        'panel.bg.showRow': 'Show on',
+        'panel.bg.showEmpty': 'New session page',
+        'panel.bg.showSession': 'In session',
+        'panel.bg.offHint': 'Background is off; these styles apply once you pick a source.',
       },
     }
 
@@ -85,6 +133,14 @@
       }
       return s
     }
+
+    /**
+     * factory 层别名：设置面板直接写 t('panel.…')。
+     * 0.6.11 漏了这一行 —— 面板调 t() 时 ReferenceError，被 PanelBoundary 兜成
+     * 「重试 / 刷新页面」，而当时的像素与 CSS 门比的是**旧采集**，所以假绿了。
+     * 0.6.13 补上；门也补了「采集比源码旧」的告警（见 verify-visual / verify-css-snapshot）。
+     */
+    const t = zrT
 
     /**
      * 从宿主 locale 服务读语言；读不到返回 null（调用方保留上一值）。

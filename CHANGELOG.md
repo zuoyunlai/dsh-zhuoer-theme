@@ -2,8 +2,30 @@
 
 按时间倒序。每条都写「为什么改」，而不只是改了什么。
 
-## 0.6.11
+## 0.6.13（修 0.6.11 的面板报错，请务必升级）
 
+**0.6.11 / 0.6.12 的设置面板会直接显示「重试 / 刷新页面」** —— 面板里调了 `t()`，但 0.6.10 只在
+轨道那个闭包里定义了 `t`，factory 层没有。`ReferenceError` 被 `PanelBoundary` 兜住，于是整块
+面板变成错误兜底页。0.6.11 已发到 npm，**这个版本不要用**。
+
+**为什么当时没发现（这段比结论重要）**：`verify:visual` 与 `verify:csssnap` 比的是已经落盘的
+`visual/current/` 与 `visual/css-current/`，而我在改完代码后**没有重新采集**。文件没变，门当然
+0.000%——那不是「渲染没变」，是「没有新渲染可比」。这次补了两件事：
+
+1. `05-i18n.js` 里补 factory 层 `const t = zrT`（面板与轨道共用）；
+2. 两道门加**陈旧告警**：采集时间早于 `src/` 最新改动时打印 `WARN 采集比源码旧（源码新约 N 分钟）`，
+   明确写出「这次结论只对采集那一刻成立」。
+
+**这次的验证是真采集**：修好后重新打开面板（确认 `重试` 消失、`浅色` 等控件回来），再抓两态：
+`verify:visual` **0.000%**、`verify:csssnap` **逐字节一致**——也就是说 P0 与品牌位、背景底图两段
+抽取确实没有改动任何渲染结果。棘轮基线同时收紧 **188 → 168**（面板 118 条）。
+
+**English summary** — hotfix: 0.6.11/0.6.12 crashed the settings panel (`t` was only defined in the
+rail closure, so the panel threw and hit the error boundary). Fixed with a factory-level `const t = zrT`;
+both visual gates now WARN when the captured artifacts are older than `src/`, so a stale capture can no
+longer masquerade as a pass. Re-captured from a live panel: pixels 0.000%, injected CSS byte-identical.
+
+## 0.6.11
 **P1 试点：设置面板「品牌位」段落完成抽取**，作为后续 130 条的模板。
 
 - 12 条文案搬进 `05-i18n.js`（`panel.brand.*`，zh/en 各一套）：段标题/说明、开关、图片行、

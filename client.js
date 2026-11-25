@@ -42,7 +42,7 @@ window.__ModuleLoader__.load({
       } catch (e) { /* ignore */ }
     }
     // 版本号唯一源：面板文案与自检回传都用它，别再出现「构建 0.1.101」这种漂移。
-    const PVERSION = '0.6.11';
+    const PVERSION = '0.6.13';
     // 诊断探针总闸：默认关闭，开启方式 localStorage['dsh-zhuoer-theme:debug'] = '1'。
     // 下面若干探针会在每次 apply 时全文档遍历 DOM、逐元素 getComputedStyle、扫 styleSheets，
     // 是「启动 / 切主题卡顿」的主要来源之一，只在排障时打开。
@@ -91,6 +91,30 @@ window.__ModuleLoader__.load({
         'panel.brand.remove': '移除',
         'panel.brand.autoHint': '不选图 = 用主题自带 logo；上传则压到最长边 512px',
         'panel.brand.replacedHint': '已替换。宿主若升级改动徽标结构，这里会静默回退到原生。',
+
+        // 设置面板 · 背景底图
+        'panel.bg.title': '背景底图',
+        'panel.bg.note': '只铺主栏，左栏与输入框保持主题实色',
+        'panel.bg.sourceRow': '来源',
+        'panel.bg.sourceAria': '底图来源',
+        'panel.bg.optNone': '无',
+        'panel.bg.optTheme': '主题底图',
+        'panel.bg.optImage': '自定义图片',
+        'panel.bg.imageRow': '图片',
+        'panel.bg.pick': '选择图片…',
+        'panel.bg.previewAlt': '当前底图预览',
+        'panel.bg.remove': '移除',
+        'panel.bg.formatHint': 'JPEG / PNG / WebP · 最大 8 MiB',
+        'panel.bg.styleRow': '样式',
+        'panel.bg.styleAria': '底图样式',
+        'panel.bg.optFade': '淡化',
+        'panel.bg.optFull': '全幅',
+        'panel.bg.opacityRow': '可见度',
+        'panel.bg.opacityAria': '底图可见度',
+        'panel.bg.showRow': '显示',
+        'panel.bg.showEmpty': '新建会话页',
+        'panel.bg.showSession': '会话中',
+        'panel.bg.offHint': '当前未启用底图，以上样式会在选中来源后生效。',
       },
       en: {
         'rail.ariaLabel': 'Right sidebar quick nav',
@@ -112,6 +136,30 @@ window.__ModuleLoader__.load({
         'panel.brand.remove': 'Remove',
         'panel.brand.autoHint': 'No image = built-in logo; uploads are downscaled to 512px max edge',
         'panel.brand.replacedHint': 'Replaced. If a host upgrade changes the badge structure, this silently falls back to native.',
+
+        // Settings panel · background image
+        'panel.bg.title': 'Background image',
+        'panel.bg.note': 'Only the main column; sidebar and composer keep the theme solid color',
+        'panel.bg.sourceRow': 'Source',
+        'panel.bg.sourceAria': 'Background source',
+        'panel.bg.optNone': 'None',
+        'panel.bg.optTheme': 'Theme texture',
+        'panel.bg.optImage': 'Custom image',
+        'panel.bg.imageRow': 'Image',
+        'panel.bg.pick': 'Choose image…',
+        'panel.bg.previewAlt': 'Current background preview',
+        'panel.bg.remove': 'Remove',
+        'panel.bg.formatHint': 'JPEG / PNG / WebP · up to 8 MiB',
+        'panel.bg.styleRow': 'Style',
+        'panel.bg.styleAria': 'Background style',
+        'panel.bg.optFade': 'Faded',
+        'panel.bg.optFull': 'Full bleed',
+        'panel.bg.opacityRow': 'Visibility',
+        'panel.bg.opacityAria': 'Background visibility',
+        'panel.bg.showRow': 'Show on',
+        'panel.bg.showEmpty': 'New session page',
+        'panel.bg.showSession': 'In session',
+        'panel.bg.offHint': 'Background is off; these styles apply once you pick a source.',
       },
     }
 
@@ -146,6 +194,14 @@ window.__ModuleLoader__.load({
       }
       return s
     }
+
+    /**
+     * factory 层别名：设置面板直接写 t('panel.…')。
+     * 0.6.11 漏了这一行 —— 面板调 t() 时 ReferenceError，被 PanelBoundary 兜成
+     * 「重试 / 刷新页面」，而当时的像素与 CSS 门比的是**旧采集**，所以假绿了。
+     * 0.6.13 补上；门也补了「采集比源码旧」的告警（见 verify-visual / verify-css-snapshot）。
+     */
+    const t = zrT
 
     /**
      * 从宿主 locale 服务读语言；读不到返回 null（调用方保留上一值）。
@@ -3130,8 +3186,9 @@ function applyTokens(theme, pref) {
 
       // 顺序与宿主「设置-通用设置」的三态一致：浅色 / 深色 / 跟随系统。
       const modes = [['light', '浅色'], ['dark', '深色'], ['auto', '跟随系统']];
-      const sources = [['none', '无'], ['theme', '主题底图'], ['image', '自定义图片']];
-      const styles = [['fade', '淡化'], ['full', '全幅']];
+      // 选项文案随语言变化：用函数在渲染时取，避免把语言烤进常量。
+        const sources = function () { return [['none', t('panel.bg.optNone')], ['theme', t('panel.bg.optTheme')], ['image', t('panel.bg.optImage')]]; };
+      const styles = function () { return [['fade', t('panel.bg.optFade')], ['full', t('panel.bg.optFull')]]; };
       const scales = [[90, '小'], [100, '默认'], [110, '大'], [125, '特大'], [140, '超大']];
       const labelOf = function (list, v) {
         for (let i = 0; i < list.length; i++) { if (list[i][0] === v) return list[i][1]; }
@@ -3316,14 +3373,14 @@ function applyTokens(theme, pref) {
           )
         ),
 
-        h(Section, { title: '背景底图', note: '只铺主栏，左栏与输入框保持主题实色' },
+        h(Section, { title: t('panel.bg.title'), note: t('panel.bg.note') },
           h(Row, { label: '来源' },
-            h(Pills, { label: '底图来源', opts: sources, value: pref.bgSource,
+            h(Pills, { label: t('panel.bg.sourceAria'), opts: sources(), value: pref.bgSource,
               onChange: function (v) { set({ bgSource: v }); } })
           ),
           pref.bgSource === 'image'
-            ? h(Row, { label: '图片' },
-                h('label', { className: 'zp-btn zp-file' }, '选择图片…',
+            ? h(Row, { label: t('panel.bg.imageRow') },
+                h('label', { className: 'zp-btn zp-file' }, t('panel.bg.pick'),
                   h('input', {
                     type: 'file', accept: 'image/*',
                     onChange: function (ev) {
@@ -3334,46 +3391,46 @@ function applyTokens(theme, pref) {
                     },
                   })
                 ),
-                pref.bgImage ? h('img', { className: 'zp-thumb', alt: '当前底图预览', src: pref.bgImage }) : null,
+                pref.bgImage ? h('img', { className: 'zp-thumb', alt: t('panel.bg.previewAlt'), src: pref.bgImage }) : null,
                 pref.bgImage
                   ? h('button', {
                       type: 'button', className: 'zp-btn',
                       onClick: function () { set({ bgImage: '', bgSource: 'none' }); },
-                    }, '移除')
-                  : h('span', { className: 'zp-hint' }, 'JPEG / PNG / WebP · 最大 8 MiB')
+                    }, t('panel.bg.remove'))
+                  : h('span', { className: 'zp-hint' }, t('panel.bg.formatHint'))
               )
             : null,
           h('div', null,
             h(Row, { label: '样式' },
-              h(Pills, { label: '底图样式', opts: styles, value: pref.bgStyle,
+              h(Pills, { label: t('panel.bg.styleAria'), opts: styles(), value: pref.bgStyle,
                 onChange: function (v) { set({ bgStyle: v }); } })
             ),
-            h(Row, { label: '可见度' },
+            h(Row, { label: t('panel.bg.opacityRow') },
               h('input', {
                 type: 'range', className: 'zp-range', min: 0, max: 100,
-                value: pref.bgOpacity, 'aria-label': '底图可见度',
+                value: pref.bgOpacity, 'aria-label': t('panel.bg.opacityAria'),
                 onChange: function (ev) { set({ bgOpacity: Number(ev.target.value) || 0 }); },
               }),
               h('span', { className: 'zp-val' }, pref.bgOpacity + '%')
             ),
-            h(Row, { label: '显示' },
+            h(Row, { label: t('panel.bg.showRow') },
               h('label', { className: 'zp-chk' },
                 h('input', {
                   type: 'checkbox', checked: pref.bgOnEmpty !== false,
                   onChange: function (ev) { set({ bgOnEmpty: Boolean(ev.target.checked) }); },
                 }),
-                '新建会话页'
+                t('panel.bg.showEmpty')
               ),
               h('label', { className: 'zp-chk' },
                 h('input', {
                   type: 'checkbox', checked: pref.bgOnSession !== false,
                   onChange: function (ev) { set({ bgOnSession: Boolean(ev.target.checked) }); },
                 }),
-                '会话中'
+                t('panel.bg.showSession')
               )
             )
           ),
-          bgOn ? null : h('div', { className: 'zp-hint' }, '当前未启用底图，以上样式会在选中来源后生效。')
+          bgOn ? null : h('div', { className: 'zp-hint' }, t('panel.bg.offHint'))
         ),
 
         h(Section, { title: t('panel.brand.title'), note: t('panel.brand.note') },

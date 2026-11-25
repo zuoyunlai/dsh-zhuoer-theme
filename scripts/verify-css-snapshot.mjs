@@ -19,7 +19,7 @@
  *   node scripts/verify-css-snapshot.mjs --capture <dir>   把 <dir>/*.css 提升为基线
  */
 import { createHash } from 'node:crypto'
-import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -34,6 +34,31 @@ const valOf = (f) => { const i = argv.indexOf(f); return i >= 0 ? argv[i + 1] : 
 const strict = has('--strict')
 const captureDir = valOf('--capture')
 const sha = (buf) => createHash('sha256').update(buf).digest('hex')
+
+function newestMtime(dir, ext) {
+  try {
+    let newest = 0
+    for (const name of readdirSync(dir)) {
+      if (!name.endsWith(ext)) continue
+      const m = statSync(join(dir, name)).mtimeMs
+      if (m > newest) newest = m
+    }
+    return newest
+  } catch (e) {
+    return 0
+  }
+}
+
+function warnIfStale(currentDir, ext) {
+  const cur = newestMtime(currentDir, ext)
+  if (!cur) return
+  const src = newestMtime(join(root, 'src'), '.js')
+  if (src > cur) {
+    const mins = Math.round((src - cur) / 60000)
+    console.warn('WARN  采集比源码旧（源码新约 ' + mins + ' 分钟）—— 这次结论只对采集那一刻成立；')
+    console.warn('      改完代码请重新采集，否则门看起来是绿的，其实在比旧图。')
+  }
+}
 
 function capture() {
   const from = captureDir
@@ -73,6 +98,7 @@ function verify() {
     console.log('SKIP  没有 visual/css-current 快照（CI 里跳过）；基线 ' + manifest.files.length + ' 份')
     return 0
   }
+  warnIfStale(currentDir, '.css')
   let failed = 0
   for (const entry of manifest.files) {
     const p = join(currentDir, entry.file)

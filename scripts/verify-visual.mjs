@@ -17,7 +17,7 @@
  * 采集约定：在 1264×771 视口下，浅色/深色各截 nav 与 .zp-root（manifest 记录视口与哈希）。
  */
 import { createHash } from 'node:crypto'
-import { copyFileSync, existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { copyFileSync, existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { inflateSync } from 'node:zlib'
@@ -107,6 +107,31 @@ function sha(buf) {
   return createHash('sha256').update(buf).digest('hex')
 }
 
+function newestMtime(dir, ext) {
+  try {
+    let newest = 0
+    for (const name of readdirSync(dir)) {
+      if (!name.endsWith(ext)) continue
+      const m = statSync(join(dir, name)).mtimeMs
+      if (m > newest) newest = m
+    }
+    return newest
+  } catch (e) {
+    return 0
+  }
+}
+
+function warnIfStale(currentDir, ext) {
+  const cur = newestMtime(currentDir, ext)
+  if (!cur) return
+  const src = newestMtime(join(root, 'src'), '.js')
+  if (src > cur) {
+    const mins = Math.round((src - cur) / 60000)
+    console.warn('WARN  采集比源码旧（源码新约 ' + mins + ' 分钟）—— 这次结论只对采集那一刻成立；')
+    console.warn('      改完代码请重新采集，否则门看起来是绿的，其实在比旧图。')
+  }
+}
+
 function capture() {
   if (!captureDir) throw new Error('--capture 需要一个目录')
   const from = join(captureDir)
@@ -149,6 +174,7 @@ function verify() {
     console.log('     采集方法见 README「门禁与验证」；基线 ' + names.length + ' 张，视口 ' + manifest.viewport)
     return 0
   }
+  warnIfStale(currentDir, '.png')
   console.log('基线 ' + names.length + ' 张，视口 ' + manifest.viewport + '，容差 ' + tolerance + '，判红阈值 ' + (manifest.ratioLimit * 100).toFixed(2) + '%')
   let failed = 0
   for (const entry of manifest.images) {
