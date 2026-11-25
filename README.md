@@ -19,6 +19,7 @@
 | 编辑配色页 | 左侧 352px 抽屉 + 右侧真实界面实时预览；分六段，头尾吸顶吸底；未保存改动关闭会先确认 |
 | 主题底图 | 可给每个自定义主题绑一张图，存 IndexedDB（单张上限 3 MiB） |
 | 插件页图标 | 根目录 `icon.svg` + `package.json` 的 `"icon"`；设置 → 插件 列表里显示深灰底红 Z（与市场卡片同源） |
+| 设置页图标 | 向 `settings.section.icon` 槽注册贡献，设置页左侧「Zhuoer 主题」那一行显示同一枚红 Z（`register()` 上的 `icon` 字段无效，别用错机制） |
 | 市场图标 | `assets/icon-180.png`（180×180，由 `assets/logo/zhuoer.svg` 栅格化），用于插件市场卡片 |
 | 品牌位 | 替换左上角 deepseek HARNESS 徽标；默认关闭。开启后默认用主题自带 logo（红色 Z 方形标），上传图片则覆盖它（压到最长边 512px） |
 | 界面字号 | 90 / 100 / 110 / 125 / 140 五档，**整体缩放**（字、间距、边框一起变） |
@@ -236,7 +237,7 @@ icon.svg             插件页图标（package.json 的 "icon" 指向它）
 - **阴影刻度**：`themes.mjs` 的 `--dsw-elevation-*` 与插件自己的 `shadow` 是两套刻度（后者按明暗强度缩放）。合并需要重定一套视觉刻度，属数据设计而非清理，留待单独一轮。
 - **主题色与形状需要人眼确认**：门禁能保证对比度与完整性，保证不了「这套圆角在你的显示器上好不好看」。
 - **DSH 升级可能打破契约**：类名子串与属性名不是公开 API，`verify:host` 只能告诉你「代码用了什么」，命不命中要真机验。
-- **设置页左侧分区图标不可自定义**：`settings.section` 注册对象的 `icon` 字段被宿主**丢弃**（0.6.2 重启实测：显示宿主默认齿轮，也没把路径当文本渲染）。插件页列表那一格的图标是另一套机制（`package.json` 的 `icon`），可用。这两件事的证据都在 `contracts/host-contract.json` 的 `negatives` / `positives` 里。
+- **设置页分区图标走槽、不走字段**：在 `settings.section` 注册对象上写 `icon` 字段无效（0.6.2 实测被丢弃，显示内置齿轮）；正确做法是往 `settings.section.icon` 槽注册，且注册 `id` 必须等于分区 `id`，宿主按 `{ size, active }` 调用它（0.6.6 起自带红 Z）。三件事——`package.json` 的 `icon`、槽贡献、注册字段——互不通用，证据都在 `contracts/host-contract.json` 的 `positives` / `negatives` 里。
 
 ## 隐私
 

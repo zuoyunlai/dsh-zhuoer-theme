@@ -12,14 +12,21 @@
       "verdict": "true",
       "evidence": "同族插件四人组写法一致：dsh-chronicle / dsh-pet / dsh-rightbar-quicknav / dsh-theme-palette 都是 icon: ./icon.svg；0.6.4 照此落地，verify:host 已加包清单三件套检查",
       "date": "2026-11-25"
+    },
+    {
+      "id": "settings.section.icon-slot",
+      "claim": "往 settings.section.icon 槽注册贡献（注册 id 必须等于分区 id）可以让设置页左侧该分区显示自定义图标",
+      "verdict": "true",
+      "evidence": "宿主渲染导航行时调用 renderSlot('settings.section.icon', { size, active }, { only: row.id, fallback: 齿轮 })；0.6.6 注册 id=zhuoer-theme 后，真机 DOM 里该行 [data-slot=settings.section.icon] 从 <svg><use> 齿轮变成 <img src=/dsh-zhuoer-theme/assets/logo/zhuoer.svg>",
+      "date": "2026-11-25"
     }
   ],
   "negatives": [
     {
-      "id": "settings.section.icon",
-      "claim": "在 settings.section 的注册对象里传 icon，可以让设置页左侧分区显示自定义图标",
+      "id": "settings.section.icon-field",
+      "claim": "在 settings.section 的注册对象上直接写 icon 字段，可以让设置页左侧分区显示自定义图标",
       "verdict": "false",
-      "evidence": "0.6.2 重启实测：左侧仍为宿主默认齿轮，且路径未被渲染成文本 → 字段被丢弃。与 package.json 的 icon 是两回事（那条见 positives）",
+      "evidence": "0.6.2 重启实测：左侧仍是内置齿轮，且路径未被渲染成文本 → 字段被丢弃。机制本身错：图标要走 settings.section.icon 槽（见 positives）",
       "date": "2026-11-25"
     }
   ],

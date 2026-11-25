@@ -65,8 +65,10 @@ rightbar-quicknav / theme-palette）写法一致：根目录 `icon.svg` + `"icon
 **现在由门禁守住**：`verify:host` 里加了包清单三件套检查——这类字段写漏**不报错**，
 只会静默少一个图标，靠记性守不住。
 
-**残留**：设置页左侧「Zhuoer 主题」导航行那个图标仍然做不到（slot 注册对象的 `icon` 被丢弃，
-见 `contracts/host-contract.json` 的 negatives）。要做只有两条路：宿主支持，或拿到导航行真实 DOM。
+**残留已结（0.6.6）**：设置页左侧「Zhuoer 主题」导航行的图标也做出来了。机制**不是** `register()`
+的 `icon` 字段（那个无效），而是往 **`settings.section.icon` 槽**注册，且注册 `id` 必须等于分区 `id`；
+宿主渲染时按 `renderSlot(..., { size, active }, { only: row.id, fallback: 齿轮 })` 调用。
+真机验证：该行 `[data-slot="settings.section.icon"]` 里从 `<svg><use>` 齿轮变成我们的 `<img>`。
 
 ## 6. `.git` 元数据事故 —— 已有工具（0.6.3）
 

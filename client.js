@@ -42,7 +42,7 @@ window.__ModuleLoader__.load({
       } catch (e) { /* ignore */ }
     }
     // 版本号唯一源：面板文案与自检回传都用它，别再出现「构建 0.1.101」这种漂移。
-    const PVERSION = '0.6.5';
+    const PVERSION = '0.6.6';
     // 诊断探针总闸：默认关闭，开启方式 localStorage['dsh-zhuoer-theme:debug'] = '1'。
     // 下面若干探针会在每次 apply 时全文档遍历 DOM、逐元素 getComputedStyle、扫 styleSheets，
     // 是「启动 / 切主题卡顿」的主要来源之一，只在排障时打开。
@@ -4713,11 +4713,31 @@ window.__ModuleLoader__.load({
               id: 'zhuoer-theme',
               order: 4,
               label: function () { return 'Zhuoer 主题'; },
-              // 试过加 icon: '<svg 路径>'，宿主**直接丢弃这个字段**：重启后左侧仍是它自己的
-              // 默认齿轮（与「通用设置」同图标），且没有把路径当文本渲染出来。证据见
-              // CHANGELOG 0.6.2，别再试第二次。
+              // 注意：register() 上的 icon 字段是**无效**的（0.6.2 试过，宿主直接丢弃）。
+              // 分区图标走另一个槽 settings.section.icon，见下面那段。
               inject: function () { return {}; },
             }, function (props) { return h(PanelBoundary, null, h(SkinSettings, props)); });
+          });
+
+          // 分区图标：宿主渲染导航行时是
+          //   renderSlot('settings.section.icon', { size, active }, { only: row.id, fallback: 齿轮 })
+          // 所以注册 id 必须等于分区 id（zhuoer-theme），宿主才会把这一份塞进我们那一行；
+          // 没有贡献时它用内置齿轮兜底 —— 这就是 0.6.2 之前一直显示齿轮的真正原因。
+          ctx.slots.inject('settings.section.icon', function () {
+            return ctx.slots.register({
+              name: 'settings.section.icon',
+              id: 'zhuoer-theme',
+            }, function (props) {
+              var size = (props && props.size) || 16;
+              return h('img', {
+                src: BRAND_LOGO,
+                width: size,
+                height: size,
+                alt: '',
+                'aria-hidden': 'true',
+                style: { display: 'block', borderRadius: Math.max(2, Math.round(size / 8)) + 'px' },
+              });
+            });
           });
         } catch (e) {
           try { console.warn('[zhuoer-theme] 设置页注册失败', (e && e.message) || e); } catch (e2) { /* ignore */ }

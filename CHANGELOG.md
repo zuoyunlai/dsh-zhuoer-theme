@@ -2,6 +2,26 @@
 
 按时间倒序。每条都写「为什么改」，而不只是改了什么。
 
+## 0.6.6
+
+**设置页左侧分区图标做出来了 —— 而且之前那条「做不到」的结论是错的。**
+
+真正机制是**槽**，不是字段。宿主渲染导航行时调用
+`renderSlot('settings.section.icon', { size, active }, { only: row.id, fallback: 齿轮 })`，
+所以插件要做的是往 `settings.section.icon` 槽注册一份贡献，且**注册 id 必须等于分区 id**
+（我们的是 `zhuoer-theme`）。0.6.2 那次给 `register()` 塞 `icon:` 属于机制用错——
+字段被丢弃，看到的就是内置齿轮兜底。
+
+这次是**打开真实界面看的**，不是推断：
+
+- 变更前该行图标节点：`<span data-slot="settings.section.icon"><svg><use href="#dsw-icon-settings-outline-medium"/></svg></span>`
+- 变更后：`<span data-slot="settings.section.icon"><img src="/dsh-zhuoer-theme/assets/logo/zhuoer.svg" width="16" height="16"></span>`
+- 视觉：导航行出现深灰底红 Z，与「插件」页那一格、市场卡片同源
+
+`contracts/host-contract.json` 同步纠正：新增 `positives: settings.section.icon-slot`（槽机制成立，
+附真机 DOM 证据），原 negative 收窄成「`register()` 的 `icon` 字段无效」。**这三件事互不通用**：
+包清单 `icon`（插件页）、`settings.section.icon` 槽（设置页导航行）、`register()` 的 `icon` 字段（无效）。
+
 ## 0.6.5
 
 把 0.6.4 学到的两件事变成机器可查——不然下次还是靠记性。
