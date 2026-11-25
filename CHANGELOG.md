@@ -2,8 +2,26 @@
 
 按时间倒序。每条都写「为什么改」，而不只是改了什么。
 
-## 0.6.9
+## 0.6.10
 
+多语言第一步（规划见 `docs/i18n-plan.md`，决策 A1 / B1 已定）。
+
+**P0 完成**：新增 `src/05-i18n.js` 作为词典与语言状态的**唯一真源**。原先 `DICT` 埋在
+`30-quicknav` 的闭包里，设置面板根本取不到——面板 150 条中文只能硬编码，根因就是位置错了。
+现在 `I18N` / `zrLang()` / `zrT()` / `zrLangFromHost()` / `zrRegisterLocale()` 都在模块级，
+轨道改用共享词典（`const t = zrT` 别名，调用点一个字没改）。**验收**：5 个分片构建、
+`verify:visual` 0.000%、`verify:csssnap` 逐字节一致——文案与样式都没动。
+
+**`verify:i18n` 棘轮门**：还没抽完就把判据设成「零中文」会红一整周，门会被关掉；所以按
+「每个文件的裸中文字面量条数」记基线（当前合计 **200**：`20-tokens-and-panel` 150、
+`10-themes` 39、`30-quicknav` 11），**只许减少，多一条就红**。反例验证过：注入一条裸中文
+→ `ADDED src/10-themes.js：39 → 40`、exit 1；删掉 → PASS。
+
+**English summary** — i18n step 1: a single shared dictionary shard (`src/05-i18n.js`) now backs
+both the settings panel and the sidebar rail, plus a ratchet gate that fails when bare Chinese
+literals increase (baseline 200). Rail copy and injected CSS are byte-identical to 0.6.9.
+
+## 0.6.9
 **CSS 快照门 `verify:csssnap`**：把插件实际注入宿主的 CSS 文本当基线**逐字节**比。
 
 为什么补它（截图门补不上的三个洞）：

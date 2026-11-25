@@ -101,7 +101,7 @@ err.jsonParse / err.bgTooLarge
 
 | 阶段 | 做什么 | 验收 | 估时 | 风险 |
 |---|---|---|---|---|
-| **P0 骨架** | 新建 `05-i18n.js`；迁 `rail.*`；`build.mjs` 加分片；两处 `DICT` 合并 | `verify:build` 绿；轨道文案与现在**逐字一致** | 0.5 天 | 分片顺序错会让 `t` 未定义（构建期就能查出来） |
+| **P0 骨架** ✅ 0.6.10 | 新建 `05-i18n.js`（I18N / `zrT` / `zrLang` / `zrLangFromHost` / `zrRegisterLocale`）；轨道改用共享词典；`build.mjs` 自动按文件名排序 | 已验收：5 分片构建、`verify:visual` 0.000%、`verify:csssnap` 逐字节一致 | 0.5 天 | — |
 | **P1 面板文案** | 204 条字面量去重成约 100 键；`h()` 里全部改 `t()` | 面板逐屏目视一致（zh）；切 en 全英文；无裸中文 | 1.5 天 | 量大、易漏；靠 P4 门禁兜底 |
 | **P2 提示与 ARIA** | 错误提示、`console.warn`、`aria-label`、`title` 收口 | `aria-label` 全部来自键；日志文案不要求翻译（见决策点） | 0.5 天 | 日志翻译收益低 |
 | **P3 主题/预设名** | `10-themes.js` 的 `label`/`note` 改键；预设同上 | 11 套 + 12 预设两组文案双语 | 0.5 天 | 见 §5 决策点 A |
