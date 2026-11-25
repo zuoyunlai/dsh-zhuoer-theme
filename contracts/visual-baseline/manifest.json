@@ -8,13 +8,13 @@
       "file": "settings-dark.png",
       "w": 1264,
       "h": 771,
-      "sha256": "13dfa154dd797b56c77a25d061145a7134abbbd3c032d681e698147d2d7fa4a9"
+      "sha256": "cf689df8f74833f6c4c72a4fdbb64ada3d492c50b66fbad21aa71e019e29b4ae"
     },
     {
       "file": "settings-light.png",
       "w": 1264,
       "h": 771,
-      "sha256": "d9e1445932669e74a9c204ec107cfa0713efe9e7b3c34e519c317c0b402836b5"
+      "sha256": "db290ae48926d6ffebd2daad98ff0ef6629fd9b2376aac0f87ad13b697ac2337"
     }
   ]
 }

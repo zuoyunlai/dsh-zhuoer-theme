@@ -193,15 +193,26 @@ npm run coverage      # token 覆盖率与「刻意不跟锚点」的豁免清�
 
 主题卡预览、AI 与取色逻辑都在真实界面里验；门禁只保证「可机械判定」的那部分。**改完配色请自己切一圈主题**，见「已知边界」。
 
-视觉基线怎么采（需要能打开的宿主界面，CI 里没有）：
+视觉基线怎么采（需要能打开的宿主界面，CI 里没有）。**采集必须固定状态**——同一构建两次采集
+能差 15%，这是实测过的，不是理论：
+
+```text
+视口固定 1264×771（Emulation.setDeviceMetricsOverride）
+1. 账号菜单 → 设置 → 左栏「Zhuoer 主题」
+2. 断言：document.querySelector('.zp-root') 存在
+3. 点「浅色」/「深色」，断言 body 背景色变成 rgb(244,241,236) / rgb(14,16,21)（最多轮询 5s）
+4. 钉状态：window.scrollTo(0,0)；所有元素 scrollTop=0；activeElement.blur()
+5. 截图整屏 → visual/current/settings-<mode>.png
+```
 
 ```bash
-# 1. 在 1264×771 视口下，设置 → Zhuoer 主题，浅色/深色各截一张整屏，存进 visual/current/
-# 2. 与基线比对（差异 >0.10% 判红）
-node scripts/verify-visual.mjs
-# 3. 确认改动是有意的，再提升为新基线
-node scripts/verify-visual.mjs --capture visual/current --viewport 1264x771
+node scripts/verify-visual.mjs                                               # 比对（>0.10% 判红）
+node scripts/verify-visual.mjs --capture visual/current --viewport 1264x771  # 提升为新基线
 ```
+
+**两遍独立采集必须 0.000%** 才能当基线（0.6.8 起按这条执行）。不一致说明状态没钉住，
+先修采集再谈基线。目前只有 2 张（设置页明/暗）过了这条；编辑器抽屉与 JSON 弹层还差，
+见 `docs/backlog.md` 第 2 条。
 
 ## 宿主契约
 
