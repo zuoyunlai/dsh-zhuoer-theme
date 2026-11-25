@@ -42,7 +42,7 @@ window.__ModuleLoader__.load({
       } catch (e) { /* ignore */ }
     }
     // 版本号唯一源：面板文案与自检回传都用它，别再出现「构建 0.1.101」这种漂移。
-    const PVERSION = '0.6.1';
+    const PVERSION = '0.6.2';
     // 诊断探针总闸：默认关闭，开启方式 localStorage['dsh-zhuoer-theme:debug'] = '1'。
     // 下面若干探针会在每次 apply 时全文档遍历 DOM、逐元素 getComputedStyle、扫 styleSheets，
     // 是「启动 / 切主题卡顿」的主要来源之一，只在排障时打开。
@@ -4713,6 +4713,9 @@ window.__ModuleLoader__.load({
               id: 'zhuoer-theme',
               order: 4,
               label: function () { return 'Zhuoer 主题'; },
+              // 试过加 icon: '<svg 路径>'，宿主**直接丢弃这个字段**：重启后左侧仍是它自己的
+              // 默认齿轮（与「通用设置」同图标），且没有把路径当文本渲染出来。证据见
+              // CHANGELOG 0.6.2，别再试第二次。
               inject: function () { return {}; },
             }, function (props) { return h(PanelBoundary, null, h(SkinSettings, props)); });
           });

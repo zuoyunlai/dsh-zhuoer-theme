@@ -5,6 +5,15 @@
     "改完 client.js 跑 `npm run verify:host`：代码里新增/移除了宿主依赖会被点出来，",
     "强制你更新这份清单（并提醒同步 README 与验证）。"
   ],
+  "negatives": [
+    {
+      "id": "settings.section.icon",
+      "claim": "给 settings.section 注册对象传 icon 可以让分区显示自定义图标",
+      "verdict": "false",
+      "evidence": "0.6.2 重启实测：左侧仍为宿主默认齿轮，且路径未被渲染成文本 → 字段被丢弃",
+      "date": "2026-11-25"
+    }
+  ],
   "host": {
     "idFragments": [
       {

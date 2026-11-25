@@ -1252,6 +1252,9 @@
               id: 'zhuoer-theme',
               order: 4,
               label: function () { return 'Zhuoer 主题'; },
+              // 试过加 icon: '<svg 路径>'，宿主**直接丢弃这个字段**：重启后左侧仍是它自己的
+              // 默认齿轮（与「通用设置」同图标），且没有把路径当文本渲染出来。证据见
+              // CHANGELOG 0.6.2，别再试第二次。
               inject: function () { return {}; },
             }, function (props) { return h(PanelBoundary, null, h(SkinSettings, props)); });
           });
