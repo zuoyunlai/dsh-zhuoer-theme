@@ -76,6 +76,31 @@ function countCjkLiterals(code) {
   return hits
 }
 
+/** 自检：锚住「注释不计、字符串计数、字符串里的 // 不当注释」三条口径。 */
+function selftest() {
+  const cases = [
+    ['// 中文注释\nconst a = 1\n', 0, '行注释不计'],
+    ['/* 中文块注释 */\nconst b = 1\n', 0, '块注释不计'],
+    ["const c = '中文'\n", 1, '字符串字面量计数'],
+    ['const d = "a // 中文"\n', 1, '字符串里的 // 不当注释'],
+    ["const e = '//'\n", 0, '无 CJK 的字符串不计数'],
+  ]
+  const bad = []
+  for (const [code, want, name] of cases) {
+    const got = countCjkLiterals(code)
+    if (got !== want) bad.push(name + '：期望 ' + want + ' 实际 ' + got)
+  }
+  return bad
+}
+
+const selfBad = selftest()
+if (selfBad.length) {
+  console.error('FAIL  剥注释自检不过（' + selfBad.length + ' 例）：')
+  for (const b of selfBad) console.error('  - ' + b)
+  process.exit(1)
+}
+console.log('OK    剥注释自检 5/5：注释不计、字符串计数、字符串里的 // 不当注释')
+
 const files = readdirSync(srcDir).filter((f) => f.endsWith('.js')).sort()
 const counts = {}
 for (const f of files) {
