@@ -1568,12 +1568,12 @@ function applyTokens(theme, pref) {
       const closeRef = useRef(null);
       closeRef.current = function () { props.onClose(); };
       useModalA11y(panelRef, closeRef, null);
-      return h('div', { className: 'zp-ed', role: 'dialog', 'aria-modal': 'true', 'aria-label': '主题 JSON' },
+      return h('div', { className: 'zp-ed', role: 'dialog', 'aria-modal': 'true', 'aria-label': t('panel.io.jsonAria') },
         h('div', { className: 'zp-ed-panel', ref: panelRef },
           h('div', { className: 'zp-ed-hd' },
-            h('div', { className: 'zp-ed-ttl' }, st.mode === 'export' ? '导出主题 JSON' : '导入主题 JSON'),
+            h('div', { className: 'zp-ed-ttl' }, st.mode === 'export' ? t('panel.io.exportTitle') : t('panel.io.importTitle')),
             h('button', {
-              type: 'button', className: 'zp-ed-x', 'aria-label': '关闭',
+              type: 'button', className: 'zp-ed-x', 'aria-label': t('panel.io.close'),
               onClick: function () { props.onClose(); },
             }, '×')
           ),
@@ -1581,18 +1581,18 @@ function applyTokens(theme, pref) {
           h('textarea', {
             className: 'zp-json', rows: 14, spellCheck: false,
             value: st.text,
-            'aria-label': '主题 JSON',
+            'aria-label': t('panel.io.jsonAria'),
             onChange: function (ev) { props.onChange(ev.target.value); },
           }),
           h('div', { className: 'zp-hint' },
             st.mode === 'export'
-              ? '全选复制即可分享；只含锚点，不含派生出的 222 个 token。'
-              : '粘贴对方导出的 JSON，导入后自动加进主题列表。'
+              ? t('panel.io.exportHint')
+              : t('panel.io.importHint')
           ),
           h('div', { className: 'zp-ed-ft' },
-            h('button', { type: 'button', className: 'zp-btn', onClick: function () { props.onClose(); } }, '关闭'),
+            h('button', { type: 'button', className: 'zp-btn', onClick: function () { props.onClose(); } }, t('panel.io.close')),
             st.mode === 'import'
-              ? h('button', { type: 'button', className: 'zp-btn zp-btn-pri', onClick: function () { props.onImport(); } }, '导入')
+              ? h('button', { type: 'button', className: 'zp-btn zp-btn-pri', onClick: function () { props.onImport(); } }, t('panel.io.import'))
               : null
           )
         )
@@ -1614,13 +1614,13 @@ function applyTokens(theme, pref) {
           const msg = String((this.state.err && this.state.err.message) || this.state.err);
           const self = this;
           return h('div', { className: 'zp-root' },
-            h('div', { className: 'zp-hint' }, '主题面板渲染出错：' + msg),
+            h('div', { className: 'zp-hint' }, t('panel.err.title', { msg: msg })),
             // 以前只有一句「刷新页面」；现在可以直接重试，草稿在编辑器里、重挂载后仍在 localStorage。
             h('div', { className: 'zp-cus-acts' },
-              h('button', { type: 'button', className: 'zp-btn', onClick: function () { self.setState({ err: null }); } }, '重试'),
-              h('button', { type: 'button', className: 'zp-btn', onClick: function () { try { window.location.reload(); } catch (e) { /* ignore */ } } }, '刷新页面')
+              h('button', { type: 'button', className: 'zp-btn', onClick: function () { self.setState({ err: null }); } }, t('panel.err.retry')),
+              h('button', { type: 'button', className: 'zp-btn', onClick: function () { try { window.location.reload(); } catch (e) { /* ignore */ } } }, t('panel.err.reload'))
             ),
-            h('div', { className: 'zp-hint' }, '如果反复出现，把上面的信息发给作者。')
+            h('div', { className: 'zp-hint' }, t('panel.err.hint'))
           );
         }
         return this.props.children;
@@ -1675,7 +1675,7 @@ function applyTokens(theme, pref) {
       const newCustom = function () {
         const base = THEME_IDS.indexOf(pref.theme) !== -1 ? pref.theme : (currentCustom ? currentCustom.base : 'zhuoer');
         const spec = {
-          id: 'c' + Date.now().toString(36), label: '自定义 ' + (customs.length + 1),
+          id: 'c' + Date.now().toString(36), label: t('panel.custom.newLabel', { n: customs.length + 1 }),
           base: base, dark: {}, light: {},
         };
         set({ customThemes: customs.concat([spec]), theme: spec.id });
@@ -1704,7 +1704,7 @@ function applyTokens(theme, pref) {
         if (!currentCustom) return;
         const copy = JSON.parse(JSON.stringify(currentCustom));
         copy.id = 'c' + Date.now().toString(36);
-        copy.label = (currentCustom.label + ' 副本').slice(0, 24);
+        copy.label = (currentCustom.label + t('panel.custom.copySuffix')).slice(0, 24);
         set({ customThemes: customs.concat([copy]), theme: copy.id });
         openEditor(copy);
       };
@@ -1718,7 +1718,7 @@ function applyTokens(theme, pref) {
         let spec = null;
         try { spec = sanitizeCustomSpec(JSON.parse(jsonIO.text)); } catch (e) { spec = null; }
         if (!spec) {
-          setJsonIO({ mode: 'import', text: jsonIO.text, err: 'JSON 解析失败或字段不合法（需要 id/label/base + dark/light 里的 --dsw-alias-* 颜色）' });
+          setJsonIO({ mode: 'import', text: jsonIO.text, err: t('panel.io.parseErr') });
           return;
         }
         if (customs.some(function (c) { return c.id === spec.id; })) spec.id = 'c' + Date.now().toString(36);
@@ -1778,7 +1778,7 @@ function applyTokens(theme, pref) {
       // 底图：压到最长边 1280 + JPEG 0.72，原图动辄几 MB，直接塞 localStorage 会超限。
       const pickImage = function (file) {
         if (file.size > 8 * 1024 * 1024) {
-          try { window.alert('图片不能超过 8 MiB'); } catch (e) { /* ignore */ }
+          try { window.alert(t('panel.alert.img8')); } catch (e) { /* ignore */ }
           return;
         }
         const reader = new FileReader();
@@ -1800,7 +1800,7 @@ function applyTokens(theme, pref) {
                 window.localStorage.setItem(probeKey, dataUrl);
                 window.localStorage.removeItem(probeKey);
               } catch (err) {
-                try { window.alert('这张图太大，浏览器本地存储放不下，请换一张更小的图片。'); } catch (e2) { /* ignore */ }
+                try { window.alert(t('panel.alert.imgStore')); } catch (e2) { /* ignore */ }
                 return;
               }
               set({ bgImage: dataUrl, bgSource: 'image' });
@@ -1815,7 +1815,7 @@ function applyTokens(theme, pref) {
       // 存 PNG 而不是 JPEG：换掉的 logo 大多是透明底，转 JPEG 会糊成一块白/黑。
       const pickBrand = function (file) {
         if (file.size > 2 * 1024 * 1024) {
-          try { window.alert('图片不能超过 2 MiB'); } catch (e) { /* ignore */ }
+          try { window.alert(t('panel.alert.img2')); } catch (e) { /* ignore */ }
           return;
         }
         const reader = new FileReader();
@@ -1935,7 +1935,7 @@ function applyTokens(theme, pref) {
         ),
 
         h(Section, { title: t('panel.bg.title'), note: t('panel.bg.note') },
-          h(Row, { label: '来源' },
+          h(Row, { label: t('panel.bg.sourceRow') },
             h(Pills, { label: t('panel.bg.sourceAria'), opts: sources(), value: pref.bgSource,
               onChange: function (v) { set({ bgSource: v }); } })
           ),
@@ -1962,7 +1962,7 @@ function applyTokens(theme, pref) {
               )
             : null,
           h('div', null,
-            h(Row, { label: '样式' },
+            h(Row, { label: t('panel.bg.styleRow') },
               h(Pills, { label: t('panel.bg.styleAria'), opts: styles(), value: pref.bgStyle,
                 onChange: function (v) { set({ bgStyle: v }); } })
             ),
