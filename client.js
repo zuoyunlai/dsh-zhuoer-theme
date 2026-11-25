@@ -261,6 +261,26 @@ window.__ModuleLoader__.load({
         'panel.alert.img8': '图片不能超过 8 MiB',
         'panel.alert.imgStore': '这张图太大，浏览器本地存储放不下，请换一张更小的图片。',
         'panel.alert.img2': '图片不能超过 2 MiB',
+        'anchor.bg': '底色',
+        'anchor.text': '文字',
+        'anchor.border': '边框',
+        'anchor.brand': '品牌主色',
+        'anchor.brand2': '品牌次色',
+        'anchor.danger': '危险',
+        'anchor.warn': '警告',
+        'anchor.success': '成功',
+        'preset.glass': '玻璃拟态',
+        'preset.brutal': '新粗野主义',
+        'preset.swiss': '瑞士国际',
+        'preset.editorial': '编辑排版',
+        'preset.luxe': '奢华极简',
+        'preset.organic': '有机自然',
+        'preset.morandi': '莫兰迪柔和',
+        'preset.paper': '纸张灰白',
+        'preset.cyber': '赛博终端',
+        'preset.aurora': '极光界面',
+        'preset.devterm': '开发者终端',
+        'preset.deepspace': '深空黑',
       },
       en: {
         'rail.ariaLabel': 'Right sidebar quick nav',
@@ -452,6 +472,26 @@ window.__ModuleLoader__.load({
         'panel.alert.img8': 'Image must be under 8 MiB',
         'panel.alert.imgStore': 'This image is too large for local browser storage; please pick a smaller one.',
         'panel.alert.img2': 'Image must be under 2 MiB',
+        'anchor.bg': 'Background',
+        'anchor.text': 'Text',
+        'anchor.border': 'Border',
+        'anchor.brand': 'Brand primary',
+        'anchor.brand2': 'Brand secondary',
+        'anchor.danger': 'Danger',
+        'anchor.warn': 'Warning',
+        'anchor.success': 'Success',
+        'preset.glass': 'Glassmorphism',
+        'preset.brutal': 'Neo-brutalism',
+        'preset.swiss': 'Swiss International',
+        'preset.editorial': 'Editorial',
+        'preset.luxe': 'Luxury minimal',
+        'preset.organic': 'Organic',
+        'preset.morandi': 'Morandi',
+        'preset.paper': 'Paper',
+        'preset.cyber': 'Cyber terminal',
+        'preset.aurora': 'Aurora',
+        'preset.devterm': 'Developer terminal',
+        'preset.deepspace': 'Deep space',
       },
     }
 
@@ -3109,7 +3149,7 @@ function applyTokens(theme, pref) {
               const bgHex = anchors['--dsw-alias-bg-base'] || baseTokens['--dsw-alias-bg-base'] || '#000000';
               const ratio = g.key === 'bg' ? null : contrastRatio(cur, bgHex);
               return h(AnchorRow, {
-                key: g.key, label: g.label, anchor: g.anchor, value: cur,
+                key: g.key, label: t('anchor.' + g.key), anchor: g.anchor, value: cur,
                 ratio: ratio, low: ratio != null && ratio < 4.5,
                 dirty: Boolean(own),
                 onChange: function (v) { setAnchor(g.anchor, v); },
@@ -3122,9 +3162,9 @@ function applyTokens(theme, pref) {
               STYLE_PRESETS.map(function (p) {
                 return h('button', {
                   type: 'button', className: 'zp-preset', key: p.id,
-                  title: t('panel.ed.presetTitle', { label: p.label, radius: p.radius, body: p.body === '__mono__' ? t('panel.ed.mono') : p.body }),
+                  title: t('panel.ed.presetTitle', { label: t('preset.' + p.id), radius: p.radius, body: p.body === '__mono__' ? t('panel.ed.mono') : p.body }),
                   onClick: function () { applyPreset(p); },
-                }, p.label);
+                }, t('preset.' + p.id));
               })
             )
           ),
@@ -3154,7 +3194,7 @@ function applyTokens(theme, pref) {
                         const grp = ANCHOR_GROUPS.filter(function (g) { return g.anchor === k; })[0];
                         return h('div', { className: 'zp-pal-item', key: k },
                           h('span', { className: 'zp-pal-sw', style: { background: aiResult.light[k] } }),
-                          h('span', { className: 'zp-pal-name' }, grp ? grp.label : k.replace('--dsw-alias-', '')),
+                          h('span', { className: 'zp-pal-name' }, grp ? t('anchor.' + grp.key) : k.replace('--dsw-alias-', '')),
                           h('span', { className: 'zp-pal-hex' }, aiResult.light[k])
                         );
                       })

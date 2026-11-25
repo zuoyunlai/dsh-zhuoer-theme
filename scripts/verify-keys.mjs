@@ -40,12 +40,22 @@ const zh = parse(zhPart)
 const en = parse(enPart)
 
 const used = new Map()
+// t('前缀.' + 变量) 这种动态拼键：静态只看到 '前缀.'，不能当缺键判红，
+// 但要求「该前缀下确实有一族词条，且每个词条的占位符两侧一致」——比放行更严。
+const dynPrefix = new Map()
 for (const f of readdirSync(srcDir).filter((x) => x.endsWith('.js'))) {
   if (f === '05-i18n.js') continue
   const code = readFileSync(join(srcDir, f), 'utf8')
+  const dyn = /(?<![\w$.])t\(\s*'([A-Za-z0-9_.-]+)\.'\s*\+/g
+  let dm
+  while ((dm = dyn.exec(code))) dynPrefix.set(dm[1] + '.', f)
   const re = /(?<![\w$.])t\(\s*'([^']+)'/g
   let m
-  while ((m = re.exec(code))) { if (/^[A-Za-z0-9_.-]+$/.test(m[1])) used.set(m[1], f) }
+  while ((m = re.exec(code))) {
+    if (!/^[A-Za-z0-9_.-]+$/.test(m[1])) continue
+    if (m[1].endsWith('.')) continue // 动态前缀，交给下面单独校验
+    used.set(m[1], f)
+  }
 }
 
 const ph = (s) => {
@@ -68,6 +78,17 @@ for (const [k, file] of used) {
     console.error('FAIL  键 ' + k + ' 占位符不一致：zh{' + ph(a) + '} en{' + ph(b) + '}')
     bad++
   }
+}
+
+for (const [prefix, file] of dynPrefix) {
+  const fam = [...zh.keys()].filter((k) => k.startsWith(prefix))
+  if (!fam.length) { console.error('FAIL  动态前缀 ' + prefix + '（' + file + '）在词典里没有任何词条'); bad++; continue }
+  for (const k of fam) {
+    if (!en.has(k)) { console.error('FAIL  动态前缀 ' + prefix + ' 的词条 ' + k + ' 缺 en'); bad++; continue }
+    if (ph(zh.get(k)) !== ph(en.get(k))) { console.error('FAIL  词条 ' + k + ' 占位符不一致：zh{' + ph(zh.get(k)) + '} en{' + ph(en.get(k)) + '}'); bad++ }
+    used.set(k, file)
+  }
+  console.log('OK    动态前缀 ' + prefix + '：' + fam.length + ' 条词条，两侧占位符一致')
 }
 
 const unused = [...zh.keys()].filter((k) => !used.has(k))

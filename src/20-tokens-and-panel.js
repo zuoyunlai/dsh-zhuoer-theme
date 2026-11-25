@@ -1374,7 +1374,7 @@ function applyTokens(theme, pref) {
               const bgHex = anchors['--dsw-alias-bg-base'] || baseTokens['--dsw-alias-bg-base'] || '#000000';
               const ratio = g.key === 'bg' ? null : contrastRatio(cur, bgHex);
               return h(AnchorRow, {
-                key: g.key, label: g.label, anchor: g.anchor, value: cur,
+                key: g.key, label: t('anchor.' + g.key), anchor: g.anchor, value: cur,
                 ratio: ratio, low: ratio != null && ratio < 4.5,
                 dirty: Boolean(own),
                 onChange: function (v) { setAnchor(g.anchor, v); },
@@ -1387,9 +1387,9 @@ function applyTokens(theme, pref) {
               STYLE_PRESETS.map(function (p) {
                 return h('button', {
                   type: 'button', className: 'zp-preset', key: p.id,
-                  title: t('panel.ed.presetTitle', { label: p.label, radius: p.radius, body: p.body === '__mono__' ? t('panel.ed.mono') : p.body }),
+                  title: t('panel.ed.presetTitle', { label: t('preset.' + p.id), radius: p.radius, body: p.body === '__mono__' ? t('panel.ed.mono') : p.body }),
                   onClick: function () { applyPreset(p); },
-                }, p.label);
+                }, t('preset.' + p.id));
               })
             )
           ),
@@ -1419,7 +1419,7 @@ function applyTokens(theme, pref) {
                         const grp = ANCHOR_GROUPS.filter(function (g) { return g.anchor === k; })[0];
                         return h('div', { className: 'zp-pal-item', key: k },
                           h('span', { className: 'zp-pal-sw', style: { background: aiResult.light[k] } }),
-                          h('span', { className: 'zp-pal-name' }, grp ? grp.label : k.replace('--dsw-alias-', '')),
+                          h('span', { className: 'zp-pal-name' }, grp ? t('anchor.' + grp.key) : k.replace('--dsw-alias-', '')),
                           h('span', { className: 'zp-pal-hex' }, aiResult.light[k])
                         );
                       })
