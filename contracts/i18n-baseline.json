@@ -3,9 +3,9 @@
   "files": {
     "src/00-core.js": 0,
     "src/05-i18n.js": 0,
-    "src/10-themes.js": 28,
-    "src/20-tokens-and-panel.js": 55,
+    "src/10-themes.js": 33,
+    "src/20-tokens-and-panel.js": 3,
     "src/30-quicknav.js": 10
   },
-  "total": 93
+  "total": 46
 }

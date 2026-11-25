@@ -108,14 +108,17 @@ for (const id of THEME_IDS) {
 }
 
 // 2) 12 套风格预设 × 深浅两态（走真实的 buildCustomTokens）
+// 预设只覆盖 7 个锚点，其余锚点仍取自 base 主题——所以必须按多个 base 抽测，
+// 只按 zhuoer 测会漏掉「在深底主题上预设按钮不可读」这类组合。
+const PRESET_BASES = ['zhuoer', 'vintage-paper', 'beacon'];
 for (const p of api.STYLE_PRESETS) {
-  for (const scheme of ['light', 'dark']) {
-    const spec = { base: 'zhuoer', light: p.light, autoDark: true };
+  for (const base of PRESET_BASES) for (const scheme of ['light', 'dark']) {
+    const spec = { base, light: p.light, autoDark: true };
     const t = api.buildCustomTokens(spec, scheme);
-    check('预设:' + p.id + '/' + scheme + ' 正文', t['--dsw-alias-label-primary'], t['--dsw-alias-bg-base']);
+    check('预设:' + p.id + '/' + base + '/' + scheme + ' 正文', t['--dsw-alias-label-primary'], t['--dsw-alias-bg-base']);
     const fill = t['--dsw-alias-button-primary-fill'] || t['--dsw-alias-brand-primary'];
     const fg = t['--dsw-alias-label-primary-foreground'];
-    check('预设:' + p.id + '/' + scheme + ' 按钮文字', fg, fill);
+    check('预设:' + p.id + '/' + base + '/' + scheme + ' 按钮文字', fg, fill);
   }
 }
 

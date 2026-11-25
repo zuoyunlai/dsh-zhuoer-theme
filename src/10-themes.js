@@ -231,7 +231,11 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
     // 供同步的 applyTokens 直接取（IDB 是异步的，不能在里面 await）。
     const BG_DB = 'dsh-zhuoer-theme-bg';
     const BG_STORE = 'images';
-    const BG_MAX_BYTES = 3 * 1024 * 1024;
+    // 图片输入上限：底图（全局 / 主题）与品牌位统一用同一个阈值，
+    // 三个入口各写一个数字时，用户会在某个入口被拒绝、换个入口又能传，
+    // 而且其中一处还是静默 return（只有 console.warn）。
+    const IMG_MAX_BYTES = 3 * 1024 * 1024;
+    const BG_MAX_BYTES = IMG_MAX_BYTES;
     const imageCache = new Map();
     let bgDbPromise = null;
     let bgReady = false;
@@ -262,6 +266,26 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
           tx.oncomplete = function () { resolve(true); };
           tx.onerror = function () { reject(tx.error); };
         });
+      });
+    }
+
+    // 重置时必须整库清空：自定义主题删掉后，它们的底图键会变成无主数据，
+    // 而 IDB 不会被 localStorage.removeItem 带走（这就是「换了十几次图，库里堆十几张」）。
+    function idbClearAll() {
+      return new Promise(function (resolve) {
+        try {
+          const req = indexedDB.open(BG_DB, 1);
+          req.onerror = function () { resolve(false); };
+          req.onsuccess = function () {
+            try {
+              const db = req.result;
+              const tx = db.transaction([BG_STORE], 'readwrite');
+              tx.objectStore(BG_STORE).clear();
+              tx.oncomplete = function () { try { db.close(); } catch (e) { /* ignore */ } resolve(true); };
+              tx.onerror = function () { try { db.close(); } catch (e) { /* ignore */ } resolve(false); };
+            } catch (e) { resolve(false); }
+          };
+        } catch (e) { resolve(false); }
       });
     }
 

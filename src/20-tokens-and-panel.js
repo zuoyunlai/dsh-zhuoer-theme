@@ -448,7 +448,10 @@ function applyTokens(theme, pref) {
         // 曾担心 zoom 放大 getBoundingClientRect 坐标系会让右侧轨道错位，那是静态推断；
         // 实测按 px 绝对定位的轨道与 zoom 后的坐标空间一致。
         if (pref.fontScale && pref.fontScale !== 100) {
-          fxCss += 'body{zoom:' + (pref.fontScale / 100) + ' !important;}';
+          fxCss += 'body{zoom:' + (pref.fontScale / 100) + ' !important;}'
+            // 面板自己不该跟着缩：90% 档会把 11px 的说明文字压到 9.9px，
+            // 恰恰在最需要读清楚的设置页变得最难读。反向补偿一步抵掉。
+            + 'html .zp-root{zoom:' + (Math.round(10000 / pref.fontScale) / 10000) + ' !important;}';
         }
         if (pref.uiFont) {
           const fam = '"' + pref.uiFont.replace(/"/g, '') + '", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
@@ -1186,8 +1189,10 @@ function applyTokens(theme, pref) {
         const file = ev.target.files && ev.target.files[0];
         try { ev.target.value = ''; } catch (e) { /* ignore */ }
         if (!file) return;
-        if (file.size > BG_MAX_BYTES) {
-          try { console.warn('[zhuoer-theme] 底图超过 3 MiB，未保存'); } catch (e) { /* ignore */ }
+        if (file.size > IMG_MAX_BYTES) {
+          // 以前这里只 console.warn：用户选了张 4 MB 的图，界面毫无反应，
+          // 只会以为「这个功能坏了」。与另外两处入口统一成同一条提示。
+          try { window.alert(t('panel.alert.imgMax')); } catch (e) { /* ignore */ }
           return;
         }
         const reader = new FileReader();
@@ -1195,11 +1200,16 @@ function applyTokens(theme, pref) {
           const url = String(reader.result || '');
           if (url.indexOf('data:image/') !== 0) return;
           const key = 'img_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+          const prevKey = draft.bg && draft.bg.key;
           idbPut(key, url).then(function () {
             imageCache.set(key, url);
+            // 换图即回收：不删旧键的话，每换一次就在 IDB 里多压一张 1280 宽的图。
+            if (prevKey && prevKey !== key) {
+              try { idbDelete(prevKey).then(function () { imageCache.delete(prevKey); }).catch(function () { /* ignore */ }); } catch (e) { /* ignore */ }
+            }
             setBg({ source: 'image', key: key });
           }).catch(function (e) {
-            try { console.warn('[zhuoer-theme] 底图保存失败', (e && e.message) || e); } catch (e2) { /* ignore */ }
+            try { window.alert(t('panel.alert.imgStore')); } catch (e2) { /* ignore */ }
           });
         };
         reader.readAsDataURL(file);
@@ -1805,8 +1815,8 @@ function applyTokens(theme, pref) {
 
       // 底图：压到最长边 1280 + JPEG 0.72，原图动辄几 MB，直接塞 localStorage 会超限。
       const pickImage = function (file) {
-        if (file.size > 8 * 1024 * 1024) {
-          try { window.alert(t('panel.alert.img8')); } catch (e) { /* ignore */ }
+        if (file.size > IMG_MAX_BYTES) {
+          try { window.alert(t('panel.alert.imgMax')); } catch (e) { /* ignore */ }
           return;
         }
         const reader = new FileReader();
@@ -1842,8 +1852,8 @@ function applyTokens(theme, pref) {
       // 品牌位图片：比底图小得多（徽标高约 24px），压到最长边 512 就够，直接存 localStorage。
       // 存 PNG 而不是 JPEG：换掉的 logo 大多是透明底，转 JPEG 会糊成一块白/黑。
       const pickBrand = function (file) {
-        if (file.size > 2 * 1024 * 1024) {
-          try { window.alert(t('panel.alert.img2')); } catch (e) { /* ignore */ }
+        if (file.size > IMG_MAX_BYTES) {
+          try { window.alert(t('panel.alert.imgMax')); } catch (e) { /* ignore */ }
           return;
         }
         const reader = new FileReader();
@@ -1871,6 +1881,8 @@ function applyTokens(theme, pref) {
       // 也避免以后新增字段时重置漏写一个。
       const resetAll = function () {
         try { window.localStorage.removeItem(STORE); } catch (e) { /* ignore */ }
+        // localStorage 之外还有 IDB：主题底图本体在那里，不清就是无主数据。
+        try { idbClearAll().then(function () { imageCache.clear(); }).catch(function () { /* ignore */ }); } catch (e) { /* ignore */ }
         setPref(readPref());
         emitChange();
         setResetArmed(false);

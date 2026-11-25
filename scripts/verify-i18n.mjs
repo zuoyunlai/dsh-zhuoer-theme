@@ -26,8 +26,12 @@ const baselinePath = join(root, 'contracts', 'i18n-baseline.json')
 const DICT_FILE = 'src/05-i18n.js'
 const CJK = /[\u3400-\u4dbf\u4e00-\u9fff]/
 
-/** 剥掉行注释与块注释，保留字符串（字符串里的 // 不能被当注释）。 */
+/** 剥掉行注释、块注释与正则字面量，保留字符串（字符串里的 // 不能被当注释）。
+ *  为什么要认正则：0.6.18 的 `replace(/\"/g, '')` 这类正则里带引号，
+ *  早先的字符级剥法会把正则里的引号当成字符串开头，一路吞到下一个引号，
+ *  于是中间的注释与代码被算成「一个含中文的字符串」——门槛数字会随无关改动漂。 */
 function stripComments(s) {
+  const regexAllowed = (prev) => !prev || '([{,;:=!&|?+-*%~^<>'.includes(prev)
   let out = ''
   let i = 0
   let quote = null
@@ -44,6 +48,27 @@ function stripComments(s) {
     if (c === '"' || c === "'" || c === '`') { quote = c; out += c; i++; continue }
     if (c === '/' && n === '/') { const e = s.indexOf('\n', i); i = e < 0 ? s.length : e; continue }
     if (c === '/' && n === '*') { const e = s.indexOf('*/', i + 2); i = e < 0 ? s.length : e + 2; continue }
+    if (c === '/') {
+      // 前面是运算符/分隔符时，'/' 开的是正则字面量：整段跳过（含字符类与转义）。
+      let k = out.length - 1
+      while (k >= 0 && /\s/.test(out[k])) k--
+      if (regexAllowed(k >= 0 ? out[k] : '')) {
+        let j = i + 1
+        let inClass = false
+        while (j < s.length) {
+          const d = s[j]
+          if (d === '\\') { j += 2; continue }
+          if (d === '[') inClass = true
+          else if (d === ']') inClass = false
+          else if (d === '/' && !inClass) break
+          else if (d === '\n') break
+          j++
+        }
+        i = j + 1
+        while (i < s.length && /[a-z]/.test(s[i])) i++
+        continue
+      }
+    }
     out += c
     i++
   }
@@ -77,6 +102,7 @@ function countCjkLiterals(code) {
 }
 
 /** 自检：锚住「注释不计、字符串计数、字符串里的 // 不当注释」三条口径。 */
+let selftestTotal = 0
 function selftest() {
   const cases = [
     ['// 中文注释\nconst a = 1\n', 0, '行注释不计'],
@@ -84,7 +110,9 @@ function selftest() {
     ["const c = '中文'\n", 1, '字符串字面量计数'],
     ['const d = "a // 中文"\n', 1, '字符串里的 // 不当注释'],
     ["const e = '//'\n", 0, '无 CJK 的字符串不计数'],
+    ["const f = s.replace(/\"/g, '')\n// 中文注释\n", 0, '正则里的引号不吞掉后面的注释'],
   ]
+  selftestTotal = cases.length
   const bad = []
   for (const [code, want, name] of cases) {
     const got = countCjkLiterals(code)
@@ -99,7 +127,7 @@ if (selfBad.length) {
   for (const b of selfBad) console.error('  - ' + b)
   process.exit(1)
 }
-console.log('OK    剥注释自检 5/5：注释不计、字符串计数、字符串里的 // 不当注释')
+console.log('OK    剥注释自检 ' + selftestTotal + '/' + selftestTotal + '：注释/正则不计、字符串计数、字符串里的 // 不当注释')
 
 const files = readdirSync(srcDir).filter((f) => f.endsWith('.js')).sort()
 const counts = {}

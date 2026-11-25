@@ -1,7 +1,7 @@
 {
   "note": "由 npm run contrast:update 生成。ratio 是实测对比度；门禁要求任何一组都不得比它低 0.01 以上。",
   "min": 4.5,
-  "count": 391,
+  "count": 487,
   "pairs": [
     {
       "key": "zhuoer/light 正文",
@@ -2020,289 +2020,865 @@
       "ratio": 5.945
     },
     {
-      "key": "预设:glass/light 正文",
+      "key": "预设:glass/zhuoer/light 正文",
       "fg": "#1a2b3c",
       "bg": "#eef4fa",
       "ratio": 13.031
     },
     {
-      "key": "预设:glass/light 按钮文字",
+      "key": "预设:glass/zhuoer/light 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#4a7fd4",
       "ratio": 4.944
     },
     {
-      "key": "预设:glass/dark 正文",
+      "key": "预设:glass/zhuoer/dark 正文",
       "fg": "#c3d4e5",
       "bg": "#0d1d2d",
       "ratio": 11.269
     },
     {
-      "key": "预设:glass/dark 按钮文字",
+      "key": "预设:glass/zhuoer/dark 按钮文字",
       "fg": "#ffffff",
       "bg": "#2b60b5",
       "ratio": 6.099
     },
     {
-      "key": "预设:brutal/light 正文",
+      "key": "预设:glass/vintage-paper/light 正文",
+      "fg": "#1a2b3c",
+      "bg": "#eef4fa",
+      "ratio": 13.031
+    },
+    {
+      "key": "预设:glass/vintage-paper/light 按钮文字",
+      "fg": "#0b0b0c",
+      "bg": "#4a7fd4",
+      "ratio": 4.944
+    },
+    {
+      "key": "预设:glass/vintage-paper/dark 正文",
+      "fg": "#c3d4e5",
+      "bg": "#0d1d2d",
+      "ratio": 11.269
+    },
+    {
+      "key": "预设:glass/vintage-paper/dark 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#2b60b5",
+      "ratio": 6.099
+    },
+    {
+      "key": "预设:glass/beacon/light 正文",
+      "fg": "#1a2b3c",
+      "bg": "#eef4fa",
+      "ratio": 13.031
+    },
+    {
+      "key": "预设:glass/beacon/light 按钮文字",
+      "fg": "#0b0b0c",
+      "bg": "#4a7fd4",
+      "ratio": 4.944
+    },
+    {
+      "key": "预设:glass/beacon/dark 正文",
+      "fg": "#c3d4e5",
+      "bg": "#0d1d2d",
+      "ratio": 11.269
+    },
+    {
+      "key": "预设:glass/beacon/dark 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#2b60b5",
+      "ratio": 6.099
+    },
+    {
+      "key": "预设:brutal/zhuoer/light 正文",
       "fg": "#0a0a0a",
       "bg": "#fff8e7",
       "ratio": 18.698
     },
     {
-      "key": "预设:brutal/light 按钮文字",
+      "key": "预设:brutal/zhuoer/light 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#ff3d00",
       "ratio": 5.546
     },
     {
-      "key": "预设:brutal/dark 正文",
+      "key": "预设:brutal/zhuoer/dark 正文",
       "fg": "#f5f5f5",
       "bg": "#3b2a00",
       "ratio": 12.696
     },
     {
-      "key": "预设:brutal/dark 按钮文字",
+      "key": "预设:brutal/zhuoer/dark 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#ff3d00",
       "ratio": 5.546
     },
     {
-      "key": "预设:swiss/light 正文",
+      "key": "预设:brutal/vintage-paper/light 正文",
+      "fg": "#0a0a0a",
+      "bg": "#fff8e7",
+      "ratio": 18.698
+    },
+    {
+      "key": "预设:brutal/vintage-paper/light 按钮文字",
+      "fg": "#0b0b0c",
+      "bg": "#ff3d00",
+      "ratio": 5.546
+    },
+    {
+      "key": "预设:brutal/vintage-paper/dark 正文",
+      "fg": "#f5f5f5",
+      "bg": "#3b2a00",
+      "ratio": 12.696
+    },
+    {
+      "key": "预设:brutal/vintage-paper/dark 按钮文字",
+      "fg": "#0b0b0c",
+      "bg": "#ff3d00",
+      "ratio": 5.546
+    },
+    {
+      "key": "预设:brutal/beacon/light 正文",
+      "fg": "#0a0a0a",
+      "bg": "#fff8e7",
+      "ratio": 18.698
+    },
+    {
+      "key": "预设:brutal/beacon/light 按钮文字",
+      "fg": "#0b0b0c",
+      "bg": "#ff3d00",
+      "ratio": 5.546
+    },
+    {
+      "key": "预设:brutal/beacon/dark 正文",
+      "fg": "#f5f5f5",
+      "bg": "#3b2a00",
+      "ratio": 12.696
+    },
+    {
+      "key": "预设:brutal/beacon/dark 按钮文字",
+      "fg": "#000000",
+      "bg": "#ff3d00",
+      "ratio": 5.919
+    },
+    {
+      "key": "预设:swiss/zhuoer/light 正文",
       "fg": "#1a1a1a",
       "bg": "#f5f5f5",
       "ratio": 15.964
     },
     {
-      "key": "预设:swiss/light 按钮文字",
+      "key": "预设:swiss/zhuoer/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#e30613",
       "ratio": 4.882
     },
     {
-      "key": "预设:swiss/dark 正文",
+      "key": "预设:swiss/zhuoer/dark 正文",
       "fg": "#e5e5e5",
       "bg": "#1d1d1d",
       "ratio": 13.382
     },
     {
-      "key": "预设:swiss/dark 按钮文字",
+      "key": "预设:swiss/zhuoer/dark 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#f91c29",
       "ratio": 4.896
     },
     {
-      "key": "预设:editorial/light 正文",
+      "key": "预设:swiss/vintage-paper/light 正文",
+      "fg": "#1a1a1a",
+      "bg": "#f5f5f5",
+      "ratio": 15.964
+    },
+    {
+      "key": "预设:swiss/vintage-paper/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#e30613",
+      "ratio": 4.882
+    },
+    {
+      "key": "预设:swiss/vintage-paper/dark 正文",
+      "fg": "#e5e5e5",
+      "bg": "#1d1d1d",
+      "ratio": 13.382
+    },
+    {
+      "key": "预设:swiss/vintage-paper/dark 按钮文字",
+      "fg": "#0b0b0c",
+      "bg": "#f91c29",
+      "ratio": 4.896
+    },
+    {
+      "key": "预设:swiss/beacon/light 正文",
+      "fg": "#1a1a1a",
+      "bg": "#f5f5f5",
+      "ratio": 15.964
+    },
+    {
+      "key": "预设:swiss/beacon/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#e30613",
+      "ratio": 4.882
+    },
+    {
+      "key": "预设:swiss/beacon/dark 正文",
+      "fg": "#e5e5e5",
+      "bg": "#1d1d1d",
+      "ratio": 13.382
+    },
+    {
+      "key": "预设:swiss/beacon/dark 按钮文字",
+      "fg": "#000000",
+      "bg": "#f91c29",
+      "ratio": 5.226
+    },
+    {
+      "key": "预设:editorial/zhuoer/light 正文",
       "fg": "#1a1614",
       "bg": "#faf7f0",
       "ratio": 16.793
     },
     {
-      "key": "预设:editorial/light 按钮文字",
+      "key": "预设:editorial/zhuoer/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#8b1a1a",
       "ratio": 9.29
     },
     {
-      "key": "预设:editorial/dark 正文",
+      "key": "预设:editorial/zhuoer/dark 正文",
       "fg": "#ebe7e5",
       "bg": "#2c230f",
       "ratio": 12.621
     },
     {
-      "key": "预设:editorial/dark 按钮文字",
+      "key": "预设:editorial/zhuoer/dark 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#e57474",
       "ratio": 6.635
     },
     {
-      "key": "预设:luxe/light 正文",
+      "key": "预设:editorial/vintage-paper/light 正文",
+      "fg": "#1a1614",
+      "bg": "#faf7f0",
+      "ratio": 16.793
+    },
+    {
+      "key": "预设:editorial/vintage-paper/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#8b1a1a",
+      "ratio": 9.29
+    },
+    {
+      "key": "预设:editorial/vintage-paper/dark 正文",
+      "fg": "#ebe7e5",
+      "bg": "#2c230f",
+      "ratio": 12.621
+    },
+    {
+      "key": "预设:editorial/vintage-paper/dark 按钮文字",
+      "fg": "#2d2621",
+      "bg": "#e57474",
+      "ratio": 5.02
+    },
+    {
+      "key": "预设:editorial/beacon/light 正文",
+      "fg": "#1a1614",
+      "bg": "#faf7f0",
+      "ratio": 16.793
+    },
+    {
+      "key": "预设:editorial/beacon/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#8b1a1a",
+      "ratio": 9.29
+    },
+    {
+      "key": "预设:editorial/beacon/dark 正文",
+      "fg": "#ebe7e5",
+      "bg": "#2c230f",
+      "ratio": 12.621
+    },
+    {
+      "key": "预设:editorial/beacon/dark 按钮文字",
+      "fg": "#000000",
+      "bg": "#e57474",
+      "ratio": 7.082
+    },
+    {
+      "key": "预设:luxe/zhuoer/light 正文",
       "fg": "#1c1a17",
       "bg": "#f7f4ef",
       "ratio": 15.826
     },
     {
-      "key": "预设:luxe/light 按钮文字",
+      "key": "预设:luxe/zhuoer/light 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#a8894a",
       "ratio": 5.942
     },
     {
-      "key": "预设:luxe/dark 正文",
+      "key": "预设:luxe/zhuoer/dark 正文",
       "fg": "#e8e6e3",
       "bg": "#272014",
       "ratio": 12.939
     },
     {
-      "key": "预设:luxe/dark 按钮文字",
+      "key": "预设:luxe/zhuoer/dark 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#b59657",
       "ratio": 6.994
     },
     {
-      "key": "预设:organic/light 正文",
+      "key": "预设:luxe/vintage-paper/light 正文",
+      "fg": "#1c1a17",
+      "bg": "#f7f4ef",
+      "ratio": 15.826
+    },
+    {
+      "key": "预设:luxe/vintage-paper/light 按钮文字",
+      "fg": "#0b0b0c",
+      "bg": "#a8894a",
+      "ratio": 5.942
+    },
+    {
+      "key": "预设:luxe/vintage-paper/dark 正文",
+      "fg": "#e8e6e3",
+      "bg": "#272014",
+      "ratio": 12.939
+    },
+    {
+      "key": "预设:luxe/vintage-paper/dark 按钮文字",
+      "fg": "#2d2621",
+      "bg": "#b59657",
+      "ratio": 5.291
+    },
+    {
+      "key": "预设:luxe/beacon/light 正文",
+      "fg": "#1c1a17",
+      "bg": "#f7f4ef",
+      "ratio": 15.826
+    },
+    {
+      "key": "预设:luxe/beacon/light 按钮文字",
+      "fg": "#0b0b0c",
+      "bg": "#a8894a",
+      "ratio": 5.942
+    },
+    {
+      "key": "预设:luxe/beacon/dark 正文",
+      "fg": "#e8e6e3",
+      "bg": "#272014",
+      "ratio": 12.939
+    },
+    {
+      "key": "预设:luxe/beacon/dark 按钮文字",
+      "fg": "#000000",
+      "bg": "#b59657",
+      "ratio": 7.465
+    },
+    {
+      "key": "预设:organic/zhuoer/light 正文",
       "fg": "#2a2f24",
       "bg": "#f2efe6",
       "ratio": 11.934
     },
     {
-      "key": "预设:organic/light 按钮文字",
+      "key": "预设:organic/zhuoer/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#5a7247",
       "ratio": 5.34
     },
     {
-      "key": "预设:organic/dark 正文",
+      "key": "预设:organic/zhuoer/dark 正文",
       "fg": "#d6dbd0",
       "bg": "#282315",
       "ratio": 11.109
     },
     {
-      "key": "预设:organic/dark 按钮文字",
+      "key": "预设:organic/zhuoer/dark 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#a0b88d",
       "ratio": 9.121
     },
     {
-      "key": "预设:morandi/light 正文",
+      "key": "预设:organic/vintage-paper/light 正文",
+      "fg": "#2a2f24",
+      "bg": "#f2efe6",
+      "ratio": 11.934
+    },
+    {
+      "key": "预设:organic/vintage-paper/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#5a7247",
+      "ratio": 5.34
+    },
+    {
+      "key": "预设:organic/vintage-paper/dark 正文",
+      "fg": "#d6dbd0",
+      "bg": "#282315",
+      "ratio": 11.109
+    },
+    {
+      "key": "预设:organic/vintage-paper/dark 按钮文字",
+      "fg": "#2d2621",
+      "bg": "#a0b88d",
+      "ratio": 6.901
+    },
+    {
+      "key": "预设:organic/beacon/light 正文",
+      "fg": "#2a2f24",
+      "bg": "#f2efe6",
+      "ratio": 11.934
+    },
+    {
+      "key": "预设:organic/beacon/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#5a7247",
+      "ratio": 5.34
+    },
+    {
+      "key": "预设:organic/beacon/dark 正文",
+      "fg": "#d6dbd0",
+      "bg": "#282315",
+      "ratio": 11.109
+    },
+    {
+      "key": "预设:organic/beacon/dark 按钮文字",
+      "fg": "#000000",
+      "bg": "#a0b88d",
+      "ratio": 9.736
+    },
+    {
+      "key": "预设:morandi/zhuoer/light 正文",
       "fg": "#3a3532",
       "bg": "#eeeae8",
       "ratio": 10.125
     },
     {
-      "key": "预设:morandi/light 按钮文字",
+      "key": "预设:morandi/zhuoer/light 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#a67c7c",
       "ratio": 5.43
     },
     {
-      "key": "预设:morandi/dark 正文",
+      "key": "预设:morandi/zhuoer/dark 正文",
       "fg": "#cdc8c5",
       "bg": "#231d1a",
       "ratio": 10.034
     },
     {
-      "key": "预设:morandi/dark 按钮文字",
+      "key": "预设:morandi/zhuoer/dark 按钮文字",
       "fg": "#ffffff",
       "bg": "#835959",
       "ratio": 5.935
     },
     {
-      "key": "预设:paper/light 正文",
+      "key": "预设:morandi/vintage-paper/light 正文",
+      "fg": "#3a3532",
+      "bg": "#eeeae8",
+      "ratio": 10.125
+    },
+    {
+      "key": "预设:morandi/vintage-paper/light 按钮文字",
+      "fg": "#0b0b0c",
+      "bg": "#a67c7c",
+      "ratio": 5.43
+    },
+    {
+      "key": "预设:morandi/vintage-paper/dark 正文",
+      "fg": "#cdc8c5",
+      "bg": "#231d1a",
+      "ratio": 10.034
+    },
+    {
+      "key": "预设:morandi/vintage-paper/dark 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#835959",
+      "ratio": 5.935
+    },
+    {
+      "key": "预设:morandi/beacon/light 正文",
+      "fg": "#3a3532",
+      "bg": "#eeeae8",
+      "ratio": 10.125
+    },
+    {
+      "key": "预设:morandi/beacon/light 按钮文字",
+      "fg": "#0b0b0c",
+      "bg": "#a67c7c",
+      "ratio": 5.43
+    },
+    {
+      "key": "预设:morandi/beacon/dark 正文",
+      "fg": "#cdc8c5",
+      "bg": "#231d1a",
+      "ratio": 10.034
+    },
+    {
+      "key": "预设:morandi/beacon/dark 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#835959",
+      "ratio": 5.935
+    },
+    {
+      "key": "预设:paper/zhuoer/light 正文",
       "fg": "#22211f",
       "bg": "#f4f3f0",
       "ratio": 14.498
     },
     {
-      "key": "预设:paper/light 按钮文字",
+      "key": "预设:paper/zhuoer/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#4a5568",
       "ratio": 7.526
     },
     {
-      "key": "预设:paper/dark 正文",
+      "key": "预设:paper/zhuoer/dark 正文",
       "fg": "#e0dfdd",
       "bg": "#222019",
       "ratio": 12.236
     },
     {
-      "key": "预设:paper/dark 按钮文字",
+      "key": "预设:paper/zhuoer/dark 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#97a2b5",
       "ratio": 7.636
     },
     {
-      "key": "预设:cyber/light 正文",
+      "key": "预设:paper/vintage-paper/light 正文",
+      "fg": "#22211f",
+      "bg": "#f4f3f0",
+      "ratio": 14.498
+    },
+    {
+      "key": "预设:paper/vintage-paper/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#4a5568",
+      "ratio": 7.526
+    },
+    {
+      "key": "预设:paper/vintage-paper/dark 正文",
+      "fg": "#e0dfdd",
+      "bg": "#222019",
+      "ratio": 12.236
+    },
+    {
+      "key": "预设:paper/vintage-paper/dark 按钮文字",
+      "fg": "#2d2621",
+      "bg": "#97a2b5",
+      "ratio": 5.778
+    },
+    {
+      "key": "预设:paper/beacon/light 正文",
+      "fg": "#22211f",
+      "bg": "#f4f3f0",
+      "ratio": 14.498
+    },
+    {
+      "key": "预设:paper/beacon/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#4a5568",
+      "ratio": 7.526
+    },
+    {
+      "key": "预设:paper/beacon/dark 正文",
+      "fg": "#e0dfdd",
+      "bg": "#222019",
+      "ratio": 12.236
+    },
+    {
+      "key": "预设:paper/beacon/dark 按钮文字",
+      "fg": "#000000",
+      "bg": "#97a2b5",
+      "ratio": 8.151
+    },
+    {
+      "key": "预设:cyber/zhuoer/light 正文",
       "fg": "#0a1a0e",
       "bg": "#f0fff4",
       "ratio": 17.408
     },
     {
-      "key": "预设:cyber/light 按钮文字",
+      "key": "预设:cyber/zhuoer/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#00853a",
       "ratio": 4.755
     },
     {
-      "key": "预设:cyber/dark 正文",
+      "key": "预设:cyber/zhuoer/dark 正文",
       "fg": "#e5f5e9",
       "bg": "#003a0f",
       "ratio": 11.518
     },
     {
-      "key": "预设:cyber/dark 按钮文字",
+      "key": "预设:cyber/zhuoer/dark 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#7affb4",
       "ratio": 15.73
     },
     {
-      "key": "预设:aurora/light 正文",
+      "key": "预设:cyber/vintage-paper/light 正文",
+      "fg": "#0a1a0e",
+      "bg": "#f0fff4",
+      "ratio": 17.408
+    },
+    {
+      "key": "预设:cyber/vintage-paper/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#00853a",
+      "ratio": 4.755
+    },
+    {
+      "key": "预设:cyber/vintage-paper/dark 正文",
+      "fg": "#e5f5e9",
+      "bg": "#003a0f",
+      "ratio": 11.518
+    },
+    {
+      "key": "预设:cyber/vintage-paper/dark 按钮文字",
+      "fg": "#2d2621",
+      "bg": "#7affb4",
+      "ratio": 11.902
+    },
+    {
+      "key": "预设:cyber/beacon/light 正文",
+      "fg": "#0a1a0e",
+      "bg": "#f0fff4",
+      "ratio": 17.408
+    },
+    {
+      "key": "预设:cyber/beacon/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#00853a",
+      "ratio": 4.755
+    },
+    {
+      "key": "预设:cyber/beacon/dark 正文",
+      "fg": "#e5f5e9",
+      "bg": "#003a0f",
+      "ratio": 11.518
+    },
+    {
+      "key": "预设:cyber/beacon/dark 按钮文字",
+      "fg": "#000000",
+      "bg": "#7affb4",
+      "ratio": 16.791
+    },
+    {
+      "key": "预设:aurora/zhuoer/light 正文",
       "fg": "#1b2140",
       "bg": "#f0f2fb",
       "ratio": 14.048
     },
     {
-      "key": "预设:aurora/light 按钮文字",
+      "key": "预设:aurora/zhuoer/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#6a4ce0",
       "ratio": 5.641
     },
     {
-      "key": "预设:aurora/dark 正文",
+      "key": "预设:aurora/zhuoer/dark 正文",
       "fg": "#bfc5e4",
       "bg": "#0c122e",
       "ratio": 10.794
     },
     {
-      "key": "预设:aurora/dark 按钮文字",
+      "key": "预设:aurora/zhuoer/dark 按钮文字",
       "fg": "#ffffff",
       "bg": "#3d1fb3",
       "ratio": 10.267
     },
     {
-      "key": "预设:devterm/light 正文",
+      "key": "预设:aurora/vintage-paper/light 正文",
+      "fg": "#1b2140",
+      "bg": "#f0f2fb",
+      "ratio": 14.048
+    },
+    {
+      "key": "预设:aurora/vintage-paper/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#6a4ce0",
+      "ratio": 5.641
+    },
+    {
+      "key": "预设:aurora/vintage-paper/dark 正文",
+      "fg": "#bfc5e4",
+      "bg": "#0c122e",
+      "ratio": 10.794
+    },
+    {
+      "key": "预设:aurora/vintage-paper/dark 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#3d1fb3",
+      "ratio": 10.267
+    },
+    {
+      "key": "预设:aurora/beacon/light 正文",
+      "fg": "#1b2140",
+      "bg": "#f0f2fb",
+      "ratio": 14.048
+    },
+    {
+      "key": "预设:aurora/beacon/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#6a4ce0",
+      "ratio": 5.641
+    },
+    {
+      "key": "预设:aurora/beacon/dark 正文",
+      "fg": "#bfc5e4",
+      "bg": "#0c122e",
+      "ratio": 10.794
+    },
+    {
+      "key": "预设:aurora/beacon/dark 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#3d1fb3",
+      "ratio": 10.267
+    },
+    {
+      "key": "预设:devterm/zhuoer/light 正文",
       "fg": "#252526",
       "bg": "#f6f6f6",
       "ratio": 14.17
     },
     {
-      "key": "预设:devterm/light 按钮文字",
+      "key": "预设:devterm/zhuoer/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#8a5a00",
       "ratio": 5.927
     },
     {
-      "key": "预设:devterm/dark 正文",
+      "key": "预设:devterm/zhuoer/dark 正文",
       "fg": "#d9d9da",
       "bg": "#1d1d1d",
       "ratio": 11.951
     },
     {
-      "key": "预设:devterm/dark 按钮文字",
+      "key": "预设:devterm/zhuoer/dark 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#ffcf75",
       "ratio": 13.522
     },
     {
-      "key": "预设:deepspace/light 正文",
+      "key": "预设:devterm/vintage-paper/light 正文",
+      "fg": "#252526",
+      "bg": "#f6f6f6",
+      "ratio": 14.17
+    },
+    {
+      "key": "预设:devterm/vintage-paper/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#8a5a00",
+      "ratio": 5.927
+    },
+    {
+      "key": "预设:devterm/vintage-paper/dark 正文",
+      "fg": "#d9d9da",
+      "bg": "#1d1d1d",
+      "ratio": 11.951
+    },
+    {
+      "key": "预设:devterm/vintage-paper/dark 按钮文字",
+      "fg": "#2d2621",
+      "bg": "#ffcf75",
+      "ratio": 10.231
+    },
+    {
+      "key": "预设:devterm/beacon/light 正文",
+      "fg": "#252526",
+      "bg": "#f6f6f6",
+      "ratio": 14.17
+    },
+    {
+      "key": "预设:devterm/beacon/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#8a5a00",
+      "ratio": 5.927
+    },
+    {
+      "key": "预设:devterm/beacon/dark 正文",
+      "fg": "#d9d9da",
+      "bg": "#1d1d1d",
+      "ratio": 11.951
+    },
+    {
+      "key": "预设:devterm/beacon/dark 按钮文字",
+      "fg": "#000000",
+      "bg": "#ffcf75",
+      "ratio": 14.434
+    },
+    {
+      "key": "预设:deepspace/zhuoer/light 正文",
       "fg": "#1a1a1e",
       "bg": "#f4f4f6",
       "ratio": 15.794
     },
     {
-      "key": "预设:deepspace/light 按钮文字",
+      "key": "预设:deepspace/zhuoer/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#2f6ad9",
       "ratio": 5.019
     },
     {
-      "key": "预设:deepspace/dark 正文",
+      "key": "预设:deepspace/zhuoer/dark 正文",
       "fg": "#e1e1e5",
       "bg": "#1a1a20",
       "ratio": 13.28
     },
     {
-      "key": "预设:deepspace/dark 按钮文字",
+      "key": "预设:deepspace/zhuoer/dark 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#2661d0",
+      "ratio": 5.671
+    },
+    {
+      "key": "预设:deepspace/vintage-paper/light 正文",
+      "fg": "#1a1a1e",
+      "bg": "#f4f4f6",
+      "ratio": 15.794
+    },
+    {
+      "key": "预设:deepspace/vintage-paper/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#2f6ad9",
+      "ratio": 5.019
+    },
+    {
+      "key": "预设:deepspace/vintage-paper/dark 正文",
+      "fg": "#e1e1e5",
+      "bg": "#1a1a20",
+      "ratio": 13.28
+    },
+    {
+      "key": "预设:deepspace/vintage-paper/dark 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#2661d0",
+      "ratio": 5.671
+    },
+    {
+      "key": "预设:deepspace/beacon/light 正文",
+      "fg": "#1a1a1e",
+      "bg": "#f4f4f6",
+      "ratio": 15.794
+    },
+    {
+      "key": "预设:deepspace/beacon/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#2f6ad9",
+      "ratio": 5.019
+    },
+    {
+      "key": "预设:deepspace/beacon/dark 正文",
+      "fg": "#e1e1e5",
+      "bg": "#1a1a20",
+      "ratio": 13.28
+    },
+    {
+      "key": "预设:deepspace/beacon/dark 按钮文字",
       "fg": "#ffffff",
       "bg": "#2661d0",
       "ratio": 5.671

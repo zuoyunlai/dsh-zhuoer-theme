@@ -243,7 +243,7 @@ npm run coverage      # token 覆盖率与「刻意不跟锚点」的豁免清�
 | `verify:visual` | 面板截图像素比对（**已从 `verify:all` 摘除**）：同状态连续两次截 `.zp-root` 在光态下互差 2.3%，无法复现的像素门等于安全错觉。脚本保留，需要人工看图时再跑 |
 | `verify:csssnap` | 把插件**实际注入**的 CSS 文本与 `contracts/css-snapshot/` 逐字节比对；差异会报出首个偏移与上下文。没有 `visual/css-current/` 时 SKIP，`--strict` 才硬判 |
 | `verify:claims` | **对外口径门**：README / market 索引 / locale / package.json 里的主题数、版本号、底图数、文案条数、裸中文基线必须等于现算真值（加主题后忘记改文档 → 红） |
-| `verify:i18n` | 裸中文字面量**棘轮**：按文件记基线，只许减少；多一条就红（文案要写进 `src/05-i18n.js` 的 `I18N` 再 `t()` 取）。当前合计 93 条 |
+| `verify:i18n` | 裸中文字面量**棘轮**：按文件记基线，只许减少；多一条就红（文案要写进 `src/05-i18n.js` 的 `I18N` 再 `t()` 取）。当前合计 46 条 |
 | `verify:panel` | **面板冒烟**：Node 端用最小宿主替身加载 `client.js`、调 `apply()`，把 `settings.section` 真渲染一遍；任何渲染期抛错即红（0.6.11 的 `t is not defined` 就是它该抓的） |
 | `verify:git` | `.git` 元数据（`HEAD`/`config`/`index`）是否完好；损坏时 `node scripts/git-doctor.mjs --fix` 一键重建（见 `docs/git-integrity.md`） |
 | `verify:release` | 发版预检：按内容哈希比对工作区与 HEAD（抓「同长度编辑被 git stat 缓存吞掉」），并校验版本三元组 |

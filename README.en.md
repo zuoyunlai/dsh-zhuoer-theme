@@ -242,7 +242,7 @@ npm run coverage      # token coverage and the "deliberately not derived" allowl
 | `verify:visual` | Pixel comparison of the panel (**removed from `verify:all`**): two consecutive captures of the same state differ by 2.3% in light mode, and a gate that cannot reproduce itself is a false sense of safety. Script kept for manual eyeballing |
 | `verify:csssnap` | Compares the **injected** CSS text byte for byte against `contracts/css-snapshot/`, reporting the first offset and context. SKIPs when `visual/css-current/` is absent; `--strict` makes it hard-fail |
 | `verify:claims` | **Public-claim gate**: theme count, version, background count, string count and the bare-Chinese baseline in README / market index / locale / package.json must equal the freshly computed truth (add a theme, forget the docs → red) |
-| `verify:i18n` | Bare-Chinese **ratchet**: per-file baseline that may only go down; new strings must go through the dictionary. Currently 93 |
+| `verify:i18n` | Bare-Chinese **ratchet**: per-file baseline that may only go down; new strings must go through the dictionary. Currently 46 |
 | `verify:panel` | **Panel smoke test**: loads `client.js` with a minimal host stand-in in Node, calls `apply()` and renders `settings.section` once; any render-time throw is red (this is the gate for the 0.6.11 `t is not defined` class of bug) |
 | `verify:git` | Checks `.git` metadata (HEAD/config/index) integrity; `node scripts/git-doctor.mjs --fix` rebuilds it in one command (see `docs/git-integrity.md`) |
 | `verify:release` | Release preflight: content-hash comparison of the working tree against HEAD (catches same-length edits swallowed by git's stat cache) plus the version triple |

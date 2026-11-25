@@ -64,6 +64,18 @@ expect('README.en.md', /compares (\d+) strings/, truth.strings, 'strings')
 expect('README.md', /当前合计 (\d+) 条/, truth.bareChinese, '当前合计 条')
 expect('README.en.md', /Currently (\d+) \|/, truth.bareChinese, 'Currently')
 
+// 底图映射必须覆盖全部内置主题：加主题忘了挂底图不会让任何门变红，只会「新主题没图」。
+const panelSrc = read('src/20-tokens-and-panel.js')
+const mapKeys = (name) => {
+  const m = panelSrc.match(new RegExp('const ' + name + ' = \\{([\\s\\S]*?)\\};'))
+  return m ? [...m[1].matchAll(/"([a-z][a-z-]*)":/g)].map((x) => x[1]) : []
+}
+for (const name of ['BG', 'BG_SOFT']) {
+  const have = mapKeys(name)
+  const miss = THEME_IDS.filter((id) => !have.includes(id))
+  if (miss.length) problems.push(name + ' 缺少这些主题的底图条目：' + miss.join(', '))
+}
+
 if (problems.length) {
   console.error('[verify:claims] ' + problems.length + ' 处对外数字与真值不一致')
   for (const p of problems) console.error('  - ' + p)
