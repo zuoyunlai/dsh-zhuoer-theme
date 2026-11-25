@@ -88,6 +88,18 @@ dsh plugin --profile <profile> add github:zuoyunlai/dsh-zhuoer-theme#v0.6.17
 >
 > 同理，更新插件代码（`client.js`）后也需要重启 DSH；本插件没有 HMR 通道。
 
+## 添加到插件市场（自建索引源）
+
+DSH **不内置任何索引源**（官方文档：索引是第三方内容，由用户自己添加）。本仓自带一份索引文件，可直接加进「发现」：
+
+```text
+https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/market/index.json
+```
+
+用法：**插件 → 实验性插件 → 打开「自定义插件索引」→「发现」→「添加索引源」→ 粘贴上面的 URL**。完成后「发现」里会出现本插件卡片，标题、说明、图标、版本与作者都来自这份索引。
+
+索引文件是 [`market/index.json`](market/index.json)：只列 **0.6.18 / 0.6.17 / 0.6.13** 三个可安全使用的版本（刻意跳过 0.6.11 那版面板报错的）。改完索引跑 `npm run verify:market`——它按官方 schema 校验 LocalizedText 必含 `en`、SemVer、`source.type`、`engines.dsh` 与本仓 `package.json` 的一致性。
+
 ## 使用
 
 设置 → **Zhuoer 主题**。
@@ -212,6 +224,8 @@ npm run coverage      # token 覆盖率与「刻意不跟锚点」的豁免清�
 | `verify:scale` | 字号缩放必须是全局 `body{zoom}`，且不允许再出现「只缩放字体 token 的 px」（0.4.1 的回归就是这种写法） |
 | `verify:themes` | 内联副本与真源逐 token 相等、两档 token 集合齐全、对比度达标 |
 | `verify:host` | 宿主选择器与契约对账，另查两类「静默失效」：契约登记的 id 片段是否还在代码里、`package.json` 的插件图标三件套（`icon` / `files` / `exports`）是否齐全 |
+| `verify:market` | **市场索引门**：按官方 schema 校验 `market/index.json`（LocalizedText 必含 `en`、精确 SemVer、`source.type`、`engines.dsh`），并与本仓 `package.json` 交叉对账 |
+| `verify:locale` | **展示元数据门**：`locale/*.json` 的 `meta.title` 非空、`en` 必存、`exports`/`files` 齐全、`./icon` ≤256 KiB 且与 `icon` 字段指向一致 |
 | `verify:keys` | **词典门**（静态）：源码里 `t('…')` 用到的键必须在 zh/en 都存在，且同名键占位符集合一致；缺键或 `{n}`/`{count}` 不一致即红。审的是「渲染不到」的文案（抽屉、错误、ARIA） |
 | `verify:text` | **文案门**（确定性）：Node 端渲染面板，把 130 条文案与属性（`title`/`aria-label`/`placeholder`/`alt`）与 `contracts/text-snapshot/{zh,en}.json` 逐条比对，版本号归一化。改文案要配 `--update`，否则红 |
 | `verify:visual` | 面板截图像素比对（**已从 `verify:all` 摘除**）：同状态连续两次截 `.zp-root` 在光态下互差 2.3%，无法复现的像素门等于安全错觉。脚本保留，需要人工看图时再跑 |

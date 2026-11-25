@@ -88,6 +88,18 @@ Replace `<profile>` with the profile you actually use, e.g. `desktop` or `web` (
 >
 > The same applies to code updates (`client.js`): this plugin has no HMR channel.
 
+## Add it to the plugin market (self-hosted index)
+
+DSH **ships no index source** (the official docs are explicit: indexes are third-party content that users add themselves). This repository includes one, ready to add:
+
+```text
+https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/market/index.json
+```
+
+Usage: **Plugins → Experimental plugins → enable “Custom plugin index” → Discover → Add index source → paste the URL above.** The card then appears in Discover, with title, description, icon, versions and author taken from that index.
+
+The index is [`market/index.json`](market/index.json); it lists only the three safe versions (0.6.18 / 0.6.17 / 0.6.13) and deliberately skips 0.6.11, which shipped a broken settings panel. Run `npm run verify:market` after editing — it checks the official schema (LocalizedText must contain `en`, exact SemVer, `source.type`, `engines.dsh`) and cross-checks it against this package’s `package.json`.
+
 ## Usage
 
 Settings → **Zhuoer 主题**.
@@ -210,6 +222,8 @@ npm run coverage      # token coverage and the "deliberately not derived" allowl
 | `verify:scale` | Font scaling must be `body{zoom}` and must not reintroduce px rewritten font tokens (the 0.4.1 regression) |
 | `verify:themes` | Inlined copies equal the source token by token, both schemes complete, contrast met |
 | `verify:host` | Host selectors reconciled with the contract, plus two silent-failure checks: contract id fragments still present, plugin icon triple (`icon` / `files` / `exports`) complete |
+| `verify:market` | **Market index gate**: validates `market/index.json` against the official schema (LocalizedText must contain `en`, exact SemVer, `source.type`, `engines.dsh`) and cross-checks it with this package’s `package.json` |
+| `verify:locale` | **Display metadata gate**: every `locale/*.json` has a non-empty `meta.title`, `en` exists, `exports`/`files` are complete, `./icon` is ≤256 KiB and matches the `icon` field |
 | `verify:keys` | **Dictionary gate** (static): every key used by `t('…')` exists in both zh and en, with identical placeholder sets; a missing key or `{n}` vs `{count}` mismatch is red. Covers copy that never renders (drawer, errors, ARIA) |
 | `verify:text` | **Copy gate** (deterministic): renders the panel in Node and compares 130 strings and attributes (`title`/`aria-label`/`placeholder`/`alt`) against `contracts/text-snapshot/{zh,en}.json`, versions normalised. Change copy ⇒ run `--update` |
 | `verify:visual` | Pixel comparison of the panel (**removed from `verify:all`**): two consecutive captures of the same state differ by 2.3% in light mode, and a gate that cannot reproduce itself is a false sense of safety. Script kept for manual eyeballing |

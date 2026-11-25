@@ -4,6 +4,20 @@
 
 插件仓库：https://github.com/zuoyunlai/dsh-zhuoer-theme ｜ 投递时版本：`0.5.9`（npm `latest` + GitHub Release `v0.5.9`）
 
+## 零、自建索引源（2026-11-25 起）
+
+DSH 不内置索引源，所以「被市场收录」的可控路径是自己发布一份索引文件。本仓已有：
+
+```text
+https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/market/index.json
+```
+
+- 内容：`market/index.json`，只列 0.6.18 / 0.6.17 / 0.6.13（跳过 0.6.11 那版面板报错的）；
+- 守门：`verify:market`（schema + 与 `package.json` 交叉对账）；
+- 实测：在本机 DSH 0.2.2-rc.5 的一次性 profile 里，「插件 → 实验性插件 → 自定义插件索引」打开后添加该 URL，「发现」里出现了卡片（标题 `Zhuoer 主题`、说明、0.6.18、作者、`已安装` 徽标）。
+
+**这不是投稿**，是自己托管；下面的一、二节才是向别人的清单投递。
+
 ## 一、本轮投递（2026-11-25）
 
 | 榜单 | 收录方式 | 改动 | 状态 |

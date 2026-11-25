@@ -49,7 +49,8 @@
 | 不 require Harness Client 包 | ✅ | 客户端只 `require('react')`（宿主 module loader 提供）；`peerDependencies` 只声明注入所需的两个 client 包 |
 | UI 只用 slot + `--dsw-alias-*` | ✅ | `verify:host` 对账 `contracts/host-contract.json`；`token-surface` 报覆盖与豁免 |
 | 市场 `LocalizedText` 含 `en` | ✅ | `locale/en.json` 存在且 `meta.title` = `Zhuoer Theme` |
-| 市场索引未投递 | — | 走的是社区 awesome-list（见 `docs/catalog-submissions.md`），未进官方 market 索引 |
+| 市场索引（自建） | ✅ | `market/index.json` 按官方 schema 写，`verify:market` 守门；已在真实 DSH（0.2.2-rc.5）的「发现」里作为索引源加载成功——索引标题与插件卡片都正常显示。**注意 DSH 不内置索引源**，用户需自行添加 URL（`https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/market/index.json`） |
+| 社区清单 | ⏳ | 4 个 awesome-list 的 PR 仍 OPEN（见 `docs/catalog-submissions.md`），与官方市场无关 |
 
 ## 3. 自检工具与两个坑
 
