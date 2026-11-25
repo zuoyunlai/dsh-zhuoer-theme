@@ -186,6 +186,7 @@ npm run coverage      # token 覆盖率与「刻意不跟锚点」的豁免清�
 | `verify:themes` | 内联副本与真源逐 token 相等、两档 token 集合齐全、对比度达标 |
 | `verify:host` | 宿主选择器与契约对账，另查两类「静默失效」：契约登记的 id 片段是否还在代码里、`package.json` 的插件图标三件套（`icon` / `files` / `exports`）是否齐全 |
 | `verify:visual` | 与 `contracts/visual-baseline/` 的截图基线逐像素比对（自己解 PNG，零依赖）；没有 `visual/current/` 时 SKIP，`--strict` 才硬判 |
+| `verify:csssnap` | 把插件**实际注入**的 CSS 文本与 `contracts/css-snapshot/` 逐字节比对；差异会报出首个偏移与上下文。没有 `visual/css-current/` 时 SKIP，`--strict` 才硬判 |
 | `verify:git` | `.git` 元数据（`HEAD`/`config`/`index`）是否完好；损坏时 `node scripts/git-doctor.mjs --fix` 一键重建（见 `docs/git-integrity.md`） |
 | `token-surface` | 覆盖了哪些宿主 token、哪些是刻意不跟锚点的 |
 | `node --check` | 产物语法 |
