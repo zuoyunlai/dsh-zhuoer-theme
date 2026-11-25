@@ -91,6 +91,10 @@ for (const rel of FILES) {
       let v = k + 1;
       while (v < line.length && line[v] !== ';' && line[v] !== '}' && line[v] !== '{') v++;
       const value = line.slice(k + 1, v);
+      // 拼接出来的声明不是设计值：如 applyHostTextScale 里
+      //   out.push(sel + '{font-size:' + scaled + 'px !important;}')
+      // 里面出现的数字是算式常量，按刻度判红只会制造假红。
+      if (value.indexOf("'") >= 0 || value.indexOf('"') >= 0 || value.indexOf('+') >= 0) { i = v; continue }
       const isFont = FONT_PROPS.indexOf(prop) >= 0;
       const isRadius = RADIUS_PROPS.indexOf(prop) >= 0;
       const isSpacing = SPACING.indexOf(prop) >= 0;

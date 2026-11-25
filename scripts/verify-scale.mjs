@@ -32,8 +32,11 @@ if (!/--dsh-content-font-size/.test(code)) {
 if (!/database\.styleSheets/.test(code) && !/document\.styleSheets/.test(code)) {
   fails.push('缺少宿主样式表遍历：界面文字（字面量 px 的那些）不会跟着字号变')
 }
-if (!/font-size:' \+ scaled/.test(code)) {
+if (!/selectorText \+ '\{font-size:'/.test(code)) {
   fails.push('缺少界面文字的 font-size 覆盖规则：只放大 token 文字等于回到 0.4.1 的半套缩放')
+}
+if (!/adoptedStyleSheets/.test(code)) {
+  fails.push('缺少 adoptedStyleSheets 通路：宿主若用 constructable stylesheet 注入样式，遍历 document.styleSheets 会一条都读不到')
 }
 
 if (fails.length) {

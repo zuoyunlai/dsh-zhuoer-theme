@@ -34,6 +34,8 @@
 // 不要用 getComputedStyle(body).zoom 现取：Chromium 对这条非标准属性返回值不可靠（常是 "normal"/"1"），
 // 取不到就等于没补偿——这正是「大字号下亮条偏右一百多像素」的直接原因。
 let ZR_SCALE = 1;
+// 上一次界面文字缩放的结果（面板用它给用户可见的失败反馈）
+let HOST_TEXT_STATS = null;
 
     // 预览路径（编辑器 / 取色器 / 滑块）此前传 null，导致 overrideTokens 拿不到服务、抛错被吞，
     // 编辑期间只剩 CSS 兜底层。这里留一个模块级引用，任何调用点都能拿到宿主主题服务。
@@ -206,39 +208,72 @@ function applyTokens(theme, pref) {
       const applyHostTextScale = function (k) {
         try {
           const id = STYLE_ID + '-hosttext';
-          const old = document.getElementById(id);
-          if (!(k > 0) || k === 1) { if (old && old.parentNode) old.parentNode.removeChild(old); return; }
+          const dropAll = function () {
+            try { const o = document.getElementById(id); if (o && o.parentNode) o.parentNode.removeChild(o); } catch (e) { /* ignore */ }
+            try { document.querySelectorAll('style[data-zr-hosttext]').forEach(function (n) { if (n.parentNode) n.parentNode.removeChild(n); }); } catch (e) { /* ignore */ }
+          };
+          if (!(k > 0) || k === 1) { dropAll(); HOST_TEXT_STATS = null; return; }
           if (!document.head) return;
-          let el = old;
+          let el = document.getElementById(id);
           if (!el) { el = document.createElement('style'); el.id = id; document.head.appendChild(el); }
           if (el.__zrK === k) return;
-          const out = [];
-          const put = function (text) {
-            out.push(text);
-            return out.length < 6000;
-          };
-          const walk = function (list) {
-            let more = true;
-            for (let i = 0; i < list.length && more; i++) {
-              const r = list[i];
-              if (r.cssRules) { walk(r.cssRules); continue; }
-              if (!r.selectorText || !r.style) continue;
-              if (r.selectorText.indexOf('.zp-') >= 0) continue;
-              const fs = r.style.fontSize;
-              if (!/^\d+(\.\d+)?px$/.test(fs)) continue;
-              const scaled = Math.round(parseFloat(fs) * k * 100) / 100;
-              more = put(r.selectorText + '{font-size:' + scaled + 'px !important;}');
+          const stats = { sheets: 0, adopted: 0, rules: 0, shadowRoots: 0, shadowRules: 0, capped: false };
+          const build = function (sheets) {
+            const out = [];
+            const walk = function (list) {
+              for (let i = 0; i < list.length; i++) {
+                const r = list[i];
+                if (r.cssRules) { walk(r.cssRules); continue; }
+                if (!r.selectorText || !r.style) continue;
+                if (r.selectorText.indexOf('.zp-') >= 0) continue;
+                const fs = r.style.fontSize;
+                if (!/^\d+(\.\d+)?px$/.test(fs)) continue;
+                if (out.length >= 8000) { stats.capped = true; return; }
+                out.push(r.selectorText + '{font-size:' + (Math.round(parseFloat(fs) * k * 100) / 100) + 'px !important;}');
+              }
+            };
+            for (let s = 0; s < sheets.length; s++) {
+              try {
+                const sh = sheets[s];
+                const own = sh.ownerNode;
+                if (own && ((own.id === id) || (own.getAttribute && own.getAttribute('data-zr-hosttext')))) continue;
+                if (sh.cssRules) walk(sh.cssRules);
+              } catch (e) { /* 跨源表不可读，跳过 */ }
             }
+            return out;
           };
-          for (let s = 0; s < document.styleSheets.length; s++) {
-            const sheet = document.styleSheets[s];
-            try {
-              if (sheet.ownerNode && sheet.ownerNode.id === id) continue;
-              if (sheet.cssRules) walk(sheet.cssRules);
-            } catch (e) { /* 跨源表不可读，跳过 */ }
-          }
-          el.textContent = out.join('');
+          const docSheets = Array.prototype.slice.call(document.styleSheets || []);
+          const docAdopted = Array.prototype.slice.call(document.adoptedStyleSheets || []);
+          stats.sheets = docSheets.length;
+          stats.adopted = docAdopted.length;
+          const main = build(docSheets.concat(docAdopted));
+          el.textContent = main.join('');
           el.__zrK = k;
+          stats.rules = main.length;
+          // Shadow DOM：document 的样式表管不到 shadow root，必须往每个 root 里插一份
+          try {
+            const hosts = document.querySelectorAll('*');
+            for (let i = 0; i < hosts.length; i++) {
+              const root = hosts[i].shadowRoot;
+              if (!root) continue;
+              stats.shadowRoots++;
+              try {
+                const sheets = [];
+                if (root.styleSheets) for (let s = 0; s < root.styleSheets.length; s++) sheets.push(root.styleSheets[s]);
+                const ad = root.adoptedStyleSheets || [];
+                for (let s = 0; s < ad.length; s++) sheets.push(ad[s]);
+                const rules = build(sheets);
+                stats.shadowRules += rules.length;
+                const prev = root.querySelector ? root.querySelector('style[data-zr-hosttext]') : null;
+                if (!rules.length) { if (prev && prev.parentNode) prev.parentNode.removeChild(prev); continue; }
+                let sh = prev;
+                if (!sh) { sh = document.createElement('style'); sh.setAttribute('data-zr-hosttext', '1'); root.appendChild(sh); }
+                sh.textContent = rules.join('');
+              } catch (e) { /* ignore */ }
+            }
+          } catch (e) { /* ignore */ }
+          HOST_TEXT_STATS = stats;
+          try { report({ phase: 'textscale', k: k, stats: stats }); } catch (e) { /* ignore */ }
         } catch (e) { /* ignore */ }
       };
 
@@ -2141,7 +2176,10 @@ function applyTokens(theme, pref) {
           h(Row, { label: t('panel.type.sizeRow') },
             h(Pills, { label: t('panel.type.sizeAria'), opts: scales(), value: pref.fontScale,
               onChange: function (v) { set({ fontScale: v }); } }),
-            h('span', { className: 'zp-hint' }, t('panel.type.pxHint', { px: scalePx }))
+            h('span', { className: 'zp-hint' }, t('panel.type.pxHint', { px: scalePx })),
+            pref.fontScale !== 100 && HOST_TEXT_STATS && HOST_TEXT_STATS.rules === 0
+              ? h('span', { className: 'zp-hint' }, t('panel.type.scaleMiss'))
+              : null
           ),
           h(Row, { label: t('panel.type.fontRow') },
             // 受控下拉：只列包内真正 @font-face 注册过的族名。自由输入一旦写错，

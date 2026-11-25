@@ -170,6 +170,11 @@
         "attribute": "data-ds-dark-theme",
         "usedFor": "宿主暗色主题标记（写在 body 上）",
         "breaksIfMissing": "明暗判定失效，按明暗取色的逻辑走错分支"
+      },
+      {
+        "attribute": "data-zr-hosttext",
+        "usedFor": "界面文字缩放：在 shadow root 内标记我们注入的那张 <style>，重算时据此复用/清理，避免同一 root 里叠出多张互相放大的表",
+        "breaksIfMissing": "shadow root 里的缩放样式无法被识别：改字号时重复插入导致字号被连乘放大（k²），关掉缩放时又漏删、残留旧倍率"
       }
     ]
   },
