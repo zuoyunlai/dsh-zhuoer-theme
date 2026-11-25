@@ -159,6 +159,10 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
     // 收到 0.48（−23%），层次还在，边缘不再发闷。
     // 浅色压到 0.22，只留一点贴边层次，不再是黑框。
     const SHADOW_STRENGTH = { dark: 0.48, light: 0.22 };
+    // 自定义主题上限：读、写、导入三处共用。必须留在模块作用域——
+    // 0.6.19 曾把它误插进 readPref() 内部，导致「新建主题」按钮点下去抛
+    // ReferenceError: CUSTOM_MAX is not defined，而所有静态门与渲染冒烟门都是绿的。
+    const CUSTOM_MAX = 24;
     const SHADOWS = {"zhuoer":{"sm":"0 1px 2px #00000040","lg":"0 12px 32px #0006","xl":"0 24px 48px #00000080"},"absolutely":{"sm":"0 1px 2px rgba(0, 0, 0, 0.35)","lg":"0 12px 32px rgba(0, 0, 0, 0.55)","xl":"0 24px 48px rgba(0, 0, 0, 0.65)"},"beacon":{"sm":"0 1px 2px rgba(0, 0, 0, 0.9)","lg":"0 12px 32px rgba(0, 0, 0, 0.95)","xl":"0 24px 48px rgba(0, 0, 0, 0.98)"},"crt":{"sm":"0 1px 2px rgba(0, 0, 0, 0.45)","lg":"0 12px 32px rgba(0, 0, 0, 0.65)","xl":"0 24px 48px rgba(0, 0, 0, 0.75)"},"dash":{"sm":"0 1px 2px rgba(10, 6, 4, 0.35)","lg":"0 12px 32px rgba(10, 6, 4, 0.55)","xl":"0 24px 48px rgba(10, 6, 4, 0.65)"},"knot":{"sm":"0 1px 2px rgba(0, 0, 0, 0.4)","lg":"0 12px 32px rgba(0, 0, 0, 0.6)","xl":"0 24px 48px rgba(0, 0, 0, 0.7)"},"manuscript":{"sm":"0 1px 2px rgba(60, 45, 20, 0.06)","lg":"0 12px 28px rgba(60, 45, 20, 0.1)","xl":"0 24px 48px rgba(60, 45, 20, 0.14)"},"miami":{"sm":"0 1px 2px rgba(4, 0, 14, 0.45)","lg":"0 12px 32px rgba(4, 0, 14, 0.65)","xl":"0 24px 48px rgba(4, 0, 14, 0.75)"},"phosphor":{"sm":"0 1px 2px rgba(0, 6, 2, 0.4)","lg":"0 12px 32px rgba(0, 6, 2, 0.6)","xl":"0 24px 48px rgba(0, 6, 2, 0.7)"},"rose":{"sm":"0 1px 2px rgba(6, 4, 12, 0.4)","lg":"0 12px 32px rgba(6, 4, 12, 0.6)","xl":"0 24px 48px rgba(6, 4, 12, 0.7)"},"tide":{"sm":"0 1px 2px rgba(2, 6, 12, 0.4)","lg":"0 12px 32px rgba(2, 6, 12, 0.6)","xl":"0 24px 48px rgba(2, 6, 12, 0.7)"},"vintage-paper":{"sm":"2px 3px 5px 0px hsl(28 13% 20% / 0.12), 2px 1px 2px -1px hsl(28 13% 20% / 0.12)","lg":"2px 3px 5px 0px hsl(28 13% 20% / 0.12), 2px 4px 6px -1px hsl(28 13% 20% / 0.12)","xl":"2px 3px 5px 0px hsl(28 13% 20% / 0.12), 2px 8px 10px -1px hsl(28 13% 20% / 0.12)"}};
 
     function readPref() {
@@ -166,7 +170,6 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
         const raw = window.localStorage.getItem(STORE);
         const p = raw ? JSON.parse(raw) : {};
         // 自定义主题：只存锚点，上限 CUSTOM_MAX 套（写入前判、读取再截一次兜底）；theme 既可以是内置 id，也可以是自定义 id
-    const CUSTOM_MAX = 24;
         const customs = (Array.isArray(p.customThemes) ? p.customThemes : [])
           .slice(0, CUSTOM_MAX).map(sanitizeCustomSpec).filter(Boolean);
         const themeKnown = THEME_IDS.indexOf(p.theme) !== -1

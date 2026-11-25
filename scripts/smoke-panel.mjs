@@ -169,6 +169,10 @@ const seen = new Set()
 const names = []
 const texts = []
 const attrs = []
+// 渲染通过不等于「按钮能用」：0.6.19 的 CUSTOM_MAX 被误插进 readPref()，
+// 静态门与渲染冒烟全绿，用户点「新建主题」却抛 ReferenceError（面板毫无反应）。
+// 这里额外点一次这个按钮，把「事件处理里才会炸的错」也纳入门禁。
+const clicks = []
 function walk(node, depth) {
   if (node === null || node === undefined || node === false || node === true) return
   if (typeof node === 'string' || typeof node === 'number') { texts.push(String(node)); return }
@@ -198,6 +202,9 @@ function walk(node, depth) {
     walk(out, depth + 1)
     return
   }
+  if (node.props && typeof node.props.onClick === 'function' && /zp-th-add/.test(String(node.props.className || ''))) {
+    clicks.push(node)
+  }
   if (node.children && node.children.length) for (const c of node.children) walk(c, depth + 1)
 }
 
@@ -214,6 +221,34 @@ if (dumpPath) {
   writeFileSync(dumpPath, JSON.stringify({ texts, attrs }, null, 2))
   console.log('DUMP  ' + texts.length + ' 条文案 / ' + attrs.length + ' 个属性 → ' + dumpPath)
   process.exit(0)
+}
+
+// 点击冒烟：只点「新建自定义主题」这一颗——它会走 writePref + emitChange + applyTokens，
+// 覆盖「存储写入 / 状态通知 / token 重算」整条链路，是在不弹真窗口的前提下能点的最重的一颗。
+if (clicks.length === 0) {
+  console.error('FAIL  没找到「新建主题」按钮：点击冒烟无法进行（按钮类名可能被改）')
+  process.exit(1)
+}
+for (const btn of clicks.slice(0, 1)) {
+  try {
+    btn.props.onClick({ preventDefault() {}, stopPropagation() {} })
+  } catch (e) {
+    console.error('FAIL  点击「新建主题」抛出：' + (e && e.message))
+    console.error(String((e && e.stack) || '').split('\n').slice(0, 5).join('\n'))
+    process.exit(1)
+  }
+}
+// 不猜存储键名：扫全部 localStorage 条目，找带 customThemes 的那一份
+let added = 0
+for (const k of store.keys()) {
+  try {
+    const parsed = JSON.parse(store.get(k))
+    if (parsed && Array.isArray(parsed.customThemes)) added = Math.max(added, parsed.customThemes.length)
+  } catch (e) { /* 非 JSON 条目跳过 */ }
+}
+if (added < 1) {
+  console.error('FAIL  点击「新建主题」后存储里没有新增自定义主题（customThemes=' + added + '）')
+  process.exit(1)
 }
 
 if (!names.some((n) => /SkinSettings/.test(n))) {
