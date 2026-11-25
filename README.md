@@ -250,9 +250,15 @@ icon.svg             插件页图标（package.json 的 "icon" 指向它）
 
 ## 发布
 
-发版走标签触发的 CI，不在本地 `npm publish`：
+发版走标签触发的 CI，不在本地 `npm publish`。
 
-1. 升版本：`package.json` + `src/00-core.js` 的 `PVERSION`，写 CHANGELOG。
+**攒批发版：版本号只在发布那一刻升一次。** 平时改代码、抽文案、加门禁都**不动**
+`package.json` 与 `PVERSION`，CHANGELOG 里按批次累加条目即可（例如 0.6.15、0.6.16 是一起攒着、
+尚未发布的两批）。理由：每改一下就升版本，会得到一堆「有版本号但从没发出去」的编号，
+用户看 npm 只会困惑哪个才是最新的，而发版本身要跑一遍全链路，代价固定。
+
+1. **发布时**才升版本：`package.json` + `src/00-core.js` 的 `PVERSION` 一次改到位，
+   CHANGELOG 顶部补一条汇总（写清这批里有哪些批次）。
 2. `npm test` 全绿后提交，**再跑 `npm run verify:release`**（按内容哈希比对工作区与 HEAD，抓「同长度编辑被 git stat 缓存吞掉」这种坑），然后打 tag `v<version>` 并推送。
 3. GitHub Actions 校验 tag 与版本一致、跑门禁，然后 OIDC 发布到 npm 并生成 Release。
    产物带 `slsa.dev/provenance/v1` 证明。
