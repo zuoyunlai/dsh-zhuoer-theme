@@ -4,8 +4,8 @@
     "src/00-core.js": 0,
     "src/05-i18n.js": 0,
     "src/10-themes.js": 39,
-    "src/20-tokens-and-panel.js": 118,
+    "src/20-tokens-and-panel.js": 100,
     "src/30-quicknav.js": 11
   },
-  "total": 168
+  "total": 150
 }

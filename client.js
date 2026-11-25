@@ -42,7 +42,7 @@ window.__ModuleLoader__.load({
       } catch (e) { /* ignore */ }
     }
     // 版本号唯一源：面板文案与自检回传都用它，别再出现「构建 0.1.101」这种漂移。
-    const PVERSION = '0.6.13';
+    const PVERSION = '0.6.14';
     // 诊断探针总闸：默认关闭，开启方式 localStorage['dsh-zhuoer-theme:debug'] = '1'。
     // 下面若干探针会在每次 apply 时全文档遍历 DOM、逐元素 getComputedStyle、扫 styleSheets，
     // 是「启动 / 切主题卡顿」的主要来源之一，只在排障时打开。
@@ -92,6 +92,25 @@ window.__ModuleLoader__.load({
         'panel.brand.autoHint': '不选图 = 用主题自带 logo；上传则压到最长边 512px',
         'panel.brand.replacedHint': '已替换。宿主若升级改动徽标结构，这里会静默回退到原生。',
 
+        // 设置面板 · 外观头部 + 配色主题
+        'panel.header.title': '外观',
+        'panel.header.count': '共 {n} 套配色',
+        'panel.header.live': '改动即时生效',
+        'panel.theme.title': '配色主题',
+        'panel.theme.note': '选中即应用，深浅模式决定取哪一套 token',
+        'panel.theme.modeRow': '模式',
+        'panel.theme.modeAria': '明暗模式',
+        'panel.theme.optLight': '浅色',
+        'panel.theme.optDark': '深色',
+        'panel.theme.optAuto': '跟随系统',
+        'panel.theme.addTitle': '新建自定义主题（克隆当前主题）',
+        'panel.theme.addLabel': '新建主题',
+        'panel.theme.edit': '编辑配色',
+        'panel.theme.duplicate': '复制',
+        'panel.theme.exportJson': '导出 JSON',
+        'panel.theme.delete': '删除',
+        'panel.theme.importJson': '导入 JSON',
+
         // 设置面板 · 背景底图
         'panel.bg.title': '背景底图',
         'panel.bg.note': '只铺主栏，左栏与输入框保持主题实色',
@@ -136,6 +155,25 @@ window.__ModuleLoader__.load({
         'panel.brand.remove': 'Remove',
         'panel.brand.autoHint': 'No image = built-in logo; uploads are downscaled to 512px max edge',
         'panel.brand.replacedHint': 'Replaced. If a host upgrade changes the badge structure, this silently falls back to native.',
+
+        // Settings panel · appearance header + color theme
+        'panel.header.title': 'Appearance',
+        'panel.header.count': '{n} palettes',
+        'panel.header.live': 'Changes apply instantly',
+        'panel.theme.title': 'Color theme',
+        'panel.theme.note': 'Picking applies immediately; light/dark decides which token set is used',
+        'panel.theme.modeRow': 'Mode',
+        'panel.theme.modeAria': 'Color mode',
+        'panel.theme.optLight': 'Light',
+        'panel.theme.optDark': 'Dark',
+        'panel.theme.optAuto': 'Follow system',
+        'panel.theme.addTitle': 'Create a custom theme (cloned from the current one)',
+        'panel.theme.addLabel': 'New theme',
+        'panel.theme.edit': 'Edit colors',
+        'panel.theme.duplicate': 'Duplicate',
+        'panel.theme.exportJson': 'Export JSON',
+        'panel.theme.delete': 'Delete',
+        'panel.theme.importJson': 'Import JSON',
 
         // Settings panel · background image
         'panel.bg.title': 'Background image',
@@ -3185,7 +3223,8 @@ function applyTokens(theme, pref) {
       };
 
       // 顺序与宿主「设置-通用设置」的三态一致：浅色 / 深色 / 跟随系统。
-      const modes = [['light', '浅色'], ['dark', '深色'], ['auto', '跟随系统']];
+      // 模式选项文案随语言变化：用函数在渲染时取。
+      const modes = function () { return [['light', t('panel.theme.optLight')], ['dark', t('panel.theme.optDark')], ['auto', t('panel.theme.optAuto')]]; };
       // 选项文案随语言变化：用函数在渲染时取，避免把语言烤进常量。
         const sources = function () { return [['none', t('panel.bg.optNone')], ['theme', t('panel.bg.optTheme')], ['image', t('panel.bg.optImage')]]; };
       const styles = function () { return [['fade', t('panel.bg.optFade')], ['full', t('panel.bg.optFull')]]; };
@@ -3315,18 +3354,18 @@ function applyTokens(theme, pref) {
             })
           : null,
         h('div', { className: 'zp-hd' },
-          h('div', { className: 'zp-hd-t' }, '外观'),
+          h('div', { className: 'zp-hd-t' }, t('panel.header.title')),
           h('div', { className: 'zp-hd-m' },
             h('span', { className: 'zp-tag' }, themeName),
-            h('span', null, labelOf(modes, modeNow)),
-            h('span', null, '共 ' + THEME_IDS.length + ' 套配色'),
-            h('span', null, '改动即时生效')
+            h('span', null, labelOf(modes(), modeNow)),
+            h('span', null, t('panel.header.count', { n: THEME_IDS.length })),
+            h('span', null, t('panel.header.live'))
           )
         ),
 
-        h(Section, { title: '配色主题', note: '选中即应用，深浅模式决定取哪一套 token' },
-          h(Row, { label: '模式' },
-            h(Pills, { label: '明暗模式', opts: modes, value: modeNow,
+        h(Section, { title: t('panel.theme.title'), note: t('panel.theme.note') },
+          h(Row, { label: t('panel.theme.modeRow') },
+            h(Pills, { label: t('panel.theme.modeAria'), opts: modes(), value: modeNow,
               onChange: function (v) { syncMode(v); } })
           ),
           h('div', { className: 'zp-ths' },
@@ -3350,26 +3389,26 @@ function applyTokens(theme, pref) {
               });
             }),
             h('button', {
-              type: 'button', className: 'zp-th zp-th-add', title: '新建自定义主题（克隆当前主题）',
+              type: 'button', className: 'zp-th zp-th-add', title: t('panel.theme.addTitle'),
               onClick: newCustom,
             },
               h('span', { className: 'zp-th-p zp-th-p-add', 'aria-hidden': 'true' }, '+'),
-              h('span', { className: 'zp-th-n' }, h('span', { className: 'zp-th-nm' }, '新建主题'))
+              h('span', { className: 'zp-th-n' }, h('span', { className: 'zp-th-nm' }, t('panel.theme.addLabel')))
             )
           ),
           currentCustom
             ? h('div', { className: 'zp-cus-acts' },
-                h('button', { type: 'button', className: 'zp-btn', onClick: function () { openEditor(currentCustom); } }, '编辑配色'),
-                h('button', { type: 'button', className: 'zp-btn', onClick: duplicateCustom }, '复制'),
-                h('button', { type: 'button', className: 'zp-btn', onClick: exportCustom }, '导出 JSON'),
-                h('button', { type: 'button', className: 'zp-btn', 'data-tone': 'danger', onClick: deleteCustom }, '删除')
+                h('button', { type: 'button', className: 'zp-btn', onClick: function () { openEditor(currentCustom); } }, t('panel.theme.edit')),
+                h('button', { type: 'button', className: 'zp-btn', onClick: duplicateCustom }, t('panel.theme.duplicate')),
+                h('button', { type: 'button', className: 'zp-btn', onClick: exportCustom }, t('panel.theme.exportJson')),
+                h('button', { type: 'button', className: 'zp-btn', 'data-tone': 'danger', onClick: deleteCustom }, t('panel.theme.delete'))
               )
             : null,
           h('div', { className: 'zp-cus-acts' },
             h('button', {
               type: 'button', className: 'zp-btn',
               onClick: function () { setEditing(null); setJsonIO({ mode: 'import', text: '' }); },
-            }, '导入 JSON')
+            }, t('panel.theme.importJson'))
           )
         ),
 

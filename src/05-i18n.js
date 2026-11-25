@@ -31,6 +31,25 @@
         'panel.brand.autoHint': '不选图 = 用主题自带 logo；上传则压到最长边 512px',
         'panel.brand.replacedHint': '已替换。宿主若升级改动徽标结构，这里会静默回退到原生。',
 
+        // 设置面板 · 外观头部 + 配色主题
+        'panel.header.title': '外观',
+        'panel.header.count': '共 {n} 套配色',
+        'panel.header.live': '改动即时生效',
+        'panel.theme.title': '配色主题',
+        'panel.theme.note': '选中即应用，深浅模式决定取哪一套 token',
+        'panel.theme.modeRow': '模式',
+        'panel.theme.modeAria': '明暗模式',
+        'panel.theme.optLight': '浅色',
+        'panel.theme.optDark': '深色',
+        'panel.theme.optAuto': '跟随系统',
+        'panel.theme.addTitle': '新建自定义主题（克隆当前主题）',
+        'panel.theme.addLabel': '新建主题',
+        'panel.theme.edit': '编辑配色',
+        'panel.theme.duplicate': '复制',
+        'panel.theme.exportJson': '导出 JSON',
+        'panel.theme.delete': '删除',
+        'panel.theme.importJson': '导入 JSON',
+
         // 设置面板 · 背景底图
         'panel.bg.title': '背景底图',
         'panel.bg.note': '只铺主栏，左栏与输入框保持主题实色',
@@ -75,6 +94,25 @@
         'panel.brand.remove': 'Remove',
         'panel.brand.autoHint': 'No image = built-in logo; uploads are downscaled to 512px max edge',
         'panel.brand.replacedHint': 'Replaced. If a host upgrade changes the badge structure, this silently falls back to native.',
+
+        // Settings panel · appearance header + color theme
+        'panel.header.title': 'Appearance',
+        'panel.header.count': '{n} palettes',
+        'panel.header.live': 'Changes apply instantly',
+        'panel.theme.title': 'Color theme',
+        'panel.theme.note': 'Picking applies immediately; light/dark decides which token set is used',
+        'panel.theme.modeRow': 'Mode',
+        'panel.theme.modeAria': 'Color mode',
+        'panel.theme.optLight': 'Light',
+        'panel.theme.optDark': 'Dark',
+        'panel.theme.optAuto': 'Follow system',
+        'panel.theme.addTitle': 'Create a custom theme (cloned from the current one)',
+        'panel.theme.addLabel': 'New theme',
+        'panel.theme.edit': 'Edit colors',
+        'panel.theme.duplicate': 'Duplicate',
+        'panel.theme.exportJson': 'Export JSON',
+        'panel.theme.delete': 'Delete',
+        'panel.theme.importJson': 'Import JSON',
 
         // Settings panel · background image
         'panel.bg.title': 'Background image',

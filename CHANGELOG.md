@@ -2,6 +2,44 @@
 
 按时间倒序。每条都写「为什么改」，而不只是改了什么。
 
+## 0.6.14（面板冒烟门 + 外观/配色 20 条入词典）
+
+**新增一道真能抓到「面板渲染时炸」的门：`verify:panel`。** 0.6.11 那个
+`t is not defined` 的教训是：静态门（语法、版本、资产、对比度）全绿，视觉门在比旧图，
+而错误只在**渲染的那一刻**抛出。0.6.13 的修法解决了症状，没解决「下次还会被骗」。
+
+`scripts/smoke-panel.mjs` 在 Node 里搭一套最小宿主替身（假 `window`/`document`/
+`localStorage` + 假 `require('react')`：真实 `createElement` 语义 + 单遍 hook 垫片，
+含 `props.children`、`Component.isReactComponent`），加载构建出的 `client.js`，调
+`apply(ctx)` 收下 `settings.section` 的渲染函数，**把面板真的走一遍**（当前 35 个组件，
+必须出现 `SkinSettings`，否则门自己判红——不做「注册了就算过」的假绿）。
+
+**这道门做过接种测试**：把 `const t = zrT` 改成 `const t = null` 重建，门退出码 1；
+还原后退出码 0。证明它不是空跑。
+
+**外观头部 + 配色主题 20 条文案入词典**（`panel.header.*` 3 条、`panel.theme.*` 17 条，zh/en 各一套）。
+`modes` 由静态数组改成函数，渲染时取词；棘轮基线收紧 **168 → 150**（面板 118 → 100）。
+
+**「中文渲染逐字未变」这次是机器判的，不是目测。** 桌面端 GUI 拿不到访问令牌，于是给 `verify:panel`
+加了 `--dump` 模式：把 0.6.13 与 0.6.14 两版 bundle 各渲染一遍，导出面板里**所有文本节点与属性**
+（`title`/`aria-label`/`placeholder`/`alt`），逐条比对 —— **131 条完全相同**（版本号归一化）。
+这比「整窗截图 0.000%」更贴题：变的只是取词方式（字面量 → `t()`），文案本身一个不差。
+
+**顺带发现旧基线的口径是错的，已改。** 旧基线是**整窗截图**（1264×771）。为了重采，我起了个临时
+profile 实例装上本插件，同一视口再截，光态差异 **4.714%** —— 差异全在左侧会话列表（不同实例的会话
+历史不同），面板本身一模一样。也就是说整窗基线把「场景内容」焊进了基线，换台机器重采会假红。
+现在基线改为**面板本体**（`.zp-root`，559×1236，两态），CSS 基线同时改为
+「插件注入的 3 个 style 块按 DOM 序拼接」，两者都可稳定复现；重采后两态都是 **0.000%**、
+CSS **逐字节一致（60,004 B）**，且不再有陈旧告警。
+
+**English summary** — adds `verify:panel`: a Node-side smoke gate that renders the settings
+panel through a minimal host/React shim and fails on any render-time error (mutation-tested:
+`t = null` ⇒ exit 1). Appearance header + color-theme sections (20 strings) now resolve via the
+shared dictionary; bare-Chinese ratchet baseline 168 → 150. Text equality is machine-checked:
+the 0.6.13 and 0.6.14 bundles render **131 identical strings/attributes**. The old whole-window
+pixel baseline was scene-coupled (4.714% diff came from the sidebar session list, not the panel),
+so baselines are now panel-only (`.zp-root`, both modes) and re-captured: 0.000% / byte-identical CSS.
+
 ## 0.6.13（修 0.6.11 的面板报错，请务必升级）
 
 **0.6.11 / 0.6.12 的设置面板会直接显示「重试 / 刷新页面」** —— 面板里调了 `t()`，但 0.6.10 只在

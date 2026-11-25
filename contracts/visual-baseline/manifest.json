@@ -6,15 +6,15 @@
   "images": [
     {
       "file": "settings-dark.png",
-      "w": 1264,
-      "h": 771,
-      "sha256": "cf689df8f74833f6c4c72a4fdbb64ada3d492c50b66fbad21aa71e019e29b4ae"
+      "w": 559,
+      "h": 1236,
+      "sha256": "e4692dd2130230c2d69339542b1029fa9c19d6c6e6a713077d5b6a2d13a2438e"
     },
     {
       "file": "settings-light.png",
-      "w": 1264,
-      "h": 771,
-      "sha256": "db290ae48926d6ffebd2daad98ff0ef6629fd9b2376aac0f87ad13b697ac2337"
+      "w": 559,
+      "h": 1236,
+      "sha256": "b6d810060591095aa118c29d74d89a6939f8ddb5f6a07b395043cd9a814116a1"
     }
   ]
 }
