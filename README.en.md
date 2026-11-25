@@ -4,7 +4,7 @@ A skin plugin that recolours the whole DSH UI: **12 built-in themes + 12 style p
 
 > **English** ｜ [中文](README.md)
 
-- Colours go through the host theme service: `ctx.theme.overrideTokens()` maps each theme onto DSH's `--dsw-alias-*` tokens (222 per theme). No DOM hijacking, no injected host components.
+- Colours go through the host theme service: `ctx.theme.overrideTokens()` maps each theme onto DSH's `--dsw-alias-*` tokens (224 per theme). No DOM hijacking, no injected host components.
 - **Fully local**: no account, no telemetry, no external network calls. The only network activity is the host's own model when you press "Generate" in the editor.
 - Light / dark / follow-system is **two-way synced** with the host's Settings → Appearance: changing either side updates the other.
 - Current version **0.6.18**, MIT.
@@ -23,7 +23,7 @@ The UI shown is the Chinese one (same components in English; see [README.md](REA
 
 | Feature | Notes |
 |---|---|
-| Built-in themes | 11, each with light and dark token sets (222 tokens each) |
+| Built-in themes | 12, each with light and dark token sets (224 tokens each) |
 | Style presets | 12 (Glassmorphism, Neo-brutalism, Swiss International, Editorial, Luxury minimal, Organic, Morandi, Paper, Cyber terminal, Aurora, Developer terminal, Deep space) — one click fills anchors + radius + fonts |
 | Custom themes | Clone a built-in theme and tune only 8 anchor colours; everything else is derived by relative offset. Only anchors are stored, not the full token set |
 | AI generation | Turns a style description into anchors using the host's current model; the returned theme name pre-fills the Name field |
@@ -34,7 +34,7 @@ The UI shown is the Chinese one (same components in English; see [README.md](REA
 | Settings-section icon | Registered into the `settings.section.icon` slot, so the "Zhuoer 主题" row shows the same red Z (an `icon` field on the registration is ignored — do not use that mechanism) |
 | Market icon | `assets/icon-180.png` (180×180, rasterised from `assets/logo/zhuoer.svg`) |
 | Brand slot | Replaces the deepseek HARNESS wordmark; off by default. When on it uses the theme's own logo unless you upload an image (downscaled to 512px on the long edge) |
-| Message text size | Five steps (90 / 100 / 110 / 125 / 140), **text only** (messages + Markdown). Use the host's own UI zoom for whole-app scaling: injecting `body{zoom}` breaks the host's sidebar-drag coordinate math |
+| Text size | Five steps (90 / 100 / 110 / 125 / 140), enlarging **UI copy and message body** (three text paths: `--dsw-font-*` scaling, `--dsh-content-font-*` assignment, and a build-time host-class size table). No geometric zoom is injected — `body{zoom}` breaks the host's sidebar-drag coordinate math and is banned by the gate |
 | Accent colour | Candidate colours per theme plus a free colour picker; button foregrounds are derived to stay readable |
 | UI font | Override the UI font family; CJK glyphs fall back to the bundled subsets |
 | Right-sidebar quick nav | Three modes: off / show three with hover expansion / show all |
@@ -232,6 +232,7 @@ npm run coverage      # token coverage and the "deliberately not derived" allowl
 | `verify:build` | `client.js` is byte-identical to re-concatenating `src/` |
 | `verify:version` | `PVERSION`, `package.json` and the quoted three-part version string agree (block comments stripped first, so `s5.4.7` inside an SVG path is not mistaken for a version) |
 | `verify:contrast` | 11 themes × 2 schemes: body/hint/success and button foregrounds ≥ 4.5:1; the 12 presets are recomputed through the real `buildCustomTokens` |
+| `gen:hosttext` | Re-extract the host class → font-size table from `app.asar` (`src/15-host-text.js`). Run once after a host upgrade; skipping it only mismatches some sizes, never breaks interaction |
 | `verify:scale` | Font scaling may touch text size only: **`body{zoom}` is banned** (it breaks the host's sidebar-drag hit testing); `--dsw-font-*` px scaling and `--dsh-content-font-*` assignments must both be present |
 | `verify:themes` | Inlined copies equal the source token by token, both schemes complete, contrast met |
 | `verify:host` | Host selectors reconciled with the contract, plus two silent-failure checks: contract id fragments still present, plugin icon triple (`icon` / `files` / `exports`) complete |
