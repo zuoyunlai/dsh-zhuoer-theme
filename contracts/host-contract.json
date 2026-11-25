@@ -6,6 +6,13 @@
     "强制你更新这份清单（并提醒同步 README 与验证）。"
   ],
   "host": {
+    "idFragments": [
+      {
+        "fragment": "dsh-wordmark-badge-clip",
+        "usedFor": "左上角 deepseek HARNESS 徽标的「HARNESS」牌裁切路径；品牌位替换靠 svg:has() 命中它",
+        "breaksIfMissing": "自定义品牌位静默失效，左上角回退成宿主原生徽标（不报错、只在界面上看得出来）"
+      }
+    ],
     "classFragments": [
       {
         "fragment": "_frame",

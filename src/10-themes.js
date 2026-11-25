@@ -180,6 +180,10 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
           uiFont: typeof p.uiFont === 'string' ? p.uiFont.slice(0, 60) : '',
           // 右侧栏快捷导航：off 关闭 / three 只露三个（悬停展开）/ all 全部常驻
           quicknav: p.quicknav === 'off' || p.quicknav === 'all' ? p.quicknav : 'three',
+          // 品牌位（左上角 deepseek HARNESS 徽标）：默认关 = 用宿主原生。
+          // 开启且已有图时，客户端把 svg 内部置透明、在 <svg> 盒子上铺这张图。
+          brandLogo: p.brandLogo === true,
+          brandImage: typeof p.brandImage === 'string' && p.brandImage.indexOf('data:image/') === 0 ? p.brandImage : '',
         };
       } catch (e) {
         return { customThemes: [], theme: 'zhuoer', mode: 'auto', bgSource: 'none', bgStyle: 'fade', bgOpacity: 85, bgImage: '', bgOnEmpty: true, bgOnSession: true, fontScale: 100, accent: '', uiFont: '', quicknav: 'three' };

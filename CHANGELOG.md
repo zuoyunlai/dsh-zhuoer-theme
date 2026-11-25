@@ -2,6 +2,25 @@
 
 按时间倒序。每条都写「为什么改」，而不只是改了什么。
 
+## 0.6.0
+
+新功能：**品牌位**——把左上角那枚 deepseek HARNESS 徽标换成自己的图，设置页可开关、可上传、可移除。
+
+**为什么只能这么做。** 那枚徽标在宿主里是一个内联 `<svg>`：鲸鱼图标是 `path`、「HARNESS」白底牌是
+`rect`、牌子里 7 个字母是 `<g clipPath="url(#dsh-wordmark-badge-clip)">` 里的 `path`。SVG 子节点只认
+`fill` / `stroke`，不认 `background`，也无法往里塞文字——所以「只换 HARNESS 那几个字」做不到，
+能做的只有整枚替换：把内部节点 `opacity:0`，再给 `<svg>` 这个 **HTML 盒子**铺 `background-image`。
+
+**默认关闭。** 打开且已选图才生效；关了立刻回退宿主原生。理由是这是 DeepSeek 的官方标识——
+个人换无所谓，但让所有装插件的人跟着变不该是默认行为。
+
+**图片处理。** 选图后压到最长边 512px、存 PNG（换掉的 logo 多是透明底，转 JPEG 会糊成一块），
+写进 localStorage 而不是 IndexedDB——这张图比底图小两个数量级，没必要动用索引库。
+
+**已知代价。** 宿主一旦改掉 `#dsh-wordmark-badge-clip` 这个 id，替换会**静默失效**（不报错，只是变回
+原生徽标）。已在 `contracts/host-contract.json` 的 `idFragments` 里登记；注意 `verify:host` 目前
+只扫 class 片段与属性，**id 尚未被门禁强制**，所以这条登记是文档而不是闸门。
+
 ## 0.5.9
 
 backlog 四条的收口。两条落成代码，一条落成门禁，一条量清后决定不做。

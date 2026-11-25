@@ -42,7 +42,7 @@ window.__ModuleLoader__.load({
       } catch (e) { /* ignore */ }
     }
     // 版本号唯一源：面板文案与自检回传都用它，别再出现「构建 0.1.101」这种漂移。
-    const PVERSION = '0.5.9';
+    const PVERSION = '0.6.0';
     // 诊断探针总闸：默认关闭，开启方式 localStorage['dsh-zhuoer-theme:debug'] = '1'。
     // 下面若干探针会在每次 apply 时全文档遍历 DOM、逐元素 getComputedStyle、扫 styleSheets，
     // 是「启动 / 切主题卡顿」的主要来源之一，只在排障时打开。
@@ -241,6 +241,10 @@ window.__ModuleLoader__.load({
           uiFont: typeof p.uiFont === 'string' ? p.uiFont.slice(0, 60) : '',
           // 右侧栏快捷导航：off 关闭 / three 只露三个（悬停展开）/ all 全部常驻
           quicknav: p.quicknav === 'off' || p.quicknav === 'all' ? p.quicknav : 'three',
+          // 品牌位（左上角 deepseek HARNESS 徽标）：默认关 = 用宿主原生。
+          // 开启且已有图时，客户端把 svg 内部置透明、在 <svg> 盒子上铺这张图。
+          brandLogo: p.brandLogo === true,
+          brandImage: typeof p.brandImage === 'string' && p.brandImage.indexOf('data:image/') === 0 ? p.brandImage : '',
         };
       } catch (e) {
         return { customThemes: [], theme: 'zhuoer', mode: 'auto', bgSource: 'none', bgStyle: 'fade', bgOpacity: 85, bgImage: '', bgOnEmpty: true, bgOnSession: true, fontScale: 100, accent: '', uiFont: '', quicknav: 'three' };
@@ -1507,6 +1511,16 @@ window.__ModuleLoader__.load({
           ' [class*="_markdown_"] :not(pre) > code{background:var(--dsw-alias-markdown-inline-code) !important;}' +
           ' [class*="_markdown_"] .md-code-block{background:var(--dsw-alias-markdown-code-block) !important;}' +
           ' [class*="_markdown_"] pre{background:transparent !important;}';
+        // 品牌位：宿主左上角那枚徽标是一个内联 <svg>，内部含 #dsh-wordmark-badge-clip。
+        // SVG 子节点只认 fill / stroke，不认 background，也没法往里塞文字 —— 所以「换图」只有一条路：
+        // 把内部节点置透明，再给 <svg> 这个 HTML 盒子铺背景图（svg 在 CSS 里就是个普通盒子）。
+        // 盒子尺寸由宿主的 width/height 决定，用 contain + 贴左居中：比例不匹配时留白，不会裁切。
+        const brandCss = (pref.brandLogo && pref.brandImage)
+          ? 'html svg:has(#dsh-wordmark-badge-clip)>*{opacity:0 !important;}'
+            + 'html svg:has(#dsh-wordmark-badge-clip){background-image:url("' + pref.brandImage + '") !important;'
+            + 'background-size:contain !important;background-position:left center !important;'
+            + 'background-repeat:no-repeat !important;}'
+          : '';
         const bgCss = bgUrl
           ? (function () {
               // 蒙层颜色必须跟随明暗：深色用暗罩，浅色用白罩。
@@ -1682,7 +1696,7 @@ window.__ModuleLoader__.load({
             fontEl.__zrCss = fontFaceCss;
           }
         } catch (e) { /* ignore */ }
-        const nextCss = css + extra + bgCss + fxCss;
+        const nextCss = css + extra + bgCss + fxCss + brandCss;
         const styleEl = ensureStyle();
         if (styleEl.__zrCss !== nextCss) {
           styleEl.textContent = nextCss;
@@ -3021,6 +3035,33 @@ window.__ModuleLoader__.load({
         reader.readAsDataURL(file);
       };
 
+      // 品牌位图片：比底图小得多（徽标高约 24px），压到最长边 512 就够，直接存 localStorage。
+      // 存 PNG 而不是 JPEG：换掉的 logo 大多是透明底，转 JPEG 会糊成一块白/黑。
+      const pickBrand = function (file) {
+        if (file.size > 2 * 1024 * 1024) {
+          try { window.alert('图片不能超过 2 MiB'); } catch (e) { /* ignore */ }
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = function () {
+          try {
+            const img = new Image();
+            img.onload = function () {
+              const max = 512;
+              const scale = Math.min(1, max / Math.max(img.width, img.height));
+              const cv = document.createElement('canvas');
+              cv.width = Math.max(1, Math.round(img.width * scale));
+              cv.height = Math.max(1, Math.round(img.height * scale));
+              const cx = cv.getContext('2d');
+              if (cx) cx.drawImage(img, 0, 0, cv.width, cv.height);
+              set({ brandImage: cv.toDataURL('image/png'), brandLogo: true });
+            };
+            img.src = String(reader.result);
+          } catch (e) { /* ignore */ }
+        };
+        reader.readAsDataURL(file);
+      };
+
       // 重置 = 删掉存储键本身，而不是写一份「默认值对象」：
       // readPref 对缺字段有内置默认，删键才是真正的「回到初始状态」，
       // 也避免以后新增字段时重置漏写一个。
@@ -3175,6 +3216,44 @@ window.__ModuleLoader__.load({
             )
           ),
           bgOn ? null : h('div', { className: 'zp-hint' }, '当前未启用底图，以上样式会在选中来源后生效。')
+        ),
+
+        h(Section, { title: '品牌位', note: '左上角 deepseek HARNESS 徽标；关闭时用宿主原生' },
+          h(Row, { label: '启用' },
+            h('label', { className: 'zp-chk' },
+              h('input', {
+                type: 'checkbox', checked: pref.brandLogo === true,
+                onChange: function (ev) { set({ brandLogo: Boolean(ev.target.checked) }); },
+              }),
+              '用自定义图片替换'
+            ),
+            pref.brandLogo && !pref.brandImage
+              ? h('span', { className: 'zp-hint' }, '还没选图，启用也不会生效')
+              : null
+          ),
+          h(Row, { label: '图片' },
+            h('label', { className: 'zp-btn zp-file' }, pref.brandImage ? '更换图片…' : '选择图片…',
+              h('input', {
+                type: 'file', accept: 'image/png,image/jpeg,image/webp',
+                onChange: function (ev) {
+                  const file = ev.target.files && ev.target.files[0];
+                  // 选同一个文件不会再触发 change，先清空 value 才能重选
+                  try { ev.target.value = ''; } catch (e) { /* ignore */ }
+                  if (file) pickBrand(file);
+                },
+              })
+            ),
+            pref.brandImage ? h('img', { className: 'zp-thumb', alt: '当前品牌位预览', src: pref.brandImage }) : null,
+            pref.brandImage
+              ? h('button', {
+                  type: 'button', className: 'zp-btn',
+                  onClick: function () { set({ brandImage: '', brandLogo: false }); },
+                }, '移除')
+              : h('span', { className: 'zp-hint' }, 'PNG / JPEG / WebP · 最长边压到 512px')
+          ),
+          pref.brandLogo && pref.brandImage
+            ? h('div', { className: 'zp-hint' }, '已替换。宿主若升级改动徽标结构，这里会静默回退到原生。')
+            : null
         ),
 
         h(Section, { title: '排版', note: '影响整个界面，含对话正文' },
