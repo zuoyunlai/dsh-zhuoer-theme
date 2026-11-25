@@ -185,12 +185,23 @@ npm run coverage      # token 覆盖率与「刻意不跟锚点」的豁免清�
 | `verify:scale` | 字号缩放必须是全局 `body{zoom}`，且不允许再出现「只缩放字体 token 的 px」（0.4.1 的回归就是这种写法） |
 | `verify:themes` | 内联副本与真源逐 token 相等、两档 token 集合齐全、对比度达标 |
 | `verify:host` | 宿主选择器与契约对账，另查两类「静默失效」：契约登记的 id 片段是否还在代码里、`package.json` 的插件图标三件套（`icon` / `files` / `exports`）是否齐全 |
+| `verify:visual` | 与 `contracts/visual-baseline/` 的截图基线逐像素比对（自己解 PNG，零依赖）；没有 `visual/current/` 时 SKIP，`--strict` 才硬判 |
 | `verify:git` | `.git` 元数据（`HEAD`/`config`/`index`）是否完好；损坏时 `node scripts/git-doctor.mjs --fix` 一键重建（见 `docs/git-integrity.md`） |
 | `token-surface` | 覆盖了哪些宿主 token、哪些是刻意不跟锚点的 |
 | `node --check` | 产物语法 |
 | `test-derive` | 从 `#region derive` 抠出派生函数无头跑：151 键 × 4 基色 × 2 态 |
 
 主题卡预览、AI 与取色逻辑都在真实界面里验；门禁只保证「可机械判定」的那部分。**改完配色请自己切一圈主题**，见「已知边界」。
+
+视觉基线怎么采（需要能打开的宿主界面，CI 里没有）：
+
+```bash
+# 1. 在 1264×771 视口下，设置 → Zhuoer 主题，浅色/深色各截一张整屏，存进 visual/current/
+# 2. 与基线比对（差异 >0.10% 判红）
+node scripts/verify-visual.mjs
+# 3. 确认改动是有意的，再提升为新基线
+node scripts/verify-visual.mjs --capture visual/current --viewport 1264x771
+```
 
 ## 宿主契约
 

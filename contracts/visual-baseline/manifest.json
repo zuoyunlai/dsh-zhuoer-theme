@@ -1,0 +1,20 @@
+{
+  "$comment": "视觉基线清单。改动 UI 后重新采集：node scripts/verify-visual.mjs --capture <dir>",
+  "viewport": "1264x771",
+  "tolerance": 8,
+  "ratioLimit": 0.001,
+  "images": [
+    {
+      "file": "settings-dark.png",
+      "w": 1264,
+      "h": 771,
+      "sha256": "5ca84d518ea6c370c6b08d6e5662bc28d6350aece16f3f0c15f9a44d8642657d"
+    },
+    {
+      "file": "settings-light.png",
+      "w": 1264,
+      "h": 771,
+      "sha256": "bed4edb06653b04a209fd8d1a48badc8de4ee8ee2dc0472504e2ad6180784f71"
+    }
+  ]
+}
