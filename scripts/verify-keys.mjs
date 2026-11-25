@@ -56,6 +56,14 @@ for (const f of readdirSync(srcDir).filter((x) => x.endsWith('.js'))) {
     if (m[1].endsWith('.')) continue // 动态前缀，交给下面单独校验
     used.set(m[1], f)
   }
+  // 另一条注册面：loc.register(NS, { en: { 'k': DICT.en['k'] } })。
+  // 这里没有 t('…') 调用，但键确实被用到；不认这种写法会误报「词典里没用到的键」。
+  const passthrough = /DICT\.(?:en|zh)\[\s*'([^']+)'\s*\]/g
+  let pm
+  while ((pm = passthrough.exec(code))) {
+    if (!/^[A-Za-z0-9_.-]+$/.test(pm[1])) continue
+    used.set(pm[1], f)
+  }
 }
 
 const ph = (s) => {

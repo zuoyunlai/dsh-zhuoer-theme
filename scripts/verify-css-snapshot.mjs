@@ -56,8 +56,11 @@ function warnIfStale(currentDir, ext) {
   const src = newestMtime(join(root, 'src'), '.js')
   if (src > cur) {
     const mins = Math.round((src - cur) / 60000)
-    console.warn('WARN  采集比源码旧（源码新约 ' + mins + ' 分钟）—— 这次结论只对采集那一刻成立；')
-    console.warn('      改完代码请重新采集，否则门看起来是绿的，其实在比旧图。')
+    // mtime 只是提醒，不是判据：真正决定注入 CSS 的是 themes.mjs 指纹（下面单独比）与逐字节比对。
+    // 只改了 JS 逻辑、没动 CSS 字符串时，这里也会响——说明清楚，免得把「时间新」误读成「内容不一致」。
+    console.warn('WARN  采集时间早于 src 约 ' + mins + ' 分钟（提醒项，不是判据）')
+    console.warn('      若本轮只改了非 CSS 代码，上面的逐字节比对已足以证明注入 CSS 未变；')
+    console.warn('      若改过 token 或面板 CSS，请重新采集：--capture visual/css-current（真机采集见 docs/live-verify.md）。')
     return true
   }
   return false
