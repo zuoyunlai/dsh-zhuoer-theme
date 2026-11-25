@@ -1,5 +1,7 @@
 # dsh-zhuoer-theme（卓尔主题）
 
+> **中文** ｜ [English](README.en.md)
+
 给 DSH 换整套配色的皮肤插件：**11 套内置主题 + 12 套风格预设 + 自定义主题编辑器（AI 生成 / 图片取色 / 逐色微调）**。
 
 - 配色走宿主主题服务：`ctx.theme.overrideTokens()` 把每套主题映射到 DSH 的 `--dsw-alias-*` token（每套 222 个），不劫持 DOM 结构、不注入宿主组件。
@@ -254,6 +256,7 @@ node scripts/verify-css-snapshot.mjs --capture visual/css-current   # 改过 CSS
 ## 目录结构
 
 ```
+README.en.md         English README（与中文版同步维护）
 client.js            构建产物（宿主加载入口，勿手改）
 index.js             服务端一半：/api/report、/api/gen-theme、静态资源路由
 themes.mjs           主题色 + 阴影的唯一真源

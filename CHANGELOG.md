@@ -38,6 +38,13 @@ back to English. Three new deterministic gates replace the pixel baseline (which
 itself: 2.301% between two captures of the same state): `verify:panel` renders the panel in Node,
 `verify:text` snapshots the rendered copy, `verify:keys` enforces key and placeholder parity.
 
+## 未发布（文档：双语 README）
+
+README 本身也要多语言：新增 **README.en.md**（与中文版同结构同步维护），两版顶部互相链接。
+顺带把中文版按 0.6.17 实际状态整体校对：版本与安装示例、`src/` 五片、门禁表补 `verify:release`、
+计数改 104 / 130；并把已作废的「视觉基线怎么采」整段换成「为什么没有像素基线了」。
+英文版同样收录这些更正，并新增 Multilingual / Why there is no pixel baseline 两节。
+
 ## 未发布（发布前英文实测补记）
 
 **按承诺把英文界面完整走了一遍**（真宿主、宿主语言切到 English 再切回）：设置导航显示
