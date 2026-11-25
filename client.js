@@ -42,7 +42,7 @@ window.__ModuleLoader__.load({
       } catch (e) { /* ignore */ }
     }
     // 版本号唯一源：面板文案与自检回传都用它，别再出现「构建 0.1.101」这种漂移。
-    const PVERSION = '0.6.15';
+    const PVERSION = '0.6.16';
     // 诊断探针总闸：默认关闭，开启方式 localStorage['dsh-zhuoer-theme:debug'] = '1'。
     // 下面若干探针会在每次 apply 时全文档遍历 DOM、逐元素 getComputedStyle、扫 styleSheets，
     // 是「启动 / 切主题卡顿」的主要来源之一，只在排障时打开。
@@ -170,6 +170,49 @@ window.__ModuleLoader__.load({
         'panel.palette.noColors': '这张图没取到可用颜色',
         'panel.palette.failed': '取色失败',
         'panel.palette.notEnough': '色值不足以分配锚点',
+        'panel.ed.presets': '风格预设',
+        'panel.ed.presetsNote': '整套替换：锚点、圆角、字体一起换',
+        'panel.ed.presetTitle': '{label} · 直角/圆角 {radius} · {body}',
+        'panel.ed.mono': '等宽',
+        'panel.ed.aiSection': 'AI 与取色',
+        'panel.ed.aiNote': '生成结果先预览，点「填入」才改草稿',
+        'panel.ed.aiRow': 'AI 生成',
+        'panel.ed.aiPromptAria': '风格描述',
+        'panel.ed.aiPromptPh': '描述风格，例如：复古终端，灰底，黄色主色蓝色次色，等宽字体，直角边框',
+        'panel.ed.generating': '生成中…',
+        'panel.ed.generate': '生成',
+        'panel.ed.aiPreview': '「{label}」',
+        'panel.ed.aiDropped': '（丢弃 {n} 个不认识的 key）',
+        'panel.ed.applyCurrent': '填入当前主题',
+        'panel.ed.drop': '丢弃',
+        'panel.ed.pickFromImage': '从图片取色',
+        'panel.ed.picking': '取色中…',
+        'panel.ed.pickImage': '选择图片…',
+        'panel.ed.clear': '清除',
+        'panel.ed.bgSection': '底图',
+        'panel.ed.bgNote': '单张 ≤ 3 MiB，存本机 IndexedDB',
+        'panel.ed.bgSourceAria': '主题底图来源',
+        'panel.ed.bgFollowGlobal': '跟随全局',
+        'panel.ed.bgThemeOwn': '主题自带',
+        'panel.ed.bgCustom': '自定义图片',
+        'panel.ed.bgNone': '无',
+        'panel.ed.imageRow': '图片',
+        'panel.ed.bgPreviewAlt': '主题底图预览',
+        'panel.ed.bgStoredHint': '存 IndexedDB，单张 ≤ 3 MiB',
+        'panel.ed.opacityRow': '可见度',
+        'panel.ed.bgOpacityAria': '主题底图可见度',
+        'panel.ed.shapeSection': '形状与字体',
+        'panel.ed.shapeNote': '只影响本主题，不动其他主题',
+        'panel.ed.radiusRow': '圆角',
+        'panel.ed.radiusAria': '圆角大小',
+        'panel.ed.radiusSquare': '直角',
+        'panel.ed.radiusSmall': '小',
+        'panel.ed.radiusNormal': '标准',
+        'panel.ed.radiusLarge': '大',
+        'panel.ed.radiusXL': '特大',
+        'panel.ed.bodyFont': '正文字体',
+        'panel.ed.chatFont': '聊天字体',
+        'panel.ed.followBase': '跟随 {theme}',
       },
       en: {
         'rail.ariaLabel': 'Right sidebar quick nav',
@@ -270,6 +313,49 @@ window.__ModuleLoader__.load({
         'panel.palette.noColors': 'No usable colors found in this image',
         'panel.palette.failed': 'Color extraction failed',
         'panel.palette.notEnough': 'Not enough colors to assign anchors',
+        'panel.ed.presets': 'Style presets',
+        'panel.ed.presetsNote': 'Replaces everything: anchors, radii and fonts at once',
+        'panel.ed.presetTitle': '{label} · radius {radius} · {body}',
+        'panel.ed.mono': 'monospace',
+        'panel.ed.aiSection': 'AI & color picking',
+        'panel.ed.aiNote': 'Results are previewed first; only Apply touches the draft',
+        'panel.ed.aiRow': 'AI generation',
+        'panel.ed.aiPromptAria': 'Style description',
+        'panel.ed.aiPromptPh': 'Describe the style, e.g. retro terminal, grey background, yellow primary, blue secondary, monospace, square corners',
+        'panel.ed.generating': 'Generating…',
+        'panel.ed.generate': 'Generate',
+        'panel.ed.aiPreview': '“{label}”',
+        'panel.ed.aiDropped': ' ({n} unknown keys dropped)',
+        'panel.ed.applyCurrent': 'Apply to current theme',
+        'panel.ed.drop': 'Discard',
+        'panel.ed.pickFromImage': 'Pick colors from image',
+        'panel.ed.picking': 'Extracting…',
+        'panel.ed.pickImage': 'Choose image…',
+        'panel.ed.clear': 'Clear',
+        'panel.ed.bgSection': 'Background image',
+        'panel.ed.bgNote': 'One image ≤ 3 MiB, stored in local IndexedDB',
+        'panel.ed.bgSourceAria': 'Theme background source',
+        'panel.ed.bgFollowGlobal': 'Follow global',
+        'panel.ed.bgThemeOwn': 'Theme built-in',
+        'panel.ed.bgCustom': 'Custom image',
+        'panel.ed.bgNone': 'None',
+        'panel.ed.imageRow': 'Image',
+        'panel.ed.bgPreviewAlt': 'Theme background preview',
+        'panel.ed.bgStoredHint': 'Stored in IndexedDB, ≤ 3 MiB per image',
+        'panel.ed.opacityRow': 'Visibility',
+        'panel.ed.bgOpacityAria': 'Theme background visibility',
+        'panel.ed.shapeSection': 'Shape & fonts',
+        'panel.ed.shapeNote': 'Affects this theme only',
+        'panel.ed.radiusRow': 'Corner radius',
+        'panel.ed.radiusAria': 'Corner radius size',
+        'panel.ed.radiusSquare': 'Square',
+        'panel.ed.radiusSmall': 'Small',
+        'panel.ed.radiusNormal': 'Normal',
+        'panel.ed.radiusLarge': 'Large',
+        'panel.ed.radiusXL': 'Extra large',
+        'panel.ed.bodyFont': 'Body font',
+        'panel.ed.chatFont': 'Chat font',
+        'panel.ed.followBase': 'Follow {theme}',
       },
     }
 
@@ -2934,24 +3020,24 @@ function applyTokens(theme, pref) {
               });
             })
           ),
-          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, '风格预设'), h('div', { className: 'zp-sec-n' }, '整套替换：锚点、圆角、字体一起换'))),
-          h(Row, { label: '风格预设' },
+          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, t('panel.ed.presets')), h('div', { className: 'zp-sec-n' }, t('panel.ed.presetsNote')))),
+          h(Row, { label: t('panel.ed.presets') },
             h('div', { className: 'zp-presets' },
               STYLE_PRESETS.map(function (p) {
                 return h('button', {
                   type: 'button', className: 'zp-preset', key: p.id,
-                  title: p.label + ' · 直角/圆角 ' + p.radius + ' · ' + (p.body === '__mono__' ? '等宽' : p.body),
+                  title: t('panel.ed.presetTitle', { label: p.label, radius: p.radius, body: p.body === '__mono__' ? t('panel.ed.mono') : p.body }),
                   onClick: function () { applyPreset(p); },
                 }, p.label);
               })
             )
           ),
-          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, 'AI 与取色'), h('div', { className: 'zp-sec-n' }, '生成结果先预览，点「填入」才改草稿'))),
-          h(Row, { label: 'AI 生成' },
+          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, t('panel.ed.aiSection')), h('div', { className: 'zp-sec-n' }, t('panel.ed.aiNote')))),
+          h(Row, { label: t('panel.ed.aiRow') },
             h('div', { className: 'zp-ed-ai' },
               h('textarea', {
-                className: 'zp-json', rows: 3, 'aria-label': '风格描述',
-                placeholder: '描述风格，例如：复古终端，灰底，黄色主色蓝色次色，等宽字体，直角边框',
+                className: 'zp-json', rows: 3, 'aria-label': t('panel.ed.aiPromptAria'),
+                placeholder: t('panel.ed.aiPromptPh'),
                 value: aiPrompt,
                 onChange: function (ev) { setAiPrompt(ev.target.value); },
               }),
@@ -2960,13 +3046,13 @@ function applyTokens(theme, pref) {
                   type: 'button', className: 'zp-btn zp-btn-pri',
                   disabled: aiBusy,
                   onClick: function () { aiGenerate(); },
-                }, aiBusy ? '生成中…' : '生成'),
+                }, aiBusy ? t('panel.ed.generating') : t('panel.ed.generate')),
                 aiErr ? h('span', { className: 'zp-ed-err', role: 'alert' }, aiErr) : null
               ),
               aiResult
                 ? h('div', null,
-                    h('div', { className: 'zp-hint' }, '「' + aiResult.label + '」' +
-                      (aiResult.dropped && aiResult.dropped.length ? '（丢弃 ' + aiResult.dropped.length + ' 个不认识的 key）' : '')),
+                    h('div', { className: 'zp-hint' }, t('panel.ed.aiPreview', { label: aiResult.label }) +
+                      (aiResult.dropped && aiResult.dropped.length ? t('panel.ed.aiDropped', { n: aiResult.dropped.length }) : '')),
                     h('div', { className: 'zp-pal' },
                       Object.keys(aiResult.light).map(function (k) {
                         const grp = ANCHOR_GROUPS.filter(function (g) { return g.anchor === k; })[0];
@@ -2981,19 +3067,19 @@ function applyTokens(theme, pref) {
                       h('button', {
                         type: 'button', className: 'zp-btn zp-btn-pri',
                         onClick: function () { applyAiToDraft(); },
-                      }, '填入当前主题'),
+                      }, t('panel.ed.applyCurrent')),
                       h('button', {
                         type: 'button', className: 'zp-btn',
                         onClick: function () { setAiResult(null); },
-                      }, '丢弃')
+                      }, t('panel.ed.drop'))
                     )
                   )
                 : null
             )
           ),
-          h(Row, { label: '从图片取色' },
+          h(Row, { label: t('panel.ed.pickFromImage') },
             h('div', { className: 'zp-ed-ai' },
-              h('label', { className: 'zp-btn zp-file' }, paletteBusy ? '取色中…' : '选择图片…',
+              h('label', { className: 'zp-btn zp-file' }, paletteBusy ? t('panel.ed.picking') : t('panel.ed.pickImage'),
                 h('input', { type: 'file', accept: 'image/*', onChange: function (ev) { pickPalette(ev); } })
               ),
               paletteErr ? h('span', { className: 'zp-ed-err', role: 'alert' }, paletteErr) : null,
@@ -3013,54 +3099,54 @@ function applyTokens(theme, pref) {
                     h('button', {
                       type: 'button', className: 'zp-btn zp-btn-pri',
                       onClick: function () { applyPaletteToDraft(); },
-                    }, '填入当前主题'),
+                    }, t('panel.ed.applyCurrent')),
                     h('button', {
                       type: 'button', className: 'zp-btn',
                       onClick: function () { setPalette(null); setPaletteErr(''); },
-                    }, '清除')
+                    }, t('panel.ed.clear'))
                   )
                 : null
             )
           ),
 
-          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, '底图'), h('div', { className: 'zp-sec-n' }, '单张 ≤ 3 MiB，存本机 IndexedDB'))),
-          h(Row, { label: '底图' },
+          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, t('panel.ed.bgSection')), h('div', { className: 'zp-sec-n' }, t('panel.ed.bgNote')))),
+          h(Row, { label: t('panel.ed.bgSection') },
             h(Pills, {
-              label: '主题底图来源',
-              opts: [['', '跟随全局'], ['theme', '主题自带'], ['image', '自定义图片'], ['none', '无']],
+              label: t('panel.ed.bgSourceAria'),
+              opts: [['', t('panel.ed.bgFollowGlobal')], ['theme', t('panel.ed.bgThemeOwn')], ['image', t('panel.ed.bgCustom')], ['none', t('panel.ed.bgNone')]],
               value: (bg.source || ''),
               onChange: function (v) { setBg({ source: v, key: v === 'image' ? bg.key : '' }); },
             })
           ),
           bg.source === 'image'
-            ? h(Row, { label: '图片' },
-                h('label', { className: 'zp-btn zp-file' }, '选择图片…',
+            ? h(Row, { label: t('panel.ed.imageRow') },
+                h('label', { className: 'zp-btn zp-file' }, t('panel.ed.pickImage'),
                   h('input', {
                     type: 'file', accept: 'image/*',
                     onChange: function (ev) { handleBgFile(ev); },
                   })
                 ),
                 (bg.key && imageCache.has(bg.key))
-                  ? h('img', { className: 'zp-thumb', alt: '主题底图预览', src: imageCache.get(bg.key) })
-                  : h('span', { className: 'zp-hint' }, '存 IndexedDB，单张 ≤ 3 MiB')
+                  ? h('img', { className: 'zp-thumb', alt: t('panel.ed.bgPreviewAlt'), src: imageCache.get(bg.key) })
+                  : h('span', { className: 'zp-hint' }, t('panel.ed.bgStoredHint'))
               )
             : null,
           (bg.source && bg.source !== 'none')
-            ? h(Row, { label: '可见度' },
+            ? h(Row, { label: t('panel.ed.opacityRow') },
                 h('input', {
                   type: 'range', className: 'zp-range', min: 0, max: 100,
                   value: typeof bg.opacity === 'number' ? bg.opacity : 85,
-                  'aria-label': '主题底图可见度',
+                  'aria-label': t('panel.ed.bgOpacityAria'),
                   onChange: function (ev) { setBg({ opacity: Number(ev.target.value) || 0 }); },
                 }),
                 h('span', { className: 'zp-val' }, (typeof bg.opacity === 'number' ? bg.opacity : 85) + '%')
               )
             : null,
-          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, '形状与字体'), h('div', { className: 'zp-sec-n' }, '只影响本主题，不动其他主题'))),
-          h(Row, { label: '圆角' },
+          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, t('panel.ed.shapeSection')), h('div', { className: 'zp-sec-n' }, t('panel.ed.shapeNote')))),
+          h(Row, { label: t('panel.ed.radiusRow') },
             h(Pills, {
-              label: '圆角大小',
-              opts: [[0, '直角'], [0.6, '小'], [1, '标准'], [1.5, '大'], [2, '特大']],
+              label: t('panel.ed.radiusAria'),
+              opts: [[0, t('panel.ed.radiusSquare')], [0.6, t('panel.ed.radiusSmall')], [1, t('panel.ed.radiusNormal')], [1.5, t('panel.ed.radiusLarge')], [2, t('panel.ed.radiusXL')]],
               value: draft.radiusScale == null ? 1 : draft.radiusScale,
               onChange: function (v) {
                 const n = JSON.parse(JSON.stringify(draft));
@@ -3069,12 +3155,12 @@ function applyTokens(theme, pref) {
               },
             })
           ),
-          h(Row, { label: '正文字体' },
+          h(Row, { label: t('panel.ed.bodyFont') },
             h(Select, {
-              label: '正文字体',
+              label: t('panel.ed.bodyFont'),
               value: (draft.font && draft.font.body) || '',
               options: FONT_CHOICES,
-              emptyLabel: '跟随 ' + (THEMES[props.spec.base] ? (THEMES[props.spec.base].label || props.spec.base) : props.spec.base),
+              emptyLabel: t('panel.ed.followBase', { theme: THEMES[props.spec.base] ? (THEMES[props.spec.base].label || props.spec.base) : props.spec.base }),
               onChange: function (v) {
                 const n = JSON.parse(JSON.stringify(draft));
                 n.font = n.font || {};
@@ -3083,12 +3169,12 @@ function applyTokens(theme, pref) {
               },
             })
           ),
-          h(Row, { label: '聊天字体' },
+          h(Row, { label: t('panel.ed.chatFont') },
             h(Select, {
-              label: '聊天字体',
+              label: t('panel.ed.chatFont'),
               value: (draft.font && draft.font.chat) || '',
               options: FONT_CHOICES,
-              emptyLabel: '跟随 ' + (THEMES[props.spec.base] ? (THEMES[props.spec.base].label || props.spec.base) : props.spec.base),
+              emptyLabel: t('panel.ed.followBase', { theme: THEMES[props.spec.base] ? (THEMES[props.spec.base].label || props.spec.base) : props.spec.base }),
               onChange: function (v) {
                 const n = JSON.parse(JSON.stringify(draft));
                 n.font = n.font || {};

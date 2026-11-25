@@ -2,6 +2,33 @@
 
 按时间倒序。每条都写「为什么改」，而不只是改了什么。
 
+## 0.6.16（P1c 批次二：预设/AI/底图/形状字体 42 键；新增 verify:keys 词典门）
+
+**第二批 42 键入词典**：风格预设（含预设按钮 title 里的插值 `{label} · 直角/圆角 {radius} · {body}`）、
+AI 与取色（输入框 aria 与 placeholder、生成中的状态文案、预览提示 `「{label}」`、丢弃计数
+`（丢弃 {n} 个不认识的 key）`、填入/丢弃按钮）、底图（来源四选一、预览 alt、两条存储提示、
+可见度 aria）、形状与字体（圆角五档、正文/聊天字体、`跟随 {theme}`）。
+
+**英文侧在真宿主里验过**：切到 English 后读出 `Style presets` / `AI & color picking` /
+`Background image` / `Shape & fonts`、`Choose image…` / `Generate`、预设 title
+`玻璃拟态 · radius 2 · DM Sans`（预设名本身按决策 A1 不译），随后把宿主语言切回中文
+（已确认 `<html lang="zh-CN">`）。
+
+**新增 `verify:keys` 词典门（静态）**：文案门 `verify:text` 只能看到「渲染出来的面板」，
+编辑器抽屉、错误提示这类**要交互才出现**的文案根本进不了快照——键漏了、占位符写错了，两道门都不会红。
+新门扫源码里的 `t('…')`，对 zh/en 两套词典：缺键即红，同名键**占位符集合必须一致**即红
+（`{n}` 写成 `{count}` 这种事故直接拦下），词条没用到的只提示。当前：用到 131 键 / zh 134 / en 134，
+3 条未使用（`rail.anchorLabel`、`panel.bg.sourceRow`、`panel.bg.styleRow`）。
+
+**还剩下的中文**：锚点行标签（底色/文字/边框/品牌主色…）与预设名来自 `10-themes.js` 的数据表，
+属于 P3（主题名不译、说明译）的范畴，本轮没动。
+
+**English summary** — batch 2 (42 keys): style presets, AI generation, background image and shape/font
+sections now resolve via the dictionary, including interpolated preset tooltips; English verified live
+in a real host with the language switched both ways. Adds `verify:keys`: a static dictionary gate that
+fails on missing keys and on placeholder mismatch between zh and en — the text snapshot cannot see the
+editor drawer, so without it a broken key would ship silently.
+
 ## 0.6.15（P1c 批次一：编辑器抽屉 37 键；发现像素门不可复现，换成文案门）
 
 **编辑器抽屉整段入词典**（37 键，zh/en 各一套）：标题/关闭按钮与 title、各段标题与说明、
