@@ -8,6 +8,36 @@
 
 
 
+## 0.6.17（发布汇总：多语言全量 + 三道新门；含 0.6.15 / 0.6.16 两批）
+
+按仓库的攒批纪律，`0.6.15`、`0.6.16` 两条**只是批次，没有单独发布**，本版一次性收口。
+
+**1）面板与编辑器的用户可见文案全部入词典（zh/en 各一套，词典 202 条）**：品牌位、外观头部、配色主题、
+背景底图、编辑器抽屉（37 键）、风格预设与 AI 取色、底图来源与可见度、形状与字体、锚点分组名、
+12 个预设名、JSON 导入导出浮层、错误兜底与图片告警、底部与构建行。非 `zh*` 一律回落英文。
+裸中文棘轮基线 **200 → 104**（余下是有意保留的 `console` 日志与主题名数据表）。
+
+**2）三道新门，都是为了让「假绿」不再可能**：
+
+- `verify:panel`：Node 端最小宿主替身渲染设置面板，任何渲染期抛错即红（0.6.11 的 `t is not defined` 就是它该抓的），
+  并做过接种测试（把 `const t = zrT` 改成 `t = null` ⇒ 退出码 1）；
+- `verify:text`：面板渲染出的文案与属性存成 zh/en 快照逐条比对（版本号归一化），确定性；
+- `verify:keys`：静态校验 `t('…')` 用到的键两侧齐全、占位符集合一致（`{n}` vs `{count}` 直接红），
+  支持 `t('前缀.' + x)` 这类动态拼键按前缀成族校验。
+
+**3）退役像素门**：实测同一状态连续两次截 `.zp-root`，光态互差 **2.301%**（暗态逐字节相同），
+冻结动画、归零滚动后依旧不复现——一个不能自我复现的像素门，红了说明不了代码坏、绿了也说明不了代码好。
+脚本保留供人工看图，`verify:all` 不再包含它；注入 CSS 仍由 `verify:csssnap` 逐字节把关（60,049 B）。
+
+**4）发布前英文实测**：真宿主切宿主语言走了面板/编辑器/JSON 浮层全流程，据此修掉英文锚点标签被省略号截断的
+排版 bug（网格轨道改 `minmax(4.6em,auto)` + 允许换行）。英文界面里剩下的中文只有 11 套主题名，符合决策 A1。
+
+**English summary** — i18n rollout complete: every user-visible string in the settings panel and the
+custom-theme editor resolves through a shared zh/en dictionary (202 keys), with non-`zh` locales falling
+back to English. Three new deterministic gates replace the pixel baseline (which could not reproduce
+itself: 2.301% between two captures of the same state): `verify:panel` renders the panel in Node,
+`verify:text` snapshots the rendered copy, `verify:keys` enforces key and placeholder parity.
+
 ## 未发布（发布前英文实测补记）
 
 **按承诺把英文界面完整走了一遍**（真宿主、宿主语言切到 English 再切回）：设置导航显示
