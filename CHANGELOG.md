@@ -2,6 +2,29 @@
 
 按时间倒序。每条都写「为什么改」，而不只是改了什么。
 
+## 0.6.8
+
+**applyTokens 的纯 CSS 半边抽出来了**（backlog 第 1 条的一部分）。
+
+移出三个只在拼字符串、不碰 `document` 的构造器：
+
+| 构造器 | 管什么 | 入参 |
+|---|---|---|
+| `extraCssFor()` | 宿主菜单表面色 + Markdown 代码块定向修正 | 无（常量） |
+| `brandCssFor(pref)` | 品牌位：内部节点置透明 + 给 `<svg>` 铺背景图 | `pref` |
+| `bgCssFor(o)` | 主题底图：蒙层色跟随明暗、`_mainPanel::before`、显示开关 | `bgUrl/bgOpacity/bgStyle/tokens/scheme` |
+
+`applyTokens` 里净移出 **53 行**（被 3 行调用替掉，约 589 → 539），文件总行数 2214 → 2227
+（多出来的是构造器上的说明注释）。剩下的仍是注入 / `MutationObserver` / `dispose` 那半边——
+**刻意没动**，理由是它在历史上出过两次事故（0.3.3 界面冻结、0.4.1 字号只缩放正文）。
+
+**证明到什么程度，如实写**：
+
+- 通过：`verify:all` 全绿；`verify:visual` 基线 0.000%；真机断言 `document.adoptedStyleSheets`
+  里 `--dsw-specific-menu` 规则仍在（这条最容易在抽 `extraCssFor` 时丢）。
+- **没通过**：底图与品牌位这两条路径本会话里跑不出来（没设底图；自动化点「品牌位」开关没生效），
+  所以它们的输出只有「代码原样搬移 + 调用点传同一批值」这个静态保证，没有真机对照。
+
 ## 0.6.7
 
 **视觉回归门 `verify:visual` 落地** —— backlog 第 2 条（也是第 1 条 `applyTokens` 拆分的前置）

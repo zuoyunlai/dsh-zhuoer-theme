@@ -42,7 +42,7 @@ window.__ModuleLoader__.load({
       } catch (e) { /* ignore */ }
     }
     // 版本号唯一源：面板文案与自检回传都用它，别再出现「构建 0.1.101」这种漂移。
-    const PVERSION = '0.6.7';
+    const PVERSION = '0.6.8';
     // 诊断探针总闸：默认关闭，开启方式 localStorage['dsh-zhuoer-theme:debug'] = '1'。
     // 下面若干探针会在每次 apply 时全文档遍历 DOM、逐元素 getComputedStyle、扫 styleSheets，
     // 是「启动 / 切主题卡顿」的主要来源之一，只在排障时打开。
@@ -1347,7 +1347,70 @@ window.__ModuleLoader__.load({
       }).join('');
     }
 
-    function applyTokens(theme, pref) {
+    // —— 纯 CSS 构造器（0.6.8 从 applyTokens 抽出）——
+// 这三块只是字符串拼装：不碰 document、不持有生命周期、输出只由入参决定，
+// 抽出来之后才能单独核对「改写前后发出去的 CSS 字面量没变」。
+// 剩下的仍是注入 / MutationObserver / dispose 那半边，**刻意没动**（见 docs/backlog.md 第 1 条）。
+function extraCssFor() {
+  // 宿主菜单的 class 是 CSS Modules 哈希（.Luqt-a_menu 之类），各组件命名不一致，
+  // 只认一个形态会漏，所以三种子串都覆盖；排除宠物插件自己的菜单与本面板自己的类。
+  var menuFix =
+    '[role="menu"]:not(.dsh-pet-menu):not([class*="zp-"]),' +
+    '[class*="_menu"]:not(.dsh-pet-menu):not([class*="zp-"]),' +
+    '[class*="-menu"]:not(.dsh-pet-menu):not([class*="zp-"]):not([class*="dsh-pet"])' +
+    '{background-color:var(--dsw-specific-menu) !important;}';
+  return menuFix +
+    ' [class*="_markdown_"] :not(pre) > code{background:var(--dsw-alias-markdown-inline-code) !important;}' +
+    ' [class*="_markdown_"] .md-code-block{background:var(--dsw-alias-markdown-code-block) !important;}' +
+    ' [class*="_markdown_"] pre{background:transparent !important;}';
+}
+
+// 品牌位：宿主左上角徽标是内联 <svg>，内部含 #dsh-wordmark-badge-clip。
+// SVG 子节点只认 fill / stroke，不认 background，也没法塞文字 —— 换图只有一条路：
+// 内部节点置透明，再给 <svg> 这个 HTML 盒子铺背景图。
+// 来源优先级：用户上传 > 主题自带 logo；开了但没选图 = 用自带的，不是「不生效」。
+function brandCssFor(pref) {
+  var src = pref.brandLogo ? (pref.brandImage || BRAND_LOGO) : '';
+  if (!src) return '';
+  return 'html svg:has(#dsh-wordmark-badge-clip)>*{opacity:0 !important;}'
+    + 'html svg:has(#dsh-wordmark-badge-clip){background-image:url("' + src + '") !important;'
+    + 'background-size:contain !important;background-position:left center !important;'
+    + 'background-repeat:no-repeat !important;}';
+}
+
+// 主题底图：蒙层色跟随明暗（之前写死深色，浅色模式一片灰），
+// 图片挂在 _mainPanel 的 ::before 上，会话内层 _root 必须透明，否则图被整片盖住。
+function bgCssFor(o) {
+  var bgUrl = o.bgUrl;
+  if (!bgUrl) return '';
+  var bgOpacity = o.bgOpacity;
+  var bgStyle = o.bgStyle;
+  var tokens = o.tokens;
+  var scheme = o.scheme;
+  var fbase = (function () {
+    var raw = String(tokens['--dsw-alias-bg-base'] || '');
+    var m = raw.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (!m) {
+      var conv = hexToRgba(raw, 1);
+      m = conv ? String(conv).match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/) : null;
+    }
+    return m ? (m[1] + ',' + m[2] + ',' + m[3]) : (scheme === 'light' ? '244,241,236' : '14,16,21');
+  })();
+  // 可见度滑块接到图片上：Zhuoer full-bleed 实测 opacity = 可见度 × 0.7（85% → 0.595）。
+  var vis = Math.max(0, Math.min(100, bgOpacity)) / 100;
+  var imgOpacity = +(vis * 0.7).toFixed(3);
+  // 淡化：另加一层垂直渐隐遮罩做出「边缘化开」；Zhuoer 的 faded 靠面板层不透明压暗，
+  // 我们的内容层是透明的，直接照抄会更浓，所以用 mask 达到同样效果。
+  var fadeMask = bgStyle === 'fade'
+    ? '-webkit-mask-image:linear-gradient(180deg,#000 0%,#000 42%,rgba(0,0,0,.55) 74%,transparent 100%) !important;mask-image:linear-gradient(180deg,#000 0%,#000 42%,rgba(0,0,0,.55) 74%,transparent 100%) !important;'
+    : '';
+  return '[class*="_centerCol"],[class*="_mainPanel"]{background-color:var(--dsw-alias-bg-base) !important;background-image:none !important;position:relative !important;isolation:isolate !important;}'
+    + '[class*="_centerCol"]::before,[class*="_mainPanel"]::before{content:"" !important;position:absolute !important;inset:0 !important;background-image:url("' + bgUrl + '") !important;background-size:cover !important;background-position:50% 0% !important;background-repeat:no-repeat !important;opacity:' + imgOpacity + ' !important;' + fadeMask + 'pointer-events:none !important;z-index:0 !important;}'
+    + '[class*="_centerCol"] [class*="_root"],[class*="_mainPanel"] [class*="_root"]{background-color:transparent !important;}'
+    + 'html[data-zr-state="empty"][data-zr-bg-empty="0"] [class*="_centerCol"]::before,html[data-zr-state="empty"][data-zr-bg-empty="0"] [class*="_mainPanel"]::before,html[data-zr-state="session"][data-zr-bg-session="0"] [class*="_centerCol"]::before,html[data-zr-state="session"][data-zr-bg-session="0"] [class*="_mainPanel"]::before{display:none !important;}';
+}
+
+function applyTokens(theme, pref) {
       theme = theme || themeRef;
       const scheme = resolveScheme(pref.mode, theme);
       liveScheme = scheme;
@@ -1505,64 +1568,14 @@ window.__ModuleLoader__.load({
         // 这里直接给 role=menu 指回主题的菜单表面色，排除我们自己的宠物菜单。
         // 覆盖多种可能的选择器形态：DSH 的菜单 class 是 CSS Modules 哈希
         // （.Luqt-a_menu 之类），不同组件命名不一致，只认一个会漏。
-        const menuFix =
-          '[role="menu"]:not(.dsh-pet-menu):not([class*="zp-"]),' +
-          '[class*="_menu"]:not(.dsh-pet-menu):not([class*="zp-"]),' +
-          '[class*="-menu"]:not(.dsh-pet-menu):not([class*="zp-"]):not([class*="dsh-pet"])' +
-          '{background-color:var(--dsw-specific-menu) !important;}';
-        const extra = menuFix +
-          ' [class*="_markdown_"] :not(pre) > code{background:var(--dsw-alias-markdown-inline-code) !important;}' +
-          ' [class*="_markdown_"] .md-code-block{background:var(--dsw-alias-markdown-code-block) !important;}' +
-          ' [class*="_markdown_"] pre{background:transparent !important;}';
+        const extra = extraCssFor();;
         // 品牌位：宿主左上角那枚徽标是一个内联 <svg>，内部含 #dsh-wordmark-badge-clip。
         // SVG 子节点只认 fill / stroke，不认 background，也没法往里塞文字 —— 所以「换图」只有一条路：
         // 把内部节点置透明，再给 <svg> 这个 HTML 盒子铺背景图（svg 在 CSS 里就是个普通盒子）。
         // 盒子尺寸由宿主的 width/height 决定，用 contain + 贴左居中：比例不匹配时留白，不会裁切。
         // 来源优先级：用户上传的图 > 主题自带 logo。开但没选图 = 用自带的，不是「不生效」。
-        const brandSrc = pref.brandLogo ? (pref.brandImage || BRAND_LOGO) : '';
-        const brandCss = brandSrc
-          ? 'html svg:has(#dsh-wordmark-badge-clip)>*{opacity:0 !important;}'
-            + 'html svg:has(#dsh-wordmark-badge-clip){background-image:url("' + brandSrc + '") !important;'
-            + 'background-size:contain !important;background-position:left center !important;'
-            + 'background-repeat:no-repeat !important;}'
-          : '';
-        const bgCss = bgUrl
-          ? (function () {
-              // 蒙层颜色必须跟随明暗：深色用暗罩，浅色用白罩。
-              // 之前写死深色，浅色模式下就成了一片灰。
-              var a = 0.72 - (bgOpacity / 100) * 0.5;
-              // 淡化：底图向下渐隐成纯底色（只作用于主栏内部，不会盖到左栏和头像）。
-              // 全幅：底图铺满整个主栏。
-              // 蒙层色必须跟随主题底色，不能硬编码（zhuoer 深色 bg-base 是 #0e1015，不是 21,23,28）。
-              var fbase = (function () {
-                var raw = String(tokens['--dsw-alias-bg-base'] || '');
-                var m = raw.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-                if (!m) {
-                  var conv = hexToRgba(raw, 1);
-                  m = conv ? String(conv).match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/) : null;
-                }
-                return m ? (m[1] + ',' + m[2] + ',' + m[3]) : (scheme === 'light' ? '244,241,236' : '14,16,21');
-              })();
-              // 完全照抄 Zhuoer 实测：独立层 opacity:0.7，叠在暖棕底 #1a1210 上。
-              // 注意底色是暖棕（rgb 26,18,16）不是冷黑——色温不对观感就整个变味。
-              // 可见度滑块真正接到图片上：Zhuoer full-bleed 实测 opacity = 可见度 × 0.7（85% → 0.595）。
-              // 淡化另加一层垂直渐隐遮罩做出「边缘化开」的观感：Zhuoer 的 faded 是 opacity=1，
-              // 靠它自己的面板层不透明来压暗；我们的内容层是透明的，直接照抄会更浓，所以用 mask 达到同样效果。
-              var vis = Math.max(0, Math.min(100, bgOpacity)) / 100;
-              var imgOpacity = +(vis * 0.7).toFixed(3);
-              var fadeMask = bgStyle === 'fade'
-                ? '-webkit-mask-image:linear-gradient(180deg,#000 0%,#000 42%,rgba(0,0,0,.55) 74%,transparent 100%) !important;mask-image:linear-gradient(180deg,#000 0%,#000 42%,rgba(0,0,0,.55) 74%,transparent 100%) !important;'
-                : '';
-              // 图挂在 _mainPanel 的 ::before 上；会话内层 _root 若是实色就会把图整个盖住
-              // （这就是「图加载了却看不到」的原因）。Zhuoer 的内容区是透明的，纹理才透得出来。
-              return '[class*="_centerCol"],[class*="_mainPanel"]{background-color:var(--dsw-alias-bg-base) !important;background-image:none !important;position:relative !important;isolation:isolate !important;}'
-                + '[class*="_centerCol"]::before,[class*="_mainPanel"]::before{content:"" !important;position:absolute !important;inset:0 !important;background-image:url("' + bgUrl + '") !important;background-size:cover !important;background-position:50% 0% !important;background-repeat:no-repeat !important;opacity:' + imgOpacity + ' !important;' + fadeMask + 'pointer-events:none !important;z-index:0 !important;}'
-                + '[class*="_centerCol"] [class*="_root"],[class*="_mainPanel"] [class*="_root"]{background-color:transparent !important;}'
-                // 显示开关：空态 / 会话中分别控制
-                + 'html[data-zr-state="empty"][data-zr-bg-empty="0"] [class*="_centerCol"]::before,html[data-zr-state="empty"][data-zr-bg-empty="0"] [class*="_mainPanel"]::before,html[data-zr-state="session"][data-zr-bg-session="0"] [class*="_centerCol"]::before,html[data-zr-state="session"][data-zr-bg-session="0"] [class*="_mainPanel"]::before{display:none !important;}';
-            })() +
-            ''
-          : '';
+        const brandCss = brandCssFor(pref);
+        const bgCss = bgCssFor({ bgUrl: bgUrl, bgOpacity: bgOpacity, bgStyle: bgStyle, tokens: tokens, scheme: scheme });
         // 文字大小 / 强调色 / 字体（照 Zhuoer 外观页的三组设置）
         let fxCss = '';
         // 主栏四个角永远是直角 —— 用户明确要求「无论何种主题、无论什么情况」。
