@@ -77,3 +77,17 @@ git push origin main        # 与远端比对，确认没有本地改动被吞
 4. 有管理员权限时导 USN 日志并按路径过滤，能直接指出是哪个进程删的。
 
 在 1～4 拿到任何一条能指向具体进程的证据之前，**不要**把它写成「已知原因」。
+
+## 第 3 次（2026-11-25 14:56–15:04，仓库改名后）
+
+- **现象**：`verify:all` 里的 `verify:git` 报 `.git/HEAD`、`.git/config`、`.git/index` 全缺；
+  `git log` 直接报 `not a git repository`。
+- **还在的**：`.git/objects`（550 个对象文件）、`.git/refs/heads/main`（715dc4e）、
+  `.git/packed-refs`、`.git/ORIG_HEAD`（11:58 写的）——丢的仍然只是**元数据三件套**。
+- **修复**：`node scripts/git-doctor.mjs --fix`，一条命令搞定（git init / symbolic-ref /
+  remote add / reset 重建 index / branch -u），修完 HEAD=715dc4e，101 个跟踪文件，工作树 9 个未提交改动原样还在。
+- **新信息**：`.git` 目录本身 mtime 14:58，`objects` 14:56——说明删除发生在 14:56–14:58 之间，
+  而那段时间我在跑「截图/浏览器验证」，没有碰过 .git。这更支持「外部进程干预」而不是「git 命令写坏」。
+- **仍然没有**：能指向具体进程的证据（火绒日志、USN 日志都需要管理员权限/图形界面）。
+  所以**结论照旧不写死原因**；可以确定的是「objects 保住 = 恢复成本一条命令」，这条已固化进 git-doctor。
+
