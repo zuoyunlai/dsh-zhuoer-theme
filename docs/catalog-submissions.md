@@ -12,9 +12,9 @@ DSH 不内置索引源，所以「被市场收录」的可控路径是自己发�
 https://ghproxy.net/https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/market/index.json
 ```
 
-- 内容：`market/index.json`，只列 0.6.18 / 0.6.17 / 0.6.13（跳过 0.6.11 那版面板报错的）；
+- 内容：`market/index.json`，只列 0.6.19 / 0.6.18 / 0.6.17（跳过 0.6.11 那版面板报错的）；
 - 守门：`verify:market`（schema + 与 `package.json` 交叉对账）；
-- 实测：在该 profile 的「插件 → 实验性插件 → 自定义插件索引」里添加上面的 URL，「发现」出现索引标题 `卓尔主题索引` 与卡片（`Zhuoer 主题`、说明、0.6.18、作者、`已安装`）；
+- 实测：在该 profile 的「插件 → 实验性插件 → 自定义插件索引」里添加上面的 URL，「发现」出现索引标题 `卓尔主题索引` 与卡片（`Zhuoer 主题`、说明、0.6.19、作者、`已安装`）；
 - 镜像副本：也推了一份到 Gitee（`https://gitee.com/zuoyunlai/dsh-zhuoer-theme-market`），但**不能直接用它的 raw 链接**——Gitee 会 302 跳到带签名的 `raw.giteeusercontent.com`，而 DSH 要求索引不经重定向返回 2xx，会报 `unexpected redirect`；
 - 其他实测：`raw.githubusercontent.com` 在本网络于 Node 侧 `ECONNRESET`（curl 能通不代表宿主能通）；`gh-proxy.com` 同格式镜像可作备用。
 
