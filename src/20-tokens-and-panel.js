@@ -1989,21 +1989,21 @@ function applyTokens(theme, pref) {
           bgOn ? null : h('div', { className: 'zp-hint' }, '当前未启用底图，以上样式会在选中来源后生效。')
         ),
 
-        h(Section, { title: '品牌位', note: '左上角 deepseek HARNESS 徽标；关闭时用宿主原生' },
-          h(Row, { label: '启用' },
+        h(Section, { title: t('panel.brand.title'), note: t('panel.brand.note') },
+          h(Row, { label: t('panel.brand.toggle') },
             h('label', { className: 'zp-chk' },
               h('input', {
                 type: 'checkbox', checked: pref.brandLogo === true,
                 onChange: function (ev) { set({ brandLogo: Boolean(ev.target.checked) }); },
               }),
-              '用自定义图片替换'
+              t('panel.brand.toggleHint')
             ),
             pref.brandLogo && !pref.brandImage
-              ? h('span', { className: 'zp-hint' }, '用主题自带 logo（选图则用你的）')
+              ? h('span', { className: 'zp-hint' }, t('panel.brand.builtinHint'))
               : null
           ),
-          h(Row, { label: '图片' },
-            h('label', { className: 'zp-btn zp-file' }, pref.brandImage ? '更换图片…' : '选择图片…',
+          h(Row, { label: t('panel.brand.imageRow') },
+            h('label', { className: 'zp-btn zp-file' }, pref.brandImage ? t('panel.brand.repick') : t('panel.brand.pick'),
               h('input', {
                 type: 'file', accept: 'image/png,image/jpeg,image/webp',
                 onChange: function (ev) {
@@ -2014,16 +2014,16 @@ function applyTokens(theme, pref) {
                 },
               })
             ),
-            pref.brandImage ? h('img', { className: 'zp-thumb', alt: '当前品牌位预览', src: pref.brandImage }) : null,
+            pref.brandImage ? h('img', { className: 'zp-thumb', alt: t('panel.brand.previewAlt'), src: pref.brandImage }) : null,
             pref.brandImage
               ? h('button', {
                   type: 'button', className: 'zp-btn',
                   onClick: function () { set({ brandImage: '', brandLogo: false }); },
-                }, '移除')
-              : h('span', { className: 'zp-hint' }, '不选图 = 用主题自带 logo；上传则压到最长边 512px')
+                }, t('panel.brand.remove'))
+              : h('span', { className: 'zp-hint' }, t('panel.brand.autoHint'))
           ),
           pref.brandLogo && pref.brandImage
-            ? h('div', { className: 'zp-hint' }, '已替换。宿主若升级改动徽标结构，这里会静默回退到原生。')
+            ? h('div', { className: 'zp-hint' }, t('panel.brand.replacedHint'))
             : null
         ),
 

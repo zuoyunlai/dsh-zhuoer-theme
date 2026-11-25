@@ -2,8 +2,21 @@
 
 按时间倒序。每条都写「为什么改」，而不只是改了什么。
 
-## 0.6.10
+## 0.6.11
 
+**P1 试点：设置面板「品牌位」段落完成抽取**，作为后续 130 条的模板。
+
+- 12 条文案搬进 `05-i18n.js`（`panel.brand.*`，zh/en 各一套）：段标题/说明、开关、图片行、
+  选图/换图、预览 alt、移除、两条 hint；
+- 面板里改为 `t('panel.brand.…')`，**中文渲染逐字不变**——由 `verify:visual` 0.000% 与
+  `verify:csssnap` 逐字节一致证明，两次都是机器判的；
+- 裸中文棘轮基线收紧：合计 **200 → 188**（面板 150 → 138）。
+
+**English summary** — P1 pilot: the panel's “brand slot” section (12 strings) now resolves through
+the shared dictionary; Chinese rendering is byte-identical (visual 0.000%, CSS snapshot equal),
+and the bare-Chinese ratchet baseline drops from 200 to 188.
+
+## 0.6.10
 多语言第一步（规划见 `docs/i18n-plan.md`，决策 A1 / B1 已定）。
 
 **P0 完成**：新增 `src/05-i18n.js` 作为词典与语言状态的**唯一真源**。原先 `DICT` 埋在

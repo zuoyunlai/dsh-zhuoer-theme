@@ -42,7 +42,7 @@ window.__ModuleLoader__.load({
       } catch (e) { /* ignore */ }
     }
     // 版本号唯一源：面板文案与自检回传都用它，别再出现「构建 0.1.101」这种漂移。
-    const PVERSION = '0.6.10';
+    const PVERSION = '0.6.11';
     // 诊断探针总闸：默认关闭，开启方式 localStorage['dsh-zhuoer-theme:debug'] = '1'。
     // 下面若干探针会在每次 apply 时全文档遍历 DOM、逐元素 getComputedStyle、扫 styleSheets，
     // 是「启动 / 切主题卡顿」的主要来源之一，只在排障时打开。
@@ -77,6 +77,20 @@ window.__ModuleLoader__.load({
         'rail.empty': '右侧栏还没有可直达的标签页',
         'rail.noService': '当前宿主没有右侧栏服务，无法直达',
         'rail.openFailed': '打开失败：该标签当前不可用',
+
+        // 设置面板 · 品牌位（P1 试点）
+        'panel.brand.title': '品牌位',
+        'panel.brand.note': '左上角 deepseek HARNESS 徽标；关闭时用宿主原生',
+        'panel.brand.toggle': '启用',
+        'panel.brand.toggleHint': '用自定义图片替换',
+        'panel.brand.builtinHint': '用主题自带 logo（选图则用你的）',
+        'panel.brand.imageRow': '图片',
+        'panel.brand.pick': '选择图片…',
+        'panel.brand.repick': '更换图片…',
+        'panel.brand.previewAlt': '当前品牌位预览',
+        'panel.brand.remove': '移除',
+        'panel.brand.autoHint': '不选图 = 用主题自带 logo；上传则压到最长边 512px',
+        'panel.brand.replacedHint': '已替换。宿主若升级改动徽标结构，这里会静默回退到原生。',
       },
       en: {
         'rail.ariaLabel': 'Right sidebar quick nav',
@@ -84,6 +98,20 @@ window.__ModuleLoader__.load({
         'rail.empty': 'No right-sidebar tabs to jump to',
         'rail.noService': 'This host has no right-sidebar service',
         'rail.openFailed': 'Could not open that tab',
+
+        // Settings panel · brand slot (P1 pilot)
+        'panel.brand.title': 'Brand slot',
+        'panel.brand.note': 'The deepseek HARNESS badge in the top-left; off means the host default',
+        'panel.brand.toggle': 'Enable',
+        'panel.brand.toggleHint': 'Replace it with your own image',
+        'panel.brand.builtinHint': 'Using the built-in logo (pick an image to override)',
+        'panel.brand.imageRow': 'Image',
+        'panel.brand.pick': 'Choose image…',
+        'panel.brand.repick': 'Change image…',
+        'panel.brand.previewAlt': 'Current brand image preview',
+        'panel.brand.remove': 'Remove',
+        'panel.brand.autoHint': 'No image = built-in logo; uploads are downscaled to 512px max edge',
+        'panel.brand.replacedHint': 'Replaced. If a host upgrade changes the badge structure, this silently falls back to native.',
       },
     }
 
@@ -3348,21 +3376,21 @@ function applyTokens(theme, pref) {
           bgOn ? null : h('div', { className: 'zp-hint' }, '当前未启用底图，以上样式会在选中来源后生效。')
         ),
 
-        h(Section, { title: '品牌位', note: '左上角 deepseek HARNESS 徽标；关闭时用宿主原生' },
-          h(Row, { label: '启用' },
+        h(Section, { title: t('panel.brand.title'), note: t('panel.brand.note') },
+          h(Row, { label: t('panel.brand.toggle') },
             h('label', { className: 'zp-chk' },
               h('input', {
                 type: 'checkbox', checked: pref.brandLogo === true,
                 onChange: function (ev) { set({ brandLogo: Boolean(ev.target.checked) }); },
               }),
-              '用自定义图片替换'
+              t('panel.brand.toggleHint')
             ),
             pref.brandLogo && !pref.brandImage
-              ? h('span', { className: 'zp-hint' }, '用主题自带 logo（选图则用你的）')
+              ? h('span', { className: 'zp-hint' }, t('panel.brand.builtinHint'))
               : null
           ),
-          h(Row, { label: '图片' },
-            h('label', { className: 'zp-btn zp-file' }, pref.brandImage ? '更换图片…' : '选择图片…',
+          h(Row, { label: t('panel.brand.imageRow') },
+            h('label', { className: 'zp-btn zp-file' }, pref.brandImage ? t('panel.brand.repick') : t('panel.brand.pick'),
               h('input', {
                 type: 'file', accept: 'image/png,image/jpeg,image/webp',
                 onChange: function (ev) {
@@ -3373,16 +3401,16 @@ function applyTokens(theme, pref) {
                 },
               })
             ),
-            pref.brandImage ? h('img', { className: 'zp-thumb', alt: '当前品牌位预览', src: pref.brandImage }) : null,
+            pref.brandImage ? h('img', { className: 'zp-thumb', alt: t('panel.brand.previewAlt'), src: pref.brandImage }) : null,
             pref.brandImage
               ? h('button', {
                   type: 'button', className: 'zp-btn',
                   onClick: function () { set({ brandImage: '', brandLogo: false }); },
-                }, '移除')
-              : h('span', { className: 'zp-hint' }, '不选图 = 用主题自带 logo；上传则压到最长边 512px')
+                }, t('panel.brand.remove'))
+              : h('span', { className: 'zp-hint' }, t('panel.brand.autoHint'))
           ),
           pref.brandLogo && pref.brandImage
-            ? h('div', { className: 'zp-hint' }, '已替换。宿主若升级改动徽标结构，这里会静默回退到原生。')
+            ? h('div', { className: 'zp-hint' }, t('panel.brand.replacedHint'))
             : null
         ),
 

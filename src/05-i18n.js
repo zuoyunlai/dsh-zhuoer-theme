@@ -16,6 +16,20 @@
         'rail.empty': '右侧栏还没有可直达的标签页',
         'rail.noService': '当前宿主没有右侧栏服务，无法直达',
         'rail.openFailed': '打开失败：该标签当前不可用',
+
+        // 设置面板 · 品牌位（P1 试点）
+        'panel.brand.title': '品牌位',
+        'panel.brand.note': '左上角 deepseek HARNESS 徽标；关闭时用宿主原生',
+        'panel.brand.toggle': '启用',
+        'panel.brand.toggleHint': '用自定义图片替换',
+        'panel.brand.builtinHint': '用主题自带 logo（选图则用你的）',
+        'panel.brand.imageRow': '图片',
+        'panel.brand.pick': '选择图片…',
+        'panel.brand.repick': '更换图片…',
+        'panel.brand.previewAlt': '当前品牌位预览',
+        'panel.brand.remove': '移除',
+        'panel.brand.autoHint': '不选图 = 用主题自带 logo；上传则压到最长边 512px',
+        'panel.brand.replacedHint': '已替换。宿主若升级改动徽标结构，这里会静默回退到原生。',
       },
       en: {
         'rail.ariaLabel': 'Right sidebar quick nav',
@@ -23,6 +37,20 @@
         'rail.empty': 'No right-sidebar tabs to jump to',
         'rail.noService': 'This host has no right-sidebar service',
         'rail.openFailed': 'Could not open that tab',
+
+        // Settings panel · brand slot (P1 pilot)
+        'panel.brand.title': 'Brand slot',
+        'panel.brand.note': 'The deepseek HARNESS badge in the top-left; off means the host default',
+        'panel.brand.toggle': 'Enable',
+        'panel.brand.toggleHint': 'Replace it with your own image',
+        'panel.brand.builtinHint': 'Using the built-in logo (pick an image to override)',
+        'panel.brand.imageRow': 'Image',
+        'panel.brand.pick': 'Choose image…',
+        'panel.brand.repick': 'Change image…',
+        'panel.brand.previewAlt': 'Current brand image preview',
+        'panel.brand.remove': 'Remove',
+        'panel.brand.autoHint': 'No image = built-in logo; uploads are downscaled to 512px max edge',
+        'panel.brand.replacedHint': 'Replaced. If a host upgrade changes the badge structure, this silently falls back to native.',
       },
     }
 
