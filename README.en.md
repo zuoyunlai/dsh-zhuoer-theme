@@ -34,7 +34,7 @@ The UI shown is the Chinese one (same components in English; see [README.md](REA
 | Settings-section icon | Registered into the `settings.section.icon` slot, so the "Zhuoer 主题" row shows the same red Z (an `icon` field on the registration is ignored — do not use that mechanism) |
 | Market icon | `assets/icon-180.png` (180×180, rasterised from `assets/logo/zhuoer.svg`) |
 | Brand slot | Replaces the deepseek HARNESS wordmark; off by default. When on it uses the theme's own logo unless you upload an image (downscaled to 512px on the long edge) |
-| UI font size | Five steps (90 / 100 / 110 / 125 / 140), scaling everything together via `body{zoom}` |
+| Message text size | Five steps (90 / 100 / 110 / 125 / 140), **text only** (messages + Markdown). Use the host's own UI zoom for whole-app scaling: injecting `body{zoom}` breaks the host's sidebar-drag coordinate math |
 | Accent colour | Candidate colours per theme plus a free colour picker; button foregrounds are derived to stay readable |
 | UI font | Override the UI font family; CJK glyphs fall back to the bundled subsets |
 | Right-sidebar quick nav | Three modes: off / show three with hover expansion / show all |
@@ -119,7 +119,7 @@ Settings → **Zhuoer 主题**.
 
 - **Colour themes**: 12 built-in cards plus a "New theme" card. Each preview block is painted with that theme's own tokens, so the difference is visible at a glance.
 - **Mode**: light / dark / follow system — the same preference as the host's Settings → Appearance, synced both ways.
-- **UI font size / accent colour / UI font / right-sidebar quick nav**: apply immediately, no restart.
+- **Message text size / accent colour / UI font / right-sidebar quick nav**: apply immediately, no restart.
 - **Custom theme cards**: Edit colours / Duplicate / Delete.
 
 ## Light–dark sync with the host
@@ -232,7 +232,7 @@ npm run coverage      # token coverage and the "deliberately not derived" allowl
 | `verify:build` | `client.js` is byte-identical to re-concatenating `src/` |
 | `verify:version` | `PVERSION`, `package.json` and the quoted three-part version string agree (block comments stripped first, so `s5.4.7` inside an SVG path is not mistaken for a version) |
 | `verify:contrast` | 11 themes × 2 schemes: body/hint/success and button foregrounds ≥ 4.5:1; the 12 presets are recomputed through the real `buildCustomTokens` |
-| `verify:scale` | Font scaling must be `body{zoom}` and must not reintroduce px rewritten font tokens (the 0.4.1 regression) |
+| `verify:scale` | Font scaling may touch text size only: **`body{zoom}` is banned** (it breaks the host's sidebar-drag hit testing); `--dsw-font-*` px scaling and `--dsh-content-font-*` assignments must both be present |
 | `verify:themes` | Inlined copies equal the source token by token, both schemes complete, contrast met |
 | `verify:host` | Host selectors reconciled with the contract, plus two silent-failure checks: contract id fragments still present, plugin icon triple (`icon` / `files` / `exports`) complete |
 | `verify:market` | **Market index gate**: validates `market/index.json` against the official schema (LocalizedText must contain `en`, exact SemVer, `source.type`, `engines.dsh`) and cross-checks it with this package’s `package.json` |

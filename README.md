@@ -34,7 +34,7 @@
 | 设置页图标 | 向 `settings.section.icon` 槽注册贡献，设置页左侧「Zhuoer 主题」那一行显示同一枚红 Z（`register()` 上的 `icon` 字段无效，别用错机制） |
 | 市场图标 | `assets/icon-180.png`（180×180，由 `assets/logo/zhuoer.svg` 栅格化），用于插件市场卡片 |
 | 品牌位 | 替换左上角 deepseek HARNESS 徽标；默认关闭。开启后默认用主题自带 logo（红色 Z 方形标），上传图片则覆盖它（压到最长边 512px） |
-| 界面字号 | 90 / 100 / 110 / 125 / 140 五档，**整体缩放**（字、间距、边框一起变） |
+| 正文字号 | 90 / 100 / 110 / 125 / 140 五档，**只放大文字**（对话正文与 Markdown）。整体缩放请用宿主的界面缩放：注入 `body{zoom}` 会让宿主侧栏拖拽的坐标对账失效（0.6.19 实测「点不中把手、拖的却是中栏」） |
 | 强调色 | 每套主题给一组候选色，也可自由取色；写入后会派生按钮前景色保证可读 |
 | 界面字体 | 可覆盖 UI 字体族；中文字形由随包子集兜底 |
 | 右侧快捷导航 | 三个档位：关闭 / 只露三个（悬停展开）/ 全部常驻 |
@@ -118,7 +118,7 @@ https://ghproxy.net/https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme
 
 - **配色主题**：12 套内置卡 + 「新建主题」卡。卡片上的预览块用该主题自己的 token 上色，所以能直接看出差别。
 - **模式**：浅色 / 深色 / 跟随系统。它与宿主「通用设置 → 外观」是同一个 preference，两边任改一边都会同步。
-- **界面字号 / 强调色 / 界面字体 / 右侧快捷导航**：即时生效，不需要重启。
+- **正文字号 / 强调色 / 界面字体 / 右侧快捷导航**：即时生效，不需要重启。
 - **自定义主题卡**：编辑配色 / 复制 / 删除。
 
 ## 明暗三态与宿主同步
@@ -233,7 +233,7 @@ npm run coverage      # token 覆盖率与「刻意不跟锚点」的豁免清�
 | `verify:build` | `client.js` 与 `src/` 分片重新拼接的结果逐字节相等 |
 | `verify:version` | `PVERSION`、`package.json`、带引号的三段式版本字符串一致（先剥块注释，避免把 SVG path 里的 `s5.4.7` 当版本号） |
 | `verify:contrast` | 内置 11 套 × 两态的正文/提示/success 与按钮前景色 ≥ 4.5:1；12 套预设走真实 `buildCustomTokens` 复算 |
-| `verify:scale` | 字号缩放必须是全局 `body{zoom}`，且不允许再出现「只缩放字体 token 的 px」（0.4.1 的回归就是这种写法） |
+| `verify:scale` | 字号缩放只许动文字尺寸：**禁止 `body{zoom}`**（会让宿主侧栏拖拽命中错位），要求 `--dsw-font-*` 的 px 缩放与 `--dsh-content-font-*` 赋值同时存在 |
 | `verify:themes` | 内联副本与真源逐 token 相等、两档 token 集合齐全、对比度达标 |
 | `verify:host` | 宿主选择器与契约对账，另查两类「静默失效」：契约登记的 id 片段是否还在代码里、`package.json` 的插件图标三件套（`icon` / `files` / `exports`）是否齐全 |
 | `verify:market` | **市场索引门**：按官方 schema 校验 `market/index.json`（LocalizedText 必含 `en`、精确 SemVer、`source.type`、`engines.dsh`），并与本仓 `package.json` 交叉对账 |
