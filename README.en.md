@@ -9,6 +9,16 @@ A skin plugin that recolours the whole DSH UI: **11 built-in themes + 12 style p
 - Light / dark / follow-system is **two-way synced** with the host's Settings → Appearance: changing either side updates the other.
 - Current version **0.6.17**, MIT.
 
+## Screenshots
+
+The UI shown is the Chinese one (same components in English; see [README.md](README.md)). Captured from a throwaway profile with an empty config, so no session or workspace data is visible.
+
+![Colour themes · light](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/panel-light.png)
+
+![Colour themes · dark](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/panel-dark.png)
+
+![Custom theme editor: drawer on the left, live UI preview on the right](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/editor.png)
+
 ## Features
 
 | Feature | Notes |
@@ -264,6 +274,7 @@ assets/bg/           21 theme backgrounds (webp)
 assets/logo/         zhuoer.svg (brand-slot logo, served under /assets/logo/)
 assets/icon-180.png  market card icon (180×180, rasterised from zhuoer.svg)
 icon.svg             plugin page icon (referenced by package.json "icon")
+docs/images/         the three README screenshots (plugin UI only, 2x)
 locale/{zh,en}.json  display metadata (meta.title / meta.description, read by the host and market)
 ```
 

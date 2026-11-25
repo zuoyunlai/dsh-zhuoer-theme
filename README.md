@@ -9,6 +9,16 @@
 - 明暗三态（浅色 / 深色 / 跟随系统）与宿主「通用设置 → 外观」**双向同步**，两边改任一边都会一起变。
 - 当前版本 **0.6.17**，MIT。
 
+## 截图
+
+界面默认中文（英文界面同一套组件，见 [README.en.md](README.en.md)）。图片取自空配置的一次性 profile，没有会话、工作区等个人信息。
+
+![配色主题 · 浅色](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/panel-light.png)
+
+![配色主题 · 深色](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/panel-dark.png)
+
+![自定义主题编辑器（左抽屉 + 右侧真实界面预览）](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/editor.png)
+
 ## 功能一览
 
 | 能力 | 说明 |
@@ -275,6 +285,7 @@ assets/bg/           21 张主题底图（webp）
 assets/logo/         zhuoer.svg（品牌位自带 logo，走 /assets/logo/ 路由）
 assets/icon-180.png  市场卡片图标（180×180，由 zhuoer.svg 栅格化）
 icon.svg             插件页图标（package.json 的 "icon" 指向它）
+docs/images/         README 用的三张截图（插件自身界面，2x）
 locale/{zh,en}.json  展示元数据（meta.title / meta.description，宿主与市场读这里）
 ```
 
