@@ -2,12 +2,12 @@
 
 > **中文** ｜ [English](README.en.md)
 
-给 DSH 换整套配色的皮肤插件：**11 套内置主题 + 12 套风格预设 + 自定义主题编辑器（AI 生成 / 图片取色 / 逐色微调）**。
+给 DSH 换整套配色的皮肤插件：**12 套内置主题 + 12 套风格预设 + 自定义主题编辑器（AI 生成 / 图片取色 / 逐色微调）**。
 
 - 配色走宿主主题服务：`ctx.theme.overrideTokens()` 把每套主题映射到 DSH 的 `--dsw-alias-*` token（每套 222 个），不劫持 DOM 结构、不注入宿主组件。
 - **纯本地**：没有账号、没有遥测、不请求外部网络。唯一的联网行为是你在编辑器里点「AI 生成」时，插件通过**宿主自己的模型**补一组锚点色。
 - 明暗三态（浅色 / 深色 / 跟随系统）与宿主「通用设置 → 外观」**双向同步**，两边改任一边都会一起变。
-- 当前版本 **0.6.17**，MIT。
+- 当前版本 **0.6.18**，MIT。
 
 ## 截图
 
@@ -116,7 +116,7 @@ https://ghproxy.net/https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme
 
 设置 → **Zhuoer 主题**。
 
-- **配色主题**：11 套内置卡 + 「新建主题」卡。卡片上的预览块用该主题自己的 token 上色，所以能直接看出差别。
+- **配色主题**：12 套内置卡 + 「新建主题」卡。卡片上的预览块用该主题自己的 token 上色，所以能直接看出差别。
 - **模式**：浅色 / 深色 / 跟随系统。它与宿主「通用设置 → 外观」是同一个 preference，两边任改一边都会同步。
 - **界面字号 / 强调色 / 界面字体 / 右侧快捷导航**：即时生效，不需要重启。
 - **自定义主题卡**：编辑配色 / 复制 / 删除。
@@ -239,10 +239,11 @@ npm run coverage      # token 覆盖率与「刻意不跟锚点」的豁免清�
 | `verify:market` | **市场索引门**：按官方 schema 校验 `market/index.json`（LocalizedText 必含 `en`、精确 SemVer、`source.type`、`engines.dsh`），并与本仓 `package.json` 交叉对账 |
 | `verify:locale` | **展示元数据门**：`locale/*.json` 的 `meta.title` 非空、`en` 必存、`exports`/`files` 齐全、`./icon` ≤256 KiB 且与 `icon` 字段指向一致 |
 | `verify:keys` | **词典门**（静态）：源码里 `t('…')` 用到的键必须在 zh/en 都存在，且同名键占位符集合一致；缺键或 `{n}`/`{count}` 不一致即红。审的是「渲染不到」的文案（抽屉、错误、ARIA） |
-| `verify:text` | **文案门**（确定性）：Node 端渲染面板，把 130 条文案与属性（`title`/`aria-label`/`placeholder`/`alt`）与 `contracts/text-snapshot/{zh,en}.json` 逐条比对，版本号归一化。改文案要配 `--update`，否则红 |
+| `verify:text` | **文案门**（确定性）：Node 端渲染面板，把 148 条文案与属性（`title`/`aria-label`/`placeholder`/`alt`）与 `contracts/text-snapshot/{zh,en}.json` 逐条比对，版本号归一化。改文案要配 `--update`，否则红 |
 | `verify:visual` | 面板截图像素比对（**已从 `verify:all` 摘除**）：同状态连续两次截 `.zp-root` 在光态下互差 2.3%，无法复现的像素门等于安全错觉。脚本保留，需要人工看图时再跑 |
 | `verify:csssnap` | 把插件**实际注入**的 CSS 文本与 `contracts/css-snapshot/` 逐字节比对；差异会报出首个偏移与上下文。没有 `visual/css-current/` 时 SKIP，`--strict` 才硬判 |
-| `verify:i18n` | 裸中文字面量**棘轮**：按文件记基线，只许减少；多一条就红（文案要写进 `src/05-i18n.js` 的 `I18N` 再 `t()` 取）。当前合计 104 条 |
+| `verify:claims` | **对外口径门**：README / market 索引 / locale / package.json 里的主题数、版本号、底图数、文案条数、裸中文基线必须等于现算真值（加主题后忘记改文档 → 红） |
+| `verify:i18n` | 裸中文字面量**棘轮**：按文件记基线，只许减少；多一条就红（文案要写进 `src/05-i18n.js` 的 `I18N` 再 `t()` 取）。当前合计 93 条 |
 | `verify:panel` | **面板冒烟**：Node 端用最小宿主替身加载 `client.js`、调 `apply()`，把 `settings.section` 真渲染一遍；任何渲染期抛错即红（0.6.11 的 `t is not defined` 就是它该抓的） |
 | `verify:git` | `.git` 元数据（`HEAD`/`config`/`index`）是否完好；损坏时 `node scripts/git-doctor.mjs --fix` 一键重建（见 `docs/git-integrity.md`） |
 | `verify:release` | 发版预检：按内容哈希比对工作区与 HEAD（抓「同长度编辑被 git stat 缓存吞掉」），并校验版本三元组 |
@@ -307,7 +308,7 @@ docs/                设计与权衡记录与操作规程：i18n-plan.md（多�
                      live-verify.md（起一次性 profile 做真机验证）、official-requirements.md（官方硬要求与合规对照）、
                      git-integrity.md（.git 事故与修复约定）
 assets/fonts/        23 个 woff2（14 个西文族 + 3 个中文子集）+ 来源说明
-assets/bg/           21 张主题底图（webp）
+assets/bg/           24 张主题底图（webp）
 assets/logo/         zhuoer.svg（品牌位自带 logo，走 /assets/logo/ 路由）
 assets/icon-180.png  市场卡片图标（180×180，由 zhuoer.svg 栅格化）
 icon.svg             插件页图标（package.json 的 "icon" 指向它）
@@ -336,7 +337,7 @@ locale/{zh,en}.json  展示元数据（meta.title / meta.description，宿主与
 - **CJK 字体不做 unicode-range 拆包**。三支中文字体本就是约 4400 字的子集，按常用字表再拆只能省 11–12%，却要为不连续码位内联约 2.2 万字符的 range，并把「按需下载一次」变成「可能两次」。楷体拆出去只剩 3 个字。真正影响首屏的是「默认链路不放衬线中文字体」——它已经只在用户选 serif 时触发。
 - **阴影刻度**：`themes.mjs` 的 `--dsw-elevation-*` 与插件自己的 `shadow` 是两套刻度（后者按明暗强度缩放）。合并需要重定一套视觉刻度，属数据设计而非清理，留待单独一轮。
 - **主题色与形状需要人眼确认**：门禁能保证对比度与完整性，保证不了「这套圆角在你的显示器上好不好看」。
-- **主题名与预设名不译**（决策 A1）：11 套内置主题、12 套风格预设的 `label` 保持中文，因为它们是品牌标识的一部分；编辑器里的分组名、按钮、说明、错误提示全部译。英文界面里剩下的中文只应是这些名字。
+- **主题名与预设名不译**（决策 A1）：12 套内置主题、12 套风格预设的 `label` 保持中文，因为它们是品牌标识的一部分；编辑器里的分组名、按钮、说明、错误提示全部译。英文界面里剩下的中文只应是这些名字。
 - **DSH 升级可能打破契约**：类名子串与属性名不是公开 API，`verify:host` 只能告诉你「代码用了什么」，命不命中要真机验。
 - **设置页分区图标走槽、不走字段**：在 `settings.section` 注册对象上写 `icon` 字段无效（0.6.2 实测被丢弃，显示内置齿轮）；正确做法是往 `settings.section.icon` 槽注册，且注册 `id` 必须等于分区 `id`，宿主按 `{ size, active }` 调用它（0.6.6 起自带红 Z）。三件事——`package.json` 的 `icon`、槽贡献、注册字段——互不通用，证据都在 `contracts/host-contract.json` 的 `positives` / `negatives` 里。
 

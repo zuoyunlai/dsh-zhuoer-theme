@@ -92,6 +92,21 @@ for (const id of THEME_IDS) {
   }
 }
 
+// 1c) 语义色落在「文字面」上：错误/警告色是功能性信号，必须和正文一样过线。
+// 实测（12 套 × 两态）：label-error 有 15 档 < 4.5，最差 vintage-paper 深色 2.50:1（卡片层）。
+for (const id of THEME_IDS) {
+  for (const scheme of ['light', 'dark']) {
+    const t = THEMES[id] && THEMES[id][scheme];
+    if (!t) continue;
+    for (const surface of ['--dsw-alias-bg-base', '--dsw-alias-bg-layer-2']) {
+      for (const k of ['--dsw-alias-label-error', '--dsw-alias-state-error-primary', '--dsw-alias-state-warn-primary', '--dsw-alias-state-warn-label']) {
+        if (!t[k] || !t[surface]) continue;
+        check(id + '/' + scheme + ' ' + k.replace('--dsw-alias-', '') + '@' + surface.replace('--dsw-alias-bg-', ''), t[k], t[surface]);
+      }
+    }
+  }
+}
+
 // 2) 12 套风格预设 × 深浅两态（走真实的 buildCustomTokens）
 for (const p of api.STYLE_PRESETS) {
   for (const scheme of ['light', 'dark']) {

@@ -21,9 +21,10 @@
 import { createHash } from 'node:crypto'
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
+const { THEMES: THEME_VALUES } = await import(pathToFileURL(join(root, 'themes.mjs')).href)
 const baselineDir = join(root, 'contracts', 'css-snapshot')
 const currentDir = join(root, 'visual', 'css-current')
 const manifestPath = join(baselineDir, 'manifest.json')
@@ -51,13 +52,19 @@ function newestMtime(dir, ext) {
 
 function warnIfStale(currentDir, ext) {
   const cur = newestMtime(currentDir, ext)
-  if (!cur) return
+  if (!cur) return false
   const src = newestMtime(join(root, 'src'), '.js')
   if (src > cur) {
     const mins = Math.round((src - cur) / 60000)
     console.warn('WARN  采集比源码旧（源码新约 ' + mins + ' 分钟）—— 这次结论只对采集那一刻成立；')
     console.warn('      改完代码请重新采集，否则门看起来是绿的，其实在比旧图。')
+    return true
   }
+  return false
+}
+
+function cssInputsHash() {
+  return sha(readFileSync(join(root, 'themes.mjs')))
 }
 
 function capture() {
@@ -74,6 +81,7 @@ function capture() {
   }
   writeFileSync(manifestPath, JSON.stringify({
     $comment: '插件注入 CSS 的运行时快照基线。改动后重新采集：node scripts/verify-css-snapshot.mjs --capture visual/css-current',
+    cssInputs: cssInputsHash(),
     images: undefined,
     files: entries,
   }, null, 2) + '\n')
@@ -99,7 +107,18 @@ function verify() {
     return 0
   }
   warnIfStale(currentDir, '.css')
+  // 真正会改变注入 CSS 的是「token 输入」（themes.mjs）。只比 mtime 会把
+  // 纯 UI/文案改动也判红（面板改了、注入的 222 个 token 一个没动），那种假红最后
+  // 只会逼人习惯性 --capture，等于把门关掉。所以这里比 token 输入的指纹。
+  const inputs = cssInputsHash()
   let failed = 0
+  if (manifest.cssInputs && manifest.cssInputs !== inputs) {
+    console.error('FAIL  token 输入变了（themes.mjs 指纹不一致）——注入的 CSS 可能已经不同，请重新采集：')
+    console.error('      node scripts/verify-css-snapshot.mjs --capture visual/css-current')
+    failed++
+  } else if (!manifest.cssInputs) {
+    console.warn('WARN  基线里没有 token 输入指纹（旧格式），本次只做逐字节比对')
+  }
   for (const entry of manifest.files) {
     const p = join(currentDir, entry.file)
     if (!existsSync(p)) { console.error('FAIL  缺当前快照：' + entry.file); failed++; continue }
@@ -112,6 +131,23 @@ function verify() {
     console.error('      基线: …' + ctx(base) + '…')
     console.error('      当前: …' + ctx(now) + '…')
     failed++
+  }
+  // 逐字节一致还不够：两份文件可以是「一起旧」的（改了 token 只 promote 没重采）。
+  // 所以再拿 themes.mjs 的真值反查基线里每个 token 的取值——这是「基线是否还对得上代码」的硬判据。
+  {
+    const want = { light: readFileSync(join(baselineDir, 'plugin-light.css'), 'utf8'), dark: readFileSync(join(baselineDir, 'plugin-dark.css'), 'utf8') }
+    for (const scheme of ['light', 'dark']) {
+      const t = THEME_VALUES.zhuoer && THEME_VALUES.zhuoer[scheme]
+      if (!t || !want[scheme]) continue
+      // 排除运行时会被改写的几族：字体（FONTS 换族）、阴影（SHADOW_STRENGTH 缩放）、
+      // 侧栏填充（按标题栏色现算）——它们的值本来就不等于 themes.mjs 的字面量。
+      const runtimeOwned = (k) => /^--dsw-font-/.test(k) || /^--dsw-elevation-/.test(k) || k === '--dsw-specific-sidebar-fill'
+      const miss = Object.keys(t).filter((k) => !runtimeOwned(k) && !want[scheme].includes(k + ':' + t[k] + ' !important'))
+      if (miss.length) {
+        console.error('FAIL  ' + scheme + ' 基线里有 ' + miss.length + ' 个 token 与 themes.mjs 不一致（首个：' + miss[0] + '）')
+        failed++
+      }
+    }
   }
   if (failed) { console.error('\nFAIL  ' + failed + ' 份 CSS 与基线不同。确认是有意改动后重新采集基线。'); return 1 }
   console.log('PASS  注入的 CSS 与基线逐字节一致')

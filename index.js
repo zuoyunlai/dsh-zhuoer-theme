@@ -12,7 +12,9 @@ const STATUS_DIR = 'dsh-zhuoer-theme';
 // 唯一声明处 —— index.js 按它注册路由，scripts/verify-assets.mjs 按它对账。
 // 改这里之前先看客户端请求的路径：客户端 URL 必须等于 url + 文件名。
 const ASSET_DIRS = [
-  { url: '/dsh-zhuoer-theme/assets/bg/', disk: 'assets/bg/', ext: '.webp', type: 'image/webp', maxAge: 86400 },
+  // 底图会「同名换内容」（补一套主题、加深纹理都改同一个文件名），长缓存会让用户
+  // 升级后最长一天看不到变化。5 分钟足够挡重复请求，又不至于把更新藏起来。
+  { url: '/dsh-zhuoer-theme/assets/bg/', disk: 'assets/bg/', ext: '.webp', type: 'image/webp', maxAge: 300 },
   { url: '/dsh-zhuoer-theme/assets/fonts/', disk: 'assets/fonts/', ext: '.woff2', type: 'font/woff2', maxAge: 31536000 },
   // 品牌位 logo：svg 是纯文本、只有几 KB，长缓存即可（换图要发新版本，不支持运行时替换）
   { url: '/dsh-zhuoer-theme/assets/logo/', disk: 'assets/logo/', ext: '.svg', type: 'image/svg+xml', maxAge: 31536000 },

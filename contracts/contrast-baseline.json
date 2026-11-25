@@ -1,7 +1,7 @@
 {
   "note": "由 npm run contrast:update 生成。ratio 是实测对比度；门禁要求任何一组都不得比它低 0.01 以上。",
   "min": 4.5,
-  "count": 187,
+  "count": 391,
   "pairs": [
     {
       "key": "zhuoer/light 正文",
@@ -266,6 +266,30 @@
       "fg": "#0b1116",
       "bg": "#5ab6d8",
       "ratio": 8.244
+    },
+    {
+      "key": "vintage-paper/light 正文",
+      "fg": "#4a3f35",
+      "bg": "#f5f1e6",
+      "ratio": 9.061
+    },
+    {
+      "key": "vintage-paper/light 按钮文字",
+      "fg": "#ffffff",
+      "bg": "#7e5e3e",
+      "ratio": 5.903
+    },
+    {
+      "key": "vintage-paper/dark 正文",
+      "fg": "#ece5d8",
+      "bg": "#2d2621",
+      "ratio": 11.884
+    },
+    {
+      "key": "vintage-paper/dark 按钮文字",
+      "fg": "#2d2621",
+      "bg": "#c0a080",
+      "ratio": 6.083
     },
     {
       "key": "zhuoer/light label-tertiary",
@@ -794,6 +818,1206 @@
       "fg": "#3fb950",
       "bg": "#10151b",
       "ratio": 7.219
+    },
+    {
+      "key": "vintage-paper/light label-tertiary",
+      "fg": "#746350",
+      "bg": "#f5f1e6",
+      "ratio": 5.107
+    },
+    {
+      "key": "vintage-paper/light label-caption",
+      "fg": "#70604d",
+      "bg": "#f5f1e6",
+      "ratio": 5.363
+    },
+    {
+      "key": "vintage-paper/light label-dimmed",
+      "fg": "#73624f",
+      "bg": "#f5f1e6",
+      "ratio": 5.185
+    },
+    {
+      "key": "vintage-paper/light state-success-primary",
+      "fg": "#2a7c35",
+      "bg": "#f5f1e6",
+      "ratio": 4.614
+    },
+    {
+      "key": "vintage-paper/dark label-tertiary",
+      "fg": "#ccc3b4",
+      "bg": "#2d2621",
+      "ratio": 8.529
+    },
+    {
+      "key": "vintage-paper/dark label-caption",
+      "fg": "#cfc7b7",
+      "bg": "#2d2621",
+      "ratio": 8.865
+    },
+    {
+      "key": "vintage-paper/dark label-dimmed",
+      "fg": "#cdc4b5",
+      "bg": "#2d2621",
+      "ratio": 8.619
+    },
+    {
+      "key": "vintage-paper/dark state-success-primary",
+      "fg": "#7fc98a",
+      "bg": "#2d2621",
+      "ratio": 7.531
+    },
+    {
+      "key": "zhuoer/light label-error@base",
+      "fg": "#cf2121",
+      "bg": "#f4f1ec",
+      "ratio": 4.789
+    },
+    {
+      "key": "zhuoer/light state-error-primary@base",
+      "fg": "#cf2121",
+      "bg": "#f4f1ec",
+      "ratio": 4.789
+    },
+    {
+      "key": "zhuoer/light state-warn-primary@base",
+      "fg": "#92400e",
+      "bg": "#f4f1ec",
+      "ratio": 6.293
+    },
+    {
+      "key": "zhuoer/light state-warn-label@base",
+      "fg": "#92400e",
+      "bg": "#f4f1ec",
+      "ratio": 6.293
+    },
+    {
+      "key": "zhuoer/light label-error@layer-2",
+      "fg": "#cf2121",
+      "bg": "#efece7",
+      "ratio": 4.579
+    },
+    {
+      "key": "zhuoer/light state-error-primary@layer-2",
+      "fg": "#cf2121",
+      "bg": "#efece7",
+      "ratio": 4.579
+    },
+    {
+      "key": "zhuoer/light state-warn-primary@layer-2",
+      "fg": "#92400e",
+      "bg": "#efece7",
+      "ratio": 6.017
+    },
+    {
+      "key": "zhuoer/light state-warn-label@layer-2",
+      "fg": "#92400e",
+      "bg": "#efece7",
+      "ratio": 6.017
+    },
+    {
+      "key": "zhuoer/dark label-error@base",
+      "fg": "#ef4444",
+      "bg": "#0e1015",
+      "ratio": 5.057
+    },
+    {
+      "key": "zhuoer/dark state-error-primary@base",
+      "fg": "#ef4444",
+      "bg": "#0e1015",
+      "ratio": 5.057
+    },
+    {
+      "key": "zhuoer/dark state-warn-primary@base",
+      "fg": "#f59e0b",
+      "bg": "#0e1015",
+      "ratio": 8.86
+    },
+    {
+      "key": "zhuoer/dark state-warn-label@base",
+      "fg": "#f59e0b",
+      "bg": "#0e1015",
+      "ratio": 8.86
+    },
+    {
+      "key": "zhuoer/dark label-error@layer-2",
+      "fg": "#ef4444",
+      "bg": "#17191e",
+      "ratio": 4.673
+    },
+    {
+      "key": "zhuoer/dark state-error-primary@layer-2",
+      "fg": "#ef4444",
+      "bg": "#17191e",
+      "ratio": 4.673
+    },
+    {
+      "key": "zhuoer/dark state-warn-primary@layer-2",
+      "fg": "#f59e0b",
+      "bg": "#17191e",
+      "ratio": 8.188
+    },
+    {
+      "key": "zhuoer/dark state-warn-label@layer-2",
+      "fg": "#f59e0b",
+      "bg": "#17191e",
+      "ratio": 8.188
+    },
+    {
+      "key": "absolutely/light label-error@base",
+      "fg": "#d32222",
+      "bg": "#f7f6f5",
+      "ratio": 4.838
+    },
+    {
+      "key": "absolutely/light state-error-primary@base",
+      "fg": "#d32222",
+      "bg": "#f7f6f5",
+      "ratio": 4.838
+    },
+    {
+      "key": "absolutely/light state-warn-primary@base",
+      "fg": "#92400e",
+      "bg": "#f7f6f5",
+      "ratio": 6.569
+    },
+    {
+      "key": "absolutely/light state-warn-label@base",
+      "fg": "#92400e",
+      "bg": "#f7f6f5",
+      "ratio": 6.569
+    },
+    {
+      "key": "absolutely/light label-error@layer-2",
+      "fg": "#d32222",
+      "bg": "#f1f0ef",
+      "ratio": 4.588
+    },
+    {
+      "key": "absolutely/light state-error-primary@layer-2",
+      "fg": "#d32222",
+      "bg": "#f1f0ef",
+      "ratio": 4.588
+    },
+    {
+      "key": "absolutely/light state-warn-primary@layer-2",
+      "fg": "#92400e",
+      "bg": "#f1f0ef",
+      "ratio": 6.229
+    },
+    {
+      "key": "absolutely/light state-warn-label@layer-2",
+      "fg": "#92400e",
+      "bg": "#f1f0ef",
+      "ratio": 6.229
+    },
+    {
+      "key": "absolutely/dark label-error@base",
+      "fg": "#df6767",
+      "bg": "#1b1b1a",
+      "ratio": 5.149
+    },
+    {
+      "key": "absolutely/dark state-error-primary@base",
+      "fg": "#df6767",
+      "bg": "#1b1b1a",
+      "ratio": 5.149
+    },
+    {
+      "key": "absolutely/dark state-warn-primary@base",
+      "fg": "#f59e0b",
+      "bg": "#1b1b1a",
+      "ratio": 8.026
+    },
+    {
+      "key": "absolutely/dark state-warn-label@base",
+      "fg": "#f59e0b",
+      "bg": "#1b1b1a",
+      "ratio": 8.026
+    },
+    {
+      "key": "absolutely/dark label-error@layer-2",
+      "fg": "#df6767",
+      "bg": "#252523",
+      "ratio": 4.587
+    },
+    {
+      "key": "absolutely/dark state-error-primary@layer-2",
+      "fg": "#df6767",
+      "bg": "#252523",
+      "ratio": 4.587
+    },
+    {
+      "key": "absolutely/dark state-warn-primary@layer-2",
+      "fg": "#f59e0b",
+      "bg": "#252523",
+      "ratio": 7.15
+    },
+    {
+      "key": "absolutely/dark state-warn-label@layer-2",
+      "fg": "#f59e0b",
+      "bg": "#252523",
+      "ratio": 7.15
+    },
+    {
+      "key": "beacon/light label-error@base",
+      "fg": "#8c0f0f",
+      "bg": "#f8f8f8",
+      "ratio": 9.028
+    },
+    {
+      "key": "beacon/light state-error-primary@base",
+      "fg": "#8c0f0f",
+      "bg": "#f8f8f8",
+      "ratio": 9.028
+    },
+    {
+      "key": "beacon/light state-warn-primary@base",
+      "fg": "#613d00",
+      "bg": "#f8f8f8",
+      "ratio": 9.088
+    },
+    {
+      "key": "beacon/light state-warn-label@base",
+      "fg": "#613d00",
+      "bg": "#f8f8f8",
+      "ratio": 9.088
+    },
+    {
+      "key": "beacon/light label-error@layer-2",
+      "fg": "#8c0f0f",
+      "bg": "#f1f1f1",
+      "ratio": 8.488
+    },
+    {
+      "key": "beacon/light state-error-primary@layer-2",
+      "fg": "#8c0f0f",
+      "bg": "#f1f1f1",
+      "ratio": 8.488
+    },
+    {
+      "key": "beacon/light state-warn-primary@layer-2",
+      "fg": "#613d00",
+      "bg": "#f1f1f1",
+      "ratio": 8.545
+    },
+    {
+      "key": "beacon/light state-warn-label@layer-2",
+      "fg": "#613d00",
+      "bg": "#f1f1f1",
+      "ratio": 8.545
+    },
+    {
+      "key": "beacon/dark label-error@base",
+      "fg": "#ffabab",
+      "bg": "#000000",
+      "ratio": 11.665
+    },
+    {
+      "key": "beacon/dark state-error-primary@base",
+      "fg": "#ffabab",
+      "bg": "#000000",
+      "ratio": 11.665
+    },
+    {
+      "key": "beacon/dark state-warn-primary@base",
+      "fg": "#ffc233",
+      "bg": "#000000",
+      "ratio": 13.017
+    },
+    {
+      "key": "beacon/dark state-warn-label@base",
+      "fg": "#ffc233",
+      "bg": "#000000",
+      "ratio": 13.017
+    },
+    {
+      "key": "beacon/dark label-error@layer-2",
+      "fg": "#ffabab",
+      "bg": "#0d0d0d",
+      "ratio": 10.796
+    },
+    {
+      "key": "beacon/dark state-error-primary@layer-2",
+      "fg": "#ffabab",
+      "bg": "#0d0d0d",
+      "ratio": 10.796
+    },
+    {
+      "key": "beacon/dark state-warn-primary@layer-2",
+      "fg": "#ffc233",
+      "bg": "#0d0d0d",
+      "ratio": 12.047
+    },
+    {
+      "key": "beacon/dark state-warn-label@layer-2",
+      "fg": "#ffc233",
+      "bg": "#0d0d0d",
+      "ratio": 12.047
+    },
+    {
+      "key": "crt/light label-error@base",
+      "fg": "#d12222",
+      "bg": "#f4f4f4",
+      "ratio": 4.818
+    },
+    {
+      "key": "crt/light state-error-primary@base",
+      "fg": "#d12222",
+      "bg": "#f4f4f4",
+      "ratio": 4.818
+    },
+    {
+      "key": "crt/light state-warn-primary@base",
+      "fg": "#92400e",
+      "bg": "#f4f4f4",
+      "ratio": 6.446
+    },
+    {
+      "key": "crt/light state-warn-label@base",
+      "fg": "#92400e",
+      "bg": "#f4f4f4",
+      "ratio": 6.446
+    },
+    {
+      "key": "crt/light label-error@layer-2",
+      "fg": "#d12222",
+      "bg": "#eeeeee",
+      "ratio": 4.567
+    },
+    {
+      "key": "crt/light state-error-primary@layer-2",
+      "fg": "#d12222",
+      "bg": "#eeeeee",
+      "ratio": 4.567
+    },
+    {
+      "key": "crt/light state-warn-primary@layer-2",
+      "fg": "#92400e",
+      "bg": "#eeeeee",
+      "ratio": 6.111
+    },
+    {
+      "key": "crt/light state-warn-label@layer-2",
+      "fg": "#92400e",
+      "bg": "#eeeeee",
+      "ratio": 6.111
+    },
+    {
+      "key": "crt/dark label-error@base",
+      "fg": "#d84f49",
+      "bg": "#090a09",
+      "ratio": 4.848
+    },
+    {
+      "key": "crt/dark state-error-primary@base",
+      "fg": "#d84f49",
+      "bg": "#090a09",
+      "ratio": 4.848
+    },
+    {
+      "key": "crt/dark state-warn-primary@base",
+      "fg": "#f59e0b",
+      "bg": "#090a09",
+      "ratio": 9.234
+    },
+    {
+      "key": "crt/dark state-warn-label@base",
+      "fg": "#f59e0b",
+      "bg": "#090a09",
+      "ratio": 9.234
+    },
+    {
+      "key": "crt/dark label-error@layer-2",
+      "fg": "#d84f49",
+      "bg": "#121312",
+      "ratio": 4.553
+    },
+    {
+      "key": "crt/dark state-error-primary@layer-2",
+      "fg": "#d84f49",
+      "bg": "#121312",
+      "ratio": 4.553
+    },
+    {
+      "key": "crt/dark state-warn-primary@layer-2",
+      "fg": "#f59e0b",
+      "bg": "#121312",
+      "ratio": 8.672
+    },
+    {
+      "key": "crt/dark state-warn-label@layer-2",
+      "fg": "#f59e0b",
+      "bg": "#121312",
+      "ratio": 8.672
+    },
+    {
+      "key": "dash/light label-error@base",
+      "fg": "#c11f1f",
+      "bg": "#ebe5e0",
+      "ratio": 4.828
+    },
+    {
+      "key": "dash/light state-error-primary@base",
+      "fg": "#c11f1f",
+      "bg": "#ebe5e0",
+      "ratio": 4.828
+    },
+    {
+      "key": "dash/light state-warn-primary@base",
+      "fg": "#92400e",
+      "bg": "#ebe5e0",
+      "ratio": 5.678
+    },
+    {
+      "key": "dash/light state-warn-label@base",
+      "fg": "#92400e",
+      "bg": "#ebe5e0",
+      "ratio": 5.678
+    },
+    {
+      "key": "dash/light label-error@layer-2",
+      "fg": "#c11f1f",
+      "bg": "#e6e0da",
+      "ratio": 4.605
+    },
+    {
+      "key": "dash/light state-error-primary@layer-2",
+      "fg": "#c11f1f",
+      "bg": "#e6e0da",
+      "ratio": 4.605
+    },
+    {
+      "key": "dash/light state-warn-primary@layer-2",
+      "fg": "#92400e",
+      "bg": "#e6e0da",
+      "ratio": 5.415
+    },
+    {
+      "key": "dash/light state-warn-label@layer-2",
+      "fg": "#92400e",
+      "bg": "#e6e0da",
+      "ratio": 5.415
+    },
+    {
+      "key": "dash/dark label-error@base",
+      "fg": "#dc5b5b",
+      "bg": "#1a1210",
+      "ratio": 5.001
+    },
+    {
+      "key": "dash/dark state-error-primary@base",
+      "fg": "#dc5b5b",
+      "bg": "#1a1210",
+      "ratio": 5.001
+    },
+    {
+      "key": "dash/dark state-warn-primary@base",
+      "fg": "#f59e0b",
+      "bg": "#1a1210",
+      "ratio": 8.593
+    },
+    {
+      "key": "dash/dark state-warn-label@base",
+      "fg": "#f59e0b",
+      "bg": "#1a1210",
+      "ratio": 8.593
+    },
+    {
+      "key": "dash/dark label-error@layer-2",
+      "fg": "#dc5b5b",
+      "bg": "#241b18",
+      "ratio": 4.571
+    },
+    {
+      "key": "dash/dark state-error-primary@layer-2",
+      "fg": "#dc5b5b",
+      "bg": "#241b18",
+      "ratio": 4.571
+    },
+    {
+      "key": "dash/dark state-warn-primary@layer-2",
+      "fg": "#f59e0b",
+      "bg": "#241b18",
+      "ratio": 7.854
+    },
+    {
+      "key": "dash/dark state-warn-label@layer-2",
+      "fg": "#f59e0b",
+      "bg": "#241b18",
+      "ratio": 7.854
+    },
+    {
+      "key": "knot/light label-error@base",
+      "fg": "#d12222",
+      "bg": "#f4f4f7",
+      "ratio": 4.827
+    },
+    {
+      "key": "knot/light state-error-primary@base",
+      "fg": "#d12222",
+      "bg": "#f4f4f7",
+      "ratio": 4.827
+    },
+    {
+      "key": "knot/light state-warn-primary@base",
+      "fg": "#92400e",
+      "bg": "#f4f4f7",
+      "ratio": 6.459
+    },
+    {
+      "key": "knot/light state-warn-label@base",
+      "fg": "#92400e",
+      "bg": "#f4f4f7",
+      "ratio": 6.459
+    },
+    {
+      "key": "knot/light label-error@layer-2",
+      "fg": "#d12222",
+      "bg": "#eeeef2",
+      "ratio": 4.579
+    },
+    {
+      "key": "knot/light state-error-primary@layer-2",
+      "fg": "#d12222",
+      "bg": "#eeeef2",
+      "ratio": 4.579
+    },
+    {
+      "key": "knot/light state-warn-primary@layer-2",
+      "fg": "#92400e",
+      "bg": "#eeeef2",
+      "ratio": 6.127
+    },
+    {
+      "key": "knot/light state-warn-label@layer-2",
+      "fg": "#92400e",
+      "bg": "#eeeef2",
+      "ratio": 6.127
+    },
+    {
+      "key": "knot/dark label-error@base",
+      "fg": "#da4e4e",
+      "bg": "#080808",
+      "ratio": 4.941
+    },
+    {
+      "key": "knot/dark state-error-primary@base",
+      "fg": "#da4e4e",
+      "bg": "#080808",
+      "ratio": 4.941
+    },
+    {
+      "key": "knot/dark state-warn-primary@base",
+      "fg": "#f59e0b",
+      "bg": "#080808",
+      "ratio": 9.325
+    },
+    {
+      "key": "knot/dark state-warn-label@base",
+      "fg": "#f59e0b",
+      "bg": "#080808",
+      "ratio": 9.325
+    },
+    {
+      "key": "knot/dark label-error@layer-2",
+      "fg": "#da4e4e",
+      "bg": "#121212",
+      "ratio": 4.622
+    },
+    {
+      "key": "knot/dark state-error-primary@layer-2",
+      "fg": "#da4e4e",
+      "bg": "#121212",
+      "ratio": 4.622
+    },
+    {
+      "key": "knot/dark state-warn-primary@layer-2",
+      "fg": "#f59e0b",
+      "bg": "#121212",
+      "ratio": 8.723
+    },
+    {
+      "key": "knot/dark state-warn-label@layer-2",
+      "fg": "#f59e0b",
+      "bg": "#121212",
+      "ratio": 8.723
+    },
+    {
+      "key": "manuscript/light label-error@base",
+      "fg": "#bc2f26",
+      "bg": "#f1f0ea",
+      "ratio": 5.148
+    },
+    {
+      "key": "manuscript/light state-error-primary@base",
+      "fg": "#bc2f26",
+      "bg": "#f1f0ea",
+      "ratio": 5.148
+    },
+    {
+      "key": "manuscript/light state-warn-primary@base",
+      "fg": "#92400e",
+      "bg": "#f1f0ea",
+      "ratio": 6.21
+    },
+    {
+      "key": "manuscript/light state-warn-label@base",
+      "fg": "#92400e",
+      "bg": "#f1f0ea",
+      "ratio": 6.21
+    },
+    {
+      "key": "manuscript/light label-error@layer-2",
+      "fg": "#bc2f26",
+      "bg": "#ebeae4",
+      "ratio": 4.876
+    },
+    {
+      "key": "manuscript/light state-error-primary@layer-2",
+      "fg": "#bc2f26",
+      "bg": "#ebeae4",
+      "ratio": 4.876
+    },
+    {
+      "key": "manuscript/light state-warn-primary@layer-2",
+      "fg": "#92400e",
+      "bg": "#ebeae4",
+      "ratio": 5.882
+    },
+    {
+      "key": "manuscript/light state-warn-label@layer-2",
+      "fg": "#92400e",
+      "bg": "#ebeae4",
+      "ratio": 5.882
+    },
+    {
+      "key": "manuscript/dark label-error@base",
+      "fg": "#db6f67",
+      "bg": "#211e18",
+      "ratio": 5.13
+    },
+    {
+      "key": "manuscript/dark state-error-primary@base",
+      "fg": "#db6f67",
+      "bg": "#211e18",
+      "ratio": 5.13
+    },
+    {
+      "key": "manuscript/dark state-warn-primary@base",
+      "fg": "#f59e0b",
+      "bg": "#211e18",
+      "ratio": 7.738
+    },
+    {
+      "key": "manuscript/dark state-warn-label@base",
+      "fg": "#f59e0b",
+      "bg": "#211e18",
+      "ratio": 7.738
+    },
+    {
+      "key": "manuscript/dark label-error@layer-2",
+      "fg": "#db6f67",
+      "bg": "#2a2720",
+      "ratio": 4.599
+    },
+    {
+      "key": "manuscript/dark state-error-primary@layer-2",
+      "fg": "#db6f67",
+      "bg": "#2a2720",
+      "ratio": 4.599
+    },
+    {
+      "key": "manuscript/dark state-warn-primary@layer-2",
+      "fg": "#f59e0b",
+      "bg": "#2a2720",
+      "ratio": 6.937
+    },
+    {
+      "key": "manuscript/dark state-warn-label@layer-2",
+      "fg": "#f59e0b",
+      "bg": "#2a2720",
+      "ratio": 6.937
+    },
+    {
+      "key": "miami/light label-error@base",
+      "fg": "#c22f4f",
+      "bg": "#f6f2f5",
+      "ratio": 4.966
+    },
+    {
+      "key": "miami/light state-error-primary@base",
+      "fg": "#c22f4f",
+      "bg": "#f6f2f5",
+      "ratio": 4.966
+    },
+    {
+      "key": "miami/light state-warn-primary@base",
+      "fg": "#92400e",
+      "bg": "#f6f2f5",
+      "ratio": 6.394
+    },
+    {
+      "key": "miami/light state-warn-label@base",
+      "fg": "#92400e",
+      "bg": "#f6f2f5",
+      "ratio": 6.394
+    },
+    {
+      "key": "miami/light label-error@layer-2",
+      "fg": "#c22f4f",
+      "bg": "#f0ecf0",
+      "ratio": 4.71
+    },
+    {
+      "key": "miami/light state-error-primary@layer-2",
+      "fg": "#c22f4f",
+      "bg": "#f0ecf0",
+      "ratio": 4.71
+    },
+    {
+      "key": "miami/light state-warn-primary@layer-2",
+      "fg": "#92400e",
+      "bg": "#f0ecf0",
+      "ratio": 6.064
+    },
+    {
+      "key": "miami/light state-warn-label@layer-2",
+      "fg": "#92400e",
+      "bg": "#f0ecf0",
+      "ratio": 6.064
+    },
+    {
+      "key": "miami/dark label-error@base",
+      "fg": "#ef5d78",
+      "bg": "#140f1e",
+      "ratio": 5.826
+    },
+    {
+      "key": "miami/dark state-error-primary@base",
+      "fg": "#ef5d78",
+      "bg": "#140f1e",
+      "ratio": 5.826
+    },
+    {
+      "key": "miami/dark state-warn-primary@base",
+      "fg": "#f59e0b",
+      "bg": "#140f1e",
+      "ratio": 8.755
+    },
+    {
+      "key": "miami/dark state-warn-label@base",
+      "fg": "#f59e0b",
+      "bg": "#140f1e",
+      "ratio": 8.755
+    },
+    {
+      "key": "miami/dark label-error@layer-2",
+      "fg": "#ef5d78",
+      "bg": "#1d1828",
+      "ratio": 5.362
+    },
+    {
+      "key": "miami/dark state-error-primary@layer-2",
+      "fg": "#ef5d78",
+      "bg": "#1d1828",
+      "ratio": 5.362
+    },
+    {
+      "key": "miami/dark state-warn-primary@layer-2",
+      "fg": "#f59e0b",
+      "bg": "#1d1828",
+      "ratio": 8.058
+    },
+    {
+      "key": "miami/dark state-warn-label@layer-2",
+      "fg": "#f59e0b",
+      "bg": "#1d1828",
+      "ratio": 8.058
+    },
+    {
+      "key": "phosphor/light label-error@base",
+      "fg": "#cf2121",
+      "bg": "#f1f4f1",
+      "ratio": 4.868
+    },
+    {
+      "key": "phosphor/light state-error-primary@base",
+      "fg": "#cf2121",
+      "bg": "#f1f4f1",
+      "ratio": 4.868
+    },
+    {
+      "key": "phosphor/light state-warn-primary@base",
+      "fg": "#92400e",
+      "bg": "#f1f4f1",
+      "ratio": 6.398
+    },
+    {
+      "key": "phosphor/light state-warn-label@base",
+      "fg": "#92400e",
+      "bg": "#f1f4f1",
+      "ratio": 6.398
+    },
+    {
+      "key": "phosphor/light label-error@layer-2",
+      "fg": "#cf2121",
+      "bg": "#ebeeeb",
+      "ratio": 4.614
+    },
+    {
+      "key": "phosphor/light state-error-primary@layer-2",
+      "fg": "#cf2121",
+      "bg": "#ebeeeb",
+      "ratio": 4.614
+    },
+    {
+      "key": "phosphor/light state-warn-primary@layer-2",
+      "fg": "#92400e",
+      "bg": "#ebeeeb",
+      "ratio": 6.064
+    },
+    {
+      "key": "phosphor/light state-warn-label@layer-2",
+      "fg": "#92400e",
+      "bg": "#ebeeeb",
+      "ratio": 6.064
+    },
+    {
+      "key": "phosphor/dark label-error@base",
+      "fg": "#db5454",
+      "bg": "#0a0f0a",
+      "ratio": 4.982
+    },
+    {
+      "key": "phosphor/dark state-error-primary@base",
+      "fg": "#db5454",
+      "bg": "#0a0f0a",
+      "ratio": 4.982
+    },
+    {
+      "key": "phosphor/dark state-warn-primary@base",
+      "fg": "#f59e0b",
+      "bg": "#0a0f0a",
+      "ratio": 9.007
+    },
+    {
+      "key": "phosphor/dark state-warn-label@base",
+      "fg": "#f59e0b",
+      "bg": "#0a0f0a",
+      "ratio": 9.007
+    },
+    {
+      "key": "phosphor/dark label-error@layer-2",
+      "fg": "#db5454",
+      "bg": "#141914",
+      "ratio": 4.587
+    },
+    {
+      "key": "phosphor/dark state-error-primary@layer-2",
+      "fg": "#db5454",
+      "bg": "#141914",
+      "ratio": 4.587
+    },
+    {
+      "key": "phosphor/dark state-warn-primary@layer-2",
+      "fg": "#f59e0b",
+      "bg": "#141914",
+      "ratio": 8.294
+    },
+    {
+      "key": "phosphor/dark state-warn-label@layer-2",
+      "fg": "#f59e0b",
+      "bg": "#141914",
+      "ratio": 8.294
+    },
+    {
+      "key": "rose/light label-error@base",
+      "fg": "#a63d57",
+      "bg": "#f1eeea",
+      "ratio": 5.299
+    },
+    {
+      "key": "rose/light state-error-primary@base",
+      "fg": "#a63d57",
+      "bg": "#f1eeea",
+      "ratio": 5.299
+    },
+    {
+      "key": "rose/light state-warn-primary@base",
+      "fg": "#92400e",
+      "bg": "#f1eeea",
+      "ratio": 6.131
+    },
+    {
+      "key": "rose/light state-warn-label@base",
+      "fg": "#92400e",
+      "bg": "#f1eeea",
+      "ratio": 6.131
+    },
+    {
+      "key": "rose/light label-error@layer-2",
+      "fg": "#a63d57",
+      "bg": "#ece9e6",
+      "ratio": 5.068
+    },
+    {
+      "key": "rose/light state-error-primary@layer-2",
+      "fg": "#a63d57",
+      "bg": "#ece9e6",
+      "ratio": 5.068
+    },
+    {
+      "key": "rose/light state-warn-primary@layer-2",
+      "fg": "#92400e",
+      "bg": "#ece9e6",
+      "ratio": 5.863
+    },
+    {
+      "key": "rose/light state-warn-label@layer-2",
+      "fg": "#92400e",
+      "bg": "#ece9e6",
+      "ratio": 5.863
+    },
+    {
+      "key": "rose/dark label-error@base",
+      "fg": "#eb6f92",
+      "bg": "#191724",
+      "ratio": 6.072
+    },
+    {
+      "key": "rose/dark state-error-primary@base",
+      "fg": "#eb6f92",
+      "bg": "#191724",
+      "ratio": 6.072
+    },
+    {
+      "key": "rose/dark state-warn-primary@base",
+      "fg": "#f59e0b",
+      "bg": "#191724",
+      "ratio": 8.221
+    },
+    {
+      "key": "rose/dark state-warn-label@base",
+      "fg": "#f59e0b",
+      "bg": "#191724",
+      "ratio": 8.221
+    },
+    {
+      "key": "rose/dark label-error@layer-2",
+      "fg": "#eb6f92",
+      "bg": "#22202e",
+      "ratio": 5.495
+    },
+    {
+      "key": "rose/dark state-error-primary@layer-2",
+      "fg": "#eb6f92",
+      "bg": "#22202e",
+      "ratio": 5.495
+    },
+    {
+      "key": "rose/dark state-warn-primary@layer-2",
+      "fg": "#f59e0b",
+      "bg": "#22202e",
+      "ratio": 7.441
+    },
+    {
+      "key": "rose/dark state-warn-label@layer-2",
+      "fg": "#f59e0b",
+      "bg": "#22202e",
+      "ratio": 7.441
+    },
+    {
+      "key": "tide/light label-error@base",
+      "fg": "#cf2121",
+      "bg": "#f1f3f5",
+      "ratio": 4.85
+    },
+    {
+      "key": "tide/light state-error-primary@base",
+      "fg": "#cf2121",
+      "bg": "#f1f3f5",
+      "ratio": 4.85
+    },
+    {
+      "key": "tide/light state-warn-primary@base",
+      "fg": "#92400e",
+      "bg": "#f1f3f5",
+      "ratio": 6.374
+    },
+    {
+      "key": "tide/light state-warn-label@base",
+      "fg": "#92400e",
+      "bg": "#f1f3f5",
+      "ratio": 6.374
+    },
+    {
+      "key": "tide/light label-error@layer-2",
+      "fg": "#cf2121",
+      "bg": "#ebeef0",
+      "ratio": 4.629
+    },
+    {
+      "key": "tide/light state-error-primary@layer-2",
+      "fg": "#cf2121",
+      "bg": "#ebeef0",
+      "ratio": 4.629
+    },
+    {
+      "key": "tide/light state-warn-primary@layer-2",
+      "fg": "#92400e",
+      "bg": "#ebeef0",
+      "ratio": 6.084
+    },
+    {
+      "key": "tide/light state-warn-label@layer-2",
+      "fg": "#92400e",
+      "bg": "#ebeef0",
+      "ratio": 6.084
+    },
+    {
+      "key": "tide/dark label-error@base",
+      "fg": "#dd5d5d",
+      "bg": "#10151b",
+      "ratio": 5.063
+    },
+    {
+      "key": "tide/dark state-error-primary@base",
+      "fg": "#dd5d5d",
+      "bg": "#10151b",
+      "ratio": 5.063
+    },
+    {
+      "key": "tide/dark state-warn-primary@base",
+      "fg": "#f59e0b",
+      "bg": "#10151b",
+      "ratio": 8.539
+    },
+    {
+      "key": "tide/dark state-warn-label@base",
+      "fg": "#f59e0b",
+      "bg": "#10151b",
+      "ratio": 8.539
+    },
+    {
+      "key": "tide/dark label-error@layer-2",
+      "fg": "#dd5d5d",
+      "bg": "#191e25",
+      "ratio": 4.625
+    },
+    {
+      "key": "tide/dark state-error-primary@layer-2",
+      "fg": "#dd5d5d",
+      "bg": "#191e25",
+      "ratio": 4.625
+    },
+    {
+      "key": "tide/dark state-warn-primary@layer-2",
+      "fg": "#f59e0b",
+      "bg": "#191e25",
+      "ratio": 7.799
+    },
+    {
+      "key": "tide/dark state-warn-label@layer-2",
+      "fg": "#f59e0b",
+      "bg": "#191e25",
+      "ratio": 7.799
+    },
+    {
+      "key": "vintage-paper/light label-error@base",
+      "fg": "#b54a35",
+      "bg": "#f5f1e6",
+      "ratio": 4.657
+    },
+    {
+      "key": "vintage-paper/light state-error-primary@base",
+      "fg": "#b54a35",
+      "bg": "#f5f1e6",
+      "ratio": 4.657
+    },
+    {
+      "key": "vintage-paper/light state-warn-primary@base",
+      "fg": "#92400e",
+      "bg": "#f5f1e6",
+      "ratio": 6.282
+    },
+    {
+      "key": "vintage-paper/light state-warn-label@base",
+      "fg": "#92400e",
+      "bg": "#f5f1e6",
+      "ratio": 6.282
+    },
+    {
+      "key": "vintage-paper/light label-error@layer-2",
+      "fg": "#b54a35",
+      "bg": "#f6f1e7",
+      "ratio": 4.669
+    },
+    {
+      "key": "vintage-paper/light state-error-primary@layer-2",
+      "fg": "#b54a35",
+      "bg": "#f6f1e7",
+      "ratio": 4.669
+    },
+    {
+      "key": "vintage-paper/light state-warn-primary@layer-2",
+      "fg": "#92400e",
+      "bg": "#f6f1e7",
+      "ratio": 6.298
+    },
+    {
+      "key": "vintage-paper/light state-warn-label@layer-2",
+      "fg": "#92400e",
+      "bg": "#f6f1e7",
+      "ratio": 6.298
+    },
+    {
+      "key": "vintage-paper/dark label-error@base",
+      "fg": "#d68272",
+      "bg": "#2d2621",
+      "ratio": 5.171
+    },
+    {
+      "key": "vintage-paper/dark state-error-primary@base",
+      "fg": "#d68272",
+      "bg": "#2d2621",
+      "ratio": 5.171
+    },
+    {
+      "key": "vintage-paper/dark state-warn-primary@base",
+      "fg": "#e0a341",
+      "bg": "#2d2621",
+      "ratio": 6.723
+    },
+    {
+      "key": "vintage-paper/dark state-warn-label@base",
+      "fg": "#e0a341",
+      "bg": "#2d2621",
+      "ratio": 6.723
+    },
+    {
+      "key": "vintage-paper/dark label-error@layer-2",
+      "fg": "#d68272",
+      "bg": "#362f29",
+      "ratio": 4.572
+    },
+    {
+      "key": "vintage-paper/dark state-error-primary@layer-2",
+      "fg": "#d68272",
+      "bg": "#362f29",
+      "ratio": 4.572
+    },
+    {
+      "key": "vintage-paper/dark state-warn-primary@layer-2",
+      "fg": "#e0a341",
+      "bg": "#362f29",
+      "ratio": 5.945
+    },
+    {
+      "key": "vintage-paper/dark state-warn-label@layer-2",
+      "fg": "#e0a341",
+      "bg": "#362f29",
+      "ratio": 5.945
     },
     {
       "key": "预设:glass/light 正文",

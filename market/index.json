@@ -16,8 +16,8 @@
         "zh": "Zhuoer 主题"
       },
       "description": {
-        "en": "11 built-in colour themes, 12 style presets and a custom theme editor; pure local token injection, bilingual UI.",
-        "zh": "11 套内置配色 + 12 套风格预设 + 自定义主题编辑器；纯本地 token 注入，界面中英双语。"
+        "en": "12 built-in colour themes, 12 style presets and a custom theme editor; pure local token injection, bilingual UI.",
+        "zh": "12 套内置配色 + 12 套风格预设 + 自定义主题编辑器；纯本地 token 注入，界面中英双语。"
       },
       "icon": "https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/assets/icon-180.png",
       "author": "zuoyunlai",

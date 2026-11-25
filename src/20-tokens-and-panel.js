@@ -1639,6 +1639,9 @@ function applyTokens(theme, pref) {
       // 进编辑器前的明暗模式：编辑器里切「编辑深/浅」只是为了盯不同 scheme，
       // 不能让它顺手把应用的明暗偏好也改掉，保存时用这个还原。
       const [modeBeforeEdit, setModeBeforeEdit] = useState(null);
+      // 本次编辑器里「新建/复制」出来的主题 id：取消时回收，不进列表、不留残渣。
+      const [createdId, setCreatedId] = useState(null);
+      const [themeBeforeEdit, setThemeBeforeEdit] = useState(null);
       // JSON 导入导出浮层：null = 关闭
       const [jsonIO, setJsonIO] = useState(null);
       // 两步确认的第二态：点「恢复默认设置」后进入待确认，3.5s 没第二下就撤销。
@@ -1675,14 +1678,17 @@ function applyTokens(theme, pref) {
         // 两个弹层互斥：同时开着会叠两层 aria-modal，键盘行为互相打架。
         setJsonIO(null);
         setModeBeforeEdit(pref.mode);
+        setThemeBeforeEdit(pref.theme);
         setEditing(spec);
       };
       const newCustom = function () {
+        if (customs.length >= CUSTOM_MAX) { alert(t('panel.custom.limitErr', { n: CUSTOM_MAX })); return; }
         const base = THEME_IDS.indexOf(pref.theme) !== -1 ? pref.theme : (currentCustom ? currentCustom.base : 'zhuoer');
         const spec = {
           id: 'c' + Date.now().toString(36), label: t('panel.custom.newLabel', { n: customs.length + 1 }),
           base: base, dark: {}, light: {},
         };
+        setCreatedId(spec.id);
         set({ customThemes: customs.concat([spec]), theme: spec.id });
         openEditor(spec);
       };
@@ -1690,6 +1696,7 @@ function applyTokens(theme, pref) {
         const next = customs.map(function (c) { return c.id === draft.id ? draft : c; });
         // mode 用进编辑器前的值还原：预览期间它被临时改成正在编辑的 scheme。
         set({ customThemes: next, theme: draft.id, mode: modeBeforeEdit || pref.mode });
+        setCreatedId(null);
         // 保存同样要把宿主明暗还原成编辑前的值，否则两端又会不一致。
         if (modeBeforeEdit) { try { writeHostMode(modeBeforeEdit); } catch (e) { /* ignore */ } }
         setEditing(null);
@@ -1699,6 +1706,12 @@ function applyTokens(theme, pref) {
         // 取消必须把宿主明暗一起还原：编辑期间「填入」会调 onSwitchToLight，
         // 那是真的把宿主 preference 写成 light —— 只重置本地 state 会让整个应用停在浅色。
         const back = modeBeforeEdit;
+        // 取消 = 放弃这次编辑：本次新建/复制出来的那条要从列表里收走，主题回到进编辑器之前。
+        if (createdId) {
+          const rest = customs.filter(function (c) { return c.id !== createdId; });
+          set({ customThemes: rest, theme: themeBeforeEdit || 'zhuoer' });
+        }
+        setCreatedId(null);
         setEditing(null);
         setModeBeforeEdit(null);
         if (back) { try { writeHostMode(back); } catch (e) { /* ignore */ } }
@@ -1707,9 +1720,11 @@ function applyTokens(theme, pref) {
       };
       const duplicateCustom = function () {
         if (!currentCustom) return;
+        if (customs.length >= CUSTOM_MAX) { alert(t('panel.custom.limitErr', { n: CUSTOM_MAX })); return; }
         const copy = JSON.parse(JSON.stringify(currentCustom));
         copy.id = 'c' + Date.now().toString(36);
         copy.label = (currentCustom.label + t('panel.custom.copySuffix')).slice(0, 24);
+        setCreatedId(copy.id);
         set({ customThemes: customs.concat([copy]), theme: copy.id });
         openEditor(copy);
       };
@@ -1717,13 +1732,21 @@ function applyTokens(theme, pref) {
         if (!currentCustom) return;
         // 与编辑器互斥：同时开两个弹层会让 aria-modal 叠加、Tab 行为打架。
         setEditing(null);
-        setJsonIO({ mode: 'export', text: JSON.stringify(currentCustom, null, 2) });
+        // 底图本体在本机 IndexedDB，JSON 里只有一个引用键；导出时把键摘掉，
+        // 避免对方导入后拿到一个指向不存在图片的引用（表现为「导入成功但底图空白」）。
+        const spec = JSON.parse(JSON.stringify(currentCustom));
+        if (spec.bg && spec.bg.key) spec.bg = { source: 'none' };
+        setJsonIO({ mode: 'export', text: JSON.stringify(spec, null, 2) });
       };
       const doImport = function () {
         let spec = null;
         try { spec = sanitizeCustomSpec(JSON.parse(jsonIO.text)); } catch (e) { spec = null; }
         if (!spec) {
           setJsonIO({ mode: 'import', text: jsonIO.text, err: t('panel.io.parseErr') });
+          return;
+        }
+        if (customs.length >= CUSTOM_MAX) {
+          setJsonIO({ mode: 'import', text: jsonIO.text, err: t('panel.custom.limitErr', { n: CUSTOM_MAX }) });
           return;
         }
         if (customs.some(function (c) { return c.id === spec.id; })) spec.id = 'c' + Date.now().toString(36);
@@ -2044,11 +2067,14 @@ function applyTokens(theme, pref) {
             h('span', { className: 'zp-hint' }, t('panel.type.pxHint', { px: scalePx }))
           ),
           h(Row, { label: t('panel.type.fontRow') },
-            h('input', {
-              type: 'text', className: 'zp-inp', value: pref.uiFont,
-              placeholder: t('panel.type.fontPh'),
-              'aria-label': t('panel.type.fontAria'),
-              onChange: function (ev) { set({ uiFont: String(ev.target.value || '').slice(0, 60) }); },
+            // 受控下拉：只列包内真正 @font-face 注册过的族名。自由输入一旦写错，
+            // 浏览器会静默回落到系统默认，用户只会觉得「这个功能没用」。
+            h(Select, {
+              label: t('panel.type.fontAria'),
+              value: pref.uiFont || '',
+              options: FONT_CHOICES,
+              emptyLabel: t('panel.type.fontPh'),
+              onChange: function (v) { set({ uiFont: v === '__empty__' ? '' : v }); },
             }),
             h('span', { className: 'zp-hint' }, t('panel.type.fontHint'))
           )
