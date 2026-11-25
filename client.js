@@ -2626,8 +2626,8 @@ function applyTokens(theme, pref) {
       '.zp-ed-list{display:flex;flex-direction:column;gap:2px;}',
       // 标签列宽与 .zp-lbl(4.4em) 对齐、颜色同档 tertiary：
       // 原来 58px + secondary，与上面的表单块左边缘差 5px 且深浅不同，看着不像同一张表单。
-      '.zp-ed-item{display:grid;grid-template-columns:4.6em 26px minmax(0,1fr) 62px 26px;gap:6px 8px;align-items:center;padding:3px 0 3px 2px;border-radius:6px;}',
-      '.zp-ed-lbl{font-size:12px;color:var(--dsw-alias-label-tertiary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
+      '.zp-ed-item{display:grid;grid-template-columns:minmax(4.6em,auto) 26px minmax(0,1fr) 62px 26px;gap:6px 8px;align-items:center;padding:3px 0 3px 2px;border-radius:6px;}',
+      '.zp-ed-lbl{font-size:12px;color:var(--dsw-alias-label-tertiary);overflow:hidden;word-break:break-word;white-space:normal;line-height:1.15;max-width:6.8em;}',
       // 已改过的行：标签提亮并加底色，和「继承自主题」的值区分开。
       '.zp-ed-item.is-dirty .zp-ed-lbl{color:var(--dsw-alias-label-primary);font-weight:600;}',
       '.zp-ed-item.is-dirty{background:var(--dsw-alias-interactive-bg-hover);}',

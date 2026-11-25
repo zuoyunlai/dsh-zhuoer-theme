@@ -179,6 +179,9 @@ function walk(node, depth) {
     if (typeof v === 'string' && v) attrs.push(k + '=' + v)
   }
   const t = node.type
+  // <style> 的整块 CSS 已经由 verify:csssnap 逐字节把关；放进文案快照只会让任何样式改动
+  // 都显示成「文案变了」，把真正的文案回归淹掉。
+  if (t === 'style') return
   if (typeof t === 'function') {
     const name = t.name || 'anonymous'
     hookReset()

@@ -1,6 +1,7 @@
 node_modules/
 visual/current/
 visual/css-current/
+visual/*.png
 *.tgz
 .DS_Store
 Thumbs.db

@@ -8,6 +8,24 @@
 
 
 
+## 未发布（发布前英文实测补记）
+
+**按承诺把英文界面完整走了一遍**（真宿主、宿主语言切到 English 再切回）：设置导航显示
+`Zhuoer theme`；面板 6 段标题与说明、footer 与构建行全英文；编辑器 6 段标题/说明、8 个锚点标签、
+12 个预设名（含插值 title `Glassmorphism · radius 2 · DM Sans`）、底部 `Cancel` / `Save`；
+JSON 导出与导入浮层的标题、说明、`aria`、按钮全部英文。
+
+**测出一个真 bug 并修掉**：英文锚点标签在固定 `4.6em` 的网格轨道里被省略号截断
+（截图里是 `Brand pri…` / `Brand se…`）。改成 `minmax(4.6em,auto)` + 允许换行（`max-width:6.8em`），
+实测每个标签 `scrollWidth == clientWidth`、`Brand secondary` 占 82px 折两行且不裁切。
+中文侧不受影响（标签短，仍是一行）。
+
+**残留中文只有主题名**：对 `.zp-root` 做文本节点与属性扫描，英文界面里剩下的 11 条全是主题名
+（`Zhuoer 原版红` / `灯塔 · Beacon` …），符合决策 A1「主题名不译」。
+
+注入 CSS 因这条样式改动而重采：两态各 **60,049 B**，`verify:csssnap` 逐字节一致。
+临时 profile 已删、实例已停、宿主语言已确认回到 `zh-CN`。
+
 ## 0.6.16（P1c 批次二：预设/AI/底图/形状字体 42 键；新增 verify:keys 词典门）
 
 **第二批 42 键入词典**：风格预设（含预设按钮 title 里的插值 `{label} · 直角/圆角 {radius} · {body}`）、
