@@ -61,7 +61,7 @@
     "Choose image…",
     "No image = built-in logo; uploads are downscaled to 512px max edge",
     "Typography",
-    "Enlarges text only (messages and Markdown), never layout geometry — geometric zoom fights the host’s sidebar drag; use the host’s own UI zoom for whole-app scaling",
+    "Enlarges text (UI copy and message body) without touching layout geometry — geometric zoom fights the host’s sidebar drag and is banned by the gate",
     "Message text size",
     "Small",
     "Default",

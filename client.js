@@ -214,7 +214,7 @@ window.__ModuleLoader__.load({
         'panel.ed.chatFont': '聊天字体',
         'panel.ed.followBase': '跟随 {theme}',
         'panel.type.title': '排版',
-        'panel.type.note': '只放大文字（对话正文与 Markdown），不改布局尺寸——几何缩放会和宿主的侧栏拖拽打架，整体缩放请用宿主自己的界面缩放',
+        'panel.type.note': '放大文字（界面文字 + 对话正文），不改布局尺寸——几何缩放会和宿主的侧栏拖拽打架，这条路已被门禁禁止',
         'panel.type.sizeRow': '正文字号',
         'panel.type.sizeAria': '正文字号',
         'panel.type.pxHint': '正文约 {px}px',
@@ -437,7 +437,7 @@ window.__ModuleLoader__.load({
         'panel.ed.chatFont': 'Chat font',
         'panel.ed.followBase': 'Follow {theme}',
         'panel.type.title': 'Typography',
-        'panel.type.note': 'Enlarges text only (messages and Markdown), never layout geometry — geometric zoom fights the host’s sidebar drag; use the host’s own UI zoom for whole-app scaling',
+        'panel.type.note': 'Enlarges text (UI copy and message body) without touching layout geometry — geometric zoom fights the host’s sidebar drag and is banned by the gate',
         'panel.type.sizeRow': 'Message text size',
         'panel.type.sizeAria': 'Message text size',
         'panel.type.pxHint': '≈{px}px body text',
@@ -2025,6 +2025,50 @@ function applyTokens(theme, pref) {
           });
         });
       }
+      // 界面文字缩放：宿主侧栏/按钮/列表的字号是**字面量 px**，既不读 token 也不读
+      // --dsh-content-font-*。唯一不改几何的放大办法是读宿主的样式表（CSSOM 同源可读），
+      // 把每条「font-size: Npx」规则按比例重写成 !important 覆盖。
+      // 这样文字的盒子会重排，但元素的**位置坐标**没有任何变换，侧栏拖拽的命中判定不受影响。
+      const applyHostTextScale = function (k) {
+        try {
+          const id = STYLE_ID + '-hosttext';
+          const old = document.getElementById(id);
+          if (!(k > 0) || k === 1) { if (old && old.parentNode) old.parentNode.removeChild(old); return; }
+          if (!document.head) return;
+          let el = old;
+          if (!el) { el = document.createElement('style'); el.id = id; document.head.appendChild(el); }
+          if (el.__zrK === k) return;
+          const out = [];
+          const put = function (text) {
+            out.push(text);
+            return out.length < 6000;
+          };
+          const walk = function (list) {
+            let more = true;
+            for (let i = 0; i < list.length && more; i++) {
+              const r = list[i];
+              if (r.cssRules) { walk(r.cssRules); continue; }
+              if (!r.selectorText || !r.style) continue;
+              if (r.selectorText.indexOf('.zp-') >= 0) continue;
+              const fs = r.style.fontSize;
+              if (!/^\d+(\.\d+)?px$/.test(fs)) continue;
+              const scaled = Math.round(parseFloat(fs) * k * 100) / 100;
+              more = put(r.selectorText + '{font-size:' + scaled + 'px !important;}');
+            }
+          };
+          for (let s = 0; s < document.styleSheets.length; s++) {
+            const sheet = document.styleSheets[s];
+            try {
+              if (sheet.ownerNode && sheet.ownerNode.id === id) continue;
+              if (sheet.cssRules) walk(sheet.cssRules);
+            } catch (e) { /* 跨源表不可读，跳过 */ }
+          }
+          el.textContent = out.join('');
+          el.__zrK = k;
+        } catch (e) { /* ignore */ }
+      };
+
+      applyHostTextScale((pref.fontScale && pref.fontScale !== 100) ? (pref.fontScale / 100) : 1);
       // 自定义主题可单独指定字体（空则沿用 base 主题算出来的那一套）
       const csFont = customSpec(pref);
       if (csFont && csFont.font && (csFont.font.body || csFont.font.chat)) {

@@ -29,6 +29,12 @@ if (!/--dsw-font/.test(code) || !/px\/g, function \(m, n\)/.test(code) || !/pars
 if (!/--dsh-content-font-size/.test(code)) {
   fails.push('缺少 --dsh-content-font-* 的注入：对话正文的行高不会跟着字号变')
 }
+if (!/database\.styleSheets/.test(code) && !/document\.styleSheets/.test(code)) {
+  fails.push('缺少宿主样式表遍历：界面文字（字面量 px 的那些）不会跟着字号变')
+}
+if (!/font-size:' \+ scaled/.test(code)) {
+  fails.push('缺少界面文字的 font-size 覆盖规则：只放大 token 文字等于回到 0.4.1 的半套缩放')
+}
 
 if (fails.length) {
   console.error('[verify:scale] 失败')
