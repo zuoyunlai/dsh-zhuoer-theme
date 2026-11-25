@@ -7,7 +7,7 @@ A skin plugin that recolours the whole DSH UI: **12 built-in themes + 12 style p
 - Colours go through the host theme service: `ctx.theme.overrideTokens()` maps each theme onto DSH's `--dsw-alias-*` tokens (224 per theme). No DOM hijacking, no injected host components.
 - **Fully local**: no account, no telemetry, no external network calls. The only network activity is the host's own model when you press "Generate" in the editor.
 - Light / dark / follow-system is **two-way synced** with the host's Settings → Appearance: changing either side updates the other.
-- Current version **0.6.19**, MIT.
+- Current version **0.6.20**, MIT.
 
 ## Screenshots
 
@@ -109,7 +109,7 @@ Usage: **Plugins → Experimental plugins → enable “Custom plugin index” �
 
 Fallback: mirror [`market/index.json`](market/index.json) to any static host you can reach (object storage, your own server, a LAN http server; plain HTTP is fine) and add that URL instead.
 
-The index lists only the three safe versions (0.6.19 / 0.6.18 / 0.6.17) and deliberately skips 0.6.11, which shipped a broken settings panel. Run `npm run verify:market` after editing — it checks the official schema (LocalizedText must contain `en`, exact SemVer, `source.type`, `engines.dsh`) and cross-checks it against this package’s `package.json`.
+The index lists only the three safe versions (0.6.20 / 0.6.19 / 0.6.18) and deliberately skips 0.6.11, which shipped a broken settings panel. Run `npm run verify:market` after editing — it checks the official schema (LocalizedText must contain `en`, exact SemVer, `source.type`, `engines.dsh`) and cross-checks it against this package’s `package.json`.
 
 Run `npm run verify:market` after editing — it checks the official schema (LocalizedText must contain `en`, exact SemVer, `source.type`, `engines.dsh`) and cross-checks it against this package’s `package.json`.
 
