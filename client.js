@@ -2013,6 +2013,18 @@ function applyTokens(theme, pref) {
           else if (!isMarkdown && fnt.body) tokens[k] = swapFamily(tokens[k], fnt.body);
         });
       }
+      // 字号缩放（替代 body{zoom}）：只放大 --dsw-font-* 里的 px，不动布局宽高。
+      // 这样侧栏把手仍在原位，宿主拖拽的坐标对账不会错。
+      const fsK = (pref.fontScale && pref.fontScale !== 100) ? (pref.fontScale / 100) : 1;
+      if (fsK !== 1) {
+        Object.keys(tokens).forEach(function (key) {
+          if (!/^--dsw-font/.test(key)) return;
+          const v = String(tokens[key]);
+          tokens[key] = v.replace(/(\d+(?:\.\d+)?)px/g, function (m, n) {
+            return (Math.round(parseFloat(n) * fsK * 100) / 100) + 'px';
+          });
+        });
+      }
       // 自定义主题可单独指定字体（空则沿用 base 主题算出来的那一套）
       const csFont = customSpec(pref);
       if (csFont && csFont.font && (csFont.font.body || csFont.font.chat)) {
@@ -2274,18 +2286,19 @@ function applyTokens(theme, pref) {
           + 'transform-origin:0% center !important;}'
           + 'html [class*="_mark"]:focus-visible::before{transform:translateY(-50%) scaleX(1) !important;}'
           + 'html [class*="_mark"]:focus-visible::after{inset:0 auto 0 0 !important;}';
-        // 字号缩放必须用 body{zoom}：宿主界面大量文字尺寸是写死 px / 另有变量，
-        // 只有 zoom 能整体放大（字、间距、边框一起变）——这也是 0.5.0 之前的行为。
-        // 曾担心 zoom 放大 getBoundingClientRect 坐标系会让右侧轨道错位，那是静态推断；
-        // 实测按 px 绝对定位的轨道与 zoom 后的坐标空间一致。
-        ZR_SCALE = (pref.fontScale && pref.fontScale !== 100) ? (pref.fontScale / 100) : 1;
+        ZR_SCALE = 1;
+        // body{zoom} 已弃用：它会把布局坐标整体乘一个数，而宿主的侧栏拖拽是按 clientX 与列宽
+        // 直接比较的，zoom≠1 时命中判定和宽度写回全部错位（表现为「点不中把手、拖的却是中栏」）。
+        // 现在改用两条不改变布局坐标的通路：① 下面把 --dsw-font-* 里的 px 按比例放大；
+        // ② 给宿主的 --dsh-content-font-* 变量赋值（宿主自己就用它算行高）。
         if (pref.fontScale && pref.fontScale !== 100) {
-          fxCss += 'body{zoom:' + (pref.fontScale / 100) + ' !important;}'
-            // 面板自己不该跟着缩：90% 档会把 11px 的说明文字压到 9.9px，
-            // 恰恰在最需要读清楚的设置页变得最难读。反向补偿一步抵掉。
-            // 反向补偿 = 100 / scale：110 档 → 0.909。注意别写成「10000/scale 再除 10000」，
-            // 那等于 1/100，面板会被缩到 1%，看起来就是「设置页一片空白只剩几条细线」。
-            + 'html .zp-root{zoom:' + (Math.round(10000 / pref.fontScale) / 100) + ' !important;}';
+          const kk = pref.fontScale / 100;
+          fxCss += ':root{'
+            + '--dsh-content-font-size:calc(14px * ' + kk + ');'
+            + '--dsh-content-font-size-secondary:calc(13px * ' + kk + ');'
+            + '--dsh-content-font-delta:calc(14px * ' + (Math.round((kk - 1) * 1000) / 1000) + ');'
+            + '--dsh-content-font-delta-secondary:calc(13px * ' + (Math.round((kk - 1) * 1000) / 1000) + ');'
+            + '}';
         }
         if (pref.uiFont) {
           const fam = '"' + pref.uiFont.replace(/"/g, '') + '", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
