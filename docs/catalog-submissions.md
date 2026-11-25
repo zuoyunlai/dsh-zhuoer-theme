@@ -84,3 +84,12 @@ fork（`zuoyunlai/awesome-dsh-plugins`）。按「fork 名 = 上游名」的规�
   重新序列化 —— 本轮三个数据文件的实际 diff 分别是 +2/−1、+6、+2/−1，没有格式噪音。
 - keji 那份我**没有写 star 数**（拿不到可靠数字，不编），PR 里已说明留给维护者整理。
 \n\n## 四、0.6.19 发版后的收录状态（2026-11-26）\n\n| 榜单 | 状态 | 证据 |\n|---|---|---|\n| awesome-dsh-plugin（主榜） | **PR 仍开着，未收录** | [#18583](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/18583) 、； 在主榜 main 上仍是 404，README 里也搜不到本插件 |\n\n- 提交时踩的是仓库年龄门（，仓库建于 2026-11-24T13:21Z）；2026-11-26 已过门槛， 由  重跑后转绿。\n- 本轮同时修了条目内容：原描述写「Eleven built-in color themes / 11 套」，实际 12 套；已改为「Twelve / 12 套 + 十二套风格预设」并推送分支 （commit ）。\n- PR 正文的校验清单也同步到 0.6.19（12 套主题、224 个 token、npm latest 0.6.19、已满 1 天）。\n
+## 五、0.6.19 发版后的收录状态（2026-11-26）
+
+| 榜单 | 状态 | 证据 |
+|---|---|---|
+| awesome-dsh-plugin（主榜） | **PR 仍开着，未收录** | [#18583](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/18583) state=OPEN、mergeable=MERGEABLE；条目文件 `data/plugins/zuoyunlai__dsh-zhuoer-theme.yml` 在主榜 main 上仍是 404，README 里也搜不到本插件 |
+
+- 提交时踩的是仓库年龄门（`MIN_AGE_DAYS = 1`，仓库建于 2026-11-24T13:21Z）；2026-11-26 已过门槛，`Submission gate` 由 `regate.yml` 重跑后转绿。
+- 本轮同时修了条目内容：原描述写「Eleven built-in color themes / 11 套」，实际 12 套；已改为「Twelve / 12 套 + 十二套风格预设」，推送到分支 `zuoyunlai:add-dsh-zhuoer-theme`（commit `e214a99`）。
+- PR 正文的校验清单同步到 0.6.19：12 套主题、224 个 token、npm latest 0.6.19、已满 1 天。
