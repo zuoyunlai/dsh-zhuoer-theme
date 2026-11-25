@@ -2218,9 +2218,17 @@ function applyTokens(theme, pref) {
             try {
               const r = el.getBoundingClientRect();
               if (!r.height) return;
-              bar.style.top = r.top + 'px';
-              bar.style.height = r.height + 'px';
-              bar.style.left = (r.left + r.width / 2 - 1) + 'px';
+              // 坐标空间对账：条子挂在 body 下，跟着 body{zoom} 一起被缩放；而 getBoundingClientRect
+              // 返回的已经是缩放后的视觉像素。不除掉 zoom，偏差会随 x 线性放大——右侧 1500px 处能差
+              // 出上百像素，表现就是「亮条和边线不重合、还挡在更右边」。
+              let z = 1;
+              try {
+                const zv = parseFloat(window.getComputedStyle(document.body).zoom);
+                if (isFinite(zv) && zv > 0) z = zv;
+              } catch (e2) { /* ignore */ }
+              bar.style.top = (r.top / z) + 'px';
+              bar.style.height = (r.height / z) + 'px';
+              bar.style.left = ((r.left + r.width / 2) / z - 1) + 'px';
             } catch (e) { /* ignore */ }
           };
           // 拖拽中侧栏会变宽，条子得跟着走
