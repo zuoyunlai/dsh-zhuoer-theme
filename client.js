@@ -272,6 +272,7 @@ window.__ModuleLoader__.load({
         'panel.custom.newLabel': '自定义 {n}',
         'panel.custom.copySuffix': ' 副本',
         'panel.custom.limitErr': '自定义主题最多 {n} 套，已达上限；先删掉一套再新建或导入。',
+        'panel.theme.deleteConfirm': '再点一次删除',
         'panel.alert.imgMax': '图片不能超过 3 MiB',
         'panel.alert.imgStore': '这张图太大，浏览器本地存储放不下，请换一张更小的图片。',
         'anchor.bg': '底色',
@@ -496,6 +497,7 @@ window.__ModuleLoader__.load({
         'panel.custom.newLabel': 'Custom {n}',
         'panel.custom.copySuffix': ' copy',
         'panel.custom.limitErr': 'At most {n} custom themes; delete one before creating or importing another.',
+        'panel.theme.deleteConfirm': 'Click again to delete',
         'panel.alert.imgMax': 'Image must be under 3 MiB',
         'panel.alert.imgStore': 'This image is too large for local browser storage; please pick a smaller one.',
         'anchor.bg': 'Background',
@@ -3329,6 +3331,9 @@ function applyTokens(theme, pref) {
       '.zp-btn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;}',
       '.zp-btn[data-tone="danger"]{color:var(--dsw-alias-state-error-primary);',
       'border-color:var(--dsw-alias-state-error-primary);}',
+      // 待确认态：文案已经变成「再点一次删除」，外观也要跟着变，否则用户会以为第一次点击没生效。
+      '.zp-btn[data-tone="danger"].is-armed{background:var(--dsw-alias-state-error-primary);',
+      'border-color:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-label-primary-inverted);}',
       // 文件选择：input 视觉隐藏但保留可聚焦，靠 :focus-within 给键盘用户焦点环
       '.zp-file{position:relative;}',
       '.zp-file input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;}',
@@ -4175,6 +4180,9 @@ function applyTokens(theme, pref) {
       // 两步确认的第二态：点「恢复默认设置」后进入待确认，3.5s 没第二下就撤销。
       // 重置会清掉底图（可能是一张用户找不到原图的自定义图），值得多问一次。
       const [resetArmed, setResetArmed] = useState(false);
+      // 删除主题的两步确认：删除会连同该主题的底图一起清掉，底图没备份就找不回来，
+      // 值得多问一次。照抄「恢复默认设置」的定时撤销模式（3.5 秒）。
+      const [deleteArmed, setDeleteArmed] = useState(false);
       useEffect(function () {
         const fn = function () { setPref(readPref()); };
         listeners.add(fn);
@@ -4185,6 +4193,13 @@ function applyTokens(theme, pref) {
         const t = setTimeout(function () { setResetArmed(false); }, 3500);
         return function () { clearTimeout(t); };
       }, [resetArmed]);
+      useEffect(function () {
+        if (!deleteArmed) return undefined;
+        const t = setTimeout(function () { setDeleteArmed(false); }, 3500);
+        return function () { clearTimeout(t); };
+      }, [deleteArmed]);
+      // 换了主题（或删完回到内置主题）就撤销待确认态，避免「上一步的删除确认」被带到下一个主题上。
+      useEffect(function () { setDeleteArmed(false); }, [pref.theme]);
       // 所有写入走同一个口子：先落 localStorage，再刷新本地 state，再通知 apply()
       // 重算 token —— 少一步界面就和存储不同步。
       const set = function (patch) { writePref(patch); setPref(readPref()); emitChange(); };
@@ -4283,6 +4298,8 @@ function applyTokens(theme, pref) {
       };
       const deleteCustom = function () {
         if (!currentCustom) return;
+        if (!deleteArmed) { setDeleteArmed(true); return; }
+        setDeleteArmed(false);
         // 主题自带的底图一并从 IndexedDB 清掉，否则删一个主题留一张图，越堆越多
         const bgKey = currentCustom.bg && currentCustom.bg.key;
         if (bgKey) {
@@ -4481,7 +4498,10 @@ function applyTokens(theme, pref) {
                 h('button', { type: 'button', className: 'zp-btn', onClick: function () { openEditor(currentCustom); } }, t('panel.theme.edit')),
                 h('button', { type: 'button', className: 'zp-btn', onClick: duplicateCustom }, t('panel.theme.duplicate')),
                 h('button', { type: 'button', className: 'zp-btn', onClick: exportCustom }, t('panel.theme.exportJson')),
-                h('button', { type: 'button', className: 'zp-btn', 'data-tone': 'danger', onClick: deleteCustom }, t('panel.theme.delete'))
+                h('button', {
+                  type: 'button', className: 'zp-btn' + (deleteArmed ? ' is-armed' : ''), 'data-tone': 'danger',
+                  onClick: deleteCustom,
+                }, deleteArmed ? t('panel.theme.deleteConfirm') : t('panel.theme.delete'))
               )
             : null,
           h('div', { className: 'zp-cus-acts' },

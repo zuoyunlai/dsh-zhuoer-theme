@@ -89,6 +89,19 @@ const win = {
 }
 win.window = win
 
+// 有状态 hook 垫片：必须在 factory 求值前替换（面板是解构 useState 的）。
+// 默认仍走「无状态」路径，避免污染下面的整树渲染冒烟；只有两步确认这类
+// 依赖连续渲染的检查才临时打开 hookStateful。
+let hookSlots = []
+let hookStateful = false
+react.useState = (init) => {
+  const i = nextSlot()
+  const first = typeof init === 'function' ? init() : init
+  if (!hookStateful) return [first, () => {}]
+  if (!(i in hookSlots)) hookSlots[i] = first
+  return [hookSlots[i], (v) => { hookSlots[i] = typeof v === 'function' ? v(hookSlots[i]) : v }]
+}
+
 const sandbox = { ...win, console, require: undefined, __hookReset: hookReset }
 sandbox.globalThis = sandbox
 sandbox.window = sandbox
@@ -248,6 +261,62 @@ for (const k of store.keys()) {
 }
 if (added < 1) {
   console.error('FAIL  点击「新建主题」后存储里没有新增自定义主题（customThemes=' + added + '）')
+  process.exit(1)
+}
+
+// 两步确认删除：删除会连主题底图一起清掉，是真正的数据丢失路径，必须在门里跑一遍。
+// 判据：第 1 次点击只把按钮文案换成「再点一次删除」且一条都不删；第 2 次才真的删掉。
+try {
+  const STORE_KEY = 'dsh-zhuoer-theme:v1'
+  const saved = store.get(STORE_KEY)
+  store.set(STORE_KEY, JSON.stringify({
+    theme: 'cmwtest',
+    customThemes: [{ id: 'cmwtest', label: 'smoke', base: 'zhuoer', dark: {}, light: {} }],
+  }))
+  const countCustoms = () => {
+    let n = -1
+    for (const k of store.keys()) {
+      try {
+        const j = JSON.parse(store.get(k))
+        if (j && Array.isArray(j.customThemes)) n = Math.max(n, j.customThemes.length)
+      } catch (e) { /* ignore */ }
+    }
+    return n
+  }
+  const collect = (node, pred, out) => {
+    if (!node || typeof node !== 'object') return out
+    if (Array.isArray(node)) { node.forEach((n) => collect(n, pred, out)); return out }
+    if (!node.$$el) return out
+    if (pred(node)) out.push(node)
+    ;(node.children || []).forEach((c) => collect(c, pred, out))
+    return out
+  }
+  const tree2 = panel.render({ id: 'zhuoer-theme' })
+  const skin = collect(tree2, (n) => typeof n.type === 'function' && /SkinSettings/.test(String(n.type.name)), [])[0]
+  if (!skin) throw new Error('找不到 SkinSettings')
+  const renderSkin = () => {
+    hookReset()
+    return collect(skin.type(skin.props), (n) => n.props && n.props['data-tone'] === 'danger', [])
+  }
+  hookStateful = true
+  hookSlots = []
+  const first = renderSkin()
+  if (!first.length) throw new Error('带自定义主题时没渲染出删除按钮')
+  first[0].props.onClick({})
+  const afterFirst = countCustoms()
+  const second = renderSkin()
+  const labelAfterFirst = String(second[0].props.children || '')
+  second[0].props.onClick({})
+  const afterSecond = countCustoms()
+  hookStateful = false
+  hookSlots = []
+  if (afterFirst !== 1) throw new Error('第 1 次点击就删掉了（应为待确认，customThemes=' + afterFirst + '）')
+  if (afterSecond !== 0) throw new Error('第 2 次点击没有删掉（customThemes=' + afterSecond + '）')
+  if (!/再点一次|again/i.test(labelAfterFirst)) throw new Error('第 1 次点击后按钮文案没变成确认态：' + JSON.stringify(labelAfterFirst))
+  if (saved === undefined) store.delete ? store.delete(STORE_KEY) : undefined
+  else store.set(STORE_KEY, saved)
+} catch (e) {
+  console.error('FAIL  两步确认删除：' + (e && e.message))
   process.exit(1)
 }
 
