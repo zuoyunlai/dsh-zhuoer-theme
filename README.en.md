@@ -98,7 +98,14 @@ https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/market/index.j
 
 Usage: **Plugins → Experimental plugins → enable “Custom plugin index” → Discover → Add index source → paste the URL above.** The card then appears in Discover, with title, description, icon, versions and author taken from that index.
 
-The index is [`market/index.json`](market/index.json); it lists only the three safe versions (0.6.18 / 0.6.17 / 0.6.13) and deliberately skips 0.6.11, which shipped a broken settings panel. Run `npm run verify:market` after editing — it checks the official schema (LocalizedText must contain `en`, exact SemVer, `source.type`, `engines.dsh`) and cross-checks it against this package’s `package.json`.
+The index is [`market/index.json`](market/index.json); it lists only the three safe versions (0.6.18 / 0.6.17 / 0.6.13) and deliberately skips 0.6.11, which shipped a broken settings panel. > **Reachability (measured 2026-11-25)**: from this machine’s Node runtime, `raw.githubusercontent.com` / `github.com`
+> and several GitHub mirrors (jsDelivr, statically, githack) all fail with `ECONNRESET` / timeout, while
+> `registry.npmjs.org` and `gitee.com` work. DSH fetches the index inside the host process, so on such a network
+> the raw link reports `Could not fetch …`. Workaround: mirror [`market/index.json`](market/index.json) to any static
+> host you can reach (object storage, your own server, a LAN http server) and add that URL instead. That is exactly how
+> this index was verified locally — plain HTTP is fine, it does not have to be https.
+
+Run `npm run verify:market` after editing — it checks the official schema (LocalizedText must contain `en`, exact SemVer, `source.type`, `engines.dsh`) and cross-checks it against this package’s `package.json`.
 
 ## Usage
 

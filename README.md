@@ -98,7 +98,13 @@ https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/market/index.j
 
 用法：**插件 → 实验性插件 → 打开「自定义插件索引」→「发现」→「添加索引源」→ 粘贴上面的 URL**。完成后「发现」里会出现本插件卡片，标题、说明、图标、版本与作者都来自这份索引。
 
-索引文件是 [`market/index.json`](market/index.json)：只列 **0.6.18 / 0.6.17 / 0.6.13** 三个可安全使用的版本（刻意跳过 0.6.11 那版面板报错的）。改完索引跑 `npm run verify:market`——它按官方 schema 校验 LocalizedText 必含 `en`、SemVer、`source.type`、`engines.dsh` 与本仓 `package.json` 的一致性。
+索引文件是 [`market/index.json`](market/index.json)：只列 **0.6.18 / 0.6.17 / 0.6.13** 三个可安全使用的版本（刻意跳过 0.6.11 那版面板报错的）。> **网络可用性（实测，2026-11-25）**：本机 Node 侧对 `raw.githubusercontent.com` / `github.com` 与几个 GitHub 镜像
+> （jsDelivr、statically、githack）全部 `ECONNRESET` / 超时，而 `registry.npmjs.org`、`gitee.com` 正常。
+> DSH 的索引是在宿主进程里 fetch 的，所以**上述网络环境下直接加 raw 链会报 `Could not fetch …`**。
+> 解决办法：把 [`market/index.json`](market/index.json) 镜像到你能访问的静态主机（对象存储 / 自己的服务器 / 内网 http），
+> 再添加那个 URL 即可。本机验证就是这么做的（`python -m http.server` 或任意静态服务，HTTP 即可，不要求 https）。
+
+改完索引跑 `npm run verify:market`——它按官方 schema 校验 LocalizedText 必含 `en`、SemVer、`source.type`、`engines.dsh` 与本仓 `package.json` 的一致性。
 
 ## 使用
 
