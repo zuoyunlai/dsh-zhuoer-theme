@@ -38,6 +38,17 @@ back to English. Three new deterministic gates replace the pixel baseline (which
 itself: 2.301% between two captures of the same state): `verify:panel` renders the panel in Node,
 `verify:text` snapshots the rendered copy, `verify:keys` enforces key and placeholder parity.
 
+## 未发布（插件契约：展示元数据 locale/*.json）
+
+官方要求插件交展示元数据：`locale/<lang>.json` 的 `meta.title` / `meta.description`，配合导出的 `./icon`。
+此前只有运行时 `loc.register(ns, …)`，没有静态 locale 文件——市场生成器能扫到（有 `dsh.bundle`），
+但展示名可能回落成包名。现在补齐：
+
+- 新增 `locale/zh.json`、`locale/en.json`（`meta.title` = Zhuoer 主题 / Zhuoer Theme，含一句 description）；
+- `package.json` 增加 `"./locale/*.json"` 导出并把 `locale` 收进 `files`；
+- 新增 **`verify:locale`** 门禁：en 必须存在、每个 locale 文件 `meta.title` 非空、`exports`/`files` 两处声明齐全、
+  `./icon` 指向包内文件且 ≤256 KiB、`icon` 字段与导出指向同一文件。
+
 ## 未发布（文档：双语 README）
 
 README 本身也要多语言：新增 **README.en.md**（与中文版同结构同步维护），两版顶部互相链接。

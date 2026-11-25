@@ -271,6 +271,7 @@ assets/bg/           21 张主题底图（webp）
 assets/logo/         zhuoer.svg（品牌位自带 logo，走 /assets/logo/ 路由）
 assets/icon-180.png  市场卡片图标（180×180，由 zhuoer.svg 栅格化）
 icon.svg             插件页图标（package.json 的 "icon" 指向它）
+locale/{zh,en}.json  展示元数据（meta.title / meta.description，宿主与市场读这里）
 ```
 
 ## 发布

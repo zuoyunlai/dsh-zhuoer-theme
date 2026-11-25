@@ -262,6 +262,7 @@ assets/bg/           21 theme backgrounds (webp)
 assets/logo/         zhuoer.svg (brand-slot logo, served under /assets/logo/)
 assets/icon-180.png  market card icon (180×180, rasterised from zhuoer.svg)
 icon.svg             plugin page icon (referenced by package.json "icon")
+locale/{zh,en}.json  display metadata (meta.title / meta.description, read by the host and market)
 ```
 
 ## Release
