@@ -110,6 +110,9 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
       ['Zhuoer Kai SC', 'zhuoer-kai-sc-subset.woff2', '', '400'],
     ];
     const FONT_BASE = '/dsh-zhuoer-theme/assets/fonts/';
+    // 品牌位「主题自带」档：走插件自己的 assets 路由（与 FONT_BASE 同源）。
+    // 用户上传的图存在 localStorage 里，优先级高于它。
+    const BRAND_LOGO = '/dsh-zhuoer-theme/assets/logo/zhuoer.svg';
     const fontFaceCss = FONT_FACES.map(function (f) {
       let s = '@font-face{font-family:"' + f[0] + '";src:url("' + FONT_BASE + f[1] + '") format("woff2");font-weight:' + (f[3] || '100 900') + ';font-style:normal;font-display:swap;}';
       if (f[2]) s += '@font-face{font-family:"' + f[0] + '";src:url("' + FONT_BASE + f[2] + '") format("woff2");font-weight:100 900;font-style:italic;font-display:swap;}';

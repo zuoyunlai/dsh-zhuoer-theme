@@ -14,6 +14,8 @@ const STATUS_DIR = 'dsh-zhuoer-theme';
 const ASSET_DIRS = [
   { url: '/dsh-zhuoer-theme/assets/bg/', disk: 'assets/bg/', ext: '.webp', type: 'image/webp', maxAge: 86400 },
   { url: '/dsh-zhuoer-theme/assets/fonts/', disk: 'assets/fonts/', ext: '.woff2', type: 'font/woff2', maxAge: 31536000 },
+  // 品牌位 logo：svg 是纯文本、只有几 KB，长缓存即可（换图要发新版本，不支持运行时替换）
+  { url: '/dsh-zhuoer-theme/assets/logo/', disk: 'assets/logo/', ext: '.svg', type: 'image/svg+xml', maxAge: 31536000 },
 ];
 
 // 来源校验：这两个端点只该由插件自己的客户端调用。

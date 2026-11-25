@@ -271,9 +271,11 @@
         // SVG 子节点只认 fill / stroke，不认 background，也没法往里塞文字 —— 所以「换图」只有一条路：
         // 把内部节点置透明，再给 <svg> 这个 HTML 盒子铺背景图（svg 在 CSS 里就是个普通盒子）。
         // 盒子尺寸由宿主的 width/height 决定，用 contain + 贴左居中：比例不匹配时留白，不会裁切。
-        const brandCss = (pref.brandLogo && pref.brandImage)
+        // 来源优先级：用户上传的图 > 主题自带 logo。开但没选图 = 用自带的，不是「不生效」。
+        const brandSrc = pref.brandLogo ? (pref.brandImage || BRAND_LOGO) : '';
+        const brandCss = brandSrc
           ? 'html svg:has(#dsh-wordmark-badge-clip)>*{opacity:0 !important;}'
-            + 'html svg:has(#dsh-wordmark-badge-clip){background-image:url("' + pref.brandImage + '") !important;'
+            + 'html svg:has(#dsh-wordmark-badge-clip){background-image:url("' + brandSrc + '") !important;'
             + 'background-size:contain !important;background-position:left center !important;'
             + 'background-repeat:no-repeat !important;}'
           : '';
@@ -1984,7 +1986,7 @@
               '用自定义图片替换'
             ),
             pref.brandLogo && !pref.brandImage
-              ? h('span', { className: 'zp-hint' }, '还没选图，启用也不会生效')
+              ? h('span', { className: 'zp-hint' }, '用主题自带 logo（选图则用你的）')
               : null
           ),
           h(Row, { label: '图片' },
@@ -2005,7 +2007,7 @@
                   type: 'button', className: 'zp-btn',
                   onClick: function () { set({ brandImage: '', brandLogo: false }); },
                 }, '移除')
-              : h('span', { className: 'zp-hint' }, 'PNG / JPEG / WebP · 最长边压到 512px')
+              : h('span', { className: 'zp-hint' }, '不选图 = 用主题自带 logo；上传则压到最长边 512px')
           ),
           pref.brandLogo && pref.brandImage
             ? h('div', { className: 'zp-hint' }, '已替换。宿主若升级改动徽标结构，这里会静默回退到原生。')
