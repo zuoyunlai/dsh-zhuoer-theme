@@ -29,6 +29,11 @@
     // 面板要按「当前实际明暗」取色（主题卡预览、强调色色板），但设置面板拿不到
     // ctx.theme。applyTokens 每次都算出了 scheme，这里共享出来给面板读。
     let liveScheme = 'dark';
+// 当前 body{zoom} 的缩放比（1 = 未缩放）。拖拽高亮条挂在 body 下，会被这个 zoom 再缩一次，
+// 所以定位时必须把 getBoundingClientRect 的视觉像素除以它。
+// 不要用 getComputedStyle(body).zoom 现取：Chromium 对这条非标准属性返回值不可靠（常是 "normal"/"1"），
+// 取不到就等于没补偿——这正是「大字号下亮条偏右一百多像素」的直接原因。
+let ZR_SCALE = 1;
 
     // 预览路径（编辑器 / 取色器 / 滑块）此前传 null，导致 overrideTokens 拿不到服务、抛错被吞，
     // 编辑期间只剩 CSS 兜底层。这里留一个模块级引用，任何调用点都能拿到宿主主题服务。
@@ -447,6 +452,7 @@ function applyTokens(theme, pref) {
         // 只有 zoom 能整体放大（字、间距、边框一起变）——这也是 0.5.0 之前的行为。
         // 曾担心 zoom 放大 getBoundingClientRect 坐标系会让右侧轨道错位，那是静态推断；
         // 实测按 px 绝对定位的轨道与 zoom 后的坐标空间一致。
+        ZR_SCALE = (pref.fontScale && pref.fontScale !== 100) ? (pref.fontScale / 100) : 1;
         if (pref.fontScale && pref.fontScale !== 100) {
           fxCss += 'body{zoom:' + (pref.fontScale / 100) + ' !important;}'
             // 面板自己不该跟着缩：90% 档会把 11px 的说明文字压到 9.9px，
@@ -2221,11 +2227,7 @@ function applyTokens(theme, pref) {
               // 坐标空间对账：条子挂在 body 下，跟着 body{zoom} 一起被缩放；而 getBoundingClientRect
               // 返回的已经是缩放后的视觉像素。不除掉 zoom，偏差会随 x 线性放大——右侧 1500px 处能差
               // 出上百像素，表现就是「亮条和边线不重合、还挡在更右边」。
-              let z = 1;
-              try {
-                const zv = parseFloat(window.getComputedStyle(document.body).zoom);
-                if (isFinite(zv) && zv > 0) z = zv;
-              } catch (e2) { /* ignore */ }
+              const z = (isFinite(ZR_SCALE) && ZR_SCALE > 0) ? ZR_SCALE : 1;
               bar.style.top = (r.top / z) + 'px';
               bar.style.height = (r.height / z) + 'px';
               bar.style.left = ((r.left + r.width / 2) / z - 1) + 'px';
@@ -2273,13 +2275,18 @@ function applyTokens(theme, pref) {
             if (bar) bar.removeAttribute('data-on');
             try { window.cancelAnimationFrame(raf); } catch (e) { /* ignore */ } raf = 0;
           };
+          // 拖拽时每帧 place 一次仍会慢半拍：快速拖动能看到条子落在边线后面。
+          // 再挂一个 pointermove，命中即立刻重算（place 只读 rect 写三个样式，开销可忽略）。
+          const onMove = function () { if (on) place(); };
           document.addEventListener('pointerover', onOver, true);
           document.addEventListener('pointerdown', onDown, true);
+          document.addEventListener('pointermove', onMove, true);
           window.addEventListener('pointerup', onUp, true);
           return function () {
             try { document.removeEventListener('pointerover', onOver, true); } catch (e) { /* ignore */ }
             try { document.removeEventListener('pointerdown', onDown, true); } catch (e) { /* ignore */ }
             try { window.removeEventListener('pointerup', onUp, true); } catch (e) { /* ignore */ }
+            try { document.removeEventListener('pointermove', onMove, true); } catch (e) { /* ignore */ }
             clear();
           };
         };
