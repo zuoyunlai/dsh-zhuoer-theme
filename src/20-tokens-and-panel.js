@@ -1024,12 +1024,15 @@ function applyTokens(theme, pref) {
     // 主题卡：预览块用「该主题自己的」token 上色 —— 这是面板里唯一引用非当前
     // token 的地方（不这样 11 张卡长得一模一样，用户没有选择依据）。
     // schema 由调用方传入当前实际明暗，避免把 dark 值画到浅色模式上。
+    // Built-in theme names live in the dictionary: THEMES stores '@theme.<key>' and renders via t().
+    function themeLabelOf(raw) {
+      return raw && raw.charAt(0) === '@' ? t('theme.' + raw.slice(7)) : raw;
+    }
+
     function Swatch(props) {
       const def = props.def || {};
       const tk = def[props.scheme] || def.dark || {};
-      const rawLabel = def.label || props.id;
-      // 主题名可以是 @i18n 键（内置主题的中文名走词典，代码里不留裸中文）
-      const label = rawLabel.charAt(0) === '@' ? t(rawLabel.slice(1)) : rawLabel;
+      const label = themeLabelOf(def.label || props.id);
       const active = props.active;
       return h('button', {
         type: 'button', className: 'zp-th', 'data-on': active ? '1' : '0',
@@ -1771,7 +1774,7 @@ function applyTokens(theme, pref) {
       const customs = pref.customThemes || [];
       const currentCustom = customSpec(pref);
       const themeDef = THEMES[pref.theme] || {};
-      const themeName = (currentCustom && currentCustom.label) || themeDef.label || pref.theme;
+      const themeName = themeLabelOf((currentCustom && currentCustom.label) || themeDef.label || pref.theme);
       const accents = accentOptions(effectiveThemeId(pref), scheme, pref.accent);
       const accentNow = pref.accent || accents[0] || '#000000';
       const bgOn = pref.bgSource !== 'none';
