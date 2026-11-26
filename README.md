@@ -7,7 +7,7 @@
 - 配色走宿主主题服务：`ctx.theme.overrideTokens()` 把每套主题映射到 DSH 的 `--dsw-alias-*` token（每套 224 个），不劫持 DOM 结构、不注入宿主组件。
 - **纯本地**：没有账号、没有遥测、不请求外部网络。唯一的联网行为是你在编辑器里点「AI 生成」时，插件通过**宿主自己的模型**补一组锚点色。
 - 明暗三态（浅色 / 深色 / 跟随系统）与宿主「通用设置 → 外观」**双向同步**，两边改任一边都会一起变。
-- 当前版本 **0.6.25**，MIT。
+- 当前版本 **0.6.26**，MIT。
 
 ## 截图
 
@@ -114,7 +114,7 @@ https://ghproxy.net/https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme
 
 兜底：把 [`market/index.json`](market/index.json) 镜像到你能访问的静态主机（对象存储 / 自己的服务器 / 内网 http；HTTP 即可，不要求 https），再添加那个 URL。
 
-索引只列 **0.6.25 / 0.6.24 / 0.6.23** 三个可安全使用的版本（刻意跳过 0.6.11 那版面板报错的）。改完跑 `npm run verify:market`——它按官方 schema 校验 LocalizedText 必含 `en`、SemVer、`source.type`、`engines.dsh`，并与 `package.json` 交叉对账。
+索引只列 **0.6.26 / 0.6.25 / 0.6.24** 三个可安全使用的版本（刻意跳过 0.6.11 那版面板报错的）。改完跑 `npm run verify:market`——它按官方 schema 校验 LocalizedText 必含 `en`、SemVer、`source.type`、`engines.dsh`，并与 `package.json` 交叉对账。
 
 
 ## 在对话框里生成主题

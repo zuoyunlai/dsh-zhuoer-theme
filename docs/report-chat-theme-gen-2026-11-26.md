@@ -17,7 +17,7 @@
 | client.js 约 716 KB | 实测 **718319** 字节（本轮修复前 716724） | 一致，本轮 +1595 字节 |
 | 工具以完整 schema 注册 | `tool-status.json` → `{"phase":"tool-registered","tool":"zhuoer_theme_generate","schema":"full"}` | 一致 |
 | 新模块行数 | theme-gen.js **117** / theme-tool.js **213** / src/25-chat-card.js **297** / scripts/verify-schema-output.mjs **83** | 见上 |
-| 插件版本 | package.json **0.6.25** | 未升版（本轮改动未发布） |
+| 插件版本 | package.json **0.6.26** | 已随本批发布 |
 
 ## 1. 交付验收（用户要求的五环节，逐项实测）
 
