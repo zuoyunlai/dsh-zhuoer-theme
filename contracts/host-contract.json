@@ -195,7 +195,9 @@
       "data-tone",
       "data-rqn-tail",
       "data-zr-sharp",
-      "data-zr-narrow"
+      "data-zr-narrow",
+      "data-pri",
+      "data-zhuoer-card"
     ]
   }
 }

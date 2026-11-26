@@ -3,6 +3,8 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { generateThemeSpec } from './theme-gen.js';
+import { registerThemeTool } from './theme-tool.js';
 
 export const name = 'dsh-zhuoer-theme';
 
@@ -72,6 +74,13 @@ function writeJson(name, data) {
 }
 
 export function apply(ctx, config) {
+  // 对话里的主题生成工具：用户在 DSH 对话框说「给我一套赛博朋克配色」时，
+  // 模型调用它生成主题 spec，对话流里出现色卡卡片，用户确认后才应用。
+  // 与面板里的 AI 生成并存，互不影响。
+  try {
+    registerThemeTool(ctx, function (obj) { writeJson('tool-status.json', obj); });
+  } catch (e) { /* 工具注册失败不影响皮肤 */ }
+
   writeJson('plugin-status.json', {
     version: VERSION,
     phase: 'apply-ok',

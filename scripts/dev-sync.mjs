@@ -19,7 +19,7 @@ const profile = opt('--profile', process.env.DSH_PROFILE || 'desktop');
 const target = opt('--dir', join(home, 'profiles', profile, 'node_modules', 'dsh-zhuoer-theme'));
 
 const sha = (p) => createHash('sha256').update(readFileSync(p)).digest('hex').slice(0, 12);
-const FILES = ['client.js', 'index.js', 'cordis.patch.yml', 'icon.svg'];
+const FILES = ['client.js', 'index.js', 'theme-gen.js', 'theme-tool.js', 'cordis.patch.yml', 'icon.svg'];
 const DIRS = ['locale', 'assets'];
 
 function build() {

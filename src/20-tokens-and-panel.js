@@ -2543,6 +2543,9 @@ function applyTokens(theme, pref) {
       inject: ['slots', 'theme'],
       apply(ctx) {
         report({ phase: 'apply-entered' });
+        // 对话内的主题卡片：模型在聊天里生成主题后，卡片渲染色板并提供「应用」。
+        // 与面板里的 AI 生成并存——面板那条路保持原样，这里只是多一个入口。
+        try { registerThemeCard(ctx); } catch (e) { /* 卡片注册失败不影响皮肤 */ }
         // 捕获宿主主题服务（明暗三态的唯一真源）。
         // 订阅必须走 subscribeHostChange()：按偏好值去重 + 只注册一次 + 异步合并，
         // 否则会被 overrideTokens 回灌的 theme/change 拖进死循环（见该函数注释）。

@@ -12,6 +12,19 @@
 
 
 
+## 0.6.26（未发布：对话框内 AI 生成主题）
+
+把 AI 生成主题搬到**对话输入框**：说一句「给我一套赛博朋克配色」→ 工具生成 → 对话流里出色卡 → 点「应用」换肤。
+主题设置面板里原有的 AI 生成**保持不动**，这条是增量入口。
+
+为什么要有这条：面板里的 AI 生成要先打开设置、再找到那个输入框；而用户真实的动作是「我正在聊天，顺手要一套配色」。
+
+- **工具侧**（`theme-tool.js` + `theme-gen.js`）：注册 `zhuoer_theme_generate`，走宿主 `llm` 流式生成；只保留 8 个锚点的 `#rrggbb`，不足 4 个即判失败。
+- **卡片侧**（`src/25-chat-card.js`）：`uiConversation.events.register` + `conversation.chat.node` 插槽，色块 / 逐色修改 / 应用写盘；复用 `sanitizeCustomSpec`，写入顺序 localStorage → applyTokens → emitChange。
+- **双路匹配**：直连 `tool/result` 读 `presentationMeta`；PTC（`run_code`）子调用是 `tool/ptc-dispatch`，既无 `turn` 也无 meta，规格改由渲染文本里的 `DSH_THEME_SPEC:` 行回传。**少了这一路，卡片在 `run_code` 场景永远不出来。**
+- **新增门禁** `scripts/verify-schema-output.mjs`：把 `OUTPUT_SCHEMA` 与 `toOutput` 抽出来，用宿主严格规则离线校验输出契约。同类错误（schema 与真实返回值不一致）本轮连炸三次、每次都要重启才能发现，这道门把它挪回本地。
+
+踩坑与取证全过程见 `docs/report-chat-theme-gen-2026-11-26.md`。
 ## 0.6.25（发布汇总：全量审计整改批 A / B / C + 窄屏判定修正）
 
 依据 `docs/audit-2026-11-26.md`（全量审计，82 → 86 分）逐条整改，另修一个**窄屏布局从未生效**的老问题。
