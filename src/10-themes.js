@@ -225,16 +225,6 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
       } catch (e) { /* ignore */ }
       return systemScheme();
     }
-    // hex → rgba，用于把内容底色改成半透明好让背景图透出来
-    function hexToRgba(hex, alpha) {
-      try {
-        const s = String(hex || '#000').replace('#', '');
-        const v = s.length === 3 ? s.split('').map(function (c) { return c + c; }).join('') : s;
-        const r = parseInt(v.slice(0, 2), 16), g = parseInt(v.slice(2, 4), 16), b = parseInt(v.slice(4, 6), 16);
-        if ([r, g, b].some(function (n) { return Number.isNaN(n); })) return null;
-        return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
-      } catch (e) { return null; }
-    }
     // #region derive  (scripts/test-derive.mjs 会抠出这一段做无头验证，别把标记删了)
     // ---------- 底图存储（IndexedDB）----------
     // 为什么不用 localStorage：5MB 硬上限，一张 1920px 图压完约 1~2MB，
@@ -1223,9 +1213,6 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
             keyLight: typeof b.keyLight === 'string' && /^img_[a-z0-9]{4,32}$/.test(b.keyLight) ? b.keyLight : '',
             opacity: typeof b.opacity === 'number' && b.opacity >= 0 && b.opacity <= 100 ? Math.round(b.opacity) : null,
             style: b.style === 'full' || b.style === 'fade' ? b.style : '',
-            // 内容压底：底纹在「内容层之下」的可见度。0 = 现状（穿到卡片与文字上），
-            // 100 = 内容层几乎完全挡住底纹。用户模型：底纹该融进底色，但不该渗到面上。
-            scrim: typeof b.scrim === 'number' && b.scrim >= 0 && b.scrim <= 100 ? Math.round(b.scrim) : 0,
           };
         })(),
       };

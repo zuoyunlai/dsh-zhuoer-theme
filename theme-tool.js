@@ -251,65 +251,7 @@ export function registerThemeTool(ctx, report, opts) {
     });
 
     try {
-      disposer = tools.register({
-        name: TOOL_NAME,
-        description: DESCRIPTION,
-        parameters: {
-          style: {
-            type: 'string',
-            required: true,
-            description: 'Style description in the user\'s language, e.g. "cyberpunk, dark purple, neon cyan accents".',
-          },
-          texture: {
-            type: 'string',
-            required: true,
-            description: 'Whether the user wants a background texture. Ask the user ONE direct question first, then pass \'want\' or \'no\'. \'want\' requires texturePath (plus texturePathLight for light mode).',
-          },
-          name: {
-            type: 'string',
-            description: 'Short theme name (4-10 characters) summarizing the style. Omit to let the model choose one.',
-          },
-          texturePath: {
-            type: 'string',
-            description: 'Optional absolute local path to a background texture image you generated (JPEG/PNG/WebP, <=3 MiB). Omit for a flat theme.',
-          },
-          texturePathLight: {
-            type: 'string',
-            description: 'Optional absolute local path to a LIGHT-mode variant of that texture (light base, faint strokes). Built-in themes ship two backgrounds because one dark image looks muddy under a light palette.',
-          },
-        },
-        output: {
-          schema: OUTPUT_SCHEMA,
-          render: (_args, value) => [{
-            type: 'text',
-            text: 'Theme "' + value.label + '" is ready. It is shown as a preview card below; '
-              + 'tell the user it is ready and ask them to confirm there. Do not list the colors yourself. '
-              + (value.textureDecision === 'want'
-                ? 'A background texture is attached (dark + light).'
-                : 'No background texture was added - tell the user they can reply "add a texture" if they want one.'),
-            }, {
-              type: 'text',
-              text: SPEC_MARKER + JSON.stringify(value),
-          }],
-          presentationMeta: (_args, value) => toMeta(value),
-        },
-        async execute(args) {
-          const style = String((args && args.style) || '').trim();
-          if (!style) throw new Error('style is required');
-          const decision = String((args && args.texture) || '').trim();
-          if (decision !== 'want' && decision !== 'no') {
-            throw new Error('texture 必须是 want 或 no：动手前先问用户要不要底纹，再按回答传值。');
-          }
-          if (decision === 'want' && !(args && (args.texturePath || args.texturePathLight))) {
-            throw new Error('用户要底纹，但没给 texturePath（浅色模式还需 texturePathLight）。先按风格生成底图，拿到本地路径再重试。');
-          }
-          const prompt = args && typeof args.name === 'string' && args.name.trim()
-            ? style + '\n主题名：' + args.name.trim()
-            : style;
-          const { spec } = await generateThemeSpec(ctx, prompt, {});
-          return toOutput(spec, decision === 'want' ? stashTexture(args && args.texturePath, textureDir) : null, decision === 'want' ? stashTexture(args && args.texturePathLight, textureDir) : null, decision);
-        },
-      });
+      disposer = attempt(OUTPUT_SCHEMA);
       done = true;
       say({ phase: 'tool-registered', tool: TOOL_NAME, schema: 'full' });
     } catch (e) {

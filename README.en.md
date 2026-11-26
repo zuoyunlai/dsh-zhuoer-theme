@@ -1,6 +1,6 @@
 # dsh-zhuoer-theme (Zhu'er Theme)
 
-A skin plugin that recolours the whole DSH UI: **12 built-in themes + 12 style presets + a custom-theme editor (AI generation / image palette extraction / per-anchor tuning)**.
+A skin plugin that recolours the whole DSH UI: **12 built-in themes + 12 style presets + a custom-theme editor (AI generation / image palette extraction / per-anchor tuning)** — and you can generate a whole theme **straight from the chat box**.
 
 > **English** ｜ [中文](README.md)
 
@@ -27,9 +27,13 @@ The UI shown is the Chinese one (same components in English; see [README.md](REA
 | Style presets | 12 (Glassmorphism, Neo-brutalism, Swiss International, Editorial, Luxury minimal, Organic, Morandi, Paper, Cyber terminal, Aurora, Developer terminal, Deep space) — one click fills anchors + radius + fonts |
 | Custom themes | Clone a built-in theme and tune only 8 anchor colours; everything else is derived by relative offset. Only anchors are stored, not the full token set |
 | AI generation | Turns a style description into anchors using the host's current model; the returned theme name pre-fills the Name field |
+| Chat-box generation | Say "give me a cyberpunk palette" in the composer, get a preview card, apply on confirm (the Settings entry stays) |
+| Paired light/dark | 8 light and 8 dark anchors are authored **independently** — dark is not derived from light |
+| Paired textures | You are asked first; when yes, both a dark and a light texture are produced |
+| Spot overrides | Beyond the 8 anchors, up to 4 extra `--dsw-*` keys are allowed |
 | Image palette | Picks 6 dominant colours locally and maps them onto anchors; the image is never uploaded |
 | Editor drawer | 352px drawer on the left, live UI preview on the right; six sections, sticky header and footer; closing with unsaved edits asks first |
-| Theme background | Bind an image to a custom theme, stored in IndexedDB (3 MiB per image) |
+| Theme background | Bind an image to a custom theme, stored in IndexedDB (3 MiB per image); dark and light can each have one, and the image is composited in blend mode (lines only, no base replacement) |
 | Plugin-page icon | Root `icon.svg` + the `"icon"` field in `package.json`; the Plugins list shows the red Z on a dark tile |
 | Settings-section icon | Registered into the `settings.section.icon` slot, so the "Zhuoer 主题" row shows the same red Z (an `icon` field on the registration is ignored — do not use that mechanism) |
 | Market icon | `assets/icon-180.png` (180×180, rasterised from `assets/logo/zhuoer.svg`) |
@@ -113,6 +117,25 @@ Fallback: mirror [`market/index.json`](market/index.json) to any static host you
 The index lists only the three safe versions (0.6.25 / 0.6.24 / 0.6.23) and deliberately skips 0.6.11, which shipped a broken settings panel. Run `npm run verify:market` after editing — it checks the official schema (LocalizedText must contain `en`, exact SemVer, `source.type`, `engines.dsh`) and cross-checks it against this package’s `package.json`.
 
 Run `npm run verify:market` after editing — it checks the official schema (LocalizedText must contain `en`, exact SemVer, `source.type`, `engines.dsh`) and cross-checks it against this package’s `package.json`.
+
+## Generate a theme from the chat box
+
+You do not have to open Settings: just describe the style in the composer.
+
+> give me a cyberpunk palette
+
+The assistant first asks one explicit question — **do you want a background texture?** — then:
+
+1. generates **8 light + 8 dark anchors** (the dark set is authored independently, not derived from the light one);
+2. when a texture is wanted, generates **two textures** (dark and light — a single dark image looks muddy under a light palette);
+3. posts a **preview card** in the chat: swatches, theme name, fonts and radius;
+4. applies nothing until you press Apply; Edit lets you tweak anchors first.
+
+Three things worth knowing:
+
+- **Never auto-applied**: the card is a preview, only your confirmation writes it.
+- **At most 4 direct token keys**: the 8 anchors cover 156 tokens; the model may add up to 4 extra `--dsw-*` keys for spot fixes.
+- **Textures draw lines, not a new base**: image textures are composited with `mix-blend-mode` (dark `lighten` / light `multiply`), the same technique as the built-in transparent line art.
 
 ## Usage
 

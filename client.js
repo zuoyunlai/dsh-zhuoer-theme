@@ -286,8 +286,6 @@ window.__ModuleLoader__.load({
         'panel.bg.optFade': '淡化',
         'panel.bg.optFull': '全幅',
         'panel.bg.opacityRow': '可见度',
-      'panel.ed.scrimRow': '压底',
-      'panel.ed.scrimAria': '把底纹整体压淡（对聊天主栏与插件整页同时生效；100 = 完全看不见底纹）',
     'panel.bg.opacityCap': '满格 = 70% 不透明度',
         'panel.bg.opacityAria': '底图可见度（滑块 100% 对应实际不透明度 70%）',
         'panel.bg.showRow': '显示',
@@ -535,8 +533,6 @@ window.__ModuleLoader__.load({
         'panel.bg.optFade': 'Faded',
         'panel.bg.optFull': 'Full bleed',
         'panel.bg.opacityRow': 'Visibility',
-      'panel.ed.scrimRow': 'Scrim',
-      'panel.ed.scrimAria': 'Dims the texture itself app-wide (chat column and plugin pages; 100 = texture invisible)',
     'panel.bg.opacityCap': 'full = 70% opacity',
         'panel.bg.opacityAria': 'Background visibility (100% on the slider equals 70% actual opacity)',
         'panel.bg.showRow': 'Show on',
@@ -1040,16 +1036,6 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
         if (p === 'light' || p === 'dark') return p;
       } catch (e) { /* ignore */ }
       return systemScheme();
-    }
-    // hex → rgba，用于把内容底色改成半透明好让背景图透出来
-    function hexToRgba(hex, alpha) {
-      try {
-        const s = String(hex || '#000').replace('#', '');
-        const v = s.length === 3 ? s.split('').map(function (c) { return c + c; }).join('') : s;
-        const r = parseInt(v.slice(0, 2), 16), g = parseInt(v.slice(2, 4), 16), b = parseInt(v.slice(4, 6), 16);
-        if ([r, g, b].some(function (n) { return Number.isNaN(n); })) return null;
-        return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
-      } catch (e) { return null; }
     }
     // #region derive  (scripts/test-derive.mjs 会抠出这一段做无头验证，别把标记删了)
     // ---------- 底图存储（IndexedDB）----------
@@ -2039,9 +2025,6 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
             keyLight: typeof b.keyLight === 'string' && /^img_[a-z0-9]{4,32}$/.test(b.keyLight) ? b.keyLight : '',
             opacity: typeof b.opacity === 'number' && b.opacity >= 0 && b.opacity <= 100 ? Math.round(b.opacity) : null,
             style: b.style === 'full' || b.style === 'fade' ? b.style : '',
-            // 内容压底：底纹在「内容层之下」的可见度。0 = 现状（穿到卡片与文字上），
-            // 100 = 内容层几乎完全挡住底纹。用户模型：底纹该融进底色，但不该渗到面上。
-            scrim: typeof b.scrim === 'number' && b.scrim >= 0 && b.scrim <= 100 ? Math.round(b.scrim) : 0,
           };
         })(),
       };
@@ -2891,7 +2874,6 @@ function bgCssFor(o) {
   // 为什么不是给内容层压底：试过两处——内容根 `_root`（只覆盖聊天主栏，
   // 论衡这类整页路由不受影响）；顶层子元素的 inset 内阴影（子元素铺满父容器后
   // 阴影被完全盖住，实测 0–100% 无变化）。两者都依赖知道哪一层是「内容面」，
-  // 而取样证明我们拿不到那些类名。唯一全站同源、行为可预测的做法就是压底纹本身。
   // 内置底纹是「透明线稿」：实测 p50 = 0（不透明像素只有线条），所以它只画线、不换底。
   // 自定义底纹是满幅图（p50≈30，底色被烘焙进图里），opacity 0.7 会把整块底替换成图的颜色，
   // 面板的半透明层下面于是变成「图」而不是主题底色 —— 这就是琥珀没有、自定义有的差别。
@@ -2899,8 +2881,7 @@ function bgCssFor(o) {
   // 浅色 multiply（只留比底色暗的部分）。图里与底色一致的部分自动消失。
   var isImageBg = !!o.bgIsImage;
   var blendCss = isImageBg ? ('mix-blend-mode:' + (scheme === 'light' ? 'multiply' : 'lighten') + ' !important;') : '';
-  var scrimPct = Math.max(0, Math.min(100, typeof o.bgScrim === 'number' ? o.bgScrim : 0));
-  var imgOpacity = +(vis * 0.7 * (1 - scrimPct / 100)).toFixed(3);
+  var imgOpacity = +(vis * 0.7).toFixed(3);
   // 淡化：另加一层垂直渐隐遮罩做出「边缘化开」；Zhuoer 的 faded 靠面板层不透明压暗，
   // 我们的内容层是透明的，直接照抄会更浓，所以用 mask 达到同样效果。
   var fadeMask = bgStyle === 'fade'
@@ -3109,7 +3090,6 @@ function applyTokens(theme, pref) {
       let bgUrl = '';
       let bgOpacity = pref.bgOpacity;
       let bgStyle = pref.bgStyle;
-      let bgScrim = 0;
       // 自定义主题可以自带底图；source 为空表示跟随全局底图设置。
       // 图片本身存在 IndexedDB，这里只按引用键从内存缓存取（IDB 是异步的，不能在这里 await）。
       const specBg = (customSpec(pref) && customSpec(pref).bg) || null;
@@ -3120,7 +3100,6 @@ function applyTokens(theme, pref) {
       if (specBg && specBg.source) {
         if (typeof specBg.opacity === 'number') bgOpacity = specBg.opacity;
         if (specBg.style) bgStyle = specBg.style;
-        if (typeof specBg.scrim === 'number') bgScrim = specBg.scrim;
         if (specBg.source === 'theme') bgUrl = themeBgFor();
         else if (specBg.source === 'image' && (specBg.key || specBg.keyLight)) {
           const wantLight = scheme === 'light' ? specBg.keyLight : '';
@@ -3193,7 +3172,7 @@ function applyTokens(theme, pref) {
         // 盒子尺寸由宿主的 width/height 决定，用 contain + 贴左居中：比例不匹配时留白，不会裁切。
         // 来源优先级：用户上传的图 > 主题自带 logo。开但没选图 = 用自带的，不是「不生效」。
         const brandCss = brandCssFor(pref);
-        const bgCss = bgCssFor({ bgUrl: bgUrl, bgOpacity: bgOpacity, bgStyle: bgStyle, bgScrim: bgScrim, bgIsImage: !!(specBg && specBg.source === 'image') || pref.bgSource === 'image', tokens: tokens, scheme: scheme });
+        const bgCss = bgCssFor({ bgUrl: bgUrl, bgOpacity: bgOpacity, bgStyle: bgStyle, bgIsImage: !!(specBg && specBg.source === 'image') || pref.bgSource === 'image', tokens: tokens, scheme: scheme });
         // 文字大小 / 强调色 / 字体（照 Zhuoer 外观页的三组设置）
         let fxCss = '';
         // 主栏四个角永远是直角 —— 用户明确要求「无论何种主题、无论什么情况」。
@@ -4562,18 +4541,6 @@ function applyTokens(theme, pref) {
                   onChange: function (ev) { setBg({ opacity: Number(ev.target.value) || 0 }); },
                 }),
                 h('span', { className: 'zp-val' }, (typeof bg.opacity === 'number' ? bg.opacity : 85) + '%')
-              )
-            : null,
-          (bg.source && bg.source !== 'none')
-            ? h(Row, { label: t('panel.ed.scrimRow') },
-                h('input', {
-                  type: 'range', className: 'zp-range', min: 0, max: 100,
-                  value: typeof bg.scrim === 'number' ? bg.scrim : 0,
-                  style: { '--zp-pct': (typeof bg.scrim === 'number' ? bg.scrim : 0) + '%' },
-                  'aria-label': t('panel.ed.scrimAria'),
-                  onChange: function (ev) { setBg({ scrim: Number(ev.target.value) || 0 }); },
-                }),
-                h('span', { className: 'zp-val' }, (typeof bg.scrim === 'number' ? bg.scrim : 0) + '%')
               )
             : null,
           h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('h3', { className: 'zp-sec-t' }, t('panel.ed.shapeSection')), h('div', { className: 'zp-sec-n' }, t('panel.ed.shapeNote')))),
