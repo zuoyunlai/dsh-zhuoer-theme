@@ -169,6 +169,19 @@ window.__ModuleLoader__.load({
       return out;
     }
 
+    // 底图解析探针：只在 debug 开关下上报，用来定位「某个方案下底图不出现」。
+    // 记录：主题 bg 原始字段、内存缓存是否命中、解析出的 URL、以及伪元素的实际计算样式。
+    function zrBgProbe(payload) {
+      if (!zrDebug()) return;
+      try {
+        fetch(REPORT_URL, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-zhuoer-client': '1' },
+          body: JSON.stringify(Object.assign({ at: new Date().toISOString(), phase: 'bg-probe' }, payload)),
+        }).catch(function () {});
+      } catch (e) { /* ignore */ }
+    }
+
     // 面板切换后再取样：页面加载时看到的是聊天页，抓不到插件面板。
     function zrHookSemiProbe(scheme) {
       if (!zrDebug()) return;

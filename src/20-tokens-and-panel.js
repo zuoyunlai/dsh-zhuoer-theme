@@ -420,7 +420,10 @@ function applyTokens(theme, pref) {
           const darkUrl = imageCache.get(specBg.key) || '';
           const lightUrl = imageCache.get(specBg.keyLight) || '';
           if (kind === 'photo') {
-            bgUrl = (scheme === 'light' && lightUrl) ? lightUrl : (darkUrl || lightUrl);
+            // 照片**不分方案**：永远用 key。
+            // 踩过的坑：主题里可能残留一个旧的 keyLight（先建主题时生成的纸纹），
+            // 浅色若按方案去挑就会挑到那张纸纹，表现为「浅色显示的是主题自带图而不是我上传的照片」。
+            bgUrl = darkUrl || lightUrl;
           } else if (scheme === 'light') {
             if (lightUrl) bgUrl = lightUrl;
             else if (darkUrl) { bgUrl = darkUrl; bgInvert = true; }
@@ -497,6 +500,22 @@ function applyTokens(theme, pref) {
         // 来源优先级：用户上传的图 > 主题自带 logo。开但没选图 = 用自带的，不是「不生效」。
         const brandCss = brandCssFor(pref);
         const bgCss = bgCssFor({ bgUrl: bgUrl, bgOpacity: bgOpacity, bgStyle: bgStyle, bgIsImage: !!(specBg && specBg.source === 'image') || pref.bgSource === 'image', bgInvert: bgInvert, bgKind: bgKind, tokens: tokens, scheme: scheme });
+        // 每次应用都报一次底图解析事实（仅 debug 开关下），用于定位方案级不可见。
+        try {
+          const cc0 = document.querySelector('[class*="_centerCol"]');
+          const bs0 = cc0 ? getComputedStyle(cc0, '::before') : null;
+          zrBgProbe({
+            scheme: scheme, theme: effTheme,
+            specBg: specBg ? { source: specBg.source, key: specBg.key, keyLight: specBg.keyLight, kind: specBg.kind, opacity: specBg.opacity, style: specBg.style } : null,
+            cached: { key: !!(specBg && specBg.key && imageCache.has(specBg.key)), keyLight: !!(specBg && specBg.keyLight && imageCache.has(specBg.keyLight)) },
+            bgUrlLen: String(bgUrl || '').length, bgUrlHead: String(bgUrl || '').slice(0, 48),
+            resolvedKind: bgKind, invert: bgInvert, cssLen: (bgCss || '').length,
+            pseudo: bs0 ? { display: bs0.display, opacity: bs0.opacity, bgImageLen: String(bs0.backgroundImage || '').length, mask: String(bs0.maskImage || bs0.webkitMaskImage || '').slice(0, 70), blend: bs0.mixBlendMode } : null,
+            zrState: document.documentElement.getAttribute('data-zr-state'),
+            bgEmpty: document.documentElement.getAttribute('data-zr-bg-empty'),
+            bgSession: document.documentElement.getAttribute('data-zr-bg-session'),
+          });
+        } catch (e) { /* ignore */ }
         // 文字大小 / 强调色 / 字体（照 Zhuoer 外观页的三组设置）
         let fxCss = '';
         // 主栏四个角永远是直角 —— 用户明确要求「无论何种主题、无论什么情况」。
