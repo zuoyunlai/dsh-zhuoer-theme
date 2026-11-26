@@ -11,6 +11,24 @@
 
 
 
+
+## 0.6.22（发布汇总：组件面 2.3 / 2.1 / 2.5，另两项有据降级）
+
+按 `docs/plan-component-surface.md` 的口径（只用 token 与语义选择器，不用哈希类名）做完三项：
+
+| 项 | 结果 |
+|---|---|
+| 2.3 弹层圆角 | `[role="dialog"]` → `radius-panel`、`[role="menu"]` → `radius-lg`、`[role="tooltip"]` → `radius-sm`，只改圆角 |
+| 2.1 开关 | 轨道取 `radius-lg`、滑块 `border-radius:inherit`、160ms 过渡，reduced-motion 下关闭 |
+| 2.5 焦点环 | 仅键盘语境（`html:not([data-input-modality="pointer"])`），颜色取 `brand-primary` |
+
+两项按规划里的降级条款**不做**，理由已写回文档对应小节：
+
+- **2.2 标签页指示条**：只有哈希类名可锚定（`aria-hidden` 会被图标复用），命中必须引入 M3；
+- **2.4 按钮过渡**：宿主 411 个按钮样式块里 39 个自带 `opacity/color` 过渡，整条覆盖会把它们替换掉。
+
+契约新增 `data-input-modality`（用途：焦点环接管的作用域判断；缺失后果：鼠标点击也会画出焦点环）。
+
 ## 0.6.21（发布汇总：对话宽度可控 + 组件面规划落盘）
 
 本版只做两件事：把「对话正文宽度」从宿主的自我测量回路里解放出来（默认 920px，可填 640–1600），
