@@ -37,6 +37,15 @@
 
 **门禁**：对比度门新增「设置面板文字面」一组（label-primary / label-secondary 压 settings-card-fill 与 button-elevated-fill、胶囊选中、危险待确认），从 487 组扩到 655 组；i18n 新增 panel.bg.opacityCap（中英成对）后为 153 条。
 
+**硬边强化（第三方控件）**：直角主题下，左侧栏「任务 / 定时」这类分段控件仍露圆角与描边——那不是 token 的问题：
+
+- 容器：`border-radius: var(--dsw-radius-sm, 8px) !important` + `box-shadow: inset 0 0 0 .5px`（那条 inset 就是「外框边框」）；
+- 指示块 / 标签：`border-radius: 6px !important` + `border: .5px solid`（选中态那圈线）。
+
+所以插件自带 !important、token 到不了。新增 `data-zr-sharp`（自带且已登记契约）：满足「形状滑块=直角（radius token ≤ 2px）」或面板里勾选「压平第三方插件的硬编码圆角与描边」时挂上，只在这一个属性下接管 `.dsh-st-*` 分段控件——圆角归 0、外框 inset 描边与指示块边框全去掉，选中态靠底色区分。圆角主题完全不受影响。
+
+CSS 快照基线随之重采（60379 B → 65014 B / 两份）：采集规则从「tokens + 面板」扩到「所有 `dsh-zhuoer-theme*` 前缀的 style + `.zp-root{` 面板」，把 fxCss 这一段也纳入守卫。
+
 ## 0.6.22（发布汇总：组件面 2.3 / 2.1 / 2.5，另两项有据降级）
 
 按 `docs/plan-component-surface.md` 的口径（只用 token 与语义选择器，不用哈希类名）做完三项：

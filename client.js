@@ -205,6 +205,9 @@ window.__ModuleLoader__.load({
         'panel.ed.shapeSection': '形状与字体',
         'panel.ed.shapeNote': '只影响本主题，不动其他主题',
         'panel.ed.radiusRow': '圆角',
+      'panel.ed.sharpRow': '第三方控件',
+      'panel.ed.sharpOn': '压平第三方插件的硬编码圆角与描边',
+      'panel.ed.sharpNote': '只影响自带圆角/边线的插件控件（如左侧栏分段按钮）；主题本身是直角时自动生效。',
         'panel.ed.radiusAria': '圆角大小',
         'panel.ed.radiusSquare': '直角',
         'panel.ed.radiusSmall': '小',
@@ -435,6 +438,9 @@ window.__ModuleLoader__.load({
         'panel.ed.shapeSection': 'Shape & fonts',
         'panel.ed.shapeNote': 'Affects this theme only',
         'panel.ed.radiusRow': 'Corner radius',
+      'panel.ed.sharpRow': 'Third-party controls',
+      'panel.ed.sharpOn': 'Flatten hard-coded radii and outlines in plugin UI',
+      'panel.ed.sharpNote': 'Only affects plugin controls that bring their own radius/borders (for example the sidebar segmented buttons). Turns on automatically when the theme itself is square.',
         'panel.ed.radiusAria': 'Corner radius size',
         'panel.ed.radiusSquare': 'Square',
         'panel.ed.radiusSmall': 'Small',
@@ -811,6 +817,8 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
           bgImage: typeof p.bgImage === 'string' ? p.bgImage : '',
           bgOnEmpty: p.bgOnEmpty !== false,
           bgOnSession: p.bgOnSession !== false,
+          // 硬边强化：把第三方插件里硬编码的圆角/描边也压平（token 到不了它们）。
+          sharp: p.sharp === true,
           fontScale: [90, 100, 110, 125, 140].indexOf(p.fontScale) !== -1 ? p.fontScale : 100,
           // 对话正文宽度（px）：0 = 跟随宿主（自适应），非 0 = 用户指定值。
           // 宿主自己的偏好键是 dsh.conversation.contentWidth（拖动写入），我们不复用它——
@@ -2935,6 +2943,21 @@ function applyTokens(theme, pref) {
         // 只在键盘（Tab）语境下接管，且不改宽度/偏移（用宿主自己的 2px/2px）。
         fxCss += 'html:not([data-input-modality="pointer"]) body :focus-visible{'
           + 'outline-color:var(--dsw-alias-brand-primary) !important;}';
+        // 硬边档补充（M3：第三方插件自有类名，不是宿主哈希）：左侧栏「任务 / 定时」这类
+        // 分段控件自己带 !important 与 inset 描边，token 到不了：
+        //   容器  -> border-radius: var(--dsw-radius-sm,8px) + box-shadow: inset 0 0 0 .5px（那条 inset 就是外框线）
+        //   指示块 -> border-radius:6px !important + border:.5px solid（选中态那圈线）
+        // 所以只在 data-zr-sharp（radius 全 0 的硬边主题）下接管：圆角归 0、线全去掉，
+        // 选中态靠底色区分。圆角主题一个字不受影响。
+        fxCss += 'html[data-zr-sharp] .dsh-st-shell-segmented-tabs,'
+          + 'html[data-zr-sharp] .dsh-st-settings-tabs{'
+          + 'border-radius:0 !important;box-shadow:none !important;}'
+          + 'html[data-zr-sharp] .dsh-st-shell-segmented-tabs>span[aria-hidden="true"],'
+          + 'html[data-zr-sharp] .dsh-st-settings-tabs>span[aria-hidden="true"]{'
+          + 'border-radius:0 !important;border:0 !important;box-shadow:none !important;}'
+          + 'html[data-zr-sharp] .dsh-st-shell-segmented-tabs [role="tab"],'
+          + 'html[data-zr-sharp] .dsh-st-settings-tabs [role="tab"]{'
+          + 'border-radius:0 !important;border:0 !important;}';
         // 左右栏的拖拽分隔条：宿主实现是「元素宽 0 + ::before 画 0.5px 竖线」，
         // 命中区只有半像素，鼠标很难精确压住，所以拖动时也没有任何反馈。
         // 这里补两件事：
@@ -3124,6 +3147,18 @@ function applyTokens(theme, pref) {
         // 自定义主题的 marker 是它自己的 id，但 SHAPES / 边线这类「按主题特性」的规则
         // 要按它克隆的 base 生效，否则自定义一个 beacon base 的主题就拿不到灯塔那套提亮边线。
         document.documentElement.setAttribute('data-zr-base', effTheme);
+        // 硬边档判定：读计算值而不是看 pref —— 形状可能来自主题预设、半径缩放滑块
+        // 或自定义锚点，只有算出来的 radius 才代表「这套主题真的是直角」。
+        // 第三方控件（左侧栏分段 tabs）的圆角/边线只在 data-zr-sharp 下被接管。
+        try {
+          let radiusSm = '';
+          try { radiusSm = getComputedStyle(document.documentElement).getPropertyValue('--dsw-radius-sm').trim(); } catch (e) { radiusSm = ''; }
+          // 两道判据任一成立就接管第三方控件：显式勾选，或这套主题本身就是直角
+          //（形状滑块选「直角」时 radiusScale=0，所有 radius token 变 0）。
+          const sharp = pref.sharp === true || (radiusSm !== '' && parseFloat(radiusSm) <= 2);
+          if (sharp) document.documentElement.setAttribute('data-zr-sharp', '1');
+          else document.documentElement.removeAttribute('data-zr-sharp');
+        } catch (e) { /* 读不到计算值就当非硬边，宁可不改 */ }
         // 探针：底图到底有没有落到计算样式里。
         // 查的元素必须与实际挂载点一致：底图挂在 [class*="_centerCol"]::before 上
         //（见上面 bgCss），此前这里查的是 body::before —— 永远查不到，于是底图
@@ -4164,6 +4199,16 @@ function applyTokens(theme, pref) {
                 commit(n);
               },
             })
+          ),
+          h(Row, { label: t('panel.ed.sharpRow') },
+            h('label', { className: 'zp-chk' },
+              h('input', {
+                type: 'checkbox', checked: pref.sharp === true,
+                onChange: function (ev) { set({ sharp: Boolean(ev.target.checked) }); },
+              }),
+              t('panel.ed.sharpOn')
+            ),
+            h('span', { className: 'zp-hint' }, t('panel.ed.sharpNote'))
           ),
           h(Row, { label: t('panel.ed.bodyFont') },
             h(Select, {

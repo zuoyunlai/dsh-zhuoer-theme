@@ -184,6 +184,8 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
           bgImage: typeof p.bgImage === 'string' ? p.bgImage : '',
           bgOnEmpty: p.bgOnEmpty !== false,
           bgOnSession: p.bgOnSession !== false,
+          // 硬边强化：把第三方插件里硬编码的圆角/描边也压平（token 到不了它们）。
+          sharp: p.sharp === true,
           fontScale: [90, 100, 110, 125, 140].indexOf(p.fontScale) !== -1 ? p.fontScale : 100,
           // 对话正文宽度（px）：0 = 跟随宿主（自适应），非 0 = 用户指定值。
           // 宿主自己的偏好键是 dsh.conversation.contentWidth（拖动写入），我们不复用它——
