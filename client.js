@@ -221,8 +221,8 @@ window.__ModuleLoader__.load({
         'panel.type.scaleMiss': '界面文字缩放未生效：没从宿主样式表里读到可缩放的 font-size 规则（把这条告诉我，我来补通路）',
         'panel.type.widthRow': '对话宽度',
         'panel.type.widthAria': '对话正文宽度（像素）',
-        'panel.type.widthPh': '默认',
-        'panel.type.widthHint': '留空 = 跟随窗口自适应；填 640–1600 的像素值则固定（只改宽度变量，不动布局）',
+        'panel.type.widthPh': '920',
+        'panel.type.widthHint': '留空 = 默认 920px（窗口放不下时自动收窄）；填 640–1600 覆盖它。只改宽度变量，不动布局',
         'panel.type.fontRow': '字体',
         'panel.type.fontPh': '用主题自带字体',
         'panel.type.fontAria': '界面字体族',
@@ -450,8 +450,8 @@ window.__ModuleLoader__.load({
         'panel.type.scaleMiss': 'UI text scaling did not take effect: no scalable font-size rule was found in the host stylesheets (please report this line)',
         'panel.type.widthRow': 'Transcript width',
         'panel.type.widthAria': 'Transcript width in pixels',
-        'panel.type.widthPh': 'Default',
-        'panel.type.widthHint': 'Empty = adapt to the window; a value from 640 to 1600 pins the width (only the width variable changes, never layout)',
+        'panel.type.widthPh': '920',
+        'panel.type.widthHint': 'Empty = 920 px by default (narrows automatically on small windows); enter 640–1600 to override. Only the width variable changes, never layout',
         'panel.type.fontRow': 'Font',
         'panel.type.fontPh': 'Use the theme’s own font',
         'panel.type.fontAria': 'UI font family',
@@ -2990,8 +2990,15 @@ function applyTokens(theme, pref) {
         // 上限跟着宿主自己的列宽变量走（列宽 − 176px，176 = 两侧手柄预留，宿主 CONTENT_EDGE_BUDGET），
         // 下限用宿主的 CONTENT_MIN = 640。全程只写一个自定义属性，不动任何布局尺寸。
         // 选择器用内联样式属性：宿主是把 --dsh-conversation-column-width 内联写在 _root 上的。
-        if (pref.chatWidth) {
-          fxCss += '[style*="--dsh-conversation-column-width"]{--dsh-chat-user-width:max(640px,min(' + pref.chatWidth + 'px,calc(var(--dsh-conversation-column-width,1024px) - 176px))) !important;}';
+        // 对话正文宽度：宿主的公式会因自我测量把宽度锁在 680 下限附近（实测 683px），
+        // 所以默认就覆盖成「最宽 920」，只在窗口真的放不下时按视口收窄——
+        // 920 是宿主自己的上限（resolveContentWidth 的 Math.min(..., 920)），不是我拍的数。
+        // 560 = 左侧栏(≈330) + 右侧快捷导航(≈40) + 宿主两侧手柄预留(176) + 余量。
+        // 纯 CSS 推导，不需要监听 resize，也不写任何布局尺寸。
+        {
+          const want = pref.chatWidth && pref.chatWidth > 0 ? pref.chatWidth : 920;
+          fxCss += '[style*="--dsh-conversation-column-width"]{--dsh-chat-user-width:'
+            + 'max(640px,min(' + want + 'px,calc(100vw - 560px))) !important;}';
         }
         // 自愈：宿主的旧拖动值会以**内联样式**留在 _root 上，而清 localStorage 不会清它，
         // 于是出现「存储里没有键，但正文仍是旧宽度」。没有宿主偏好键时把残留内联值摘掉。

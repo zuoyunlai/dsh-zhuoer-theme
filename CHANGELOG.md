@@ -30,7 +30,7 @@ function resolveContentWidth(col, pref) {
 **第二个坑**：拖动产生的是**内联** `--dsh-chat-user-width`，而清 `localStorage`（键 `dsh.conversation.contentWidth`）不会清内联；
 于是出现「存储里没有键、正文仍是旧宽度」。判据必须同时看 `element.style.cssText`。
 
-**做法**：面板「排版」加一行**对话宽度**输入框：
+**做法**：面板「排版」加一行**对话宽度**输入框（默认 920px = 宿主自己的上限，窗口放不下时按 `calc(100vw - 560px)` 收窄）：
 
 - 留空 = 自适应（存 0，完全不注入规则，交还宿主逻辑）；
 - 填 640–1600 = 注入 `[style*="--dsh-conversation-column-width"]{--dsh-chat-user-width:max(640px,min(Npx,calc(var(--dsh-conversation-column-width,1024px) - 176px))) !important}`；

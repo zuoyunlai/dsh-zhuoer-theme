@@ -35,7 +35,7 @@ The UI shown is the Chinese one (same components in English; see [README.md](REA
 | Market icon | `assets/icon-180.png` (180×180, rasterised from `assets/logo/zhuoer.svg`) |
 | Brand slot | Replaces the deepseek HARNESS wordmark; off by default. When on it uses the theme's own logo unless you upload an image (downscaled to 512px on the long edge) |
 | Text size | Five steps (90 / 100 / 110 / 125 / 140), enlarging **UI copy and message body** (three text paths: `--dsw-font-*` scaling, `--dsh-content-font-*` assignment, and a build-time host-class size table). No geometric zoom is injected — `body{zoom}` breaks the host's sidebar-drag coordinate math and is banned by the gate |
-| Transcript width | A 640–1600 px value pins the transcript width; leave it empty to follow the host's adaptive behaviour. Only the host's `--dsh-chat-user-width` is written — no layout geometry is touched. The host's own formula self-measures the column and pins the width near its 680 floor, so this field is the escape hatch |
+| Transcript width | 920 px by default (the host's own cap), narrowing automatically on small windows; enter 640–1600 to override. Only the host's `--dsh-chat-user-width` is written — no layout geometry is touched. The host's own formula self-measures the column and pins the width near its 680 floor, so this field is the escape hatch |
 | Accent colour | Candidate colours per theme plus a free colour picker; button foregrounds are derived to stay readable |
 | UI font | Override the UI font family; CJK glyphs fall back to the bundled subsets |
 | Right-sidebar quick nav | Three modes: off / show three with hover expansion / show all |
