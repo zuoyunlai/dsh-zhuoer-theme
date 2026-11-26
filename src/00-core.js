@@ -41,6 +41,166 @@ window.__ModuleLoader__.load({
         }).catch(function () {});
       } catch (e) { /* ignore */ }
     }
+    // ---- 一次性 token 快照（排障用）----
+    // 自定义主题生效时上报一次真实 token 表，每页只报一次。
+    // 目的：确认「规则改完了但界面没变」到底是规则没跑，还是那块界面根本不读这些 token。
+    let zrDumpDone = false;
+    function zrDumpTokensOnce(scheme, pref, tokens) {
+      if (zrDumpDone) return;
+      // 排障已完成（底纹满幅 vs 线稿那条根因），探针收回到调试开关后面：
+      // 需要复现时 localStorage['dsh-zhuoer-theme:debug'] = '1' 再刷新。
+      if (!zrDebug()) return;
+      let c = null;
+      try { c = customSpec(pref); } catch (e) { c = null; }
+      if (!c) return;
+      zrDumpDone = true;
+      const keys = [
+        '--dsw-alias-bg-base', '--dsw-alias-bg-layer-1', '--dsw-alias-bg-layer-2',
+        '--dsw-alias-bg-layer-3', '--dsw-alias-bg-layer-4', '--dsw-alias-bg-mask-1',
+        '--dsw-alias-settings-card-fill', '--dsw-alias-card-fill', '--dsw-specific-bubble',
+        '--dsw-alias-label-primary', '--dsw-alias-label-secondary', '--dsw-alias-label-tertiary',
+      ];
+      const t = {};
+      keys.forEach(function (k) { t[k] = String(tokens[k] || ''); });
+      const info = {
+        phase: 'token-dump',
+        scheme: scheme,
+        base: c.base,
+        autoDark: !!c.autoDark,
+        lightKeys: Object.keys(c.light || {}),
+        darkKeys: Object.keys(c.dark || {}),
+        tokens: t,
+        // 一次把「所有自定义主题」的锚点也带回来：
+        // 用户反馈「三套有问题、一套没问题」，只报当前生效那套看不出差别。
+        themes: (function () {
+          const list = (pref && pref.customThemes) || [];
+          return list.map(function (c) {
+            return {
+              id: c && c.id, label: c && c.label, base: c && c.base,
+              autoDark: !!(c && c.autoDark),
+              light: (c && c.light) || {}, dark: (c && c.dark) || {},
+              // 底纹是逐主题配置的：同样一套锚点，开不开底纹观感差很多。
+              bg: c && c.bg ? { source: c.bg.source, opacity: c.bg.opacity, style: c.bg.style, key: c.bg.key ? 1 : 0, keyLight: c.bg.keyLight ? 1 : 0 } : null,
+            };
+          });
+        })(),
+        // 半透明面的取样：用户反馈「透明底卡片文字发虚、不透明卡片正常」。
+        // 光有 token 值判断不了，必须知道那些元素到底用了什么类名与 alpha。
+        semi: (function () {
+          const out = [];
+          try {
+            const root = document.querySelector('[class*="_centerCol"]') || document.body;
+            if (!root) return out;
+            const els = root.querySelectorAll('div,section,article,li');
+            for (let i = 0; i < els.length && out.length < 12; i++) {
+              const el = els[i];
+              let cs = null;
+              try { cs = getComputedStyle(el); } catch (e) { continue; }
+              const bg = String(cs.backgroundColor || '');
+              const m = bg.match(/rgba?\(([^)]+)\)/);
+              if (!m) continue;
+              const parts = m[1].split(',').map(function (x) { return parseFloat(x); });
+              const a = parts.length > 3 ? parts[3] : 1;
+              if (!(a > 0.02 && a < 0.98)) continue;
+              const r = el.getBoundingClientRect();
+              if (r.width < 160 || r.height < 50) continue;
+              out.push({
+                cls: String(el.className || '').slice(0, 100),
+                bg: bg, alpha: a,
+                w: Math.round(r.width), h: Math.round(r.height),
+                color: String(cs.color || ''),
+              });
+            }
+          } catch (e) { /* ignore */ }
+          return out;
+        })(),
+      };
+      // 不走 report()：那条通道默认被 zrDebug() 关掉，而这次就是要它在常态下报一次。
+      try {
+        fetch(REPORT_URL, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-zhuoer-client': '1' },
+          body: JSON.stringify(Object.assign({ at: new Date().toISOString() }, info)),
+        }).catch(function () {});
+      } catch (e) { /* ignore */ }
+    }
+
+    // ---- 半透明面取样（排障用）----
+    // 为什么需要：用户反馈「底纹之上每一层都半透明，文字对比被冲淡」。
+    // 只看 token 判断不了，必须知道那些容器到底用了 rgba / 背景图 / backdrop 还是 opacity。
+    function zrSemiProbe() {
+      const out = [];
+      try {
+        const root = document.querySelector('[class*="_centerCol"]');
+        if (!root) return out;
+        const els = root.querySelectorAll('div,section,article,li,main');
+        for (let i = 0; i < els.length && out.length < 15; i++) {
+          const el = els[i];
+          let cs = null;
+          try { cs = getComputedStyle(el); } catch (e) { continue; }
+          const r = el.getBoundingClientRect();
+          if (r.width < 120 || r.height < 30) continue;
+          const bg = String(cs.backgroundColor || '');
+          const m = bg.match(/rgba?\(([^)]+)\)/);
+          let a = 1;
+          if (m) {
+            const p = m[1].split(',').map(function (x) { return parseFloat(x); });
+            a = p.length > 3 ? p[3] : 1;
+          }
+          const img = String(cs.backgroundImage || 'none');
+          const bd = String(cs.backdropFilter || 'none');
+          const op = parseFloat(cs.opacity || '1');
+          const translucent = a > 0.02 && a < 0.98;
+          const hasImg = img !== 'none';
+          const hasBd = bd !== 'none';
+          const lowOp = op < 0.95;
+          if (!translucent && !hasImg && !hasBd && !lowOp) continue;
+          out.push({
+            cls: String(el.className || '').slice(0, 110),
+            bg: bg, alpha: a,
+            img: hasImg ? img.slice(0, 70) : '',
+            bd: hasBd ? bd : '',
+            op: op,
+            color: String(cs.color || ''),
+            w: Math.round(r.width), h: Math.round(r.height),
+          });
+        }
+      } catch (e) { /* ignore */ }
+      return out;
+    }
+
+    // 面板切换后再取样：页面加载时看到的是聊天页，抓不到插件面板。
+    function zrHookSemiProbe(scheme) {
+      if (!zrDebug()) return;
+      try {
+        if (window.__zrSemiHooked) return;
+        window.__zrSemiHooked = true;
+        let sent = 0;
+        let timer = 0;
+        const fire = function () {
+          if (sent >= 6) return;
+          sent++;
+          const semi = zrSemiProbe();
+          try {
+            fetch(REPORT_URL, {
+              method: 'POST',
+              headers: { 'content-type': 'application/json', 'x-zhuoer-client': '1' },
+              body: JSON.stringify({ at: new Date().toISOString(), phase: 'semi-probe', scheme: scheme, n: sent, semi: semi }),
+            }).catch(function () {});
+          } catch (e) { /* ignore */ }
+        };
+        const root = document.querySelector('[class*="_centerCol"]');
+        if (root && typeof MutationObserver === 'function') {
+          const mo = new MutationObserver(function () {
+            clearTimeout(timer);
+            timer = setTimeout(fire, 1500);
+          });
+          mo.observe(root, { childList: true, subtree: true });
+        }
+        setTimeout(fire, 2500);
+      } catch (e) { /* ignore */ }
+    }
+
     // 版本号唯一源：面板文案与自检回传都用它，别再出现「构建 0.1.101」这种漂移。
     const PVERSION = '0.6.25';
     // 诊断探针总闸：默认关闭，开启方式 localStorage['dsh-zhuoer-theme:debug'] = '1'。

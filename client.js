@@ -41,6 +41,166 @@ window.__ModuleLoader__.load({
         }).catch(function () {});
       } catch (e) { /* ignore */ }
     }
+    // ---- 一次性 token 快照（排障用）----
+    // 自定义主题生效时上报一次真实 token 表，每页只报一次。
+    // 目的：确认「规则改完了但界面没变」到底是规则没跑，还是那块界面根本不读这些 token。
+    let zrDumpDone = false;
+    function zrDumpTokensOnce(scheme, pref, tokens) {
+      if (zrDumpDone) return;
+      // 排障已完成（底纹满幅 vs 线稿那条根因），探针收回到调试开关后面：
+      // 需要复现时 localStorage['dsh-zhuoer-theme:debug'] = '1' 再刷新。
+      if (!zrDebug()) return;
+      let c = null;
+      try { c = customSpec(pref); } catch (e) { c = null; }
+      if (!c) return;
+      zrDumpDone = true;
+      const keys = [
+        '--dsw-alias-bg-base', '--dsw-alias-bg-layer-1', '--dsw-alias-bg-layer-2',
+        '--dsw-alias-bg-layer-3', '--dsw-alias-bg-layer-4', '--dsw-alias-bg-mask-1',
+        '--dsw-alias-settings-card-fill', '--dsw-alias-card-fill', '--dsw-specific-bubble',
+        '--dsw-alias-label-primary', '--dsw-alias-label-secondary', '--dsw-alias-label-tertiary',
+      ];
+      const t = {};
+      keys.forEach(function (k) { t[k] = String(tokens[k] || ''); });
+      const info = {
+        phase: 'token-dump',
+        scheme: scheme,
+        base: c.base,
+        autoDark: !!c.autoDark,
+        lightKeys: Object.keys(c.light || {}),
+        darkKeys: Object.keys(c.dark || {}),
+        tokens: t,
+        // 一次把「所有自定义主题」的锚点也带回来：
+        // 用户反馈「三套有问题、一套没问题」，只报当前生效那套看不出差别。
+        themes: (function () {
+          const list = (pref && pref.customThemes) || [];
+          return list.map(function (c) {
+            return {
+              id: c && c.id, label: c && c.label, base: c && c.base,
+              autoDark: !!(c && c.autoDark),
+              light: (c && c.light) || {}, dark: (c && c.dark) || {},
+              // 底纹是逐主题配置的：同样一套锚点，开不开底纹观感差很多。
+              bg: c && c.bg ? { source: c.bg.source, opacity: c.bg.opacity, style: c.bg.style, key: c.bg.key ? 1 : 0, keyLight: c.bg.keyLight ? 1 : 0 } : null,
+            };
+          });
+        })(),
+        // 半透明面的取样：用户反馈「透明底卡片文字发虚、不透明卡片正常」。
+        // 光有 token 值判断不了，必须知道那些元素到底用了什么类名与 alpha。
+        semi: (function () {
+          const out = [];
+          try {
+            const root = document.querySelector('[class*="_centerCol"]') || document.body;
+            if (!root) return out;
+            const els = root.querySelectorAll('div,section,article,li');
+            for (let i = 0; i < els.length && out.length < 12; i++) {
+              const el = els[i];
+              let cs = null;
+              try { cs = getComputedStyle(el); } catch (e) { continue; }
+              const bg = String(cs.backgroundColor || '');
+              const m = bg.match(/rgba?\(([^)]+)\)/);
+              if (!m) continue;
+              const parts = m[1].split(',').map(function (x) { return parseFloat(x); });
+              const a = parts.length > 3 ? parts[3] : 1;
+              if (!(a > 0.02 && a < 0.98)) continue;
+              const r = el.getBoundingClientRect();
+              if (r.width < 160 || r.height < 50) continue;
+              out.push({
+                cls: String(el.className || '').slice(0, 100),
+                bg: bg, alpha: a,
+                w: Math.round(r.width), h: Math.round(r.height),
+                color: String(cs.color || ''),
+              });
+            }
+          } catch (e) { /* ignore */ }
+          return out;
+        })(),
+      };
+      // 不走 report()：那条通道默认被 zrDebug() 关掉，而这次就是要它在常态下报一次。
+      try {
+        fetch(REPORT_URL, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-zhuoer-client': '1' },
+          body: JSON.stringify(Object.assign({ at: new Date().toISOString() }, info)),
+        }).catch(function () {});
+      } catch (e) { /* ignore */ }
+    }
+
+    // ---- 半透明面取样（排障用）----
+    // 为什么需要：用户反馈「底纹之上每一层都半透明，文字对比被冲淡」。
+    // 只看 token 判断不了，必须知道那些容器到底用了 rgba / 背景图 / backdrop 还是 opacity。
+    function zrSemiProbe() {
+      const out = [];
+      try {
+        const root = document.querySelector('[class*="_centerCol"]');
+        if (!root) return out;
+        const els = root.querySelectorAll('div,section,article,li,main');
+        for (let i = 0; i < els.length && out.length < 15; i++) {
+          const el = els[i];
+          let cs = null;
+          try { cs = getComputedStyle(el); } catch (e) { continue; }
+          const r = el.getBoundingClientRect();
+          if (r.width < 120 || r.height < 30) continue;
+          const bg = String(cs.backgroundColor || '');
+          const m = bg.match(/rgba?\(([^)]+)\)/);
+          let a = 1;
+          if (m) {
+            const p = m[1].split(',').map(function (x) { return parseFloat(x); });
+            a = p.length > 3 ? p[3] : 1;
+          }
+          const img = String(cs.backgroundImage || 'none');
+          const bd = String(cs.backdropFilter || 'none');
+          const op = parseFloat(cs.opacity || '1');
+          const translucent = a > 0.02 && a < 0.98;
+          const hasImg = img !== 'none';
+          const hasBd = bd !== 'none';
+          const lowOp = op < 0.95;
+          if (!translucent && !hasImg && !hasBd && !lowOp) continue;
+          out.push({
+            cls: String(el.className || '').slice(0, 110),
+            bg: bg, alpha: a,
+            img: hasImg ? img.slice(0, 70) : '',
+            bd: hasBd ? bd : '',
+            op: op,
+            color: String(cs.color || ''),
+            w: Math.round(r.width), h: Math.round(r.height),
+          });
+        }
+      } catch (e) { /* ignore */ }
+      return out;
+    }
+
+    // 面板切换后再取样：页面加载时看到的是聊天页，抓不到插件面板。
+    function zrHookSemiProbe(scheme) {
+      if (!zrDebug()) return;
+      try {
+        if (window.__zrSemiHooked) return;
+        window.__zrSemiHooked = true;
+        let sent = 0;
+        let timer = 0;
+        const fire = function () {
+          if (sent >= 6) return;
+          sent++;
+          const semi = zrSemiProbe();
+          try {
+            fetch(REPORT_URL, {
+              method: 'POST',
+              headers: { 'content-type': 'application/json', 'x-zhuoer-client': '1' },
+              body: JSON.stringify({ at: new Date().toISOString(), phase: 'semi-probe', scheme: scheme, n: sent, semi: semi }),
+            }).catch(function () {});
+          } catch (e) { /* ignore */ }
+        };
+        const root = document.querySelector('[class*="_centerCol"]');
+        if (root && typeof MutationObserver === 'function') {
+          const mo = new MutationObserver(function () {
+            clearTimeout(timer);
+            timer = setTimeout(fire, 1500);
+          });
+          mo.observe(root, { childList: true, subtree: true });
+        }
+        setTimeout(fire, 2500);
+      } catch (e) { /* ignore */ }
+    }
+
     // 版本号唯一源：面板文案与自检回传都用它，别再出现「构建 0.1.101」这种漂移。
     const PVERSION = '0.6.25';
     // 诊断探针总闸：默认关闭，开启方式 localStorage['dsh-zhuoer-theme:debug'] = '1'。
@@ -126,6 +286,8 @@ window.__ModuleLoader__.load({
         'panel.bg.optFade': '淡化',
         'panel.bg.optFull': '全幅',
         'panel.bg.opacityRow': '可见度',
+      'panel.ed.scrimRow': '压底',
+      'panel.ed.scrimAria': '把底纹整体压淡（对聊天主栏与插件整页同时生效；100 = 完全看不见底纹）',
     'panel.bg.opacityCap': '满格 = 70% 不透明度',
         'panel.bg.opacityAria': '底图可见度（滑块 100% 对应实际不透明度 70%）',
         'panel.bg.showRow': '显示',
@@ -373,6 +535,8 @@ window.__ModuleLoader__.load({
         'panel.bg.optFade': 'Faded',
         'panel.bg.optFull': 'Full bleed',
         'panel.bg.opacityRow': 'Visibility',
+      'panel.ed.scrimRow': 'Scrim',
+      'panel.ed.scrimAria': 'Dims the texture itself app-wide (chat column and plugin pages; 100 = texture invisible)',
     'panel.bg.opacityCap': 'full = 70% opacity',
         'panel.bg.opacityAria': 'Background visibility (100% on the slider equals 70% actual opacity)',
         'panel.bg.showRow': 'Show on',
@@ -1588,8 +1752,13 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
       const na = hexHsl(newAnchorHex);
       if (!m || !na) return memberHex;
       // 明度仍然锁在极暗（遮罩要能压住内容），只把色相/低饱和借过来。
-      const l = Math.max(0.02, Math.min(0.10, m[2]));
-      return hslHex(na[0], Math.min(0.35, na[1]), l);
+      // 第一版把明度锁在 2%–10%、饱和度砍到 0.35，结果 #0b0d11 → #0f0e0d：
+      // 数值上「跟了」，屏幕上仍是近黑 —— 对一个本就低饱和的暖灰主题等于没动。
+      // 现在保证两件事：① 比底色暗一档但不贴黑（0.06–0.12）；② 饱和度兜底加一档，
+      // 让幕布读起来是「同一色系的暗面」，而不是中性黑。
+      const l = Math.max(0.06, Math.min(0.12, m[2]));
+      const s = Math.min(0.5, Math.max(na[1] * 3, na[1] + 0.15));
+      return hslHex(na[0], s, l);
     }
     // 一组锚点落到目标表上：锚点直写，成员按各自 mode 派生。
     // 锚点没变（用户没调这一组，或反推值恰好等于原值）时整组跳过 —— 保证
@@ -1683,12 +1852,15 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
     // 把底色提亮成暖灰后，这 2% 在屏幕上就没了（实测 header 块与页面底同为 #211d1b）。
     // 所以深色方案额外铺一条不含糊的阶梯。
     const DEPTH_LADDER = [
-      ['--dsw-alias-bg-layer-1', 0.025], ['--dsw-alias-bg-layer-2', 0.05],
-      ['--dsw-alias-bg-layer-3', 0.075], ['--dsw-alias-bg-layer-4', 0.10],
-      ['--dsw-alias-card-fill', 0.035], ['--dsw-alias-settings-card-fill', 0.035],
-      ['--dsw-alias-card-tile-fill', 0.03], ['--dsw-alias-hovercard-bg', 0.06],
-      ['--dsw-specific-menu', 0.05], ['--dsw-menu-surface-fill', 0.05],
-      ['--dsw-alias-markdown-code-block', 0.05],
+      // 第一版用 2.5/5/7.5/10%，实测 layer-1 对比只有 1.07——因为 zhuoer 深色底色本来就
+      // 只有 0.117 的 HSL 明度，2.5% 落在一个色阶内，屏幕上等于没变。
+      // 现在按「肉眼能分开」定档：4/8/12/16%（HSL 明度），并同步抬高卡片/菜单/代码块。
+      ['--dsw-alias-bg-layer-1', 0.04], ['--dsw-alias-bg-layer-2', 0.08],
+      ['--dsw-alias-bg-layer-3', 0.12], ['--dsw-alias-bg-layer-4', 0.16],
+      ['--dsw-alias-card-fill', 0.055], ['--dsw-alias-settings-card-fill', 0.055],
+      ['--dsw-alias-card-tile-fill', 0.05], ['--dsw-alias-hovercard-bg', 0.09],
+      ['--dsw-specific-menu', 0.08], ['--dsw-menu-surface-fill', 0.08],
+      ['--dsw-alias-markdown-code-block', 0.08],
     ];
     function enforceDepth(out, scheme, on) {
       if (!on || scheme !== 'dark') return out;
@@ -1709,16 +1881,16 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
     // 实测第三方面板正文 2.33:1、标题 3.08:1、KPI 2.53:1，而 ensureReadableOn 只管彩底文字。
     const TEXT_FLOOR = [
       ['--dsw-alias-label-primary', 7],
-      ['--dsw-alias-label-secondary', 4.5],
-      ['--dsw-alias-label-tertiary', 3],
-      ['--dsw-alias-label-caption', 3],
-      ['--dsw-alias-label-dimmed', 3],
-      ['--dsw-alias-label-primary-dimmed', 4.5],
-      ['--dsw-alias-hovercard-label-secondary', 4.5],
-      ['--dsw-alias-hovercard-label-tertiary', 3],
-      ['--dsw-alias-toast-label', 4.5],
-      ['--dsw-alias-menu-icon', 3],
-      ['--dsw-alias-chart-tools', 3], ['--dsw-alias-chart-messages', 3],
+      ['--dsw-alias-label-secondary', 6],
+      ['--dsw-alias-label-tertiary', 4.5],
+      ['--dsw-alias-label-caption', 4.5],
+      ['--dsw-alias-label-dimmed', 4],
+      ['--dsw-alias-label-primary-dimmed', 6],
+      ['--dsw-alias-hovercard-label-secondary', 6],
+      ['--dsw-alias-hovercard-label-tertiary', 4.5],
+      ['--dsw-alias-toast-label', 6],
+      ['--dsw-alias-menu-icon', 4.5],
+      ['--dsw-alias-chart-tools', 4.5], ['--dsw-alias-chart-messages', 4.5],
     ];
     function relLumOf(hex) {
       const rgb = parseHexColor(hex);
@@ -1867,6 +2039,9 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
             keyLight: typeof b.keyLight === 'string' && /^img_[a-z0-9]{4,32}$/.test(b.keyLight) ? b.keyLight : '',
             opacity: typeof b.opacity === 'number' && b.opacity >= 0 && b.opacity <= 100 ? Math.round(b.opacity) : null,
             style: b.style === 'full' || b.style === 'fade' ? b.style : '',
+            // 内容压底：底纹在「内容层之下」的可见度。0 = 现状（穿到卡片与文字上），
+            // 100 = 内容层几乎完全挡住底纹。用户模型：底纹该融进底色，但不该渗到面上。
+            scrim: typeof b.scrim === 'number' && b.scrim >= 0 && b.scrim <= 100 ? Math.round(b.scrim) : 0,
           };
         })(),
       };
@@ -2718,14 +2893,30 @@ function bgCssFor(o) {
   })();
   // 可见度滑块接到图片上：Zhuoer full-bleed 实测 opacity = 可见度 × 0.7（85% → 0.595）。
   var vis = Math.max(0, Math.min(100, bgOpacity)) / 100;
-  var imgOpacity = +(vis * 0.7).toFixed(3);
+  // 内容压底：把 _root 从「全透明」换成「bg-base 的半透明压底」，
+  // 底纹仍是页面背景，但内容面不再被它穿透。
+
+  // 压底作用在**底纹自身**的不透明度上。
+  // 为什么不是给内容层压底：试过两处——内容根 `_root`（只覆盖聊天主栏，
+  // 论衡这类整页路由不受影响）；顶层子元素的 inset 内阴影（子元素铺满父容器后
+  // 阴影被完全盖住，实测 0–100% 无变化）。两者都依赖知道哪一层是「内容面」，
+  // 而取样证明我们拿不到那些类名。唯一全站同源、行为可预测的做法就是压底纹本身。
+  // 内置底纹是「透明线稿」：实测 p50 = 0（不透明像素只有线条），所以它只画线、不换底。
+  // 自定义底纹是满幅图（p50≈30，底色被烘焙进图里），opacity 0.7 会把整块底替换成图的颜色，
+  // 面板的半透明层下面于是变成「图」而不是主题底色 —— 这就是琥珀没有、自定义有的差别。
+  // 解法：用混合模式把满幅图降级成线稿——深色 lighten（只留比底色亮的部分），
+  // 浅色 multiply（只留比底色暗的部分）。图里与底色一致的部分自动消失。
+  var isImageBg = !!o.bgIsImage;
+  var blendCss = isImageBg ? ('mix-blend-mode:' + (scheme === 'light' ? 'multiply' : 'lighten') + ' !important;') : '';
+  var scrimPct = Math.max(0, Math.min(100, typeof o.bgScrim === 'number' ? o.bgScrim : 0));
+  var imgOpacity = +(vis * 0.7 * (1 - scrimPct / 100)).toFixed(3);
   // 淡化：另加一层垂直渐隐遮罩做出「边缘化开」；Zhuoer 的 faded 靠面板层不透明压暗，
   // 我们的内容层是透明的，直接照抄会更浓，所以用 mask 达到同样效果。
   var fadeMask = bgStyle === 'fade'
     ? '-webkit-mask-image:linear-gradient(180deg,#000 0%,#000 42%,rgba(0,0,0,.55) 74%,transparent 100%) !important;mask-image:linear-gradient(180deg,#000 0%,#000 42%,rgba(0,0,0,.55) 74%,transparent 100%) !important;'
     : '';
   return '[class*="_centerCol"],[class*="_mainPanel"]{background-color:var(--dsw-alias-bg-base) !important;background-image:none !important;position:relative !important;isolation:isolate !important;}'
-    + '[class*="_centerCol"]::before,[class*="_mainPanel"]::before{content:"" !important;position:absolute !important;inset:0 !important;background-image:url("' + bgUrl + '") !important;background-size:cover !important;background-position:50% 0% !important;background-repeat:no-repeat !important;opacity:' + imgOpacity + ' !important;' + fadeMask + 'pointer-events:none !important;z-index:0 !important;}'
+    + '[class*="_centerCol"]::before,[class*="_mainPanel"]::before{content:"" !important;' + blendCss + 'position:absolute !important;inset:0 !important;background-image:url("' + bgUrl + '") !important;background-size:cover !important;background-position:50% 0% !important;background-repeat:no-repeat !important;opacity:' + imgOpacity + ' !important;' + fadeMask + 'pointer-events:none !important;z-index:0 !important;}'
     + '[class*="_centerCol"] [class*="_root"],[class*="_mainPanel"] [class*="_root"]{background-color:transparent !important;}'
     + 'html[data-zr-state="empty"][data-zr-bg-empty="0"] [class*="_centerCol"]::before,html[data-zr-state="empty"][data-zr-bg-empty="0"] [class*="_mainPanel"]::before,html[data-zr-state="session"][data-zr-bg-session="0"] [class*="_centerCol"]::before,html[data-zr-state="session"][data-zr-bg-session="0"] [class*="_mainPanel"]::before{display:none !important;}';
 }
@@ -2735,6 +2926,10 @@ function applyTokens(theme, pref) {
       const scheme = resolveScheme(pref.mode, theme);
       liveScheme = scheme;
       const tokens = Object.assign({}, tokensForPref(pref, scheme));
+      // 排障：自定义主题生效时把真实 token 表上报一次（每页一次，常态零开销）。
+      try { zrDumpTokensOnce(scheme, pref, tokens); } catch (e) { /* ignore */ }
+      // 面板切换后再取样半透明面（页面加载时看到的是聊天页）。
+      try { zrHookSemiProbe(scheme); } catch (e) { /* ignore */ }
       // 自定义主题的 SHAPES / FONTS / 底图都按它克隆的 base 查（自定义 id 在那些表里不存在）
       const effTheme = effectiveThemeId(pref);
       // 用户强调色：必须写进 tokens，否则 extra 的 * {…!important} 兜底层会把主题旧色压在按钮上
@@ -2923,6 +3118,7 @@ function applyTokens(theme, pref) {
       let bgUrl = '';
       let bgOpacity = pref.bgOpacity;
       let bgStyle = pref.bgStyle;
+      let bgScrim = 0;
       // 自定义主题可以自带底图；source 为空表示跟随全局底图设置。
       // 图片本身存在 IndexedDB，这里只按引用键从内存缓存取（IDB 是异步的，不能在这里 await）。
       const specBg = (customSpec(pref) && customSpec(pref).bg) || null;
@@ -2933,6 +3129,7 @@ function applyTokens(theme, pref) {
       if (specBg && specBg.source) {
         if (typeof specBg.opacity === 'number') bgOpacity = specBg.opacity;
         if (specBg.style) bgStyle = specBg.style;
+        if (typeof specBg.scrim === 'number') bgScrim = specBg.scrim;
         if (specBg.source === 'theme') bgUrl = themeBgFor();
         else if (specBg.source === 'image' && (specBg.key || specBg.keyLight)) {
           const wantLight = scheme === 'light' ? specBg.keyLight : '';
@@ -3005,7 +3202,7 @@ function applyTokens(theme, pref) {
         // 盒子尺寸由宿主的 width/height 决定，用 contain + 贴左居中：比例不匹配时留白，不会裁切。
         // 来源优先级：用户上传的图 > 主题自带 logo。开但没选图 = 用自带的，不是「不生效」。
         const brandCss = brandCssFor(pref);
-        const bgCss = bgCssFor({ bgUrl: bgUrl, bgOpacity: bgOpacity, bgStyle: bgStyle, tokens: tokens, scheme: scheme });
+        const bgCss = bgCssFor({ bgUrl: bgUrl, bgOpacity: bgOpacity, bgStyle: bgStyle, bgScrim: bgScrim, bgIsImage: !!(specBg && specBg.source === 'image') || pref.bgSource === 'image', tokens: tokens, scheme: scheme });
         // 文字大小 / 强调色 / 字体（照 Zhuoer 外观页的三组设置）
         let fxCss = '';
         // 主栏四个角永远是直角 —— 用户明确要求「无论何种主题、无论什么情况」。
@@ -4374,6 +4571,18 @@ function applyTokens(theme, pref) {
                   onChange: function (ev) { setBg({ opacity: Number(ev.target.value) || 0 }); },
                 }),
                 h('span', { className: 'zp-val' }, (typeof bg.opacity === 'number' ? bg.opacity : 85) + '%')
+              )
+            : null,
+          (bg.source && bg.source !== 'none')
+            ? h(Row, { label: t('panel.ed.scrimRow') },
+                h('input', {
+                  type: 'range', className: 'zp-range', min: 0, max: 100,
+                  value: typeof bg.scrim === 'number' ? bg.scrim : 0,
+                  style: { '--zp-pct': (typeof bg.scrim === 'number' ? bg.scrim : 0) + '%' },
+                  'aria-label': t('panel.ed.scrimAria'),
+                  onChange: function (ev) { setBg({ scrim: Number(ev.target.value) || 0 }); },
+                }),
+                h('span', { className: 'zp-val' }, (typeof bg.scrim === 'number' ? bg.scrim : 0) + '%')
               )
             : null,
           h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('h3', { className: 'zp-sec-t' }, t('panel.ed.shapeSection')), h('div', { className: 'zp-sec-n' }, t('panel.ed.shapeNote')))),

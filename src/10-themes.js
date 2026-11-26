@@ -936,8 +936,13 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
       const na = hexHsl(newAnchorHex);
       if (!m || !na) return memberHex;
       // 明度仍然锁在极暗（遮罩要能压住内容），只把色相/低饱和借过来。
-      const l = Math.max(0.02, Math.min(0.10, m[2]));
-      return hslHex(na[0], Math.min(0.35, na[1]), l);
+      // 第一版把明度锁在 2%–10%、饱和度砍到 0.35，结果 #0b0d11 → #0f0e0d：
+      // 数值上「跟了」，屏幕上仍是近黑 —— 对一个本就低饱和的暖灰主题等于没动。
+      // 现在保证两件事：① 比底色暗一档但不贴黑（0.06–0.12）；② 饱和度兜底加一档，
+      // 让幕布读起来是「同一色系的暗面」，而不是中性黑。
+      const l = Math.max(0.06, Math.min(0.12, m[2]));
+      const s = Math.min(0.5, Math.max(na[1] * 3, na[1] + 0.15));
+      return hslHex(na[0], s, l);
     }
     // 一组锚点落到目标表上：锚点直写，成员按各自 mode 派生。
     // 锚点没变（用户没调这一组，或反推值恰好等于原值）时整组跳过 —— 保证
@@ -1031,12 +1036,15 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
     // 把底色提亮成暖灰后，这 2% 在屏幕上就没了（实测 header 块与页面底同为 #211d1b）。
     // 所以深色方案额外铺一条不含糊的阶梯。
     const DEPTH_LADDER = [
-      ['--dsw-alias-bg-layer-1', 0.025], ['--dsw-alias-bg-layer-2', 0.05],
-      ['--dsw-alias-bg-layer-3', 0.075], ['--dsw-alias-bg-layer-4', 0.10],
-      ['--dsw-alias-card-fill', 0.035], ['--dsw-alias-settings-card-fill', 0.035],
-      ['--dsw-alias-card-tile-fill', 0.03], ['--dsw-alias-hovercard-bg', 0.06],
-      ['--dsw-specific-menu', 0.05], ['--dsw-menu-surface-fill', 0.05],
-      ['--dsw-alias-markdown-code-block', 0.05],
+      // 第一版用 2.5/5/7.5/10%，实测 layer-1 对比只有 1.07——因为 zhuoer 深色底色本来就
+      // 只有 0.117 的 HSL 明度，2.5% 落在一个色阶内，屏幕上等于没变。
+      // 现在按「肉眼能分开」定档：4/8/12/16%（HSL 明度），并同步抬高卡片/菜单/代码块。
+      ['--dsw-alias-bg-layer-1', 0.04], ['--dsw-alias-bg-layer-2', 0.08],
+      ['--dsw-alias-bg-layer-3', 0.12], ['--dsw-alias-bg-layer-4', 0.16],
+      ['--dsw-alias-card-fill', 0.055], ['--dsw-alias-settings-card-fill', 0.055],
+      ['--dsw-alias-card-tile-fill', 0.05], ['--dsw-alias-hovercard-bg', 0.09],
+      ['--dsw-specific-menu', 0.08], ['--dsw-menu-surface-fill', 0.08],
+      ['--dsw-alias-markdown-code-block', 0.08],
     ];
     function enforceDepth(out, scheme, on) {
       if (!on || scheme !== 'dark') return out;
@@ -1057,16 +1065,16 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
     // 实测第三方面板正文 2.33:1、标题 3.08:1、KPI 2.53:1，而 ensureReadableOn 只管彩底文字。
     const TEXT_FLOOR = [
       ['--dsw-alias-label-primary', 7],
-      ['--dsw-alias-label-secondary', 4.5],
-      ['--dsw-alias-label-tertiary', 3],
-      ['--dsw-alias-label-caption', 3],
-      ['--dsw-alias-label-dimmed', 3],
-      ['--dsw-alias-label-primary-dimmed', 4.5],
-      ['--dsw-alias-hovercard-label-secondary', 4.5],
-      ['--dsw-alias-hovercard-label-tertiary', 3],
-      ['--dsw-alias-toast-label', 4.5],
-      ['--dsw-alias-menu-icon', 3],
-      ['--dsw-alias-chart-tools', 3], ['--dsw-alias-chart-messages', 3],
+      ['--dsw-alias-label-secondary', 6],
+      ['--dsw-alias-label-tertiary', 4.5],
+      ['--dsw-alias-label-caption', 4.5],
+      ['--dsw-alias-label-dimmed', 4],
+      ['--dsw-alias-label-primary-dimmed', 6],
+      ['--dsw-alias-hovercard-label-secondary', 6],
+      ['--dsw-alias-hovercard-label-tertiary', 4.5],
+      ['--dsw-alias-toast-label', 6],
+      ['--dsw-alias-menu-icon', 4.5],
+      ['--dsw-alias-chart-tools', 4.5], ['--dsw-alias-chart-messages', 4.5],
     ];
     function relLumOf(hex) {
       const rgb = parseHexColor(hex);
@@ -1215,6 +1223,9 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
             keyLight: typeof b.keyLight === 'string' && /^img_[a-z0-9]{4,32}$/.test(b.keyLight) ? b.keyLight : '',
             opacity: typeof b.opacity === 'number' && b.opacity >= 0 && b.opacity <= 100 ? Math.round(b.opacity) : null,
             style: b.style === 'full' || b.style === 'fade' ? b.style : '',
+            // 内容压底：底纹在「内容层之下」的可见度。0 = 现状（穿到卡片与文字上），
+            // 100 = 内容层几乎完全挡住底纹。用户模型：底纹该融进底色，但不该渗到面上。
+            scrim: typeof b.scrim === 'number' && b.scrim >= 0 && b.scrim <= 100 ? Math.round(b.scrim) : 0,
           };
         })(),
       };
