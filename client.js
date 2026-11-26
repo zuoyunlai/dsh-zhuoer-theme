@@ -5736,7 +5736,9 @@ function applyTokens(theme, pref) {
         bg: (function () {
           const url = typeof (spec && spec.textureDataUrl) === 'string' ? spec.textureDataUrl : '';
           const urlL = typeof (spec && spec.textureLightDataUrl) === 'string' ? spec.textureLightDataUrl : '';
-          if (!url && !urlL) return { source: '', key: '', keyLight: '', opacity: null, style: '' };
+          // 没有底纹就显式写 'none'：对话框生成的主题**不继承**全局底图。
+          // 空 source 的历史语义是「跟随全局」，那是老数据的约定；新主题一律从「不用底图」起步。
+          if (!url && !urlL) return { source: 'none', key: '', keyLight: '', opacity: null, style: '', kind: '' };
           const stamp = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
           let key = '';
           let keyLight = '';
