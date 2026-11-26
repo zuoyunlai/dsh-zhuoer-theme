@@ -15,6 +15,9 @@
 //      插件实例创建失败、工具静默消失，而 plugin list 一切正常。
 //   6. **取服务必须用注入回调给的那个 ctx**（injected.get(...)），
 //      用外层 ctx.get() 会拿不到——0.6.25 首次落地就栽在这里，工具静默没注册。
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
 import { generateThemeSpec } from './theme-gen.js';
 
 export const TOOL_NAME = 'zhuoer_theme_generate';
@@ -25,6 +28,10 @@ const DESCRIPTION = [
   '(for example "give me a cyberpunk palette", "make a retro terminal theme").',
   'The result is NOT applied automatically: it is shown as a preview card in the chat,',
   'and only takes effect after the user confirms it there.',
+  'It returns BOTH a light palette and an explicit dark palette, so light and dark mode each look right.',
+  'If a subtle background texture would suit the style (the Zhuoer house look is barely-there, low-contrast, never busy),',
+  'ASK the user before generating one; only after they agree, generate the texture with whatever image capability you have',
+  'and pass its local file path as texturePath. Never attach a texture they did not ask for.',
   'Prefer this over hand-picking hex colors when the user wants a whole theme.',
 ].join(' ');
 
@@ -43,6 +50,8 @@ const OUTPUT_SCHEMA = {
   properties: {
     label: { type: 'string' },
     light: { type: 'object', additionalProperties: true },
+    // 显式深色锚点；缺失时不输出，客户端退回 autoDark 反推。
+    dark: { type: 'object', additionalProperties: true },
     // font 的真实形状是 { body, chat } 两个字符串（theme-gen 归一化后保证）。
     // 声明成 additionalProperties:false 的空对象会让宿主在**输出校验**时拒收：
     //   "value.font.body" is not a declared property (additionalProperties: false)
@@ -56,28 +65,88 @@ const OUTPUT_SCHEMA = {
       },
     },
     radiusScale: { type: 'number' },
+    texture: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['name'],
+      properties: {
+        name: { type: 'string' },
+        mime: { type: 'string' },
+        bytes: { type: 'number' },
+      },
+    },
+    textureLight: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['name'],
+      properties: {
+        name: { type: 'string' },
+        mime: { type: 'string' },
+        bytes: { type: 'number' },
+      },
+    },
   },
 };
 
 // 只回 OUTPUT_SCHEMA 声明过的键，font 只留 body/chat。
 // 输出校验是严格的（additionalProperties:false 拒收任何未声明键），
 // 与其祈祷模型不越界，不如在返回处收口——返回值与 schema 从此不可能脱节。
-function toOutput(spec) {
+function toOutput(spec, texture, textureLight) {
   const src = spec || {};
   const light = src.light && typeof src.light === 'object' ? src.light : {};
+  const dark = src.dark && typeof src.dark === 'object' ? src.dark : {};
   const font = src.font && typeof src.font === 'object' ? src.font : {};
   const out = {
     label: String(src.label || 'AI 主题'),
     light: light,
     font: { body: String(font.body || ''), chat: String(font.chat || '') },
   };
+  // 深色只有凑够 4 个锚点才下发，否则让它走反推，避免给出半套深色。
+  if (Object.keys(dark).length >= 4) out.dark = dark;
   if (typeof src.radiusScale === 'number' && isFinite(src.radiusScale)) out.radiusScale = src.radiusScale;
+  if (texture) out.texture = texture;
+  if (textureLight) out.textureLight = textureLight;
   return out;
 }
 
+// ---- 底纹（可选）----
+// 通用插件不挑宿主：不调任何图片工具或厂商 API，只接收模型产出的本地图片路径。
+// 图片落到插件自己的目录，由同源端点 /api/texture 回传给客户端再进 IndexedDB。
+// 这样既不把 3 MiB 塞进工具结果（会撑爆 PTC 文本），也不依赖别的插件。
+const TEXTURE_MAX = 3 * 1024 * 1024;
+
+function sniffImage(buf) {
+  if (!buf || buf.length < 12) return '';
+  if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return 'image/jpeg';
+  if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) return 'image/png';
+  if (buf.toString('ascii', 0, 4) === 'RIFF' && buf.toString('ascii', 8, 12) === 'WEBP') return 'image/webp';
+  return '';
+}
+
+// 返回 { name, mime, bytes }；任何不合规都返回 null——宁可没底纹，也不要半坏的主题。
+function stashTexture(srcPath, getDir) {
+  if (typeof srcPath !== 'string' || !srcPath.trim()) return null;
+  try {
+    const p = srcPath.trim();
+    const info = fs.statSync(p);
+    if (!info.isFile() || info.size < 64 || info.size > TEXTURE_MAX) return null;
+    const buf = fs.readFileSync(p);
+    const mime = sniffImage(buf);
+    if (!mime) return null;
+    const ext = mime === 'image/png' ? 'png' : mime === 'image/webp' ? 'webp' : 'jpg';
+    const d = getDir();
+    if (!d) return null;
+    const name = crypto.randomBytes(8).toString('hex') + '.' + ext;
+    fs.mkdirSync(d, { recursive: true });
+    fs.writeFileSync(path.join(d, name), buf);
+    return { name: name, mime: mime, bytes: info.size };
+  } catch (e) {
+    return null;
+  }
+}
 // report 由 index.js 传入（落 plugin-status 同目录的 tool-status.json），
 // 目的是让「工具到底注册上没有」这件事在磁盘上可查，而不是靠猜。
-export function registerThemeTool(ctx, report) {
+export function registerThemeTool(ctx, report, opts) {
   const say = (obj) => { try { if (typeof report === 'function') report(obj); } catch (e) { /* ignore */ } };
   let disposer = null;
   let done = false;
@@ -95,6 +164,7 @@ export function registerThemeTool(ctx, report) {
     // 兜底：output.schema 过严时（宿主 raw 注册路径会原样做 JSON Schema 校验），
     // 退回最小 schema 也要把工具注册上——schema 只用于参数/结果校验，丢掉 properties
     // 不会影响 render / presentationMeta，卡片照常出。
+    const textureDir = () => { try { return opts && typeof opts.texturesDir === 'function' ? opts.texturesDir() : ''; } catch (e) { return ''; } };
     const attempt = (schema) => tools.register({
       name: TOOL_NAME,
       description: DESCRIPTION,
@@ -107,6 +177,14 @@ export function registerThemeTool(ctx, report) {
         name: {
           type: 'string',
           description: 'Short theme name (4-10 characters) summarizing the style. Omit to let the model choose one.',
+        },
+        texturePath: {
+          type: 'string',
+          description: 'Optional absolute local path to a background texture image you generated (JPEG/PNG/WebP, <=3 MiB). Omit for a flat theme.',
+        },
+        texturePathLight: {
+          type: 'string',
+          description: 'Optional absolute local path to a LIGHT-mode variant of that texture (light base, faint strokes). Built-in themes ship two backgrounds because one dark image looks muddy under a light palette.',
         },
       },
       output: {
@@ -123,8 +201,11 @@ export function registerThemeTool(ctx, report) {
           kind: 'dsh-zhuoer-theme',
           label: value.label,
           light: value.light,
+          dark: value.dark || {},
           font: value.font || {},
           radiusScale: value.radiusScale,
+          texture: value.texture,
+          textureLight: value.textureLight,
         }),
       },
       async execute(args) {
@@ -134,7 +215,7 @@ export function registerThemeTool(ctx, report) {
           ? style + '\n主题名：' + args.name.trim()
           : style;
         const { spec } = await generateThemeSpec(ctx, prompt, {});
-        return toOutput(spec);
+        return toOutput(spec, stashTexture(args && args.texturePath, textureDir), stashTexture(args && args.texturePathLight, textureDir));
       },
     });
 
@@ -152,6 +233,14 @@ export function registerThemeTool(ctx, report) {
             type: 'string',
             description: 'Short theme name (4-10 characters) summarizing the style. Omit to let the model choose one.',
           },
+          texturePath: {
+            type: 'string',
+            description: 'Optional absolute local path to a background texture image you generated (JPEG/PNG/WebP, <=3 MiB). Omit for a flat theme.',
+          },
+          texturePathLight: {
+            type: 'string',
+            description: 'Optional absolute local path to a LIGHT-mode variant of that texture (light base, faint strokes). Built-in themes ship two backgrounds because one dark image looks muddy under a light palette.',
+          },
         },
         output: {
           schema: OUTPUT_SCHEMA,
@@ -167,8 +256,11 @@ export function registerThemeTool(ctx, report) {
             kind: 'dsh-zhuoer-theme',
             label: value.label,
             light: value.light,
+            dark: value.dark || {},
             font: value.font || {},
             radiusScale: value.radiusScale,
+            texture: value.texture,
+            textureLight: value.textureLight,
           }),
         },
         async execute(args) {
@@ -178,7 +270,7 @@ export function registerThemeTool(ctx, report) {
             ? style + '\n主题名：' + args.name.trim()
             : style;
           const { spec } = await generateThemeSpec(ctx, prompt, {});
-          return toOutput(spec);
+          return toOutput(spec, stashTexture(args && args.texturePath, textureDir), stashTexture(args && args.texturePathLight, textureDir));
         },
       });
       done = true;

@@ -24,6 +24,10 @@
 - **双路匹配**：直连 `tool/result` 读 `presentationMeta`；PTC（`run_code`）子调用是 `tool/ptc-dispatch`，既无 `turn` 也无 meta，规格改由渲染文本里的 `DSH_THEME_SPEC:` 行回传。**少了这一路，卡片在 `run_code` 场景永远不出来。**
 - **新增门禁** `scripts/verify-schema-output.mjs`：把 `OUTPUT_SCHEMA` 与 `toOutput` 抽出来，用宿主严格规则离线校验输出契约。同类错误（schema 与真实返回值不一致）本轮连炸三次、每次都要重启才能发现，这道门把它挪回本地。
 
+- **明暗双规格**：`theme-gen.js` 改为要求模型同时给 `light` 与 `dark` 两张锚点表（各 8 键，深色底色亮度 ≤18%），卡片 `autoDark: false` 直传，浅色不再被拿来反推深色。
+- **底纹按明暗各一张**（`texturePath` / `texturePathLight`）：内置主题本就两套素材（`BG` / `BG_SOFT`），一张深图铺在浅底上会发闷。服务端 stash 到插件数据目录 → 同源 `/api/texture` 下发 → 客户端 FileReader → IndexedDB，`bg` 分别落 `key` / `keyLight`，渲染按 `scheme` 取图、缺浅色图回落主图。
+- **对比度教训**：内置浅色底图是 4.9 KB 平面矢量线稿；第一版 AI 浅色底纹是 198 KB 摄影噪点、线条仅深约 2%，乘 0.7 铺贴后归零。改成「浅紫底 + 深约 12% 的细网格」才可见。
+
 踩坑与取证全过程见 `docs/report-chat-theme-gen-2026-11-26.md`。
 ## 0.6.25（发布汇总：全量审计整改批 A / B / C + 窄屏判定修正）
 

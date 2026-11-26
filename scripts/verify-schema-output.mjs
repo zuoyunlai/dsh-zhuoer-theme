@@ -24,7 +24,7 @@ const grab = (startRe, endMark) => {
 };
 
 const OUTPUT_SCHEMA = new Function(grab(/const OUTPUT_SCHEMA = \{/, '\n};') + '; return OUTPUT_SCHEMA;')();
-const toOutput = new Function(grab(/function toOutput\(spec\) \{/, '\n}') + '; return toOutput;')();
+const toOutput = new Function(grab(/function toOutput\(spec[^)]*\) \{/, '\n}') + '; return toOutput;')();
 
 // theme-gen 归一化后**必然**给出的形状（font 一定带 body/chat）
 const spec = {
@@ -36,6 +36,17 @@ const spec = {
     '--dsw-alias-label-secondary': '#8f7fc0',
     '--dsw-alias-brand-primary': '#00f0ff',
     '--dsw-alias-border-l1': '#2a1b4d',
+    '--dsw-alias-state-error': '#ff2d78',
+    '--dsw-alias-state-success': '#3bffb0',
+  },
+  // 显式深色表也必须过契约（不足 4 个锚点时不下发，见 toOutput）。
+  dark: {
+    '--dsw-alias-bg-layout': '#07030f',
+    '--dsw-alias-bg-layer-1': '#0d0620',
+    '--dsw-alias-label-primary': '#dff6ff',
+    '--dsw-alias-label-secondary': '#9a86d6',
+    '--dsw-alias-brand-primary': '#00f0ff',
+    '--dsw-alias-border-l1': '#241340',
     '--dsw-alias-state-error': '#ff2d78',
     '--dsw-alias-state-success': '#3bffb0',
   },

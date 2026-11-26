@@ -35,15 +35,34 @@
         if (typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v.trim())) light[g.anchor] = v.trim().toLowerCase();
       });
       if (Object.keys(light).length < 4) return null;
+      // 显式深色锚点：≥4 个才算给了，否则交给 autoDark 反推。
+      const dsrc = zrRec(m.dark) || {};
+      const dark = {};
+      ANCHOR_GROUPS.forEach(function (g) {
+        const v = dsrc[g.anchor];
+        if (typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v.trim())) dark[g.anchor] = v.trim().toLowerCase();
+      });
+      const darkOk = Object.keys(dark).length >= 4;
       const font = zrRec(m.font) || {};
       return {
         label: typeof m.label === 'string' && m.label.trim() ? m.label.trim().slice(0, 24) : 'AI',
         light: light,
+        dark: darkOk ? dark : {},
         font: {
           body: typeof font.body === 'string' ? font.body : '',
           chat: typeof font.chat === 'string' ? font.chat : '',
         },
         radiusScale: typeof m.radiusScale === 'number' ? Math.max(0, Math.min(3, m.radiusScale)) : 1,
+        texture: (function () {
+          const tb = zrRec(m.texture);
+          if (!tb || typeof tb.name !== 'string') return null;
+          return { name: tb.name, mime: typeof tb.mime === 'string' ? tb.mime : '', bytes: typeof tb.bytes === 'number' ? tb.bytes : 0 };
+        })(),
+        textureLight: (function () {
+          const tb = zrRec(m.textureLight);
+          if (!tb || typeof tb.name !== 'string') return null;
+          return { name: tb.name, mime: typeof tb.mime === 'string' ? tb.mime : '', bytes: typeof tb.bytes === 'number' ? tb.bytes : 0 };
+        })(),
       };
     }
 
@@ -83,6 +102,33 @@
       return zrSpecFromPtcDispatch(event);
     }
 
+    // 底纹：从同源端点取回字节 → dataURL。客户端只关心 dataURL，落库与缓存由应用阶段处理。
+    function zrFetchTexture(rec) {
+      const tb = zrRec(rec);
+      const name = tb && typeof tb.name === 'string' ? tb.name : '';
+      if (!/^[a-f0-9]{16}\.(jpg|png|webp)$/.test(name)) return Promise.resolve('');
+      return fetch('/dsh-zhuoer-theme/api/texture?name=' + encodeURIComponent(name), { headers: { 'x-zhuoer-client': '1' } })
+        .then(function (r) { return r && r.ok ? r.blob() : null; })
+        .then(function (blob) {
+          if (!blob) return '';
+          return new Promise(function (resolve) {
+            try {
+              const fr = new FileReader();
+              fr.onload = function () { resolve(typeof fr.result === 'string' ? fr.result : ''); };
+              fr.onerror = function () { resolve(''); };
+              fr.readAsDataURL(blob);
+            } catch (e) { resolve(''); }
+          });
+        })
+        .catch(function () { return ''; });
+    }
+
+    // 深色、浅色各取一张：与内置主题一致（BG / BG_SOFT），一张深图铺在浅底上会发闷。
+    function zrResolveBg(spec) {
+      return Promise.all([zrFetchTexture(spec && spec.texture), zrFetchTexture(spec && spec.textureLight)])
+        .then(function (r) { return { dark: r[0] || '', light: r[1] || '' }; });
+    }
+
     // 写盘 + 立即应用。必须复用 sanitizeCustomSpec，否则这条路会绕过主题规格校验。
     // 写入顺序与面板一致：先落 localStorage → 再重算 token → 再通知监听者。
     function zrApplyThemeSpec(spec) {
@@ -102,13 +148,32 @@
         id: id,
         label: spec.label,
         base: base,
-        dark: {},
-        // 模型只给浅色锚点：与面板一致，落进 light 并强制 autoDark，否则深色模式下几乎看不出变化。
+        // 模型给了完整深色表就用它（autoDark 关掉），否则退回由浅色反推。
+        dark: spec.dark || {},
         light: spec.light,
         font: spec.font || { body: '', chat: '' },
         radiusScale: typeof spec.radiusScale === 'number' ? spec.radiusScale : 1,
-        autoDark: true,
-        bg: { source: '', key: '', opacity: null, style: '' },
+        autoDark: !(spec.dark && Object.keys(spec.dark).length >= 4),
+        // 有 AI 底纹就绑上：先塞内存 Map（applyTokens 同步读它），IDB 落库异步补。
+        bg: (function () {
+          const url = typeof (spec && spec.textureDataUrl) === 'string' ? spec.textureDataUrl : '';
+          const urlL = typeof (spec && spec.textureLightDataUrl) === 'string' ? spec.textureLightDataUrl : '';
+          if (!url && !urlL) return { source: '', key: '', keyLight: '', opacity: null, style: '' };
+          const stamp = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+          let key = '';
+          let keyLight = '';
+          if (url) {
+            key = 'img_' + stamp;
+            imageCache.set(key, url);
+            try { idbPut(key, url).catch(function () { /* 落库失败不影响本次应用 */ }); } catch (e) { /* ignore */ }
+          }
+          if (urlL) {
+            keyLight = 'img_' + stamp + 'b';
+            imageCache.set(keyLight, urlL);
+            try { idbPut(keyLight, urlL).catch(function () { /* 落库失败不影响本次应用 */ }); } catch (e) { /* ignore */ }
+          }
+          return { source: 'image', key: key, keyLight: keyLight, opacity: null, style: '' };
+        })(),
       };
       const safe = sanitizeCustomSpec(candidate);
       if (!safe) { const e = new Error('invalid-theme-spec'); e.code = 'invalid'; throw e; }
@@ -208,15 +273,20 @@
 
       const applied = function (target) {
         setErr('');
+        // 底纹要先取回字节再写盘，所以这一步是异步的；取不到就退化成纯配色，不影响应用。
+        zrResolveBg(target).then(function (bgs) {
+        const t2 = Object.assign({}, target, { textureDataUrl: bgs.dark, textureLightDataUrl: bgs.light });
         try {
-          const safe = zrApplyThemeSpec(target);
-          setSpec({ label: safe.label, light: Object.assign({}, target.light), font: target.font, radiusScale: target.radiusScale });
-          setDraft({ label: safe.label, light: Object.assign({}, target.light), font: target.font, radiusScale: target.radiusScale });
+          const safe = zrApplyThemeSpec(t2);
+          const next = { label: safe.label, light: Object.assign({}, target.light), dark: Object.assign({}, target.dark || {}), font: target.font, radiusScale: target.radiusScale, texture: target.texture || null, textureLight: target.textureLight || null };
+          setSpec(next);
+          setDraft(next);
           setDone(true);
           setMode('view');
         } catch (e) {
           setErr(e && e.code === 'limit' ? t('panel.chat.limitErr', { n: CUSTOM_MAX }) : t('panel.chat.fail'));
         }
+        });
       };
       const startEdit = function () {
         setErr(''); setDone(false);
@@ -252,6 +322,21 @@
             );
           })
         ),
+        (view.dark && Object.keys(view.dark).length >= 4)
+          ? h('div', null,
+              h('div', { className: 'zrc-lb', style: { marginTop: '8px' } }, t('panel.ed.dark')),
+              h('div', { className: 'zrc-grid' },
+                ANCHOR_GROUPS.map(function (g) {
+                  const dh = view.dark[g.anchor] || '#000000';
+                  return h('div', { className: 'zrc-cell', key: 'd-' + g.key },
+                    h('div', { className: 'zrc-sw', style: { background: dh }, 'aria-hidden': 'true' }),
+                    h('div', { className: 'zrc-lb' }, t('anchor.' + g.key)),
+                    h('div', { className: 'zrc-hex' }, dh),
+                  );
+                })
+              )
+            )
+          : null,
         mode === 'edit'
           ? h('div', { className: 'zrc-acts' },
               h('input', {

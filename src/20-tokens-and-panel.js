@@ -381,7 +381,10 @@ function applyTokens(theme, pref) {
         if (typeof specBg.opacity === 'number') bgOpacity = specBg.opacity;
         if (specBg.style) bgStyle = specBg.style;
         if (specBg.source === 'theme') bgUrl = themeBgFor();
-        else if (specBg.source === 'image' && specBg.key) bgUrl = imageCache.get(specBg.key) || '';
+        else if (specBg.source === 'image' && (specBg.key || specBg.keyLight)) {
+          const wantLight = scheme === 'light' ? specBg.keyLight : '';
+          bgUrl = (wantLight && imageCache.get(wantLight)) || imageCache.get(specBg.key) || imageCache.get(specBg.keyLight) || '';
+        }
         // source === 'none' → 该主题明确不要底图
       } else if (pref.bgSource === 'theme') bgUrl = themeBgFor();
       else if (pref.bgSource === 'image' && pref.bgImage) bgUrl = pref.bgImage;

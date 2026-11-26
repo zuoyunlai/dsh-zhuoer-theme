@@ -66,6 +66,11 @@ function dir() {
   return path.join(dshHome(), STATUS_DIR);
 }
 
+// 底纹图片目录：与工具落盘、端点回传共用同一个位置。
+function texturesDir() {
+  return path.join(dir(), 'textures');
+}
+
 function writeJson(name, data) {
   try {
     fs.mkdirSync(dir(), { recursive: true });
@@ -78,7 +83,7 @@ export function apply(ctx, config) {
   // 模型调用它生成主题 spec，对话流里出现色卡卡片，用户确认后才应用。
   // 与面板里的 AI 生成并存，互不影响。
   try {
-    registerThemeTool(ctx, function (obj) { writeJson('tool-status.json', obj); });
+    registerThemeTool(ctx, function (obj) { writeJson('tool-status.json', obj); }, { texturesDir: texturesDir });
   } catch (e) { /* 工具注册失败不影响皮肤 */ }
 
   writeJson('plugin-status.json', {
@@ -140,6 +145,30 @@ export function apply(ctx, config) {
           },
         });
       } catch (e) { /* ignore */ }
+      // ---- 底纹图片回传 ----
+      // 工具把模型产出的图片落到 textures 目录，这里按文件名回传字节。
+      // 只认 16 位十六进制 basename + 白名单扩展名，路径穿越无从下手。
+      try {
+        ws.register({
+          kind: 'exact',
+          path: '/dsh-zhuoer-theme/api/texture',
+          handler: (req, res) => {
+            if (!isOwnClient(req)) return rejectForeign(res);
+            try {
+              const u = new URL(req.url || '/', 'http://localhost');
+              const name = String(u.searchParams.get('name') || '');
+              if (!/^[a-f0-9]{16}\.(jpg|png|webp)$/.test(name)) { res.writeHead(400); res.end(); return; }
+              const buf = fs.readFileSync(path.join(texturesDir(), name));
+              const mime = name.endsWith('.png') ? 'image/png' : name.endsWith('.webp') ? 'image/webp' : 'image/jpeg';
+              res.writeHead(200, { 'content-type': mime, 'content-length': String(buf.length), 'cache-control': 'no-store' });
+              res.end(buf);
+            } catch (e) {
+              try { res.writeHead(404); res.end(); } catch (e2) { /* ignore */ }
+            }
+          },
+        });
+      } catch (e) { /* ignore */ }
+
       // ---- AI 生成主题 ----
       // 客户端 POST { prompt } → 用宿主当前配置的模型生成主题 JSON。
       // 调用方式照抄 dsh-pet（已生产验证）：走高层入口 llm.stream()，chunk 取 text-delta。
