@@ -26,12 +26,16 @@ const DESCRIPTION = [
   'Generate a DSH custom theme (color anchors, fonts, corner radius) from a style description.',
   'Use this when the user asks for a theme, palette, color scheme, or color style for DSH',
   '(for example "give me a cyberpunk palette", "make a retro terminal theme").',
+  'STEP 1 - ASK FIRST: before calling this tool, ask the user one direct question - do they want a subtle background texture?',
+  'Do not decide it for them and do not skip the question.',
+  'STEP 2 - FOLLOW THE ANSWER: if yes, generate TWO textures with whatever image capability you have',
+  '(one dark, one light - a single dark image looks muddy under a light palette), save both locally,',
+  'then pass their paths as texturePath / texturePathLight with texture="want".',
+  'If the user says no, pass texture="no" and attach nothing.',
+  'House texture look: barely-there line work on a near-flat base - not a photograph, not busy.',
   'The result is NOT applied automatically: it is shown as a preview card in the chat,',
   'and only takes effect after the user confirms it there.',
   'It returns BOTH a light palette and an explicit dark palette, so light and dark mode each look right.',
-  'If a subtle background texture would suit the style (the Zhuoer house look is barely-there, low-contrast, never busy),',
-  'ASK the user before generating one; only after they agree, generate the texture with whatever image capability you have',
-  'and pass its local file path as texturePath. Never attach a texture they did not ask for.',
   'Prefer this over hand-picking hex colors when the user wants a whole theme.',
 ].join(' ');
 
@@ -218,7 +222,10 @@ export function registerThemeTool(ctx, report, opts) {
         render: (_args, value) => [{
           type: 'text',
           text: 'Theme "' + value.label + '" is ready. It is shown as a preview card below; '
-            + 'tell the user it is ready and ask them to confirm there. Do not list the colors yourself.',
+            + 'tell the user it is ready and ask them to confirm there. Do not list the colors yourself. '
+            + (value.textureDecision === 'want'
+              ? 'A background texture is attached (dark + light).'
+              : 'No background texture was added - tell the user they can reply "add a texture" if they want one.',
           }, {
             type: 'text',
             text: SPEC_MARKER + JSON.stringify(value),
@@ -276,7 +283,10 @@ export function registerThemeTool(ctx, report, opts) {
           render: (_args, value) => [{
             type: 'text',
             text: 'Theme "' + value.label + '" is ready. It is shown as a preview card below; '
-              + 'tell the user it is ready and ask them to confirm there. Do not list the colors yourself.',
+              + 'tell the user it is ready and ask them to confirm there. Do not list the colors yourself. '
+              + (value.textureDecision === 'want'
+                ? 'A background texture is attached (dark + light).'
+                : 'No background texture was added - tell the user they can reply "add a texture" if they want one.',
             }, {
               type: 'text',
               text: SPEC_MARKER + JSON.stringify(value),
