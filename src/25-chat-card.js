@@ -53,6 +53,7 @@
           chat: typeof font.chat === 'string' ? font.chat : '',
         },
         radiusScale: typeof m.radiusScale === 'number' ? Math.max(0, Math.min(3, m.radiusScale)) : 1,
+        textureDecision: m.textureDecision === 'want' ? 'want' : 'no',
         texture: (function () {
           const tb = zrRec(m.texture);
           if (!tb || typeof tb.name !== 'string') return null;
@@ -207,6 +208,7 @@
       '.zrc-btn[data-pri="1"]{background:var(--dsw-alias-button-primary-fill);',
       'color:var(--dsw-alias-label-primary-foreground,var(--dsw-alias-bg-base));border-color:transparent;}',
       '.zrc-ok{color:var(--dsw-alias-state-success-primary);}',
+        '.zrc-texnote{margin-top:6px;font-size:11px;line-height:1.5;color:var(--dsw-alias-label-tertiary);}',
       '.zrc-err{color:var(--dsw-alias-state-error-primary);}',
       '.zrc-inp{width:100%;padding:3px 6px;border-radius:6px;font:inherit;font-size:11px;',
       'background:var(--dsw-alias-bg-base);border:1px solid var(--dsw-alias-border-l2);',
@@ -278,7 +280,7 @@
         const t2 = Object.assign({}, target, { textureDataUrl: bgs.dark, textureLightDataUrl: bgs.light });
         try {
           const safe = zrApplyThemeSpec(t2);
-          const next = { label: safe.label, light: Object.assign({}, target.light), dark: Object.assign({}, target.dark || {}), font: target.font, radiusScale: target.radiusScale, texture: target.texture || null, textureLight: target.textureLight || null };
+          const next = { label: safe.label, light: Object.assign({}, target.light), dark: Object.assign({}, target.dark || {}), font: target.font, radiusScale: target.radiusScale, texture: target.texture || null, textureLight: target.textureLight || null, textureDecision: target.textureDecision };
           setSpec(next);
           setDraft(next);
           setDone(true);
@@ -353,6 +355,9 @@
                 : h('button', { type: 'button', className: 'zrc-btn', 'data-pri': '1', onClick: function () { applied(spec); } }, t('panel.chat.apply')),
               h('button', { type: 'button', className: 'zrc-btn', onClick: startEdit }, t('panel.chat.modify')),
             ),
+        spec.textureDecision === 'no' && !spec.texture
+          ? h('div', { className: 'zrc-texnote' }, t('panel.chat.texOff'))
+          : null,
         err ? h('div', { className: 'zrc-err', role: 'alert' }, err) : null,
       );
     }

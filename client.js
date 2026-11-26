@@ -192,6 +192,7 @@ window.__ModuleLoader__.load({
         'panel.chat.nameAria': '主题名',
         'panel.chat.fail': '应用失败',
         'panel.chat.limitErr': '自定义主题已达上限（{n} 套），先删一套再试',
+      'panel.chat.texOff': '底纹：未启用 · 想要就说「加个底纹」',
         'panel.ed.drop': '丢弃',
         'panel.ed.pickFromImage': '从图片取色',
         'panel.ed.picking': '取色中…',
@@ -438,6 +439,7 @@ window.__ModuleLoader__.load({
         'panel.chat.nameAria': 'Theme name',
         'panel.chat.fail': 'Failed to apply',
         'panel.chat.limitErr': 'Custom theme limit reached ({n}); delete one first',
+      'panel.chat.texOff': 'Texture: off · say "add a texture" to enable',
         'panel.ed.drop': 'Discard',
         'panel.ed.pickFromImage': 'Pick colors from image',
         'panel.ed.picking': 'Extracting…',
@@ -5179,6 +5181,7 @@ function applyTokens(theme, pref) {
           chat: typeof font.chat === 'string' ? font.chat : '',
         },
         radiusScale: typeof m.radiusScale === 'number' ? Math.max(0, Math.min(3, m.radiusScale)) : 1,
+        textureDecision: m.textureDecision === 'want' ? 'want' : 'no',
         texture: (function () {
           const tb = zrRec(m.texture);
           if (!tb || typeof tb.name !== 'string') return null;
@@ -5333,6 +5336,7 @@ function applyTokens(theme, pref) {
       '.zrc-btn[data-pri="1"]{background:var(--dsw-alias-button-primary-fill);',
       'color:var(--dsw-alias-label-primary-foreground,var(--dsw-alias-bg-base));border-color:transparent;}',
       '.zrc-ok{color:var(--dsw-alias-state-success-primary);}',
+        '.zrc-texnote{margin-top:6px;font-size:11px;line-height:1.5;color:var(--dsw-alias-label-tertiary);}',
       '.zrc-err{color:var(--dsw-alias-state-error-primary);}',
       '.zrc-inp{width:100%;padding:3px 6px;border-radius:6px;font:inherit;font-size:11px;',
       'background:var(--dsw-alias-bg-base);border:1px solid var(--dsw-alias-border-l2);',
@@ -5404,7 +5408,7 @@ function applyTokens(theme, pref) {
         const t2 = Object.assign({}, target, { textureDataUrl: bgs.dark, textureLightDataUrl: bgs.light });
         try {
           const safe = zrApplyThemeSpec(t2);
-          const next = { label: safe.label, light: Object.assign({}, target.light), dark: Object.assign({}, target.dark || {}), font: target.font, radiusScale: target.radiusScale, texture: target.texture || null, textureLight: target.textureLight || null };
+          const next = { label: safe.label, light: Object.assign({}, target.light), dark: Object.assign({}, target.dark || {}), font: target.font, radiusScale: target.radiusScale, texture: target.texture || null, textureLight: target.textureLight || null, textureDecision: target.textureDecision };
           setSpec(next);
           setDraft(next);
           setDone(true);
@@ -5479,6 +5483,9 @@ function applyTokens(theme, pref) {
                 : h('button', { type: 'button', className: 'zrc-btn', 'data-pri': '1', onClick: function () { applied(spec); } }, t('panel.chat.apply')),
               h('button', { type: 'button', className: 'zrc-btn', onClick: startEdit }, t('panel.chat.modify')),
             ),
+        spec.textureDecision === 'no' && !spec.texture
+          ? h('div', { className: 'zrc-texnote' }, t('panel.chat.texOff'))
+          : null,
         err ? h('div', { className: 'zrc-err', role: 'alert' }, err) : null,
       );
     }

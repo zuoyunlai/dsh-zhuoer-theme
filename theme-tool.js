@@ -46,9 +46,10 @@ const SPEC_MARKER = 'DSH_THEME_SPEC:';
 const OUTPUT_SCHEMA = {
   type: 'object',
   additionalProperties: false,
-  required: ['label', 'light'],
+  required: ['label', 'light', 'textureDecision'],
   properties: {
     label: { type: 'string' },
+    textureDecision: { type: 'string' },
     light: { type: 'object', additionalProperties: true },
     // 显式深色锚点；缺失时不输出，客户端退回 autoDark 反推。
     dark: { type: 'object', additionalProperties: true },
@@ -91,7 +92,7 @@ const OUTPUT_SCHEMA = {
 // 只回 OUTPUT_SCHEMA 声明过的键，font 只留 body/chat。
 // 输出校验是严格的（additionalProperties:false 拒收任何未声明键），
 // 与其祈祷模型不越界，不如在返回处收口——返回值与 schema 从此不可能脱节。
-function toOutput(spec, texture, textureLight) {
+function toOutput(spec, texture, textureLight, decision) {
   const src = spec || {};
   const light = src.light && typeof src.light === 'object' ? src.light : {};
   const dark = src.dark && typeof src.dark === 'object' ? src.dark : {};
@@ -100,6 +101,7 @@ function toOutput(spec, texture, textureLight) {
     label: String(src.label || 'AI 主题'),
     light: light,
     font: { body: String(font.body || ''), chat: String(font.chat || '') },
+    textureDecision: decision === 'want' ? 'want' : 'no',
   };
   // 深色只有凑够 4 个锚点才下发，否则让它走反推，避免给出半套深色。
   if (Object.keys(dark).length >= 4) out.dark = dark;
@@ -122,6 +124,7 @@ function toMeta(value) {
     font: v.font || {},
     radiusScale: typeof v.radiusScale === 'number' ? v.radiusScale : 1,
   };
+  meta.textureDecision = v.textureDecision === 'want' ? 'want' : 'no';
   if (v.texture) meta.texture = v.texture;
   if (v.textureLight) meta.textureLight = v.textureLight;
   return meta;
@@ -192,6 +195,11 @@ export function registerThemeTool(ctx, report, opts) {
           required: true,
           description: 'Style description in the user\'s language, e.g. "cyberpunk, dark purple, neon cyan accents".',
         },
+        texture: {
+          type: 'string',
+          required: true,
+          description: 'Whether the user wants a background texture. Ask the user ONE direct question first, then pass \'want\' or \'no\'. \'want\' requires texturePath (plus texturePathLight for light mode).',
+        },
         name: {
           type: 'string',
           description: 'Short theme name (4-10 characters) summarizing the style. Omit to let the model choose one.',
@@ -220,11 +228,18 @@ export function registerThemeTool(ctx, report, opts) {
       async execute(args) {
         const style = String((args && args.style) || '').trim();
         if (!style) throw new Error('style is required');
+        const decision = String((args && args.texture) || '').trim();
+        if (decision !== 'want' && decision !== 'no') {
+          throw new Error('texture 必须是 want 或 no：动手前先问用户要不要底纹，再按回答传值。');
+        }
+        if (decision === 'want' && !(args && (args.texturePath || args.texturePathLight))) {
+          throw new Error('用户要底纹，但没给 texturePath（浅色模式还需 texturePathLight）。先按风格生成底图，拿到本地路径再重试。');
+        }
         const prompt = args && typeof args.name === 'string' && args.name.trim()
           ? style + '\n主题名：' + args.name.trim()
           : style;
         const { spec } = await generateThemeSpec(ctx, prompt, {});
-        return toOutput(spec, stashTexture(args && args.texturePath, textureDir), stashTexture(args && args.texturePathLight, textureDir));
+        return toOutput(spec, decision === 'want' ? stashTexture(args && args.texturePath, textureDir) : null, decision === 'want' ? stashTexture(args && args.texturePathLight, textureDir) : null, decision);
       },
     });
 
@@ -237,6 +252,11 @@ export function registerThemeTool(ctx, report, opts) {
             type: 'string',
             required: true,
             description: 'Style description in the user\'s language, e.g. "cyberpunk, dark purple, neon cyan accents".',
+          },
+          texture: {
+            type: 'string',
+            required: true,
+            description: 'Whether the user wants a background texture. Ask the user ONE direct question first, then pass \'want\' or \'no\'. \'want\' requires texturePath (plus texturePathLight for light mode).',
           },
           name: {
             type: 'string',
@@ -266,11 +286,18 @@ export function registerThemeTool(ctx, report, opts) {
         async execute(args) {
           const style = String((args && args.style) || '').trim();
           if (!style) throw new Error('style is required');
+          const decision = String((args && args.texture) || '').trim();
+          if (decision !== 'want' && decision !== 'no') {
+            throw new Error('texture 必须是 want 或 no：动手前先问用户要不要底纹，再按回答传值。');
+          }
+          if (decision === 'want' && !(args && (args.texturePath || args.texturePathLight))) {
+            throw new Error('用户要底纹，但没给 texturePath（浅色模式还需 texturePathLight）。先按风格生成底图，拿到本地路径再重试。');
+          }
           const prompt = args && typeof args.name === 'string' && args.name.trim()
             ? style + '\n主题名：' + args.name.trim()
             : style;
           const { spec } = await generateThemeSpec(ctx, prompt, {});
-          return toOutput(spec, stashTexture(args && args.texturePath, textureDir), stashTexture(args && args.texturePathLight, textureDir));
+          return toOutput(spec, decision === 'want' ? stashTexture(args && args.texturePath, textureDir) : null, decision === 'want' ? stashTexture(args && args.texturePathLight, textureDir) : null, decision);
         },
       });
       done = true;

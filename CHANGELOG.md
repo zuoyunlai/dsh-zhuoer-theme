@@ -31,6 +31,8 @@
 - **修复：不带底纹时 100% 生成失败**。`presentationMeta` 无条件塞了 `texture: value.texture`，而 `toOutput()` 在没有底纹时根本不会加这个键 → 值为 `undefined` → 宿主判为 non-lossless JSON，**整条工具结果被拒收**（`output.presentationMeta returned non-lossless JSON`）。面板里的 AI 生成走 HTTP、不经过 `presentationMeta`，所以只有对话框这条路全挂，看起来像偶发。改为 `toMeta()` 统一构造，可选键**有值才加**。
 - **门禁补位**：`verify-schema-output.mjs` 原来只校验 `toOutput` 与 schema，不碰 `presentationMeta`，所以这个 bug 一路 `PASS`。现在把 `toMeta` 也抽出来，用「有底纹 / 无底纹」两份数据跑无损序列化断言。
 
+- **底纹改成必答**：新增**必填**参数 `texture: 'want' | 'no'`。此前只在工具描述里写「请先询问用户」，模型可以直接跳过——实测跳过且用户无从察觉。现在缺参数或取值非法时工具直接报错，错误文案就是「动手前先问用户要不要底纹」；`want` 但没给 `texturePath` 也报错。`textureDecision` 随输出与 `presentationMeta` 下发，卡片在未启用底纹时显示一行「底纹：未启用 · 想要就说「加个底纹」」，状态不再静默。
+
 踩坑与取证全过程见 `docs/report-chat-theme-gen-2026-11-26.md`。
 ## 0.6.25（发布汇总：全量审计整改批 A / B / C + 窄屏判定修正）
 
