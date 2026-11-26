@@ -1805,8 +1805,11 @@ function applyTokens(theme, pref) {
           h(Row, { label: t('panel.ed.sharpRow') },
             h('label', { className: 'zp-chk' },
               h('input', {
-                type: 'checkbox', checked: pref.sharp === true,
-                onChange: function (ev) { set({ sharp: Boolean(ev.target.checked) }); },
+                // 2026-11-26 修：「sharp」是**全局偏好**（存在 pref 里），不属于单条自定义主题的 draft。
+                // 这一行原先从面板里复制进来，直接引用了面板作用域的 pref/set —— 编辑器里两者都不存在，
+                // 于是点「新建主题」/「编辑」一打开编辑器就抛 ReferenceError: pref is not defined。
+                type: 'checkbox', checked: props.sharp === true,
+                onChange: function (ev) { props.onSharp(Boolean(ev.target.checked)); },
               }),
               t('panel.ed.sharpOn')
             ),
@@ -2208,6 +2211,9 @@ function applyTokens(theme, pref) {
               onPreview: previewCustom,
               onSave: saveCustom,
               onClose: cancelCustom,
+              // sharp 是全局偏好，编辑器只读它、并把开关结果交回面板写入（别让编辑器直接碰 pref/set）。
+              sharp: pref.sharp === true,
+              onSharp: function (v) { set({ sharp: v }); },
               // 填入取色/AI 结果时把应用明暗切到浅色，
               // 否则深色系统下用户看到的是反推结果，会以为"取色取错了"。
               // 同时更新 modeBeforeEdit：保存时会用 "modeBeforeEdit || pref.mode" 还原，

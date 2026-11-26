@@ -264,6 +264,31 @@ if (added < 1) {
   process.exit(1)
 }
 
+// 点完还要**再渲染一次**：0.6.23 的「新建主题」按钮本身点了不炸，炸的是随后打开的编辑器
+// （事件处理器 → setEditing → 编辑器渲染时引用了面板作用域的 pref / set → ReferenceError），
+// 而只点一次的门始终是绿的。这里把「打开编辑器」也纳入门禁。
+try {
+  hookStateful = true
+  hookSlots = []
+  hookReset()
+  // 组件函数只有在被调用时才暴露处理体里的错误，所以这里走 walk 真渲染一次；
+  // 点完再渲染一次，编辑器（editing 状态打开）就会跟着渲染，错误无处可藏。
+  clicks.length = 0
+  hookReset()
+  walk(panel.render({ id: 'zhuoer-theme' }), 0)
+  if (!clicks.length) throw new Error('找不到「新建主题」按钮（类名可能被改）')
+  clicks[clicks.length - 1].props.onClick({ preventDefault() {}, stopPropagation() {} })
+  hookReset()
+  const textsBefore = texts.length
+  walk(panel.render({ id: 'zhuoer-theme' }), 0)
+  const opened = texts.slice(textsBefore).some((s) => /压平第三方插件/.test(String(s)))
+  if (!opened) throw new Error('点「新建主题」后编辑器没渲染出来（第三方控件那行没出现）')
+} catch (e) {
+  console.error('FAIL  新建主题 → 编辑器渲染抛出：' + (e && e.message))
+  console.error(String((e && e.stack) || '').split('\n').slice(0, 5).join('\n'))
+  process.exit(1)
+}
+
 // 两步确认删除：删除会连主题底图一起清掉，是真正的数据丢失路径，必须在门里跑一遍。
 // 判据：第 1 次点击只把按钮文案换成「再点一次删除」且一条都不删；第 2 次才真的删掉。
 try {
