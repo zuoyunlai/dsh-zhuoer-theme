@@ -2147,6 +2147,10 @@ function applyTokens(theme, pref) {
         const spec = {
           id: 'c' + Date.now().toString(36), label: t('panel.custom.newLabel', { n: customs.length + 1 }),
           base: base, dark: {}, light: {},
+          // 新建主题默认「不用底图」。
+          // 老数据里的空 source 含义是「跟随全局底图」，那是历史语义，不迁移、不改变观感；
+          // 但新主题不该在用户没选过的情况下突然继承一张全局底图。
+          bg: { source: 'none' },
         };
         setCreatedId(spec.id);
         set({ customThemes: customs.concat([spec]), theme: spec.id });
