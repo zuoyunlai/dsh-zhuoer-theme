@@ -1273,7 +1273,7 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
       return hslHex(hsl[0], hsl[1], l);
     }
 
-    function paletteToAnchors(palette) {
+    function paletteToAnchors(palette, forceScheme) {
       if (!palette || !palette.length) return null;
       // 0~1 的感知亮度，用于判断整图明暗倾向
       const lum01 = function (hex) {
@@ -1303,7 +1303,9 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
       // 加权平均会被"面积不小但很暗"的第二色拉偏：日落图天空 58% 是浅米（L0.63），
       // 地面 37% 深棕把均值拉到 0.42，判成深底 → 底色成了纯黑，整张图的气氛全丢。
       const mainLum = lum01(palette[0].hex);
-      const lightPhoto = mainLum >= 0.5;
+      // forceScheme='light'/'dark' 时强制走该侧的取色规则——同一张图要出两套独立锚点，
+      // 不能拿浅色反推深色（对话里 AI 生成的那条路径就是各出 8 组）。
+      const lightPhoto = forceScheme ? forceScheme === 'light' : mainLum >= 0.5;
 
       const byLum = palette.slice().sort(function (a, b) { return lum01(a.hex) - lum01(b.hex); });
       const darkest = byLum[0].hex;
@@ -1311,7 +1313,11 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
 
       // 浅底照片 → 亮色当底；深底照片 → 暗色当底；文字取反方向
       let bg = lightPhoto ? lightest : darkest;
-      if (lightPhoto) {
+      if (forceScheme === 'dark') {
+        // 深色底：取主色色相、压到很低的明度（不是纯黑，保住氛围色）
+        const mh = hexHsl(palette[0].hex);
+        bg = mh ? hslHex(mh[0], Math.min(0.45, Math.max(0.10, mh[1])), 0.12) : '#141414';
+      } else if (lightPhoto) {
         // 关键：不仅提亮，还要**保住色相与饱和度**。
         // 早先只按亮度往白推，照片被洗成中性灰（天空的蓝全丢），
         // 反推到深色就成了一片纯黑，跟照片毫无关系。
@@ -5844,10 +5850,12 @@ function applyTokens(theme, pref) {
           .then(function (img) {
             if (!img || dead) return;
             const palette = extractPalette(img, 6);
-            const anchors = paletteToAnchors(palette);
-            if (!anchors) return;
+            const lightAnchors = paletteToAnchors(palette, 'light');
+            const darkAnchors = paletteToAnchors(palette, 'dark');
+            if (!lightAnchors || !darkAnchors) return;
+            // 明暗各出一套：与「对话里 AI 生成」保持一致，深色不是由浅色反推的。
             const next = Object.assign({}, spec, {
-              light: anchors, dark: {}, autoDark: true, sampled: true,
+              light: lightAnchors, dark: darkAnchors, autoDark: false, sampled: true,
               sampledHex: palette.map(function (c) { return c.hex; }).slice(0, 6),
             });
             setSpec(next);

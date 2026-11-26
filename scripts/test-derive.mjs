@@ -180,6 +180,27 @@ ok('深底照片：底色落在暗侧、文字落在亮侧',
   !!darkPhoto && darkPhoto['--dsw-alias-bg-base'] === '#0d1018' && darkPhoto['--dsw-alias-label-primary'] === '#e8e2d4',
   darkPhoto ? `bg=${darkPhoto['--dsw-alias-bg-base']} text=${darkPhoto['--dsw-alias-label-primary']}` : 'null')
 
+// 13b) 同一张图分别取浅/深两套锚点：对话里传图要和「AI 生成」一致——深色不由浅色反推。
+const dualPalette = [
+  { hex: '#e3f1f2', share: 0.55 },
+  { hex: '#7ab400', share: 0.2 },
+  { hex: '#14161a', share: 0.15 },
+  { hex: '#abd5d8', share: 0.1 },
+]
+const dualLight = paletteToAnchors(dualPalette, 'light')
+const dualDark = paletteToAnchors(dualPalette, 'dark')
+const dualLum = (hex) => { const c = parseHexColor(hex) || [0, 0, 0]; return (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]) / 255 }
+const lLum = dualLight ? dualLum(dualLight['--dsw-alias-bg-base']) : -1
+const dLum = dualDark ? dualLum(dualDark['--dsw-alias-bg-base']) : -1
+const dualRatio = (a, b) => { const x = dualLum(a), y = dualLum(b); const hi = Math.max(x, y), lo = Math.min(x, y); return (hi + 0.05) / (lo + 0.05) }
+const dualOk = !!dualLight && !!dualDark && lLum > 0.8 && dLum < 0.2
+  && dualRatio(dualLight['--dsw-alias-label-primary'], dualLight['--dsw-alias-bg-base']) >= 4.5
+  && dualRatio(dualDark['--dsw-alias-label-primary'], dualDark['--dsw-alias-bg-base']) >= 4.5
+ok('同一张图：浅色出浅底、深色出深底（两套独立，不互相反推）', dualOk,
+  dualLight && dualDark
+    ? `light bg=${dualLight['--dsw-alias-bg-base']}(L${lLum.toFixed(2)}) dark bg=${dualDark['--dsw-alias-bg-base']}(L${dLum.toFixed(2)})`
+    : 'null')
+
 // 14) 整图偏灰时照片里没有足够亮/暗的色，文字必须被兜底推到可读极值
 const flatPhoto = paletteToAnchors([
   { hex: '#6e6e6e', share: 0.5 },

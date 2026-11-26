@@ -298,10 +298,12 @@
           .then(function (img) {
             if (!img || dead) return;
             const palette = extractPalette(img, 6);
-            const anchors = paletteToAnchors(palette);
-            if (!anchors) return;
+            const lightAnchors = paletteToAnchors(palette, 'light');
+            const darkAnchors = paletteToAnchors(palette, 'dark');
+            if (!lightAnchors || !darkAnchors) return;
+            // 明暗各出一套：与「对话里 AI 生成」保持一致，深色不是由浅色反推的。
             const next = Object.assign({}, spec, {
-              light: anchors, dark: {}, autoDark: true, sampled: true,
+              light: lightAnchors, dark: darkAnchors, autoDark: false, sampled: true,
               sampledHex: palette.map(function (c) { return c.hex; }).slice(0, 6),
             });
             setSpec(next);
