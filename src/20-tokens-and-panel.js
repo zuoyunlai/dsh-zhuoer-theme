@@ -548,7 +548,11 @@ function applyTokens(theme, pref) {
           + 'html[data-zr-sharp] .dsh-st-shell-segmented-tabs>span[aria-hidden="true"],'
           + 'html[data-zr-sharp] .dsh-st-settings-tabs>span[aria-hidden="true"],'
           + 'html[data-zr-sharp] [role="tablist"]>span[aria-hidden="true"]{'
-          + 'border-radius:0 !important;border:0 !important;box-shadow:none !important;}'
+          // 选中态只靠底色区分太弱：宿主各层表面（layer-1/3/4）彼此对比只有 1.0–1.05，
+          // 12 套主题 × 两态全部低于 3:1，所以这里补一条品牌色下划线。
+          // brand-primary 对 layer-1 最低 3.85:1（zhuoer/dark），过 UI 组件 3:1 门槛。
+          + 'border-radius:0 !important;border:0 !important;'
+          + 'box-shadow:inset 0 -2px 0 var(--dsw-alias-brand-primary) !important;}'
           + 'html[data-zr-sharp] .dsh-st-shell-segmented-tabs [role="tab"],'
           + 'html[data-zr-sharp] .dsh-st-settings-tabs [role="tab"],'
           + 'html[data-zr-sharp] [role="tablist"] [role="tab"]{'
