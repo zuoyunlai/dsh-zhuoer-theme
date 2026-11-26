@@ -2920,6 +2920,13 @@ function applyTokens(theme, pref) {
         fxCss += 'html [role="dialog"]{border-radius:var(--dsw-radius-panel,12px) !important;}'
           + 'html [role="menu"]{border-radius:var(--dsw-radius-lg,10px) !important;}'
           + 'html [role="tooltip"]{border-radius:var(--dsw-radius-sm,6px) !important;}';
+        // M2：开关（button[role="switch"] + 内层 span 是滑块）。滑块颜色本来就是 token
+        // （--dsw-alias-switch-thumb，已建模），这里只补形状与过渡：
+        // 轨道圆角跟随形状预设，滑块用 inherit 与之配套；过渡 160ms，尊重「减少动态效果」。
+        fxCss += 'html [role="switch"]{border-radius:var(--dsw-radius-lg,10px) !important;}'
+          + 'html [role="switch"]>span{border-radius:inherit !important;'
+          + 'transition:transform .16s cubic-bezier(.2,.8,.2,1),background-color .16s ease;}'
+          + '@media (prefers-reduced-motion:reduce){html [role="switch"]>span{transition:none !important;}}';
         // 左右栏的拖拽分隔条：宿主实现是「元素宽 0 + ::before 画 0.5px 竖线」，
         // 命中区只有半像素，鼠标很难精确压住，所以拖动时也没有任何反馈。
         // 这里补两件事：
