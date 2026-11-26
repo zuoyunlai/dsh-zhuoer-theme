@@ -47,4 +47,18 @@ if (fails.length) {
   for (const f of fails) console.error('  - ' + f)
   process.exit(1)
 }
+// 字号表是「针对某个宿主版本抽的事实」：宿主升级后选择器与 px 都会变。
+// 这里只**提示**（不判红）：CI 里没有宿主安装，查不到版本属正常。
+try {
+  const src = readFileSync(join(root, 'client.js'), 'utf8')
+  const stamp = /\/\/ HOST_ASAR_BYTES=([^\s]+)/.exec(src)
+  let host = ''
+  try {
+    const { statSync } = await import('node:fs')
+    host = String(statSync('D:/Programs/DeepSeek Harness/resources/app.asar').size)
+  } catch (e) { /* 本机没装宿主就跳过 */ }
+  if (stamp && host && stamp[1] !== host) {
+    console.warn('WARN  字号表抽自宿主 ' + stamp[1] + ' 字节，本机是 ' + host + ' —— 跑 npm run gen:hosttext 重抽')
+  }
+} catch (e) { /* ignore */ }
 console.log('OK    字号缩放：只动文字尺寸（无 body{zoom}），token 与内容字号变量都已接线')

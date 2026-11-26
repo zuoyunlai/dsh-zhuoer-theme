@@ -673,6 +673,12 @@
         }, CLOSE_DELAY)
       }, [cancelCollapse])
 
+      /* 卸载时清掉两个定时器：组件消失后仍回调 setState 会警告并泄漏（doctor K3）。 */
+      useEffect(() => () => {
+        try { if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = 0 } } catch (e) { /* ignore */ }
+        try { if (flashTimer.current) { clearTimeout(flashTimer.current); flashTimer.current = 0 } } catch (e) { /* ignore */ }
+      }, [])
+
       /* 主题设置改了三态要立刻生效：同窗口靠自定义事件，跨窗口靠 storage */
       useEffect(() => {
         const onPref = () => setMode(readQuicknavMode())
@@ -1203,8 +1209,9 @@
             try { disposeResizeHint(); } catch (e) { /* ignore */ }
             try { const el = document.getElementById(STYLE_ID); if (el) el.remove(); } catch (e) { /* ignore */ }
             // 插件卸载/HMR：观察器与去抖/合并定时器都要断开，否则会继续挂在 document.body 上。
-            try { clearTimeout(window.__zrSkinT); window.__zrSkinT = 0; } catch (e) { /* ignore */ }
-            try { if (window.__zrSkinObs) { window.__zrSkinObs.disconnect(); window.__zrSkinObs = null; } } catch (e) { /* ignore */ }
+            try { clearTimeout(zrSkinT); zrSkinT = 0; } catch (e) { /* ignore */ }
+            try { clearTimeout(lateProbeTimer); lateProbeTimer = 0; } catch (e) { /* ignore */ }
+            try { if (zrSkinObs) { zrSkinObs.disconnect(); zrSkinObs = null; } } catch (e) { /* ignore */ }
             try { clearTimeout(hostReapplyTimer); hostReapplyTimer = 0; } catch (e) { /* ignore */ }
           };
         }, 'dsh-zhuoer-theme: token layer');

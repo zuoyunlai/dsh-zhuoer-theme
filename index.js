@@ -36,6 +36,19 @@ function isOwnClient(req) {
   }
 }
 
+// 本次插件实例的会话随机数：只有拿到它的调用方才被允许触发 AI 生成（会消耗模型额度）。
+// 诚实边界（见 SECURITY.md）：同源页面里的**其它脚本**理论上仍能取到它——
+// 浏览器里同源脚本互相无法隔离，nonce 挡的是「外部来源的直连探测」与「误撞」，不是同源恶意脚本。
+let sessionNonce = '';
+function makeNonce() {
+  try {
+    const bytes = require('node:crypto').randomBytes(24);
+    return bytes.toString('hex');
+  } catch (e) {
+    return String(Date.now()) + '-' + Math.random().toString(36).slice(2) + '-' + Math.random().toString(36).slice(2);
+  }
+}
+
 function rejectForeign(res) {
   try { res.writeHead(403, { 'content-type': 'application/json; charset=utf-8' }); res.end('{"error":"forbidden"}'); } catch (e) { /* ignore */ }
 }
@@ -69,6 +82,7 @@ export function apply(ctx, config) {
 
   // 客户端自检回传：client.js 在同源页面里 POST 过来，落盘供事后核对。
   const mount = (injected) => {
+    sessionNonce = makeNonce();
     let ws = null;
     try { ws = typeof injected.get === 'function' ? injected.get('webServer') : null; } catch (e) { return; }
     if (!ws || typeof ws.register !== 'function') return;
@@ -103,6 +117,20 @@ export function apply(ctx, config) {
           }
         },
       });
+      // 会话随机数领取端点：必须带自定义头（跨站请求会先触发预检，宿主不应答）。
+      try {
+        ws.register({
+          kind: 'exact',
+          path: '/dsh-zhuoer-theme/api/nonce',
+          handler: (req, res) => {
+            if (!isOwnClient(req)) return rejectForeign(res);
+            try {
+              res.writeHead(200, { 'content-type': 'application/json; charset=utf-8' });
+              res.end(JSON.stringify({ nonce: sessionNonce }));
+            } catch (e) { /* ignore */ }
+          },
+        });
+      } catch (e) { /* ignore */ }
       // ---- AI 生成主题 ----
       // 客户端 POST { prompt } → 用宿主当前配置的模型生成主题 JSON。
       // 调用方式照抄 dsh-pet（已生产验证）：走高层入口 llm.stream()，chunk 取 text-delta。
@@ -116,6 +144,15 @@ export function apply(ctx, config) {
           // 做法：同步返回，所有逻辑丢进立即执行的 IIFE。
           handler: (req, res) => {
             if (!isOwnClient(req)) return rejectForeign(res);
+            // 二次门：AI 生成会消耗宿主模型额度，必须带本次实例的会话随机数。
+            try {
+              const nh = String((req.headers && req.headers['x-zhuoer-nonce']) || '');
+              if (!sessionNonce || nh !== sessionNonce) {
+                res.writeHead(403, { 'content-type': 'application/json; charset=utf-8' });
+                res.end('{"error":"forbidden"}');
+                return;
+              }
+            } catch (e) { /* ignore */ }
             void (async () => {
             // 入口诊断：用来区分「handler 没被调用」和「handler 调用了但响应写不出去」。
             // 只写元数据，绝不写 prompt：url 的 query string 里带着用户输入的原文，

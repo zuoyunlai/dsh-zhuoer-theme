@@ -1,3937 +1,4760 @@
 {
   "note": "由 npm run contrast:update 生成。ratio 是实测对比度；门禁要求任何一组都不得比它低 0.01 以上。",
   "min": 4.5,
-  "count": 655,
+  "count": 679,
   "pairs": [
     {
       "key": "zhuoer/light 正文",
       "fg": "#403c35",
       "bg": "#f4f1ec",
-      "ratio": 9.73
+      "ratio": 9.73,
+      "decor": false
     },
     {
       "key": "zhuoer/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#bd4531",
-      "ratio": 5.173
+      "ratio": 5.173,
+      "decor": false
     },
     {
       "key": "zhuoer/dark 正文",
       "fg": "#bcbcc0",
       "bg": "#0e1015",
-      "ratio": 10.051
+      "ratio": 10.051,
+      "decor": false
     },
     {
       "key": "zhuoer/dark 按钮文字",
       "fg": "#ffffff",
       "bg": "#d13c3c",
-      "ratio": 4.748
+      "ratio": 4.748,
+      "decor": false
     },
     {
       "key": "absolutely/light 正文",
       "fg": "#353531",
       "bg": "#f7f6f5",
-      "ratio": 11.411
+      "ratio": 11.411,
+      "decor": false
     },
     {
       "key": "absolutely/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#a5654b",
-      "ratio": 4.602
+      "ratio": 4.602,
+      "decor": false
     },
     {
       "key": "absolutely/dark 正文",
       "fg": "#ddddd7",
       "bg": "#1b1b1a",
-      "ratio": 12.639
+      "ratio": 12.639,
+      "decor": false
     },
     {
       "key": "absolutely/dark 按钮文字",
       "fg": "#241f1b",
       "bg": "#d97757",
-      "ratio": 5.227
+      "ratio": 5.227,
+      "decor": false
     },
     {
       "key": "beacon/light 正文",
       "fg": "#000000",
       "bg": "#f8f8f8",
-      "ratio": 19.774
+      "ratio": 19.774,
+      "decor": false
     },
     {
       "key": "beacon/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#6e4a00",
-      "ratio": 7.947
+      "ratio": 7.947,
+      "decor": false
     },
     {
       "key": "beacon/dark 正文",
       "fg": "#ffffff",
       "bg": "#000000",
-      "ratio": 21
+      "ratio": 21,
+      "decor": false
     },
     {
       "key": "beacon/dark 按钮文字",
       "fg": "#000000",
       "bg": "#ffc233",
-      "ratio": 13.017
+      "ratio": 13.017,
+      "decor": false
     },
     {
       "key": "crt/light 正文",
       "fg": "#373737",
       "bg": "#f4f4f4",
-      "ratio": 10.823
+      "ratio": 10.823,
+      "decor": false
     },
     {
       "key": "crt/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#1f1f1f",
-      "ratio": 16.483
+      "ratio": 16.483,
+      "decor": false
     },
     {
       "key": "crt/dark 正文",
       "fg": "#c6c6c6",
       "bg": "#090a09",
-      "ratio": 11.61
+      "ratio": 11.61,
+      "decor": false
     },
     {
       "key": "crt/dark 按钮文字",
       "fg": "#111111",
       "bg": "#e8e8e8",
-      "ratio": 15.411
+      "ratio": 15.411,
+      "decor": false
     },
     {
       "key": "dash/light 正文",
       "fg": "#4a3828",
       "bg": "#ebe5e0",
-      "ratio": 8.91
+      "ratio": 8.91,
+      "decor": false
     },
     {
       "key": "dash/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#8a512c",
-      "ratio": 6.375
+      "ratio": 6.375,
+      "decor": false
     },
     {
       "key": "dash/dark 正文",
       "fg": "#d8c8b8",
       "bg": "#1a1210",
-      "ratio": 11.313
+      "ratio": 11.313,
+      "decor": false
     },
     {
       "key": "dash/dark 按钮文字",
       "fg": "#1a1210",
       "bg": "#cf8b4d",
-      "ratio": 6.55
+      "ratio": 6.55,
+      "decor": false
     },
     {
       "key": "knot/light 正文",
       "fg": "#3a3a42",
       "bg": "#f4f4f7",
-      "ratio": 10.264
+      "ratio": 10.264,
+      "decor": false
     },
     {
       "key": "knot/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#c41e30",
-      "ratio": 5.873
+      "ratio": 5.873,
+      "decor": false
     },
     {
       "key": "knot/dark 正文",
       "fg": "#c6c6cb",
       "bg": "#080808",
-      "ratio": 11.77
+      "ratio": 11.77,
+      "decor": false
     },
     {
       "key": "knot/dark 按钮文字",
       "fg": "#fafafa",
       "bg": "#d92a3f",
-      "ratio": 4.622
+      "ratio": 4.622,
+      "decor": false
     },
     {
       "key": "manuscript/light 正文",
       "fg": "#322d22",
       "bg": "#f1f0ea",
-      "ratio": 11.989
+      "ratio": 11.989,
+      "decor": false
     },
     {
       "key": "manuscript/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#31549b",
-      "ratio": 7.312
+      "ratio": 7.312,
+      "decor": false
     },
     {
       "key": "manuscript/dark 正文",
       "fg": "#d8d0bc",
       "bg": "#211e18",
-      "ratio": 10.817
+      "ratio": 10.817,
+      "decor": false
     },
     {
       "key": "manuscript/dark 按钮文字",
       "fg": "#101c33",
       "bg": "#8fa8e0",
-      "ratio": 7.157
+      "ratio": 7.157,
+      "decor": false
     },
     {
       "key": "miami/light 正文",
       "fg": "#3c3244",
       "bg": "#f6f2f5",
-      "ratio": 10.935
+      "ratio": 10.935,
+      "decor": false
     },
     {
       "key": "miami/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#b0246f",
-      "ratio": 6.31
+      "ratio": 6.31,
+      "decor": false
     },
     {
       "key": "miami/dark 正文",
       "fg": "#cfc7e8",
       "bg": "#140f1e",
-      "ratio": 11.629
+      "ratio": 11.629,
+      "decor": false
     },
     {
       "key": "miami/dark 按钮文字",
       "fg": "#3c0a24",
       "bg": "#f472b6",
-      "ratio": 6.288
+      "ratio": 6.288,
+      "decor": false
     },
     {
       "key": "phosphor/light 正文",
       "fg": "#2a352b",
       "bg": "#f1f4f1",
-      "ratio": 11.537
+      "ratio": 11.537,
+      "decor": false
     },
     {
       "key": "phosphor/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#10693a",
-      "ratio": 6.766
+      "ratio": 6.766,
+      "decor": false
     },
     {
       "key": "phosphor/dark 正文",
       "fg": "#cfe0cf",
       "bg": "#0a0f0a",
-      "ratio": 14.016
+      "ratio": 14.016,
+      "decor": false
     },
     {
       "key": "phosphor/dark 按钮文字",
       "fg": "#07120a",
       "bg": "#4ade80",
-      "ratio": 10.956
+      "ratio": 10.956,
+      "decor": false
     },
     {
       "key": "rose/light 正文",
       "fg": "#3e3857",
       "bg": "#f1eeea",
-      "ratio": 9.516
+      "ratio": 9.516,
+      "decor": false
     },
     {
       "key": "rose/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#9c4f66",
-      "ratio": 5.639
+      "ratio": 5.639,
+      "decor": false
     },
     {
       "key": "rose/dark 正文",
       "fg": "#d5d2eb",
       "bg": "#191724",
-      "ratio": 11.979
+      "ratio": 11.979,
+      "decor": false
     },
     {
       "key": "rose/dark 按钮文字",
       "fg": "#3f2224",
       "bg": "#ebbcba",
-      "ratio": 8.484
+      "ratio": 8.484,
+      "decor": false
     },
     {
       "key": "tide/light 正文",
       "fg": "#333c45",
       "bg": "#f1f3f5",
-      "ratio": 10.079
+      "ratio": 10.079,
+      "decor": false
     },
     {
       "key": "tide/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#1f6f8f",
-      "ratio": 5.632
+      "ratio": 5.632,
+      "decor": false
     },
     {
       "key": "tide/dark 正文",
       "fg": "#c9d2da",
       "bg": "#10151b",
-      "ratio": 11.976
+      "ratio": 11.976,
+      "decor": false
     },
     {
       "key": "tide/dark 按钮文字",
       "fg": "#0b1116",
       "bg": "#5ab6d8",
-      "ratio": 8.244
+      "ratio": 8.244,
+      "decor": false
     },
     {
       "key": "vintage-paper/light 正文",
       "fg": "#4a3f35",
       "bg": "#f5f1e6",
-      "ratio": 9.061
+      "ratio": 9.061,
+      "decor": false
     },
     {
       "key": "vintage-paper/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#7e5e3e",
-      "ratio": 5.903
+      "ratio": 5.903,
+      "decor": false
     },
     {
       "key": "vintage-paper/dark 正文",
       "fg": "#ece5d8",
       "bg": "#2d2621",
-      "ratio": 11.884
+      "ratio": 11.884,
+      "decor": false
     },
     {
       "key": "vintage-paper/dark 按钮文字",
       "fg": "#2d2621",
       "bg": "#c0a080",
-      "ratio": 6.083
+      "ratio": 6.083,
+      "decor": false
     },
     {
       "key": "zhuoer/light label-tertiary",
       "fg": "#716c65",
       "bg": "#f4f1ec",
-      "ratio": 4.619
+      "ratio": 4.619,
+      "decor": false
     },
     {
       "key": "zhuoer/light label-caption",
       "fg": "#726e67",
       "bg": "#f4f1ec",
-      "ratio": 4.501
+      "ratio": 4.501,
+      "decor": false
     },
     {
       "key": "zhuoer/light label-dimmed",
       "fg": "#6f6b63",
       "bg": "#f4f1ec",
-      "ratio": 4.708
+      "ratio": 4.708,
+      "decor": false
     },
     {
       "key": "zhuoer/light state-success-primary",
       "fg": "#2a7c35",
       "bg": "#f4f1ec",
-      "ratio": 4.622
+      "ratio": 4.622,
+      "decor": false
     },
     {
       "key": "zhuoer/dark label-tertiary",
       "fg": "#7c7c85",
       "bg": "#0e1015",
-      "ratio": 4.602
+      "ratio": 4.602,
+      "decor": false
     },
     {
       "key": "zhuoer/dark label-caption",
       "fg": "#7f7f87",
       "bg": "#0e1015",
-      "ratio": 4.792
+      "ratio": 4.792,
+      "decor": false
     },
     {
       "key": "zhuoer/dark label-dimmed",
       "fg": "#7f7f88",
       "bg": "#0e1015",
-      "ratio": 4.797
+      "ratio": 4.797,
+      "decor": false
     },
     {
       "key": "zhuoer/dark state-success-primary",
       "fg": "#3fb950",
       "bg": "#0e1015",
-      "ratio": 7.491
+      "ratio": 7.491,
+      "decor": false
     },
     {
       "key": "absolutely/light label-tertiary",
       "fg": "#6f6f6b",
       "bg": "#f7f6f5",
-      "ratio": 4.675
+      "ratio": 4.675,
+      "decor": false
     },
     {
       "key": "absolutely/light label-caption",
       "fg": "#70706b",
       "bg": "#f7f6f5",
-      "ratio": 4.612
+      "ratio": 4.612,
+      "decor": false
     },
     {
       "key": "absolutely/light label-dimmed",
       "fg": "#706f6b",
       "bg": "#f7f6f5",
-      "ratio": 4.66
+      "ratio": 4.66,
+      "decor": false
     },
     {
       "key": "absolutely/light state-success-primary",
       "fg": "#2a7c35",
       "bg": "#f7f6f5",
-      "ratio": 4.824
+      "ratio": 4.824,
+      "decor": false
     },
     {
       "key": "absolutely/dark label-tertiary",
       "fg": "#85857f",
       "bg": "#1b1b1a",
-      "ratio": 4.645
+      "ratio": 4.645,
+      "decor": false
     },
     {
       "key": "absolutely/dark label-caption",
       "fg": "#93928b",
       "bg": "#1b1b1a",
-      "ratio": 5.52
+      "ratio": 5.52,
+      "decor": false
     },
     {
       "key": "absolutely/dark label-dimmed",
       "fg": "#878681",
       "bg": "#1b1b1a",
-      "ratio": 4.726
+      "ratio": 4.726,
+      "decor": false
     },
     {
       "key": "absolutely/dark state-success-primary",
       "fg": "#3fb950",
       "bg": "#1b1b1a",
-      "ratio": 6.786
+      "ratio": 6.786,
+      "decor": false
     },
     {
       "key": "beacon/light label-tertiary",
       "fg": "#6a6a6a",
       "bg": "#f8f8f8",
-      "ratio": 5.093
+      "ratio": 5.093,
+      "decor": false
     },
     {
       "key": "beacon/light label-caption",
       "fg": "#575757",
       "bg": "#f8f8f8",
-      "ratio": 6.804
+      "ratio": 6.804,
+      "decor": false
     },
     {
       "key": "beacon/light label-dimmed",
       "fg": "#6e6e6e",
       "bg": "#f8f8f8",
-      "ratio": 4.801
+      "ratio": 4.801,
+      "decor": false
     },
     {
       "key": "beacon/light state-success-primary",
       "fg": "#2a7c35",
       "bg": "#f8f8f8",
-      "ratio": 4.903
+      "ratio": 4.903,
+      "decor": false
     },
     {
       "key": "beacon/dark label-tertiary",
       "fg": "#a1a1a1",
       "bg": "#000000",
-      "ratio": 8.128
+      "ratio": 8.128,
+      "decor": false
     },
     {
       "key": "beacon/dark label-caption",
       "fg": "#b5b5b5",
       "bg": "#000000",
-      "ratio": 10.242
+      "ratio": 10.242,
+      "decor": false
     },
     {
       "key": "beacon/dark label-dimmed",
       "fg": "#8d8d8d",
       "bg": "#000000",
-      "ratio": 6.327
+      "ratio": 6.327,
+      "decor": false
     },
     {
       "key": "beacon/dark state-success-primary",
       "fg": "#3fb950",
       "bg": "#000000",
-      "ratio": 8.267
+      "ratio": 8.267,
+      "decor": false
     },
     {
       "key": "crt/light label-tertiary",
       "fg": "#707070",
       "bg": "#f4f4f4",
-      "ratio": 4.502
+      "ratio": 4.502,
+      "decor": false
     },
     {
       "key": "crt/light label-caption",
       "fg": "#707070",
       "bg": "#f4f4f4",
-      "ratio": 4.502
+      "ratio": 4.502,
+      "decor": false
     },
     {
       "key": "crt/light label-dimmed",
       "fg": "#6f6f6f",
       "bg": "#f4f4f4",
-      "ratio": 4.569
+      "ratio": 4.569,
+      "decor": false
     },
     {
       "key": "crt/light state-success-primary",
       "fg": "#2a7c35",
       "bg": "#f4f4f4",
-      "ratio": 4.734
+      "ratio": 4.734,
+      "decor": false
     },
     {
       "key": "crt/dark label-tertiary",
       "fg": "#7c7c7c",
       "bg": "#090a09",
-      "ratio": 4.751
+      "ratio": 4.751,
+      "decor": false
     },
     {
       "key": "crt/dark label-caption",
       "fg": "#8b8b8b",
       "bg": "#090a09",
-      "ratio": 5.82
+      "ratio": 5.82,
+      "decor": false
     },
     {
       "key": "crt/dark label-dimmed",
       "fg": "#7d7d7d",
       "bg": "#090a09",
-      "ratio": 4.817
+      "ratio": 4.817,
+      "decor": false
     },
     {
       "key": "crt/dark state-success-primary",
       "fg": "#3fb950",
       "bg": "#090a09",
-      "ratio": 7.806
+      "ratio": 7.806,
+      "decor": false
     },
     {
       "key": "dash/light label-tertiary",
       "fg": "#6e6157",
       "bg": "#ebe5e0",
-      "ratio": 4.79
+      "ratio": 4.79,
+      "decor": false
     },
     {
       "key": "dash/light label-caption",
       "fg": "#736256",
       "bg": "#ebe5e0",
-      "ratio": 4.658
+      "ratio": 4.658,
+      "decor": false
     },
     {
       "key": "dash/light label-dimmed",
       "fg": "#726459",
       "bg": "#ebe5e0",
-      "ratio": 4.566
+      "ratio": 4.566,
+      "decor": false
     },
     {
       "key": "dash/light state-success-primary",
       "fg": "#287532",
       "bg": "#ebe5e0",
-      "ratio": 4.569
+      "ratio": 4.569,
+      "decor": false
     },
     {
       "key": "dash/dark label-tertiary",
       "fg": "#8e7d6f",
       "bg": "#1a1210",
-      "ratio": 4.669
+      "ratio": 4.669,
+      "decor": false
     },
     {
       "key": "dash/dark label-caption",
       "fg": "#958477",
       "bg": "#1a1210",
-      "ratio": 5.136
+      "ratio": 5.136,
+      "decor": false
     },
     {
       "key": "dash/dark label-dimmed",
       "fg": "#907f72",
       "bg": "#1a1210",
-      "ratio": 4.802
+      "ratio": 4.802,
+      "decor": false
     },
     {
       "key": "dash/dark state-success-primary",
       "fg": "#3fb950",
       "bg": "#1a1210",
-      "ratio": 7.265
+      "ratio": 7.265,
+      "decor": false
     },
     {
       "key": "knot/light label-tertiary",
       "fg": "#6d6b72",
       "bg": "#f4f4f7",
-      "ratio": 4.787
+      "ratio": 4.787,
+      "decor": false
     },
     {
       "key": "knot/light label-caption",
       "fg": "#6e6d73",
       "bg": "#f4f4f7",
-      "ratio": 4.668
+      "ratio": 4.668,
+      "decor": false
     },
     {
       "key": "knot/light label-dimmed",
       "fg": "#706f77",
       "bg": "#f4f4f7",
-      "ratio": 4.523
+      "ratio": 4.523,
+      "decor": false
     },
     {
       "key": "knot/light state-success-primary",
       "fg": "#2a7c35",
       "bg": "#f4f4f7",
-      "ratio": 4.743
+      "ratio": 4.743,
+      "decor": false
     },
     {
       "key": "knot/dark label-tertiary",
       "fg": "#7a7a83",
       "bg": "#080808",
-      "ratio": 4.71
+      "ratio": 4.71,
+      "decor": false
     },
     {
       "key": "knot/dark label-caption",
       "fg": "#7d7d86",
       "bg": "#080808",
-      "ratio": 4.911
+      "ratio": 4.911,
+      "decor": false
     },
     {
       "key": "knot/dark label-dimmed",
       "fg": "#77777f",
       "bg": "#080808",
-      "ratio": 4.511
+      "ratio": 4.511,
+      "decor": false
     },
     {
       "key": "knot/dark state-success-primary",
       "fg": "#3fb950",
       "bg": "#080808",
-      "ratio": 7.884
+      "ratio": 7.884,
+      "decor": false
     },
     {
       "key": "manuscript/light label-tertiary",
       "fg": "#706a5e",
       "bg": "#f1f0ea",
-      "ratio": 4.701
+      "ratio": 4.701,
+      "decor": false
     },
     {
       "key": "manuscript/light label-caption",
       "fg": "#736b5c",
       "bg": "#f1f0ea",
-      "ratio": 4.614
+      "ratio": 4.614,
+      "decor": false
     },
     {
       "key": "manuscript/light label-dimmed",
       "fg": "#6f695d",
       "bg": "#f1f0ea",
-      "ratio": 4.772
+      "ratio": 4.772,
+      "decor": false
     },
     {
       "key": "manuscript/light state-success-primary",
       "fg": "#2a7c35",
       "bg": "#f1f0ea",
-      "ratio": 4.561
+      "ratio": 4.561,
+      "decor": false
     },
     {
       "key": "manuscript/dark label-tertiary",
       "fg": "#8f856e",
       "bg": "#211e18",
-      "ratio": 4.549
+      "ratio": 4.549,
+      "decor": false
     },
     {
       "key": "manuscript/dark label-caption",
       "fg": "#9d9279",
       "bg": "#211e18",
-      "ratio": 5.398
+      "ratio": 5.398,
+      "decor": false
     },
     {
       "key": "manuscript/dark label-dimmed",
       "fg": "#938872",
       "bg": "#211e18",
-      "ratio": 4.753
+      "ratio": 4.753,
+      "decor": false
     },
     {
       "key": "manuscript/dark state-success-primary",
       "fg": "#3fb950",
       "bg": "#211e18",
-      "ratio": 6.542
+      "ratio": 6.542,
+      "decor": false
     },
     {
       "key": "miami/light label-tertiary",
       "fg": "#756b7a",
       "bg": "#f6f2f5",
-      "ratio": 4.574
+      "ratio": 4.574,
+      "decor": false
     },
     {
       "key": "miami/light label-caption",
       "fg": "#766c7c",
       "bg": "#f6f2f5",
-      "ratio": 4.502
+      "ratio": 4.502,
+      "decor": false
     },
     {
       "key": "miami/light label-dimmed",
       "fg": "#736879",
       "bg": "#f6f2f5",
-      "ratio": 4.752
+      "ratio": 4.752,
+      "decor": false
     },
     {
       "key": "miami/light state-success-primary",
       "fg": "#2a7c35",
       "bg": "#f6f2f5",
-      "ratio": 4.696
+      "ratio": 4.696,
+      "decor": false
     },
     {
       "key": "miami/dark label-tertiary",
       "fg": "#8278a1",
       "bg": "#140f1e",
-      "ratio": 4.612
+      "ratio": 4.612,
+      "decor": false
     },
     {
       "key": "miami/dark label-caption",
       "fg": "#897fad",
       "bg": "#140f1e",
-      "ratio": 5.106
+      "ratio": 5.106,
+      "decor": false
     },
     {
       "key": "miami/dark label-dimmed",
       "fg": "#847ca0",
       "bg": "#140f1e",
-      "ratio": 4.81
+      "ratio": 4.81,
+      "decor": false
     },
     {
       "key": "miami/dark state-success-primary",
       "fg": "#3fb950",
       "bg": "#140f1e",
-      "ratio": 7.402
+      "ratio": 7.402,
+      "decor": false
     },
     {
       "key": "phosphor/light label-tertiary",
       "fg": "#647365",
       "bg": "#f1f4f1",
-      "ratio": 4.531
+      "ratio": 4.531,
+      "decor": false
     },
     {
       "key": "phosphor/light label-caption",
       "fg": "#5f6f61",
       "bg": "#f1f4f1",
-      "ratio": 4.818
+      "ratio": 4.818,
+      "decor": false
     },
     {
       "key": "phosphor/light label-dimmed",
       "fg": "#637265",
       "bg": "#f1f4f1",
-      "ratio": 4.594
+      "ratio": 4.594,
+      "decor": false
     },
     {
       "key": "phosphor/light state-success-primary",
       "fg": "#2a7c35",
       "bg": "#f1f4f1",
-      "ratio": 4.699
+      "ratio": 4.699,
+      "decor": false
     },
     {
       "key": "phosphor/dark label-tertiary",
       "fg": "#788d79",
       "bg": "#0a0f0a",
-      "ratio": 5.421
+      "ratio": 5.421,
+      "decor": false
     },
     {
       "key": "phosphor/dark label-caption",
       "fg": "#859c87",
       "bg": "#0a0f0a",
-      "ratio": 6.542
+      "ratio": 6.542,
+      "decor": false
     },
     {
       "key": "phosphor/dark label-dimmed",
       "fg": "#6f8370",
       "bg": "#0a0f0a",
-      "ratio": 4.75
+      "ratio": 4.75,
+      "decor": false
     },
     {
       "key": "phosphor/dark state-success-primary",
       "fg": "#3fb950",
       "bg": "#0a0f0a",
-      "ratio": 7.615
+      "ratio": 7.615,
+      "decor": false
     },
     {
       "key": "rose/light label-tertiary",
       "fg": "#6f6688",
       "bg": "#f1eeea",
-      "ratio": 4.618
+      "ratio": 4.618,
+      "decor": false
     },
     {
       "key": "rose/light label-caption",
       "fg": "#6c6486",
       "bg": "#f1eeea",
-      "ratio": 4.772
+      "ratio": 4.772,
+      "decor": false
     },
     {
       "key": "rose/light label-dimmed",
       "fg": "#6d6584",
       "bg": "#f1eeea",
-      "ratio": 4.723
+      "ratio": 4.723,
+      "decor": false
     },
     {
       "key": "rose/light state-success-primary",
       "fg": "#2a7c35",
       "bg": "#f1eeea",
-      "ratio": 4.502
+      "ratio": 4.502,
+      "decor": false
     },
     {
       "key": "rose/dark label-tertiary",
       "fg": "#86839c",
       "bg": "#191724",
-      "ratio": 4.826
+      "ratio": 4.826,
+      "decor": false
     },
     {
       "key": "rose/dark label-caption",
       "fg": "#8e8aa6",
       "bg": "#191724",
-      "ratio": 5.327
+      "ratio": 5.327,
+      "decor": false
     },
     {
       "key": "rose/dark label-dimmed",
       "fg": "#848197",
       "bg": "#191724",
-      "ratio": 4.682
+      "ratio": 4.682,
+      "decor": false
     },
     {
       "key": "rose/dark state-success-primary",
       "fg": "#3fb950",
       "bg": "#191724",
-      "ratio": 6.951
+      "ratio": 6.951,
+      "decor": false
     },
     {
       "key": "tide/light label-tertiary",
       "fg": "#666e77",
       "bg": "#f1f3f5",
-      "ratio": 4.648
+      "ratio": 4.648,
+      "decor": false
     },
     {
       "key": "tide/light label-caption",
       "fg": "#677078",
       "bg": "#f1f3f5",
-      "ratio": 4.532
+      "ratio": 4.532,
+      "decor": false
     },
     {
       "key": "tide/light label-dimmed",
       "fg": "#646d75",
       "bg": "#f1f3f5",
-      "ratio": 4.736
+      "ratio": 4.736,
+      "decor": false
     },
     {
       "key": "tide/light state-success-primary",
       "fg": "#2a7c35",
       "bg": "#f1f3f5",
-      "ratio": 4.681
+      "ratio": 4.681,
+      "decor": false
     },
     {
       "key": "tide/dark label-tertiary",
       "fg": "#818d99",
       "bg": "#10151b",
-      "ratio": 5.417
+      "ratio": 5.417,
+      "decor": false
     },
     {
       "key": "tide/dark label-caption",
       "fg": "#8f9ca9",
       "bg": "#10151b",
-      "ratio": 6.546
+      "ratio": 6.546,
+      "decor": false
     },
     {
       "key": "tide/dark label-dimmed",
       "fg": "#78838f",
       "bg": "#10151b",
-      "ratio": 4.752
+      "ratio": 4.752,
+      "decor": false
     },
     {
       "key": "tide/dark state-success-primary",
       "fg": "#3fb950",
       "bg": "#10151b",
-      "ratio": 7.219
+      "ratio": 7.219,
+      "decor": false
     },
     {
       "key": "vintage-paper/light label-tertiary",
       "fg": "#746350",
       "bg": "#f5f1e6",
-      "ratio": 5.107
+      "ratio": 5.107,
+      "decor": false
     },
     {
       "key": "vintage-paper/light label-caption",
       "fg": "#70604d",
       "bg": "#f5f1e6",
-      "ratio": 5.363
+      "ratio": 5.363,
+      "decor": false
     },
     {
       "key": "vintage-paper/light label-dimmed",
       "fg": "#73624f",
       "bg": "#f5f1e6",
-      "ratio": 5.185
+      "ratio": 5.185,
+      "decor": false
     },
     {
       "key": "vintage-paper/light state-success-primary",
       "fg": "#2a7c35",
       "bg": "#f5f1e6",
-      "ratio": 4.614
+      "ratio": 4.614,
+      "decor": false
     },
     {
       "key": "vintage-paper/dark label-tertiary",
       "fg": "#ccc3b4",
       "bg": "#2d2621",
-      "ratio": 8.529
+      "ratio": 8.529,
+      "decor": false
     },
     {
       "key": "vintage-paper/dark label-caption",
       "fg": "#cfc7b7",
       "bg": "#2d2621",
-      "ratio": 8.865
+      "ratio": 8.865,
+      "decor": false
     },
     {
       "key": "vintage-paper/dark label-dimmed",
       "fg": "#cdc4b5",
       "bg": "#2d2621",
-      "ratio": 8.619
+      "ratio": 8.619,
+      "decor": false
     },
     {
       "key": "vintage-paper/dark state-success-primary",
       "fg": "#7fc98a",
       "bg": "#2d2621",
-      "ratio": 7.531
+      "ratio": 7.531,
+      "decor": false
     },
     {
       "key": "zhuoer/light label-error@base",
       "fg": "#cf2121",
       "bg": "#f4f1ec",
-      "ratio": 4.789
+      "ratio": 4.789,
+      "decor": false
     },
     {
       "key": "zhuoer/light state-error-primary@base",
       "fg": "#cf2121",
       "bg": "#f4f1ec",
-      "ratio": 4.789
+      "ratio": 4.789,
+      "decor": false
     },
     {
       "key": "zhuoer/light state-warn-primary@base",
       "fg": "#92400e",
       "bg": "#f4f1ec",
-      "ratio": 6.293
+      "ratio": 6.293,
+      "decor": false
     },
     {
       "key": "zhuoer/light state-warn-label@base",
       "fg": "#92400e",
       "bg": "#f4f1ec",
-      "ratio": 6.293
+      "ratio": 6.293,
+      "decor": false
     },
     {
       "key": "zhuoer/light label-error@layer-2",
       "fg": "#cf2121",
       "bg": "#efece7",
-      "ratio": 4.579
+      "ratio": 4.579,
+      "decor": false
     },
     {
       "key": "zhuoer/light state-error-primary@layer-2",
       "fg": "#cf2121",
       "bg": "#efece7",
-      "ratio": 4.579
+      "ratio": 4.579,
+      "decor": false
     },
     {
       "key": "zhuoer/light state-warn-primary@layer-2",
       "fg": "#92400e",
       "bg": "#efece7",
-      "ratio": 6.017
+      "ratio": 6.017,
+      "decor": false
     },
     {
       "key": "zhuoer/light state-warn-label@layer-2",
       "fg": "#92400e",
       "bg": "#efece7",
-      "ratio": 6.017
+      "ratio": 6.017,
+      "decor": false
     },
     {
       "key": "zhuoer/dark label-error@base",
       "fg": "#ef4444",
       "bg": "#0e1015",
-      "ratio": 5.057
+      "ratio": 5.057,
+      "decor": false
     },
     {
       "key": "zhuoer/dark state-error-primary@base",
       "fg": "#ef4444",
       "bg": "#0e1015",
-      "ratio": 5.057
+      "ratio": 5.057,
+      "decor": false
     },
     {
       "key": "zhuoer/dark state-warn-primary@base",
       "fg": "#f59e0b",
       "bg": "#0e1015",
-      "ratio": 8.86
+      "ratio": 8.86,
+      "decor": false
     },
     {
       "key": "zhuoer/dark state-warn-label@base",
       "fg": "#f59e0b",
       "bg": "#0e1015",
-      "ratio": 8.86
+      "ratio": 8.86,
+      "decor": false
     },
     {
       "key": "zhuoer/dark label-error@layer-2",
       "fg": "#ef4444",
       "bg": "#17191e",
-      "ratio": 4.673
+      "ratio": 4.673,
+      "decor": false
     },
     {
       "key": "zhuoer/dark state-error-primary@layer-2",
       "fg": "#ef4444",
       "bg": "#17191e",
-      "ratio": 4.673
+      "ratio": 4.673,
+      "decor": false
     },
     {
       "key": "zhuoer/dark state-warn-primary@layer-2",
       "fg": "#f59e0b",
       "bg": "#17191e",
-      "ratio": 8.188
+      "ratio": 8.188,
+      "decor": false
     },
     {
       "key": "zhuoer/dark state-warn-label@layer-2",
       "fg": "#f59e0b",
       "bg": "#17191e",
-      "ratio": 8.188
+      "ratio": 8.188,
+      "decor": false
     },
     {
       "key": "absolutely/light label-error@base",
       "fg": "#d32222",
       "bg": "#f7f6f5",
-      "ratio": 4.838
+      "ratio": 4.838,
+      "decor": false
     },
     {
       "key": "absolutely/light state-error-primary@base",
       "fg": "#d32222",
       "bg": "#f7f6f5",
-      "ratio": 4.838
+      "ratio": 4.838,
+      "decor": false
     },
     {
       "key": "absolutely/light state-warn-primary@base",
       "fg": "#92400e",
       "bg": "#f7f6f5",
-      "ratio": 6.569
+      "ratio": 6.569,
+      "decor": false
     },
     {
       "key": "absolutely/light state-warn-label@base",
       "fg": "#92400e",
       "bg": "#f7f6f5",
-      "ratio": 6.569
+      "ratio": 6.569,
+      "decor": false
     },
     {
       "key": "absolutely/light label-error@layer-2",
       "fg": "#d32222",
       "bg": "#f1f0ef",
-      "ratio": 4.588
+      "ratio": 4.588,
+      "decor": false
     },
     {
       "key": "absolutely/light state-error-primary@layer-2",
       "fg": "#d32222",
       "bg": "#f1f0ef",
-      "ratio": 4.588
+      "ratio": 4.588,
+      "decor": false
     },
     {
       "key": "absolutely/light state-warn-primary@layer-2",
       "fg": "#92400e",
       "bg": "#f1f0ef",
-      "ratio": 6.229
+      "ratio": 6.229,
+      "decor": false
     },
     {
       "key": "absolutely/light state-warn-label@layer-2",
       "fg": "#92400e",
       "bg": "#f1f0ef",
-      "ratio": 6.229
+      "ratio": 6.229,
+      "decor": false
     },
     {
       "key": "absolutely/dark label-error@base",
       "fg": "#df6767",
       "bg": "#1b1b1a",
-      "ratio": 5.149
+      "ratio": 5.149,
+      "decor": false
     },
     {
       "key": "absolutely/dark state-error-primary@base",
       "fg": "#df6767",
       "bg": "#1b1b1a",
-      "ratio": 5.149
+      "ratio": 5.149,
+      "decor": false
     },
     {
       "key": "absolutely/dark state-warn-primary@base",
       "fg": "#f59e0b",
       "bg": "#1b1b1a",
-      "ratio": 8.026
+      "ratio": 8.026,
+      "decor": false
     },
     {
       "key": "absolutely/dark state-warn-label@base",
       "fg": "#f59e0b",
       "bg": "#1b1b1a",
-      "ratio": 8.026
+      "ratio": 8.026,
+      "decor": false
     },
     {
       "key": "absolutely/dark label-error@layer-2",
       "fg": "#df6767",
       "bg": "#252523",
-      "ratio": 4.587
+      "ratio": 4.587,
+      "decor": false
     },
     {
       "key": "absolutely/dark state-error-primary@layer-2",
       "fg": "#df6767",
       "bg": "#252523",
-      "ratio": 4.587
+      "ratio": 4.587,
+      "decor": false
     },
     {
       "key": "absolutely/dark state-warn-primary@layer-2",
       "fg": "#f59e0b",
       "bg": "#252523",
-      "ratio": 7.15
+      "ratio": 7.15,
+      "decor": false
     },
     {
       "key": "absolutely/dark state-warn-label@layer-2",
       "fg": "#f59e0b",
       "bg": "#252523",
-      "ratio": 7.15
+      "ratio": 7.15,
+      "decor": false
     },
     {
       "key": "beacon/light label-error@base",
       "fg": "#8c0f0f",
       "bg": "#f8f8f8",
-      "ratio": 9.028
+      "ratio": 9.028,
+      "decor": false
     },
     {
       "key": "beacon/light state-error-primary@base",
       "fg": "#8c0f0f",
       "bg": "#f8f8f8",
-      "ratio": 9.028
+      "ratio": 9.028,
+      "decor": false
     },
     {
       "key": "beacon/light state-warn-primary@base",
       "fg": "#613d00",
       "bg": "#f8f8f8",
-      "ratio": 9.088
+      "ratio": 9.088,
+      "decor": false
     },
     {
       "key": "beacon/light state-warn-label@base",
       "fg": "#613d00",
       "bg": "#f8f8f8",
-      "ratio": 9.088
+      "ratio": 9.088,
+      "decor": false
     },
     {
       "key": "beacon/light label-error@layer-2",
       "fg": "#8c0f0f",
       "bg": "#f1f1f1",
-      "ratio": 8.488
+      "ratio": 8.488,
+      "decor": false
     },
     {
       "key": "beacon/light state-error-primary@layer-2",
       "fg": "#8c0f0f",
       "bg": "#f1f1f1",
-      "ratio": 8.488
+      "ratio": 8.488,
+      "decor": false
     },
     {
       "key": "beacon/light state-warn-primary@layer-2",
       "fg": "#613d00",
       "bg": "#f1f1f1",
-      "ratio": 8.545
+      "ratio": 8.545,
+      "decor": false
     },
     {
       "key": "beacon/light state-warn-label@layer-2",
       "fg": "#613d00",
       "bg": "#f1f1f1",
-      "ratio": 8.545
+      "ratio": 8.545,
+      "decor": false
     },
     {
       "key": "beacon/dark label-error@base",
       "fg": "#ffabab",
       "bg": "#000000",
-      "ratio": 11.665
+      "ratio": 11.665,
+      "decor": false
     },
     {
       "key": "beacon/dark state-error-primary@base",
       "fg": "#ffabab",
       "bg": "#000000",
-      "ratio": 11.665
+      "ratio": 11.665,
+      "decor": false
     },
     {
       "key": "beacon/dark state-warn-primary@base",
       "fg": "#ffc233",
       "bg": "#000000",
-      "ratio": 13.017
+      "ratio": 13.017,
+      "decor": false
     },
     {
       "key": "beacon/dark state-warn-label@base",
       "fg": "#ffc233",
       "bg": "#000000",
-      "ratio": 13.017
+      "ratio": 13.017,
+      "decor": false
     },
     {
       "key": "beacon/dark label-error@layer-2",
       "fg": "#ffabab",
       "bg": "#0d0d0d",
-      "ratio": 10.796
+      "ratio": 10.796,
+      "decor": false
     },
     {
       "key": "beacon/dark state-error-primary@layer-2",
       "fg": "#ffabab",
       "bg": "#0d0d0d",
-      "ratio": 10.796
+      "ratio": 10.796,
+      "decor": false
     },
     {
       "key": "beacon/dark state-warn-primary@layer-2",
       "fg": "#ffc233",
       "bg": "#0d0d0d",
-      "ratio": 12.047
+      "ratio": 12.047,
+      "decor": false
     },
     {
       "key": "beacon/dark state-warn-label@layer-2",
       "fg": "#ffc233",
       "bg": "#0d0d0d",
-      "ratio": 12.047
+      "ratio": 12.047,
+      "decor": false
     },
     {
       "key": "crt/light label-error@base",
       "fg": "#d12222",
       "bg": "#f4f4f4",
-      "ratio": 4.818
+      "ratio": 4.818,
+      "decor": false
     },
     {
       "key": "crt/light state-error-primary@base",
       "fg": "#d12222",
       "bg": "#f4f4f4",
-      "ratio": 4.818
+      "ratio": 4.818,
+      "decor": false
     },
     {
       "key": "crt/light state-warn-primary@base",
       "fg": "#92400e",
       "bg": "#f4f4f4",
-      "ratio": 6.446
+      "ratio": 6.446,
+      "decor": false
     },
     {
       "key": "crt/light state-warn-label@base",
       "fg": "#92400e",
       "bg": "#f4f4f4",
-      "ratio": 6.446
+      "ratio": 6.446,
+      "decor": false
     },
     {
       "key": "crt/light label-error@layer-2",
       "fg": "#d12222",
       "bg": "#eeeeee",
-      "ratio": 4.567
+      "ratio": 4.567,
+      "decor": false
     },
     {
       "key": "crt/light state-error-primary@layer-2",
       "fg": "#d12222",
       "bg": "#eeeeee",
-      "ratio": 4.567
+      "ratio": 4.567,
+      "decor": false
     },
     {
       "key": "crt/light state-warn-primary@layer-2",
       "fg": "#92400e",
       "bg": "#eeeeee",
-      "ratio": 6.111
+      "ratio": 6.111,
+      "decor": false
     },
     {
       "key": "crt/light state-warn-label@layer-2",
       "fg": "#92400e",
       "bg": "#eeeeee",
-      "ratio": 6.111
+      "ratio": 6.111,
+      "decor": false
     },
     {
       "key": "crt/dark label-error@base",
       "fg": "#d84f49",
       "bg": "#090a09",
-      "ratio": 4.848
+      "ratio": 4.848,
+      "decor": false
     },
     {
       "key": "crt/dark state-error-primary@base",
       "fg": "#d84f49",
       "bg": "#090a09",
-      "ratio": 4.848
+      "ratio": 4.848,
+      "decor": false
     },
     {
       "key": "crt/dark state-warn-primary@base",
       "fg": "#f59e0b",
       "bg": "#090a09",
-      "ratio": 9.234
+      "ratio": 9.234,
+      "decor": false
     },
     {
       "key": "crt/dark state-warn-label@base",
       "fg": "#f59e0b",
       "bg": "#090a09",
-      "ratio": 9.234
+      "ratio": 9.234,
+      "decor": false
     },
     {
       "key": "crt/dark label-error@layer-2",
       "fg": "#d84f49",
       "bg": "#121312",
-      "ratio": 4.553
+      "ratio": 4.553,
+      "decor": false
     },
     {
       "key": "crt/dark state-error-primary@layer-2",
       "fg": "#d84f49",
       "bg": "#121312",
-      "ratio": 4.553
+      "ratio": 4.553,
+      "decor": false
     },
     {
       "key": "crt/dark state-warn-primary@layer-2",
       "fg": "#f59e0b",
       "bg": "#121312",
-      "ratio": 8.672
+      "ratio": 8.672,
+      "decor": false
     },
     {
       "key": "crt/dark state-warn-label@layer-2",
       "fg": "#f59e0b",
       "bg": "#121312",
-      "ratio": 8.672
+      "ratio": 8.672,
+      "decor": false
     },
     {
       "key": "dash/light label-error@base",
       "fg": "#c11f1f",
       "bg": "#ebe5e0",
-      "ratio": 4.828
+      "ratio": 4.828,
+      "decor": false
     },
     {
       "key": "dash/light state-error-primary@base",
       "fg": "#c11f1f",
       "bg": "#ebe5e0",
-      "ratio": 4.828
+      "ratio": 4.828,
+      "decor": false
     },
     {
       "key": "dash/light state-warn-primary@base",
       "fg": "#92400e",
       "bg": "#ebe5e0",
-      "ratio": 5.678
+      "ratio": 5.678,
+      "decor": false
     },
     {
       "key": "dash/light state-warn-label@base",
       "fg": "#92400e",
       "bg": "#ebe5e0",
-      "ratio": 5.678
+      "ratio": 5.678,
+      "decor": false
     },
     {
       "key": "dash/light label-error@layer-2",
       "fg": "#c11f1f",
       "bg": "#e6e0da",
-      "ratio": 4.605
+      "ratio": 4.605,
+      "decor": false
     },
     {
       "key": "dash/light state-error-primary@layer-2",
       "fg": "#c11f1f",
       "bg": "#e6e0da",
-      "ratio": 4.605
+      "ratio": 4.605,
+      "decor": false
     },
     {
       "key": "dash/light state-warn-primary@layer-2",
       "fg": "#92400e",
       "bg": "#e6e0da",
-      "ratio": 5.415
+      "ratio": 5.415,
+      "decor": false
     },
     {
       "key": "dash/light state-warn-label@layer-2",
       "fg": "#92400e",
       "bg": "#e6e0da",
-      "ratio": 5.415
+      "ratio": 5.415,
+      "decor": false
     },
     {
       "key": "dash/dark label-error@base",
       "fg": "#dc5b5b",
       "bg": "#1a1210",
-      "ratio": 5.001
+      "ratio": 5.001,
+      "decor": false
     },
     {
       "key": "dash/dark state-error-primary@base",
       "fg": "#dc5b5b",
       "bg": "#1a1210",
-      "ratio": 5.001
+      "ratio": 5.001,
+      "decor": false
     },
     {
       "key": "dash/dark state-warn-primary@base",
       "fg": "#f59e0b",
       "bg": "#1a1210",
-      "ratio": 8.593
+      "ratio": 8.593,
+      "decor": false
     },
     {
       "key": "dash/dark state-warn-label@base",
       "fg": "#f59e0b",
       "bg": "#1a1210",
-      "ratio": 8.593
+      "ratio": 8.593,
+      "decor": false
     },
     {
       "key": "dash/dark label-error@layer-2",
       "fg": "#dc5b5b",
       "bg": "#241b18",
-      "ratio": 4.571
+      "ratio": 4.571,
+      "decor": false
     },
     {
       "key": "dash/dark state-error-primary@layer-2",
       "fg": "#dc5b5b",
       "bg": "#241b18",
-      "ratio": 4.571
+      "ratio": 4.571,
+      "decor": false
     },
     {
       "key": "dash/dark state-warn-primary@layer-2",
       "fg": "#f59e0b",
       "bg": "#241b18",
-      "ratio": 7.854
+      "ratio": 7.854,
+      "decor": false
     },
     {
       "key": "dash/dark state-warn-label@layer-2",
       "fg": "#f59e0b",
       "bg": "#241b18",
-      "ratio": 7.854
+      "ratio": 7.854,
+      "decor": false
     },
     {
       "key": "knot/light label-error@base",
       "fg": "#d12222",
       "bg": "#f4f4f7",
-      "ratio": 4.827
+      "ratio": 4.827,
+      "decor": false
     },
     {
       "key": "knot/light state-error-primary@base",
       "fg": "#d12222",
       "bg": "#f4f4f7",
-      "ratio": 4.827
+      "ratio": 4.827,
+      "decor": false
     },
     {
       "key": "knot/light state-warn-primary@base",
       "fg": "#92400e",
       "bg": "#f4f4f7",
-      "ratio": 6.459
+      "ratio": 6.459,
+      "decor": false
     },
     {
       "key": "knot/light state-warn-label@base",
       "fg": "#92400e",
       "bg": "#f4f4f7",
-      "ratio": 6.459
+      "ratio": 6.459,
+      "decor": false
     },
     {
       "key": "knot/light label-error@layer-2",
       "fg": "#d12222",
       "bg": "#eeeef2",
-      "ratio": 4.579
+      "ratio": 4.579,
+      "decor": false
     },
     {
       "key": "knot/light state-error-primary@layer-2",
       "fg": "#d12222",
       "bg": "#eeeef2",
-      "ratio": 4.579
+      "ratio": 4.579,
+      "decor": false
     },
     {
       "key": "knot/light state-warn-primary@layer-2",
       "fg": "#92400e",
       "bg": "#eeeef2",
-      "ratio": 6.127
+      "ratio": 6.127,
+      "decor": false
     },
     {
       "key": "knot/light state-warn-label@layer-2",
       "fg": "#92400e",
       "bg": "#eeeef2",
-      "ratio": 6.127
+      "ratio": 6.127,
+      "decor": false
     },
     {
       "key": "knot/dark label-error@base",
       "fg": "#da4e4e",
       "bg": "#080808",
-      "ratio": 4.941
+      "ratio": 4.941,
+      "decor": false
     },
     {
       "key": "knot/dark state-error-primary@base",
       "fg": "#da4e4e",
       "bg": "#080808",
-      "ratio": 4.941
+      "ratio": 4.941,
+      "decor": false
     },
     {
       "key": "knot/dark state-warn-primary@base",
       "fg": "#f59e0b",
       "bg": "#080808",
-      "ratio": 9.325
+      "ratio": 9.325,
+      "decor": false
     },
     {
       "key": "knot/dark state-warn-label@base",
       "fg": "#f59e0b",
       "bg": "#080808",
-      "ratio": 9.325
+      "ratio": 9.325,
+      "decor": false
     },
     {
       "key": "knot/dark label-error@layer-2",
       "fg": "#da4e4e",
       "bg": "#121212",
-      "ratio": 4.622
+      "ratio": 4.622,
+      "decor": false
     },
     {
       "key": "knot/dark state-error-primary@layer-2",
       "fg": "#da4e4e",
       "bg": "#121212",
-      "ratio": 4.622
+      "ratio": 4.622,
+      "decor": false
     },
     {
       "key": "knot/dark state-warn-primary@layer-2",
       "fg": "#f59e0b",
       "bg": "#121212",
-      "ratio": 8.723
+      "ratio": 8.723,
+      "decor": false
     },
     {
       "key": "knot/dark state-warn-label@layer-2",
       "fg": "#f59e0b",
       "bg": "#121212",
-      "ratio": 8.723
+      "ratio": 8.723,
+      "decor": false
     },
     {
       "key": "manuscript/light label-error@base",
       "fg": "#bc2f26",
       "bg": "#f1f0ea",
-      "ratio": 5.148
+      "ratio": 5.148,
+      "decor": false
     },
     {
       "key": "manuscript/light state-error-primary@base",
       "fg": "#bc2f26",
       "bg": "#f1f0ea",
-      "ratio": 5.148
+      "ratio": 5.148,
+      "decor": false
     },
     {
       "key": "manuscript/light state-warn-primary@base",
       "fg": "#92400e",
       "bg": "#f1f0ea",
-      "ratio": 6.21
+      "ratio": 6.21,
+      "decor": false
     },
     {
       "key": "manuscript/light state-warn-label@base",
       "fg": "#92400e",
       "bg": "#f1f0ea",
-      "ratio": 6.21
+      "ratio": 6.21,
+      "decor": false
     },
     {
       "key": "manuscript/light label-error@layer-2",
       "fg": "#bc2f26",
       "bg": "#ebeae4",
-      "ratio": 4.876
+      "ratio": 4.876,
+      "decor": false
     },
     {
       "key": "manuscript/light state-error-primary@layer-2",
       "fg": "#bc2f26",
       "bg": "#ebeae4",
-      "ratio": 4.876
+      "ratio": 4.876,
+      "decor": false
     },
     {
       "key": "manuscript/light state-warn-primary@layer-2",
       "fg": "#92400e",
       "bg": "#ebeae4",
-      "ratio": 5.882
+      "ratio": 5.882,
+      "decor": false
     },
     {
       "key": "manuscript/light state-warn-label@layer-2",
       "fg": "#92400e",
       "bg": "#ebeae4",
-      "ratio": 5.882
+      "ratio": 5.882,
+      "decor": false
     },
     {
       "key": "manuscript/dark label-error@base",
       "fg": "#db6f67",
       "bg": "#211e18",
-      "ratio": 5.13
+      "ratio": 5.13,
+      "decor": false
     },
     {
       "key": "manuscript/dark state-error-primary@base",
       "fg": "#db6f67",
       "bg": "#211e18",
-      "ratio": 5.13
+      "ratio": 5.13,
+      "decor": false
     },
     {
       "key": "manuscript/dark state-warn-primary@base",
       "fg": "#f59e0b",
       "bg": "#211e18",
-      "ratio": 7.738
+      "ratio": 7.738,
+      "decor": false
     },
     {
       "key": "manuscript/dark state-warn-label@base",
       "fg": "#f59e0b",
       "bg": "#211e18",
-      "ratio": 7.738
+      "ratio": 7.738,
+      "decor": false
     },
     {
       "key": "manuscript/dark label-error@layer-2",
       "fg": "#db6f67",
       "bg": "#2a2720",
-      "ratio": 4.599
+      "ratio": 4.599,
+      "decor": false
     },
     {
       "key": "manuscript/dark state-error-primary@layer-2",
       "fg": "#db6f67",
       "bg": "#2a2720",
-      "ratio": 4.599
+      "ratio": 4.599,
+      "decor": false
     },
     {
       "key": "manuscript/dark state-warn-primary@layer-2",
       "fg": "#f59e0b",
       "bg": "#2a2720",
-      "ratio": 6.937
+      "ratio": 6.937,
+      "decor": false
     },
     {
       "key": "manuscript/dark state-warn-label@layer-2",
       "fg": "#f59e0b",
       "bg": "#2a2720",
-      "ratio": 6.937
+      "ratio": 6.937,
+      "decor": false
     },
     {
       "key": "miami/light label-error@base",
       "fg": "#c22f4f",
       "bg": "#f6f2f5",
-      "ratio": 4.966
+      "ratio": 4.966,
+      "decor": false
     },
     {
       "key": "miami/light state-error-primary@base",
       "fg": "#c22f4f",
       "bg": "#f6f2f5",
-      "ratio": 4.966
+      "ratio": 4.966,
+      "decor": false
     },
     {
       "key": "miami/light state-warn-primary@base",
       "fg": "#92400e",
       "bg": "#f6f2f5",
-      "ratio": 6.394
+      "ratio": 6.394,
+      "decor": false
     },
     {
       "key": "miami/light state-warn-label@base",
       "fg": "#92400e",
       "bg": "#f6f2f5",
-      "ratio": 6.394
+      "ratio": 6.394,
+      "decor": false
     },
     {
       "key": "miami/light label-error@layer-2",
       "fg": "#c22f4f",
       "bg": "#f0ecf0",
-      "ratio": 4.71
+      "ratio": 4.71,
+      "decor": false
     },
     {
       "key": "miami/light state-error-primary@layer-2",
       "fg": "#c22f4f",
       "bg": "#f0ecf0",
-      "ratio": 4.71
+      "ratio": 4.71,
+      "decor": false
     },
     {
       "key": "miami/light state-warn-primary@layer-2",
       "fg": "#92400e",
       "bg": "#f0ecf0",
-      "ratio": 6.064
+      "ratio": 6.064,
+      "decor": false
     },
     {
       "key": "miami/light state-warn-label@layer-2",
       "fg": "#92400e",
       "bg": "#f0ecf0",
-      "ratio": 6.064
+      "ratio": 6.064,
+      "decor": false
     },
     {
       "key": "miami/dark label-error@base",
       "fg": "#ef5d78",
       "bg": "#140f1e",
-      "ratio": 5.826
+      "ratio": 5.826,
+      "decor": false
     },
     {
       "key": "miami/dark state-error-primary@base",
       "fg": "#ef5d78",
       "bg": "#140f1e",
-      "ratio": 5.826
+      "ratio": 5.826,
+      "decor": false
     },
     {
       "key": "miami/dark state-warn-primary@base",
       "fg": "#f59e0b",
       "bg": "#140f1e",
-      "ratio": 8.755
+      "ratio": 8.755,
+      "decor": false
     },
     {
       "key": "miami/dark state-warn-label@base",
       "fg": "#f59e0b",
       "bg": "#140f1e",
-      "ratio": 8.755
+      "ratio": 8.755,
+      "decor": false
     },
     {
       "key": "miami/dark label-error@layer-2",
       "fg": "#ef5d78",
       "bg": "#1d1828",
-      "ratio": 5.362
+      "ratio": 5.362,
+      "decor": false
     },
     {
       "key": "miami/dark state-error-primary@layer-2",
       "fg": "#ef5d78",
       "bg": "#1d1828",
-      "ratio": 5.362
+      "ratio": 5.362,
+      "decor": false
     },
     {
       "key": "miami/dark state-warn-primary@layer-2",
       "fg": "#f59e0b",
       "bg": "#1d1828",
-      "ratio": 8.058
+      "ratio": 8.058,
+      "decor": false
     },
     {
       "key": "miami/dark state-warn-label@layer-2",
       "fg": "#f59e0b",
       "bg": "#1d1828",
-      "ratio": 8.058
+      "ratio": 8.058,
+      "decor": false
     },
     {
       "key": "phosphor/light label-error@base",
       "fg": "#cf2121",
       "bg": "#f1f4f1",
-      "ratio": 4.868
+      "ratio": 4.868,
+      "decor": false
     },
     {
       "key": "phosphor/light state-error-primary@base",
       "fg": "#cf2121",
       "bg": "#f1f4f1",
-      "ratio": 4.868
+      "ratio": 4.868,
+      "decor": false
     },
     {
       "key": "phosphor/light state-warn-primary@base",
       "fg": "#92400e",
       "bg": "#f1f4f1",
-      "ratio": 6.398
+      "ratio": 6.398,
+      "decor": false
     },
     {
       "key": "phosphor/light state-warn-label@base",
       "fg": "#92400e",
       "bg": "#f1f4f1",
-      "ratio": 6.398
+      "ratio": 6.398,
+      "decor": false
     },
     {
       "key": "phosphor/light label-error@layer-2",
       "fg": "#cf2121",
       "bg": "#ebeeeb",
-      "ratio": 4.614
+      "ratio": 4.614,
+      "decor": false
     },
     {
       "key": "phosphor/light state-error-primary@layer-2",
       "fg": "#cf2121",
       "bg": "#ebeeeb",
-      "ratio": 4.614
+      "ratio": 4.614,
+      "decor": false
     },
     {
       "key": "phosphor/light state-warn-primary@layer-2",
       "fg": "#92400e",
       "bg": "#ebeeeb",
-      "ratio": 6.064
+      "ratio": 6.064,
+      "decor": false
     },
     {
       "key": "phosphor/light state-warn-label@layer-2",
       "fg": "#92400e",
       "bg": "#ebeeeb",
-      "ratio": 6.064
+      "ratio": 6.064,
+      "decor": false
     },
     {
       "key": "phosphor/dark label-error@base",
       "fg": "#db5454",
       "bg": "#0a0f0a",
-      "ratio": 4.982
+      "ratio": 4.982,
+      "decor": false
     },
     {
       "key": "phosphor/dark state-error-primary@base",
       "fg": "#db5454",
       "bg": "#0a0f0a",
-      "ratio": 4.982
+      "ratio": 4.982,
+      "decor": false
     },
     {
       "key": "phosphor/dark state-warn-primary@base",
       "fg": "#f59e0b",
       "bg": "#0a0f0a",
-      "ratio": 9.007
+      "ratio": 9.007,
+      "decor": false
     },
     {
       "key": "phosphor/dark state-warn-label@base",
       "fg": "#f59e0b",
       "bg": "#0a0f0a",
-      "ratio": 9.007
+      "ratio": 9.007,
+      "decor": false
     },
     {
       "key": "phosphor/dark label-error@layer-2",
       "fg": "#db5454",
       "bg": "#141914",
-      "ratio": 4.587
+      "ratio": 4.587,
+      "decor": false
     },
     {
       "key": "phosphor/dark state-error-primary@layer-2",
       "fg": "#db5454",
       "bg": "#141914",
-      "ratio": 4.587
+      "ratio": 4.587,
+      "decor": false
     },
     {
       "key": "phosphor/dark state-warn-primary@layer-2",
       "fg": "#f59e0b",
       "bg": "#141914",
-      "ratio": 8.294
+      "ratio": 8.294,
+      "decor": false
     },
     {
       "key": "phosphor/dark state-warn-label@layer-2",
       "fg": "#f59e0b",
       "bg": "#141914",
-      "ratio": 8.294
+      "ratio": 8.294,
+      "decor": false
     },
     {
       "key": "rose/light label-error@base",
       "fg": "#a63d57",
       "bg": "#f1eeea",
-      "ratio": 5.299
+      "ratio": 5.299,
+      "decor": false
     },
     {
       "key": "rose/light state-error-primary@base",
       "fg": "#a63d57",
       "bg": "#f1eeea",
-      "ratio": 5.299
+      "ratio": 5.299,
+      "decor": false
     },
     {
       "key": "rose/light state-warn-primary@base",
       "fg": "#92400e",
       "bg": "#f1eeea",
-      "ratio": 6.131
+      "ratio": 6.131,
+      "decor": false
     },
     {
       "key": "rose/light state-warn-label@base",
       "fg": "#92400e",
       "bg": "#f1eeea",
-      "ratio": 6.131
+      "ratio": 6.131,
+      "decor": false
     },
     {
       "key": "rose/light label-error@layer-2",
       "fg": "#a63d57",
       "bg": "#ece9e6",
-      "ratio": 5.068
+      "ratio": 5.068,
+      "decor": false
     },
     {
       "key": "rose/light state-error-primary@layer-2",
       "fg": "#a63d57",
       "bg": "#ece9e6",
-      "ratio": 5.068
+      "ratio": 5.068,
+      "decor": false
     },
     {
       "key": "rose/light state-warn-primary@layer-2",
       "fg": "#92400e",
       "bg": "#ece9e6",
-      "ratio": 5.863
+      "ratio": 5.863,
+      "decor": false
     },
     {
       "key": "rose/light state-warn-label@layer-2",
       "fg": "#92400e",
       "bg": "#ece9e6",
-      "ratio": 5.863
+      "ratio": 5.863,
+      "decor": false
     },
     {
       "key": "rose/dark label-error@base",
       "fg": "#eb6f92",
       "bg": "#191724",
-      "ratio": 6.072
+      "ratio": 6.072,
+      "decor": false
     },
     {
       "key": "rose/dark state-error-primary@base",
       "fg": "#eb6f92",
       "bg": "#191724",
-      "ratio": 6.072
+      "ratio": 6.072,
+      "decor": false
     },
     {
       "key": "rose/dark state-warn-primary@base",
       "fg": "#f59e0b",
       "bg": "#191724",
-      "ratio": 8.221
+      "ratio": 8.221,
+      "decor": false
     },
     {
       "key": "rose/dark state-warn-label@base",
       "fg": "#f59e0b",
       "bg": "#191724",
-      "ratio": 8.221
+      "ratio": 8.221,
+      "decor": false
     },
     {
       "key": "rose/dark label-error@layer-2",
       "fg": "#eb6f92",
       "bg": "#22202e",
-      "ratio": 5.495
+      "ratio": 5.495,
+      "decor": false
     },
     {
       "key": "rose/dark state-error-primary@layer-2",
       "fg": "#eb6f92",
       "bg": "#22202e",
-      "ratio": 5.495
+      "ratio": 5.495,
+      "decor": false
     },
     {
       "key": "rose/dark state-warn-primary@layer-2",
       "fg": "#f59e0b",
       "bg": "#22202e",
-      "ratio": 7.441
+      "ratio": 7.441,
+      "decor": false
     },
     {
       "key": "rose/dark state-warn-label@layer-2",
       "fg": "#f59e0b",
       "bg": "#22202e",
-      "ratio": 7.441
+      "ratio": 7.441,
+      "decor": false
     },
     {
       "key": "tide/light label-error@base",
       "fg": "#cf2121",
       "bg": "#f1f3f5",
-      "ratio": 4.85
+      "ratio": 4.85,
+      "decor": false
     },
     {
       "key": "tide/light state-error-primary@base",
       "fg": "#cf2121",
       "bg": "#f1f3f5",
-      "ratio": 4.85
+      "ratio": 4.85,
+      "decor": false
     },
     {
       "key": "tide/light state-warn-primary@base",
       "fg": "#92400e",
       "bg": "#f1f3f5",
-      "ratio": 6.374
+      "ratio": 6.374,
+      "decor": false
     },
     {
       "key": "tide/light state-warn-label@base",
       "fg": "#92400e",
       "bg": "#f1f3f5",
-      "ratio": 6.374
+      "ratio": 6.374,
+      "decor": false
     },
     {
       "key": "tide/light label-error@layer-2",
       "fg": "#cf2121",
       "bg": "#ebeef0",
-      "ratio": 4.629
+      "ratio": 4.629,
+      "decor": false
     },
     {
       "key": "tide/light state-error-primary@layer-2",
       "fg": "#cf2121",
       "bg": "#ebeef0",
-      "ratio": 4.629
+      "ratio": 4.629,
+      "decor": false
     },
     {
       "key": "tide/light state-warn-primary@layer-2",
       "fg": "#92400e",
       "bg": "#ebeef0",
-      "ratio": 6.084
+      "ratio": 6.084,
+      "decor": false
     },
     {
       "key": "tide/light state-warn-label@layer-2",
       "fg": "#92400e",
       "bg": "#ebeef0",
-      "ratio": 6.084
+      "ratio": 6.084,
+      "decor": false
     },
     {
       "key": "tide/dark label-error@base",
       "fg": "#dd5d5d",
       "bg": "#10151b",
-      "ratio": 5.063
+      "ratio": 5.063,
+      "decor": false
     },
     {
       "key": "tide/dark state-error-primary@base",
       "fg": "#dd5d5d",
       "bg": "#10151b",
-      "ratio": 5.063
+      "ratio": 5.063,
+      "decor": false
     },
     {
       "key": "tide/dark state-warn-primary@base",
       "fg": "#f59e0b",
       "bg": "#10151b",
-      "ratio": 8.539
+      "ratio": 8.539,
+      "decor": false
     },
     {
       "key": "tide/dark state-warn-label@base",
       "fg": "#f59e0b",
       "bg": "#10151b",
-      "ratio": 8.539
+      "ratio": 8.539,
+      "decor": false
     },
     {
       "key": "tide/dark label-error@layer-2",
       "fg": "#dd5d5d",
       "bg": "#191e25",
-      "ratio": 4.625
+      "ratio": 4.625,
+      "decor": false
     },
     {
       "key": "tide/dark state-error-primary@layer-2",
       "fg": "#dd5d5d",
       "bg": "#191e25",
-      "ratio": 4.625
+      "ratio": 4.625,
+      "decor": false
     },
     {
       "key": "tide/dark state-warn-primary@layer-2",
       "fg": "#f59e0b",
       "bg": "#191e25",
-      "ratio": 7.799
+      "ratio": 7.799,
+      "decor": false
     },
     {
       "key": "tide/dark state-warn-label@layer-2",
       "fg": "#f59e0b",
       "bg": "#191e25",
-      "ratio": 7.799
+      "ratio": 7.799,
+      "decor": false
     },
     {
       "key": "vintage-paper/light label-error@base",
       "fg": "#b54a35",
       "bg": "#f5f1e6",
-      "ratio": 4.657
+      "ratio": 4.657,
+      "decor": false
     },
     {
       "key": "vintage-paper/light state-error-primary@base",
       "fg": "#b54a35",
       "bg": "#f5f1e6",
-      "ratio": 4.657
+      "ratio": 4.657,
+      "decor": false
     },
     {
       "key": "vintage-paper/light state-warn-primary@base",
       "fg": "#92400e",
       "bg": "#f5f1e6",
-      "ratio": 6.282
+      "ratio": 6.282,
+      "decor": false
     },
     {
       "key": "vintage-paper/light state-warn-label@base",
       "fg": "#92400e",
       "bg": "#f5f1e6",
-      "ratio": 6.282
+      "ratio": 6.282,
+      "decor": false
     },
     {
       "key": "vintage-paper/light label-error@layer-2",
       "fg": "#b54a35",
       "bg": "#f6f1e7",
-      "ratio": 4.669
+      "ratio": 4.669,
+      "decor": false
     },
     {
       "key": "vintage-paper/light state-error-primary@layer-2",
       "fg": "#b54a35",
       "bg": "#f6f1e7",
-      "ratio": 4.669
+      "ratio": 4.669,
+      "decor": false
     },
     {
       "key": "vintage-paper/light state-warn-primary@layer-2",
       "fg": "#92400e",
       "bg": "#f6f1e7",
-      "ratio": 6.298
+      "ratio": 6.298,
+      "decor": false
     },
     {
       "key": "vintage-paper/light state-warn-label@layer-2",
       "fg": "#92400e",
       "bg": "#f6f1e7",
-      "ratio": 6.298
+      "ratio": 6.298,
+      "decor": false
     },
     {
       "key": "vintage-paper/dark label-error@base",
       "fg": "#d68272",
       "bg": "#2d2621",
-      "ratio": 5.171
+      "ratio": 5.171,
+      "decor": false
     },
     {
       "key": "vintage-paper/dark state-error-primary@base",
       "fg": "#d68272",
       "bg": "#2d2621",
-      "ratio": 5.171
+      "ratio": 5.171,
+      "decor": false
     },
     {
       "key": "vintage-paper/dark state-warn-primary@base",
       "fg": "#e0a341",
       "bg": "#2d2621",
-      "ratio": 6.723
+      "ratio": 6.723,
+      "decor": false
     },
     {
       "key": "vintage-paper/dark state-warn-label@base",
       "fg": "#e0a341",
       "bg": "#2d2621",
-      "ratio": 6.723
+      "ratio": 6.723,
+      "decor": false
     },
     {
       "key": "vintage-paper/dark label-error@layer-2",
       "fg": "#d68272",
       "bg": "#362f29",
-      "ratio": 4.572
+      "ratio": 4.572,
+      "decor": false
     },
     {
       "key": "vintage-paper/dark state-error-primary@layer-2",
       "fg": "#d68272",
       "bg": "#362f29",
-      "ratio": 4.572
+      "ratio": 4.572,
+      "decor": false
     },
     {
       "key": "vintage-paper/dark state-warn-primary@layer-2",
       "fg": "#e0a341",
       "bg": "#362f29",
-      "ratio": 5.945
+      "ratio": 5.945,
+      "decor": false
     },
     {
       "key": "vintage-paper/dark state-warn-label@layer-2",
       "fg": "#e0a341",
       "bg": "#362f29",
-      "ratio": 5.945
+      "ratio": 5.945,
+      "decor": false
     },
     {
       "key": "预设:glass/zhuoer/light 正文",
       "fg": "#1a2b3c",
       "bg": "#eef4fa",
-      "ratio": 13.031
+      "ratio": 13.031,
+      "decor": false
     },
     {
       "key": "预设:glass/zhuoer/light 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#4a7fd4",
-      "ratio": 4.944
+      "ratio": 4.944,
+      "decor": false
     },
     {
       "key": "预设:glass/zhuoer/dark 正文",
       "fg": "#c3d4e5",
       "bg": "#0d1d2d",
-      "ratio": 11.269
+      "ratio": 11.269,
+      "decor": false
     },
     {
       "key": "预设:glass/zhuoer/dark 按钮文字",
       "fg": "#ffffff",
       "bg": "#2b60b5",
-      "ratio": 6.099
+      "ratio": 6.099,
+      "decor": false
     },
     {
       "key": "预设:glass/vintage-paper/light 正文",
       "fg": "#1a2b3c",
       "bg": "#eef4fa",
-      "ratio": 13.031
+      "ratio": 13.031,
+      "decor": false
     },
     {
       "key": "预设:glass/vintage-paper/light 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#4a7fd4",
-      "ratio": 4.944
+      "ratio": 4.944,
+      "decor": false
     },
     {
       "key": "预设:glass/vintage-paper/dark 正文",
       "fg": "#c3d4e5",
       "bg": "#0d1d2d",
-      "ratio": 11.269
+      "ratio": 11.269,
+      "decor": false
     },
     {
       "key": "预设:glass/vintage-paper/dark 按钮文字",
       "fg": "#ffffff",
       "bg": "#2b60b5",
-      "ratio": 6.099
+      "ratio": 6.099,
+      "decor": false
     },
     {
       "key": "预设:glass/beacon/light 正文",
       "fg": "#1a2b3c",
       "bg": "#eef4fa",
-      "ratio": 13.031
+      "ratio": 13.031,
+      "decor": false
     },
     {
       "key": "预设:glass/beacon/light 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#4a7fd4",
-      "ratio": 4.944
+      "ratio": 4.944,
+      "decor": false
     },
     {
       "key": "预设:glass/beacon/dark 正文",
       "fg": "#c3d4e5",
       "bg": "#0d1d2d",
-      "ratio": 11.269
+      "ratio": 11.269,
+      "decor": false
     },
     {
       "key": "预设:glass/beacon/dark 按钮文字",
       "fg": "#ffffff",
       "bg": "#2b60b5",
-      "ratio": 6.099
+      "ratio": 6.099,
+      "decor": false
     },
     {
       "key": "预设:brutal/zhuoer/light 正文",
       "fg": "#0a0a0a",
       "bg": "#fff8e7",
-      "ratio": 18.698
+      "ratio": 18.698,
+      "decor": false
     },
     {
       "key": "预设:brutal/zhuoer/light 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#ff3d00",
-      "ratio": 5.546
+      "ratio": 5.546,
+      "decor": false
     },
     {
       "key": "预设:brutal/zhuoer/dark 正文",
       "fg": "#f5f5f5",
       "bg": "#3b2a00",
-      "ratio": 12.696
+      "ratio": 12.696,
+      "decor": false
     },
     {
       "key": "预设:brutal/zhuoer/dark 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#ff3d00",
-      "ratio": 5.546
+      "ratio": 5.546,
+      "decor": false
     },
     {
       "key": "预设:brutal/vintage-paper/light 正文",
       "fg": "#0a0a0a",
       "bg": "#fff8e7",
-      "ratio": 18.698
+      "ratio": 18.698,
+      "decor": false
     },
     {
       "key": "预设:brutal/vintage-paper/light 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#ff3d00",
-      "ratio": 5.546
+      "ratio": 5.546,
+      "decor": false
     },
     {
       "key": "预设:brutal/vintage-paper/dark 正文",
       "fg": "#f5f5f5",
       "bg": "#3b2a00",
-      "ratio": 12.696
+      "ratio": 12.696,
+      "decor": false
     },
     {
       "key": "预设:brutal/vintage-paper/dark 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#ff3d00",
-      "ratio": 5.546
+      "ratio": 5.546,
+      "decor": false
     },
     {
       "key": "预设:brutal/beacon/light 正文",
       "fg": "#0a0a0a",
       "bg": "#fff8e7",
-      "ratio": 18.698
+      "ratio": 18.698,
+      "decor": false
     },
     {
       "key": "预设:brutal/beacon/light 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#ff3d00",
-      "ratio": 5.546
+      "ratio": 5.546,
+      "decor": false
     },
     {
       "key": "预设:brutal/beacon/dark 正文",
       "fg": "#f5f5f5",
       "bg": "#3b2a00",
-      "ratio": 12.696
+      "ratio": 12.696,
+      "decor": false
     },
     {
       "key": "预设:brutal/beacon/dark 按钮文字",
       "fg": "#000000",
       "bg": "#ff3d00",
-      "ratio": 5.919
+      "ratio": 5.919,
+      "decor": false
     },
     {
       "key": "预设:swiss/zhuoer/light 正文",
       "fg": "#1a1a1a",
       "bg": "#f5f5f5",
-      "ratio": 15.964
+      "ratio": 15.964,
+      "decor": false
     },
     {
       "key": "预设:swiss/zhuoer/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#e30613",
-      "ratio": 4.882
+      "ratio": 4.882,
+      "decor": false
     },
     {
       "key": "预设:swiss/zhuoer/dark 正文",
       "fg": "#e5e5e5",
       "bg": "#1d1d1d",
-      "ratio": 13.382
+      "ratio": 13.382,
+      "decor": false
     },
     {
       "key": "预设:swiss/zhuoer/dark 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#f91c29",
-      "ratio": 4.896
+      "ratio": 4.896,
+      "decor": false
     },
     {
       "key": "预设:swiss/vintage-paper/light 正文",
       "fg": "#1a1a1a",
       "bg": "#f5f5f5",
-      "ratio": 15.964
+      "ratio": 15.964,
+      "decor": false
     },
     {
       "key": "预设:swiss/vintage-paper/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#e30613",
-      "ratio": 4.882
+      "ratio": 4.882,
+      "decor": false
     },
     {
       "key": "预设:swiss/vintage-paper/dark 正文",
       "fg": "#e5e5e5",
       "bg": "#1d1d1d",
-      "ratio": 13.382
+      "ratio": 13.382,
+      "decor": false
     },
     {
       "key": "预设:swiss/vintage-paper/dark 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#f91c29",
-      "ratio": 4.896
+      "ratio": 4.896,
+      "decor": false
     },
     {
       "key": "预设:swiss/beacon/light 正文",
       "fg": "#1a1a1a",
       "bg": "#f5f5f5",
-      "ratio": 15.964
+      "ratio": 15.964,
+      "decor": false
     },
     {
       "key": "预设:swiss/beacon/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#e30613",
-      "ratio": 4.882
+      "ratio": 4.882,
+      "decor": false
     },
     {
       "key": "预设:swiss/beacon/dark 正文",
       "fg": "#e5e5e5",
       "bg": "#1d1d1d",
-      "ratio": 13.382
+      "ratio": 13.382,
+      "decor": false
     },
     {
       "key": "预设:swiss/beacon/dark 按钮文字",
       "fg": "#000000",
       "bg": "#f91c29",
-      "ratio": 5.226
+      "ratio": 5.226,
+      "decor": false
     },
     {
       "key": "预设:editorial/zhuoer/light 正文",
       "fg": "#1a1614",
       "bg": "#faf7f0",
-      "ratio": 16.793
+      "ratio": 16.793,
+      "decor": false
     },
     {
       "key": "预设:editorial/zhuoer/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#8b1a1a",
-      "ratio": 9.29
+      "ratio": 9.29,
+      "decor": false
     },
     {
       "key": "预设:editorial/zhuoer/dark 正文",
       "fg": "#ebe7e5",
       "bg": "#2c230f",
-      "ratio": 12.621
+      "ratio": 12.621,
+      "decor": false
     },
     {
       "key": "预设:editorial/zhuoer/dark 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#e57474",
-      "ratio": 6.635
+      "ratio": 6.635,
+      "decor": false
     },
     {
       "key": "预设:editorial/vintage-paper/light 正文",
       "fg": "#1a1614",
       "bg": "#faf7f0",
-      "ratio": 16.793
+      "ratio": 16.793,
+      "decor": false
     },
     {
       "key": "预设:editorial/vintage-paper/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#8b1a1a",
-      "ratio": 9.29
+      "ratio": 9.29,
+      "decor": false
     },
     {
       "key": "预设:editorial/vintage-paper/dark 正文",
       "fg": "#ebe7e5",
       "bg": "#2c230f",
-      "ratio": 12.621
+      "ratio": 12.621,
+      "decor": false
     },
     {
       "key": "预设:editorial/vintage-paper/dark 按钮文字",
       "fg": "#2d2621",
       "bg": "#e57474",
-      "ratio": 5.02
+      "ratio": 5.02,
+      "decor": false
     },
     {
       "key": "预设:editorial/beacon/light 正文",
       "fg": "#1a1614",
       "bg": "#faf7f0",
-      "ratio": 16.793
+      "ratio": 16.793,
+      "decor": false
     },
     {
       "key": "预设:editorial/beacon/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#8b1a1a",
-      "ratio": 9.29
+      "ratio": 9.29,
+      "decor": false
     },
     {
       "key": "预设:editorial/beacon/dark 正文",
       "fg": "#ebe7e5",
       "bg": "#2c230f",
-      "ratio": 12.621
+      "ratio": 12.621,
+      "decor": false
     },
     {
       "key": "预设:editorial/beacon/dark 按钮文字",
       "fg": "#000000",
       "bg": "#e57474",
-      "ratio": 7.082
+      "ratio": 7.082,
+      "decor": false
     },
     {
       "key": "预设:luxe/zhuoer/light 正文",
       "fg": "#1c1a17",
       "bg": "#f7f4ef",
-      "ratio": 15.826
+      "ratio": 15.826,
+      "decor": false
     },
     {
       "key": "预设:luxe/zhuoer/light 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#a8894a",
-      "ratio": 5.942
+      "ratio": 5.942,
+      "decor": false
     },
     {
       "key": "预设:luxe/zhuoer/dark 正文",
       "fg": "#e8e6e3",
       "bg": "#272014",
-      "ratio": 12.939
+      "ratio": 12.939,
+      "decor": false
     },
     {
       "key": "预设:luxe/zhuoer/dark 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#b59657",
-      "ratio": 6.994
+      "ratio": 6.994,
+      "decor": false
     },
     {
       "key": "预设:luxe/vintage-paper/light 正文",
       "fg": "#1c1a17",
       "bg": "#f7f4ef",
-      "ratio": 15.826
+      "ratio": 15.826,
+      "decor": false
     },
     {
       "key": "预设:luxe/vintage-paper/light 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#a8894a",
-      "ratio": 5.942
+      "ratio": 5.942,
+      "decor": false
     },
     {
       "key": "预设:luxe/vintage-paper/dark 正文",
       "fg": "#e8e6e3",
       "bg": "#272014",
-      "ratio": 12.939
+      "ratio": 12.939,
+      "decor": false
     },
     {
       "key": "预设:luxe/vintage-paper/dark 按钮文字",
       "fg": "#2d2621",
       "bg": "#b59657",
-      "ratio": 5.291
+      "ratio": 5.291,
+      "decor": false
     },
     {
       "key": "预设:luxe/beacon/light 正文",
       "fg": "#1c1a17",
       "bg": "#f7f4ef",
-      "ratio": 15.826
+      "ratio": 15.826,
+      "decor": false
     },
     {
       "key": "预设:luxe/beacon/light 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#a8894a",
-      "ratio": 5.942
+      "ratio": 5.942,
+      "decor": false
     },
     {
       "key": "预设:luxe/beacon/dark 正文",
       "fg": "#e8e6e3",
       "bg": "#272014",
-      "ratio": 12.939
+      "ratio": 12.939,
+      "decor": false
     },
     {
       "key": "预设:luxe/beacon/dark 按钮文字",
       "fg": "#000000",
       "bg": "#b59657",
-      "ratio": 7.465
+      "ratio": 7.465,
+      "decor": false
     },
     {
       "key": "预设:organic/zhuoer/light 正文",
       "fg": "#2a2f24",
       "bg": "#f2efe6",
-      "ratio": 11.934
+      "ratio": 11.934,
+      "decor": false
     },
     {
       "key": "预设:organic/zhuoer/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#5a7247",
-      "ratio": 5.34
+      "ratio": 5.34,
+      "decor": false
     },
     {
       "key": "预设:organic/zhuoer/dark 正文",
       "fg": "#d6dbd0",
       "bg": "#282315",
-      "ratio": 11.109
+      "ratio": 11.109,
+      "decor": false
     },
     {
       "key": "预设:organic/zhuoer/dark 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#a0b88d",
-      "ratio": 9.121
+      "ratio": 9.121,
+      "decor": false
     },
     {
       "key": "预设:organic/vintage-paper/light 正文",
       "fg": "#2a2f24",
       "bg": "#f2efe6",
-      "ratio": 11.934
+      "ratio": 11.934,
+      "decor": false
     },
     {
       "key": "预设:organic/vintage-paper/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#5a7247",
-      "ratio": 5.34
+      "ratio": 5.34,
+      "decor": false
     },
     {
       "key": "预设:organic/vintage-paper/dark 正文",
       "fg": "#d6dbd0",
       "bg": "#282315",
-      "ratio": 11.109
+      "ratio": 11.109,
+      "decor": false
     },
     {
       "key": "预设:organic/vintage-paper/dark 按钮文字",
       "fg": "#2d2621",
       "bg": "#a0b88d",
-      "ratio": 6.901
+      "ratio": 6.901,
+      "decor": false
     },
     {
       "key": "预设:organic/beacon/light 正文",
       "fg": "#2a2f24",
       "bg": "#f2efe6",
-      "ratio": 11.934
+      "ratio": 11.934,
+      "decor": false
     },
     {
       "key": "预设:organic/beacon/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#5a7247",
-      "ratio": 5.34
+      "ratio": 5.34,
+      "decor": false
     },
     {
       "key": "预设:organic/beacon/dark 正文",
       "fg": "#d6dbd0",
       "bg": "#282315",
-      "ratio": 11.109
+      "ratio": 11.109,
+      "decor": false
     },
     {
       "key": "预设:organic/beacon/dark 按钮文字",
       "fg": "#000000",
       "bg": "#a0b88d",
-      "ratio": 9.736
+      "ratio": 9.736,
+      "decor": false
     },
     {
       "key": "预设:morandi/zhuoer/light 正文",
       "fg": "#3a3532",
       "bg": "#eeeae8",
-      "ratio": 10.125
+      "ratio": 10.125,
+      "decor": false
     },
     {
       "key": "预设:morandi/zhuoer/light 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#a67c7c",
-      "ratio": 5.43
+      "ratio": 5.43,
+      "decor": false
     },
     {
       "key": "预设:morandi/zhuoer/dark 正文",
       "fg": "#cdc8c5",
       "bg": "#231d1a",
-      "ratio": 10.034
+      "ratio": 10.034,
+      "decor": false
     },
     {
       "key": "预设:morandi/zhuoer/dark 按钮文字",
       "fg": "#ffffff",
       "bg": "#835959",
-      "ratio": 5.935
+      "ratio": 5.935,
+      "decor": false
     },
     {
       "key": "预设:morandi/vintage-paper/light 正文",
       "fg": "#3a3532",
       "bg": "#eeeae8",
-      "ratio": 10.125
+      "ratio": 10.125,
+      "decor": false
     },
     {
       "key": "预设:morandi/vintage-paper/light 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#a67c7c",
-      "ratio": 5.43
+      "ratio": 5.43,
+      "decor": false
     },
     {
       "key": "预设:morandi/vintage-paper/dark 正文",
       "fg": "#cdc8c5",
       "bg": "#231d1a",
-      "ratio": 10.034
+      "ratio": 10.034,
+      "decor": false
     },
     {
       "key": "预设:morandi/vintage-paper/dark 按钮文字",
       "fg": "#ffffff",
       "bg": "#835959",
-      "ratio": 5.935
+      "ratio": 5.935,
+      "decor": false
     },
     {
       "key": "预设:morandi/beacon/light 正文",
       "fg": "#3a3532",
       "bg": "#eeeae8",
-      "ratio": 10.125
+      "ratio": 10.125,
+      "decor": false
     },
     {
       "key": "预设:morandi/beacon/light 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#a67c7c",
-      "ratio": 5.43
+      "ratio": 5.43,
+      "decor": false
     },
     {
       "key": "预设:morandi/beacon/dark 正文",
       "fg": "#cdc8c5",
       "bg": "#231d1a",
-      "ratio": 10.034
+      "ratio": 10.034,
+      "decor": false
     },
     {
       "key": "预设:morandi/beacon/dark 按钮文字",
       "fg": "#ffffff",
       "bg": "#835959",
-      "ratio": 5.935
+      "ratio": 5.935,
+      "decor": false
     },
     {
       "key": "预设:paper/zhuoer/light 正文",
       "fg": "#22211f",
       "bg": "#f4f3f0",
-      "ratio": 14.498
+      "ratio": 14.498,
+      "decor": false
     },
     {
       "key": "预设:paper/zhuoer/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#4a5568",
-      "ratio": 7.526
+      "ratio": 7.526,
+      "decor": false
     },
     {
       "key": "预设:paper/zhuoer/dark 正文",
       "fg": "#e0dfdd",
       "bg": "#222019",
-      "ratio": 12.236
+      "ratio": 12.236,
+      "decor": false
     },
     {
       "key": "预设:paper/zhuoer/dark 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#97a2b5",
-      "ratio": 7.636
+      "ratio": 7.636,
+      "decor": false
     },
     {
       "key": "预设:paper/vintage-paper/light 正文",
       "fg": "#22211f",
       "bg": "#f4f3f0",
-      "ratio": 14.498
+      "ratio": 14.498,
+      "decor": false
     },
     {
       "key": "预设:paper/vintage-paper/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#4a5568",
-      "ratio": 7.526
+      "ratio": 7.526,
+      "decor": false
     },
     {
       "key": "预设:paper/vintage-paper/dark 正文",
       "fg": "#e0dfdd",
       "bg": "#222019",
-      "ratio": 12.236
+      "ratio": 12.236,
+      "decor": false
     },
     {
       "key": "预设:paper/vintage-paper/dark 按钮文字",
       "fg": "#2d2621",
       "bg": "#97a2b5",
-      "ratio": 5.778
+      "ratio": 5.778,
+      "decor": false
     },
     {
       "key": "预设:paper/beacon/light 正文",
       "fg": "#22211f",
       "bg": "#f4f3f0",
-      "ratio": 14.498
+      "ratio": 14.498,
+      "decor": false
     },
     {
       "key": "预设:paper/beacon/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#4a5568",
-      "ratio": 7.526
+      "ratio": 7.526,
+      "decor": false
     },
     {
       "key": "预设:paper/beacon/dark 正文",
       "fg": "#e0dfdd",
       "bg": "#222019",
-      "ratio": 12.236
+      "ratio": 12.236,
+      "decor": false
     },
     {
       "key": "预设:paper/beacon/dark 按钮文字",
       "fg": "#000000",
       "bg": "#97a2b5",
-      "ratio": 8.151
+      "ratio": 8.151,
+      "decor": false
     },
     {
       "key": "预设:cyber/zhuoer/light 正文",
       "fg": "#0a1a0e",
       "bg": "#f0fff4",
-      "ratio": 17.408
+      "ratio": 17.408,
+      "decor": false
     },
     {
       "key": "预设:cyber/zhuoer/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#00853a",
-      "ratio": 4.755
+      "ratio": 4.755,
+      "decor": false
     },
     {
       "key": "预设:cyber/zhuoer/dark 正文",
       "fg": "#e5f5e9",
       "bg": "#003a0f",
-      "ratio": 11.518
+      "ratio": 11.518,
+      "decor": false
     },
     {
       "key": "预设:cyber/zhuoer/dark 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#7affb4",
-      "ratio": 15.73
+      "ratio": 15.73,
+      "decor": false
     },
     {
       "key": "预设:cyber/vintage-paper/light 正文",
       "fg": "#0a1a0e",
       "bg": "#f0fff4",
-      "ratio": 17.408
+      "ratio": 17.408,
+      "decor": false
     },
     {
       "key": "预设:cyber/vintage-paper/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#00853a",
-      "ratio": 4.755
+      "ratio": 4.755,
+      "decor": false
     },
     {
       "key": "预设:cyber/vintage-paper/dark 正文",
       "fg": "#e5f5e9",
       "bg": "#003a0f",
-      "ratio": 11.518
+      "ratio": 11.518,
+      "decor": false
     },
     {
       "key": "预设:cyber/vintage-paper/dark 按钮文字",
       "fg": "#2d2621",
       "bg": "#7affb4",
-      "ratio": 11.902
+      "ratio": 11.902,
+      "decor": false
     },
     {
       "key": "预设:cyber/beacon/light 正文",
       "fg": "#0a1a0e",
       "bg": "#f0fff4",
-      "ratio": 17.408
+      "ratio": 17.408,
+      "decor": false
     },
     {
       "key": "预设:cyber/beacon/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#00853a",
-      "ratio": 4.755
+      "ratio": 4.755,
+      "decor": false
     },
     {
       "key": "预设:cyber/beacon/dark 正文",
       "fg": "#e5f5e9",
       "bg": "#003a0f",
-      "ratio": 11.518
+      "ratio": 11.518,
+      "decor": false
     },
     {
       "key": "预设:cyber/beacon/dark 按钮文字",
       "fg": "#000000",
       "bg": "#7affb4",
-      "ratio": 16.791
+      "ratio": 16.791,
+      "decor": false
     },
     {
       "key": "预设:aurora/zhuoer/light 正文",
       "fg": "#1b2140",
       "bg": "#f0f2fb",
-      "ratio": 14.048
+      "ratio": 14.048,
+      "decor": false
     },
     {
       "key": "预设:aurora/zhuoer/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#6a4ce0",
-      "ratio": 5.641
+      "ratio": 5.641,
+      "decor": false
     },
     {
       "key": "预设:aurora/zhuoer/dark 正文",
       "fg": "#bfc5e4",
       "bg": "#0c122e",
-      "ratio": 10.794
+      "ratio": 10.794,
+      "decor": false
     },
     {
       "key": "预设:aurora/zhuoer/dark 按钮文字",
       "fg": "#ffffff",
       "bg": "#3d1fb3",
-      "ratio": 10.267
+      "ratio": 10.267,
+      "decor": false
     },
     {
       "key": "预设:aurora/vintage-paper/light 正文",
       "fg": "#1b2140",
       "bg": "#f0f2fb",
-      "ratio": 14.048
+      "ratio": 14.048,
+      "decor": false
     },
     {
       "key": "预设:aurora/vintage-paper/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#6a4ce0",
-      "ratio": 5.641
+      "ratio": 5.641,
+      "decor": false
     },
     {
       "key": "预设:aurora/vintage-paper/dark 正文",
       "fg": "#bfc5e4",
       "bg": "#0c122e",
-      "ratio": 10.794
+      "ratio": 10.794,
+      "decor": false
     },
     {
       "key": "预设:aurora/vintage-paper/dark 按钮文字",
       "fg": "#ffffff",
       "bg": "#3d1fb3",
-      "ratio": 10.267
+      "ratio": 10.267,
+      "decor": false
     },
     {
       "key": "预设:aurora/beacon/light 正文",
       "fg": "#1b2140",
       "bg": "#f0f2fb",
-      "ratio": 14.048
+      "ratio": 14.048,
+      "decor": false
     },
     {
       "key": "预设:aurora/beacon/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#6a4ce0",
-      "ratio": 5.641
+      "ratio": 5.641,
+      "decor": false
     },
     {
       "key": "预设:aurora/beacon/dark 正文",
       "fg": "#bfc5e4",
       "bg": "#0c122e",
-      "ratio": 10.794
+      "ratio": 10.794,
+      "decor": false
     },
     {
       "key": "预设:aurora/beacon/dark 按钮文字",
       "fg": "#ffffff",
       "bg": "#3d1fb3",
-      "ratio": 10.267
+      "ratio": 10.267,
+      "decor": false
     },
     {
       "key": "预设:devterm/zhuoer/light 正文",
       "fg": "#252526",
       "bg": "#f6f6f6",
-      "ratio": 14.17
+      "ratio": 14.17,
+      "decor": false
     },
     {
       "key": "预设:devterm/zhuoer/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#8a5a00",
-      "ratio": 5.927
+      "ratio": 5.927,
+      "decor": false
     },
     {
       "key": "预设:devterm/zhuoer/dark 正文",
       "fg": "#d9d9da",
       "bg": "#1d1d1d",
-      "ratio": 11.951
+      "ratio": 11.951,
+      "decor": false
     },
     {
       "key": "预设:devterm/zhuoer/dark 按钮文字",
       "fg": "#0b0b0c",
       "bg": "#ffcf75",
-      "ratio": 13.522
+      "ratio": 13.522,
+      "decor": false
     },
     {
       "key": "预设:devterm/vintage-paper/light 正文",
       "fg": "#252526",
       "bg": "#f6f6f6",
-      "ratio": 14.17
+      "ratio": 14.17,
+      "decor": false
     },
     {
       "key": "预设:devterm/vintage-paper/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#8a5a00",
-      "ratio": 5.927
+      "ratio": 5.927,
+      "decor": false
     },
     {
       "key": "预设:devterm/vintage-paper/dark 正文",
       "fg": "#d9d9da",
       "bg": "#1d1d1d",
-      "ratio": 11.951
+      "ratio": 11.951,
+      "decor": false
     },
     {
       "key": "预设:devterm/vintage-paper/dark 按钮文字",
       "fg": "#2d2621",
       "bg": "#ffcf75",
-      "ratio": 10.231
+      "ratio": 10.231,
+      "decor": false
     },
     {
       "key": "预设:devterm/beacon/light 正文",
       "fg": "#252526",
       "bg": "#f6f6f6",
-      "ratio": 14.17
+      "ratio": 14.17,
+      "decor": false
     },
     {
       "key": "预设:devterm/beacon/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#8a5a00",
-      "ratio": 5.927
+      "ratio": 5.927,
+      "decor": false
     },
     {
       "key": "预设:devterm/beacon/dark 正文",
       "fg": "#d9d9da",
       "bg": "#1d1d1d",
-      "ratio": 11.951
+      "ratio": 11.951,
+      "decor": false
     },
     {
       "key": "预设:devterm/beacon/dark 按钮文字",
       "fg": "#000000",
       "bg": "#ffcf75",
-      "ratio": 14.434
+      "ratio": 14.434,
+      "decor": false
     },
     {
       "key": "预设:deepspace/zhuoer/light 正文",
       "fg": "#1a1a1e",
       "bg": "#f4f4f6",
-      "ratio": 15.794
+      "ratio": 15.794,
+      "decor": false
     },
     {
       "key": "预设:deepspace/zhuoer/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#2f6ad9",
-      "ratio": 5.019
+      "ratio": 5.019,
+      "decor": false
     },
     {
       "key": "预设:deepspace/zhuoer/dark 正文",
       "fg": "#e1e1e5",
       "bg": "#1a1a20",
-      "ratio": 13.28
+      "ratio": 13.28,
+      "decor": false
     },
     {
       "key": "预设:deepspace/zhuoer/dark 按钮文字",
       "fg": "#ffffff",
       "bg": "#2661d0",
-      "ratio": 5.671
+      "ratio": 5.671,
+      "decor": false
     },
     {
       "key": "预设:deepspace/vintage-paper/light 正文",
       "fg": "#1a1a1e",
       "bg": "#f4f4f6",
-      "ratio": 15.794
+      "ratio": 15.794,
+      "decor": false
     },
     {
       "key": "预设:deepspace/vintage-paper/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#2f6ad9",
-      "ratio": 5.019
+      "ratio": 5.019,
+      "decor": false
     },
     {
       "key": "预设:deepspace/vintage-paper/dark 正文",
       "fg": "#e1e1e5",
       "bg": "#1a1a20",
-      "ratio": 13.28
+      "ratio": 13.28,
+      "decor": false
     },
     {
       "key": "预设:deepspace/vintage-paper/dark 按钮文字",
       "fg": "#ffffff",
       "bg": "#2661d0",
-      "ratio": 5.671
+      "ratio": 5.671,
+      "decor": false
     },
     {
       "key": "预设:deepspace/beacon/light 正文",
       "fg": "#1a1a1e",
       "bg": "#f4f4f6",
-      "ratio": 15.794
+      "ratio": 15.794,
+      "decor": false
     },
     {
       "key": "预设:deepspace/beacon/light 按钮文字",
       "fg": "#ffffff",
       "bg": "#2f6ad9",
-      "ratio": 5.019
+      "ratio": 5.019,
+      "decor": false
     },
     {
       "key": "预设:deepspace/beacon/dark 正文",
       "fg": "#e1e1e5",
       "bg": "#1a1a20",
-      "ratio": 13.28
+      "ratio": 13.28,
+      "decor": false
     },
     {
       "key": "预设:deepspace/beacon/dark 按钮文字",
       "fg": "#ffffff",
       "bg": "#2661d0",
-      "ratio": 5.671
+      "ratio": 5.671,
+      "decor": false
     },
     {
       "key": "pickOnColor(#ffffff)",
       "fg": "#0b0b0c",
       "bg": "#ffffff",
-      "ratio": 19.674
+      "ratio": 19.674,
+      "decor": false
     },
     {
       "key": "pickOnColor(#000000)",
       "fg": "#ffffff",
       "bg": "#000000",
-      "ratio": 21
+      "ratio": 21,
+      "decor": false
     },
     {
       "key": "pickOnColor(#00ff41)",
       "fg": "#0b0b0c",
       "bg": "#00ff41",
-      "ratio": 14.409
+      "ratio": 14.409,
+      "decor": false
     },
     {
       "key": "pickOnColor(#f5f5f5)",
       "fg": "#0b0b0c",
       "bg": "#f5f5f5",
-      "ratio": 18.046
+      "ratio": 18.046,
+      "decor": false
     },
     {
       "key": "pickOnColor(#4a7fd4)",
       "fg": "#0b0b0c",
       "bg": "#4a7fd4",
-      "ratio": 4.944
+      "ratio": 4.944,
+      "decor": false
     },
     {
       "key": "pickOnColor(#a8894a)",
       "fg": "#0b0b0c",
       "bg": "#a8894a",
-      "ratio": 5.942
+      "ratio": 5.942,
+      "decor": false
     },
     {
       "key": "pickOnColor(#e30613)",
       "fg": "#ffffff",
       "bg": "#e30613",
-      "ratio": 4.882
+      "ratio": 4.882,
+      "decor": false
     },
     {
       "key": "zhuoer/light panel title@settings-card-fill",
       "fg": "#403c35",
       "bg": "#f0ede8",
-      "ratio": 9.387
+      "ratio": 9.387,
+      "decor": false
     },
     {
       "key": "zhuoer/light panel label@settings-card-fill",
       "fg": "#6e6960",
       "bg": "#f0ede8",
-      "ratio": 4.668
+      "ratio": 4.668,
+      "decor": false
     },
     {
       "key": "zhuoer/light panel title@button-elevated-fill",
       "fg": "#403c35",
       "bg": "#f0ede8",
-      "ratio": 9.387
+      "ratio": 9.387,
+      "decor": false
     },
     {
       "key": "zhuoer/light panel label@button-elevated-fill",
       "fg": "#6e6960",
       "bg": "#f0ede8",
-      "ratio": 4.668
+      "ratio": 4.668,
+      "decor": false
     },
     {
       "key": "zhuoer/light panel label@bg-base",
       "fg": "#6e6960",
       "bg": "#f4f1ec",
-      "ratio": 4.838
+      "ratio": 4.838,
+      "decor": false
     },
     {
       "key": "zhuoer/light panel pill-on",
       "fg": "#ffffff",
       "bg": "#bd4531",
-      "ratio": 5.173
+      "ratio": 5.173,
+      "decor": false
     },
     {
       "key": "zhuoer/light panel danger-armed",
       "fg": "#403c35",
       "bg": "#f2ddd8",
-      "ratio": 8.409
+      "ratio": 8.409,
+      "decor": false
+    },
+    {
+      "key": "zhuoer/light sharp-underline(60%)",
+      "fg": "#bd4531@60%",
+      "bg": "#f0ede8",
+      "ratio": 1.868,
+      "decor": true
     },
     {
       "key": "zhuoer/dark panel title@settings-card-fill",
       "fg": "#bcbcc0",
       "bg": "#13151a",
-      "ratio": 9.647
+      "ratio": 9.647,
+      "decor": false
     },
     {
       "key": "zhuoer/dark panel label@settings-card-fill",
       "fg": "#8b8b94",
       "bg": "#13151a",
-      "ratio": 5.408
+      "ratio": 5.408,
+      "decor": false
     },
     {
       "key": "zhuoer/dark panel title@button-elevated-fill",
       "fg": "#bcbcc0",
       "bg": "#17191e",
-      "ratio": 9.289
+      "ratio": 9.289,
+      "decor": false
     },
     {
       "key": "zhuoer/dark panel label@button-elevated-fill",
       "fg": "#8b8b94",
       "bg": "#17191e",
-      "ratio": 5.207
+      "ratio": 5.207,
+      "decor": false
     },
     {
       "key": "zhuoer/dark panel label@bg-base",
       "fg": "#8b8b94",
       "bg": "#0e1015",
-      "ratio": 5.635
+      "ratio": 5.635,
+      "decor": false
     },
     {
       "key": "zhuoer/dark panel pill-on",
       "fg": "#ffffff",
       "bg": "#d13c3c",
-      "ratio": 4.748
+      "ratio": 4.748,
+      "decor": false
     },
     {
       "key": "zhuoer/dark panel danger-armed",
       "fg": "#bcbcc0",
       "bg": "#2e171c",
-      "ratio": 8.835
+      "ratio": 8.835,
+      "decor": false
+    },
+    {
+      "key": "zhuoer/dark sharp-underline(60%)",
+      "fg": "#d13c3c@60%",
+      "bg": "#13151a",
+      "ratio": 2.708,
+      "decor": true
     },
     {
       "key": "absolutely/light panel title@settings-card-fill",
       "fg": "#353531",
       "bg": "#f3f2f1",
-      "ratio": 11.016
+      "ratio": 11.016,
+      "decor": false
     },
     {
       "key": "absolutely/light panel label@settings-card-fill",
       "fg": "#5e5e58",
       "bg": "#f3f2f1",
-      "ratio": 5.837
+      "ratio": 5.837,
+      "decor": false
     },
     {
       "key": "absolutely/light panel title@button-elevated-fill",
       "fg": "#353531",
       "bg": "#f3f2f1",
-      "ratio": 11.016
+      "ratio": 11.016,
+      "decor": false
     },
     {
       "key": "absolutely/light panel label@button-elevated-fill",
       "fg": "#5e5e58",
       "bg": "#f3f2f1",
-      "ratio": 5.837
+      "ratio": 5.837,
+      "decor": false
     },
     {
       "key": "absolutely/light panel label@bg-base",
       "fg": "#5e5e58",
       "bg": "#f7f6f5",
-      "ratio": 6.046
+      "ratio": 6.046,
+      "decor": false
     },
     {
       "key": "absolutely/light panel pill-on",
       "fg": "#ffffff",
       "bg": "#a5654b",
-      "ratio": 4.602
+      "ratio": 4.602,
+      "decor": false
     },
     {
       "key": "absolutely/light panel danger-armed",
       "fg": "#353531",
       "bg": "#f4e1e0",
-      "ratio": 9.791
+      "ratio": 9.791,
+      "decor": false
+    },
+    {
+      "key": "absolutely/light sharp-underline(60%)",
+      "fg": "#a5654b@60%",
+      "bg": "#f3f2f1",
+      "ratio": 1.832,
+      "decor": true
     },
     {
       "key": "absolutely/dark panel title@settings-card-fill",
       "fg": "#ddddd7",
       "bg": "#212120",
-      "ratio": 11.817
+      "ratio": 11.817,
+      "decor": false
     },
     {
       "key": "absolutely/dark panel label@settings-card-fill",
       "fg": "#a09f98",
       "bg": "#212120",
-      "ratio": 6.068
+      "ratio": 6.068,
+      "decor": false
     },
     {
       "key": "absolutely/dark panel title@button-elevated-fill",
       "fg": "#ddddd7",
       "bg": "#252523",
-      "ratio": 11.26
+      "ratio": 11.26,
+      "decor": false
     },
     {
       "key": "absolutely/dark panel label@button-elevated-fill",
       "fg": "#a09f98",
       "bg": "#252523",
-      "ratio": 5.782
+      "ratio": 5.782,
+      "decor": false
     },
     {
       "key": "absolutely/dark panel label@bg-base",
       "fg": "#a09f98",
       "bg": "#1b1b1a",
-      "ratio": 6.491
+      "ratio": 6.491,
+      "decor": false
     },
     {
       "key": "absolutely/dark panel pill-on",
       "fg": "#241f1b",
       "bg": "#d97757",
-      "ratio": 5.227
+      "ratio": 5.227,
+      "decor": false
     },
     {
       "key": "absolutely/dark panel danger-armed",
       "fg": "#ddddd7",
       "bg": "#351e1d",
-      "ratio": 11.365
+      "ratio": 11.365,
+      "decor": false
+    },
+    {
+      "key": "absolutely/dark sharp-underline(60%)",
+      "fg": "#d97757@60%",
+      "bg": "#212120",
+      "ratio": 3.497,
+      "decor": true
     },
     {
       "key": "beacon/light panel title@settings-card-fill",
       "fg": "#000000",
       "bg": "#f3f3f3",
-      "ratio": 18.925
+      "ratio": 18.925,
+      "decor": false
     },
     {
       "key": "beacon/light panel label@settings-card-fill",
       "fg": "#3a3a3a",
       "bg": "#f3f3f3",
-      "ratio": 10.251
+      "ratio": 10.251,
+      "decor": false
     },
     {
       "key": "beacon/light panel title@button-elevated-fill",
       "fg": "#000000",
       "bg": "#f3f3f3",
-      "ratio": 18.925
+      "ratio": 18.925,
+      "decor": false
     },
     {
       "key": "beacon/light panel label@button-elevated-fill",
       "fg": "#3a3a3a",
       "bg": "#f3f3f3",
-      "ratio": 10.251
+      "ratio": 10.251,
+      "decor": false
     },
     {
       "key": "beacon/light panel label@bg-base",
       "fg": "#3a3a3a",
       "bg": "#f8f8f8",
-      "ratio": 10.71
+      "ratio": 10.71,
+      "decor": false
     },
     {
       "key": "beacon/light panel pill-on",
       "fg": "#ffffff",
       "bg": "#6e4a00",
-      "ratio": 7.947
+      "ratio": 7.947,
+      "decor": false
     },
     {
       "key": "beacon/light panel danger-armed",
       "fg": "#000000",
       "bg": "#ede1e1",
-      "ratio": 16.458
+      "ratio": 16.458,
+      "decor": false
+    },
+    {
+      "key": "beacon/light sharp-underline(60%)",
+      "fg": "#6e4a00@60%",
+      "bg": "#f3f3f3",
+      "ratio": 2.067,
+      "decor": true
     },
     {
       "key": "beacon/dark panel title@settings-card-fill",
       "fg": "#ffffff",
       "bg": "#080808",
-      "ratio": 20.027
+      "ratio": 20.027,
+      "decor": false
     },
     {
       "key": "beacon/dark panel label@settings-card-fill",
       "fg": "#c9c9c9",
       "bg": "#080808",
-      "ratio": 12.094
+      "ratio": 12.094,
+      "decor": false
     },
     {
       "key": "beacon/dark panel title@button-elevated-fill",
       "fg": "#ffffff",
       "bg": "#0d0d0d",
-      "ratio": 19.436
+      "ratio": 19.436,
+      "decor": false
     },
     {
       "key": "beacon/dark panel label@button-elevated-fill",
       "fg": "#c9c9c9",
       "bg": "#0d0d0d",
-      "ratio": 11.737
+      "ratio": 11.737,
+      "decor": false
     },
     {
       "key": "beacon/dark panel label@bg-base",
       "fg": "#c9c9c9",
       "bg": "#000000",
-      "ratio": 12.682
+      "ratio": 12.682,
+      "decor": false
     },
     {
       "key": "beacon/dark panel pill-on",
       "fg": "#000000",
       "bg": "#ffc233",
-      "ratio": 13.017
+      "ratio": 13.017,
+      "decor": false
     },
     {
       "key": "beacon/dark panel danger-armed",
       "fg": "#ffffff",
       "bg": "#241818",
-      "ratio": 17.229
+      "ratio": 17.229,
+      "decor": false
+    },
+    {
+      "key": "beacon/dark sharp-underline(60%)",
+      "fg": "#ffc233@60%",
+      "bg": "#080808",
+      "ratio": 7.848,
+      "decor": true
     },
     {
       "key": "crt/light panel title@settings-card-fill",
       "fg": "#373737",
       "bg": "#f0f0f0",
-      "ratio": 10.446
+      "ratio": 10.446,
+      "decor": false
     },
     {
       "key": "crt/light panel label@settings-card-fill",
       "fg": "#5f5f5f",
       "bg": "#f0f0f0",
-      "ratio": 5.603
+      "ratio": 5.603,
+      "decor": false
     },
     {
       "key": "crt/light panel title@button-elevated-fill",
       "fg": "#373737",
       "bg": "#f0f0f0",
-      "ratio": 10.446
+      "ratio": 10.446,
+      "decor": false
     },
     {
       "key": "crt/light panel label@button-elevated-fill",
       "fg": "#5f5f5f",
       "bg": "#f0f0f0",
-      "ratio": 5.603
+      "ratio": 5.603,
+      "decor": false
     },
     {
       "key": "crt/light panel label@bg-base",
       "fg": "#5f5f5f",
       "bg": "#f4f4f4",
-      "ratio": 5.806
+      "ratio": 5.806,
+      "decor": false
     },
     {
       "key": "crt/light panel pill-on",
       "fg": "#ffffff",
       "bg": "#1f1f1f",
-      "ratio": 16.483
+      "ratio": 16.483,
+      "decor": false
     },
     {
       "key": "crt/light panel danger-armed",
       "fg": "#373737",
       "bg": "#f2dfdf",
-      "ratio": 9.294
+      "ratio": 9.294,
+      "decor": false
+    },
+    {
+      "key": "crt/light sharp-underline(60%)",
+      "fg": "#1f1f1f@60%",
+      "bg": "#f0f0f0",
+      "ratio": 2.265,
+      "decor": true
     },
     {
       "key": "crt/dark panel title@settings-card-fill",
       "fg": "#c6c6c6",
       "bg": "#0f100f",
-      "ratio": 11.163
+      "ratio": 11.163,
+      "decor": false
     },
     {
       "key": "crt/dark panel label@settings-card-fill",
       "fg": "#999999",
       "bg": "#0f100f",
-      "ratio": 6.693
+      "ratio": 6.693,
+      "decor": false
     },
     {
       "key": "crt/dark panel title@button-elevated-fill",
       "fg": "#c6c6c6",
       "bg": "#121312",
-      "ratio": 10.903
+      "ratio": 10.903,
+      "decor": false
     },
     {
       "key": "crt/dark panel label@button-elevated-fill",
       "fg": "#999999",
       "bg": "#121312",
-      "ratio": 6.537
+      "ratio": 6.537,
+      "decor": false
     },
     {
       "key": "crt/dark panel label@bg-base",
       "fg": "#999999",
       "bg": "#090a09",
-      "ratio": 6.96
+      "ratio": 6.96,
+      "decor": false
     },
     {
       "key": "crt/dark panel pill-on",
       "fg": "#111111",
       "bg": "#e8e8e8",
-      "ratio": 15.411
+      "ratio": 15.411,
+      "decor": false
     },
     {
       "key": "crt/dark panel danger-armed",
       "fg": "#c6c6c6",
       "bg": "#25100e",
-      "ratio": 10.607
+      "ratio": 10.607,
+      "decor": false
+    },
+    {
+      "key": "crt/dark sharp-underline(60%)",
+      "fg": "#e8e8e8@60%",
+      "bg": "#0f100f",
+      "ratio": 9.737,
+      "decor": true
     },
     {
       "key": "dash/light panel title@settings-card-fill",
       "fg": "#4a3828",
       "bg": "#e8e2dc",
-      "ratio": 8.659
+      "ratio": 8.659,
+      "decor": false
     },
     {
       "key": "dash/light panel label@settings-card-fill",
       "fg": "#725d4d",
       "bg": "#e8e2dc",
-      "ratio": 4.823
+      "ratio": 4.823,
+      "decor": false
     },
     {
       "key": "dash/light panel title@button-elevated-fill",
       "fg": "#4a3828",
       "bg": "#e8e2dc",
-      "ratio": 8.659
+      "ratio": 8.659,
+      "decor": false
     },
     {
       "key": "dash/light panel label@button-elevated-fill",
       "fg": "#725d4d",
       "bg": "#e8e2dc",
-      "ratio": 4.823
+      "ratio": 4.823,
+      "decor": false
     },
     {
       "key": "dash/light panel label@bg-base",
       "fg": "#725d4d",
       "bg": "#ebe5e0",
-      "ratio": 4.963
+      "ratio": 4.963,
+      "decor": false
     },
     {
       "key": "dash/light panel pill-on",
       "fg": "#ffffff",
       "bg": "#8a512c",
-      "ratio": 6.375
+      "ratio": 6.375,
+      "decor": false
     },
     {
       "key": "dash/light panel danger-armed",
       "fg": "#4a3828",
       "bg": "#ead2cd",
-      "ratio": 7.734
+      "ratio": 7.734,
+      "decor": false
+    },
+    {
+      "key": "dash/light sharp-underline(60%)",
+      "fg": "#8a512c@60%",
+      "bg": "#e8e2dc",
+      "ratio": 1.92,
+      "decor": true
     },
     {
       "key": "dash/dark panel title@settings-card-fill",
       "fg": "#d8c8b8",
       "bg": "#201715",
-      "ratio": 10.775
+      "ratio": 10.775,
+      "decor": false
     },
     {
       "key": "dash/dark panel label@settings-card-fill",
       "fg": "#a39182",
       "bg": "#201715",
-      "ratio": 5.8
+      "ratio": 5.8,
+      "decor": false
     },
     {
       "key": "dash/dark panel title@button-elevated-fill",
       "fg": "#d8c8b8",
       "bg": "#241b18",
-      "ratio": 10.34
+      "ratio": 10.34,
+      "decor": false
     },
     {
       "key": "dash/dark panel label@button-elevated-fill",
       "fg": "#a39182",
       "bg": "#241b18",
-      "ratio": 5.566
+      "ratio": 5.566,
+      "decor": false
     },
     {
       "key": "dash/dark panel label@bg-base",
       "fg": "#a39182",
       "bg": "#1a1210",
-      "ratio": 6.09
+      "ratio": 6.09,
+      "decor": false
     },
     {
       "key": "dash/dark panel pill-on",
       "fg": "#1a1210",
       "bg": "#cf8b4d",
-      "ratio": 6.55
+      "ratio": 6.55,
+      "decor": false
     },
     {
       "key": "dash/dark panel danger-armed",
       "fg": "#d8c8b8",
       "bg": "#341614",
-      "ratio": 10.13
+      "ratio": 10.13,
+      "decor": false
+    },
+    {
+      "key": "dash/dark sharp-underline(60%)",
+      "fg": "#cf8b4d@60%",
+      "bg": "#201715",
+      "ratio": 4.143,
+      "decor": true
     },
     {
       "key": "knot/light panel title@settings-card-fill",
       "fg": "#3a3a42",
       "bg": "#f0f0f3",
-      "ratio": 9.906
+      "ratio": 9.906,
+      "decor": false
     },
     {
       "key": "knot/light panel label@settings-card-fill",
       "fg": "#68676f",
       "bg": "#f0f0f3",
-      "ratio": 4.913
+      "ratio": 4.913,
+      "decor": false
     },
     {
       "key": "knot/light panel title@button-elevated-fill",
       "fg": "#3a3a42",
       "bg": "#f0f0f3",
-      "ratio": 9.906
+      "ratio": 9.906,
+      "decor": false
     },
     {
       "key": "knot/light panel label@button-elevated-fill",
       "fg": "#68676f",
       "bg": "#f0f0f3",
-      "ratio": 4.913
+      "ratio": 4.913,
+      "decor": false
     },
     {
       "key": "knot/light panel label@bg-base",
       "fg": "#68676f",
       "bg": "#f4f4f7",
-      "ratio": 5.09
+      "ratio": 5.09,
+      "decor": false
     },
     {
       "key": "knot/light panel pill-on",
       "fg": "#ffffff",
       "bg": "#c41e30",
-      "ratio": 5.873
+      "ratio": 5.873,
+      "decor": false
     },
     {
       "key": "knot/light panel danger-armed",
       "fg": "#3a3a42",
       "bg": "#f2dfe2",
-      "ratio": 8.815
+      "ratio": 8.815,
+      "decor": false
+    },
+    {
+      "key": "knot/light sharp-underline(60%)",
+      "fg": "#c41e30@60%",
+      "bg": "#f0f0f3",
+      "ratio": 1.937,
+      "decor": true
     },
     {
       "key": "knot/dark panel title@settings-card-fill",
       "fg": "#c6c6cb",
       "bg": "#0e0e0e",
-      "ratio": 11.345
+      "ratio": 11.345,
+      "decor": false
     },
     {
       "key": "knot/dark panel label@settings-card-fill",
       "fg": "#8a8a94",
       "bg": "#0e0e0e",
-      "ratio": 5.648
+      "ratio": 5.648,
+      "decor": false
     },
     {
       "key": "knot/dark panel title@button-elevated-fill",
       "fg": "#c6c6cb",
       "bg": "#121212",
-      "ratio": 11.009
+      "ratio": 11.009,
+      "decor": false
     },
     {
       "key": "knot/dark panel label@button-elevated-fill",
       "fg": "#8a8a94",
       "bg": "#121212",
-      "ratio": 5.481
+      "ratio": 5.481,
+      "decor": false
     },
     {
       "key": "knot/dark panel label@bg-base",
       "fg": "#8a8a94",
       "bg": "#080808",
-      "ratio": 5.859
+      "ratio": 5.859,
+      "decor": false
     },
     {
       "key": "knot/dark panel pill-on",
       "fg": "#fafafa",
       "bg": "#d92a3f",
-      "ratio": 4.622
+      "ratio": 4.622,
+      "decor": false
     },
     {
       "key": "knot/dark panel danger-armed",
       "fg": "#c6c6cb",
       "bg": "#240d0d",
-      "ratio": 10.841
+      "ratio": 10.841,
+      "decor": false
+    },
+    {
+      "key": "knot/dark sharp-underline(60%)",
+      "fg": "#d92a3f@60%",
+      "bg": "#0e0e0e",
+      "ratio": 2.801,
+      "decor": true
     },
     {
       "key": "manuscript/light panel title@settings-card-fill",
       "fg": "#322d22",
       "bg": "#edece6",
-      "ratio": 11.565
+      "ratio": 11.565,
+      "decor": false
     },
     {
       "key": "manuscript/light panel label@settings-card-fill",
       "fg": "#6a604e",
       "bg": "#edece6",
-      "ratio": 5.224
+      "ratio": 5.224,
+      "decor": false
     },
     {
       "key": "manuscript/light panel title@button-elevated-fill",
       "fg": "#322d22",
       "bg": "#edece6",
-      "ratio": 11.565
+      "ratio": 11.565,
+      "decor": false
     },
     {
       "key": "manuscript/light panel label@button-elevated-fill",
       "fg": "#6a604e",
       "bg": "#edece6",
-      "ratio": 5.224
+      "ratio": 5.224,
+      "decor": false
     },
     {
       "key": "manuscript/light panel label@bg-base",
       "fg": "#6a604e",
       "bg": "#f1f0ea",
-      "ratio": 5.416
+      "ratio": 5.416,
+      "decor": false
     },
     {
       "key": "manuscript/light panel pill-on",
       "fg": "#ffffff",
       "bg": "#31549b",
-      "ratio": 7.312
+      "ratio": 7.312,
+      "decor": false
     },
     {
       "key": "manuscript/light panel danger-armed",
       "fg": "#322d22",
       "bg": "#ecddd6",
-      "ratio": 10.352
+      "ratio": 10.352,
+      "decor": false
+    },
+    {
+      "key": "manuscript/light sharp-underline(60%)",
+      "fg": "#31549b@60%",
+      "bg": "#edece6",
+      "ratio": 2.012,
+      "decor": true
     },
     {
       "key": "manuscript/dark panel title@settings-card-fill",
       "fg": "#d8d0bc",
       "bg": "#26231d",
-      "ratio": 10.196
+      "ratio": 10.196,
+      "decor": false
     },
     {
       "key": "manuscript/dark panel label@settings-card-fill",
       "fg": "#ab9f84",
       "bg": "#26231d",
-      "ratio": 5.986
+      "ratio": 5.986,
+      "decor": false
     },
     {
       "key": "manuscript/dark panel title@button-elevated-fill",
       "fg": "#d8d0bc",
       "bg": "#2a2720",
-      "ratio": 9.697
+      "ratio": 9.697,
+      "decor": false
     },
     {
       "key": "manuscript/dark panel label@button-elevated-fill",
       "fg": "#ab9f84",
       "bg": "#2a2720",
-      "ratio": 5.693
+      "ratio": 5.693,
+      "decor": false
     },
     {
       "key": "manuscript/dark panel label@bg-base",
       "fg": "#ab9f84",
       "bg": "#211e18",
-      "ratio": 6.35
+      "ratio": 6.35,
+      "decor": false
     },
     {
       "key": "manuscript/dark panel pill-on",
       "fg": "#101c33",
       "bg": "#8fa8e0",
-      "ratio": 7.157
+      "ratio": 7.157,
+      "decor": false
     },
     {
       "key": "manuscript/dark panel danger-armed",
       "fg": "#d8d0bc",
       "bg": "#39221b",
-      "ratio": 9.635
+      "ratio": 9.635,
+      "decor": false
+    },
+    {
+      "key": "manuscript/dark sharp-underline(60%)",
+      "fg": "#8fa8e0@60%",
+      "bg": "#26231d",
+      "ratio": 4.359,
+      "decor": true
     },
     {
       "key": "miami/light panel title@settings-card-fill",
       "fg": "#3c3244",
       "bg": "#f2eef1",
-      "ratio": 10.553
+      "ratio": 10.553,
+      "decor": false
     },
     {
       "key": "miami/light panel label@settings-card-fill",
       "fg": "#6b5f74",
       "bg": "#f2eef1",
-      "ratio": 5.2
+      "ratio": 5.2,
+      "decor": false
     },
     {
       "key": "miami/light panel title@button-elevated-fill",
       "fg": "#3c3244",
       "bg": "#f2eef1",
-      "ratio": 10.553
+      "ratio": 10.553,
+      "decor": false
     },
     {
       "key": "miami/light panel label@button-elevated-fill",
       "fg": "#6b5f74",
       "bg": "#f2eef1",
-      "ratio": 5.2
+      "ratio": 5.2,
+      "decor": false
     },
     {
       "key": "miami/light panel label@bg-base",
       "fg": "#6b5f74",
       "bg": "#f6f2f5",
-      "ratio": 5.389
+      "ratio": 5.389,
+      "decor": false
     },
     {
       "key": "miami/light panel pill-on",
       "fg": "#ffffff",
       "bg": "#b0246f",
-      "ratio": 6.31
+      "ratio": 6.31,
+      "decor": false
     },
     {
       "key": "miami/light panel danger-armed",
       "fg": "#3c3244",
       "bg": "#f1dfe4",
-      "ratio": 9.479
+      "ratio": 9.479,
+      "decor": false
+    },
+    {
+      "key": "miami/light sharp-underline(60%)",
+      "fg": "#b0246f@60%",
+      "bg": "#f2eef1",
+      "ratio": 1.964,
+      "decor": true
     },
     {
       "key": "miami/dark panel title@settings-card-fill",
       "fg": "#cfc7e8",
       "bg": "#1a1524",
-      "ratio": 11.038
+      "ratio": 11.038,
+      "decor": false
     },
     {
       "key": "miami/dark panel label@settings-card-fill",
       "fg": "#968bbd",
       "bg": "#1a1524",
-      "ratio": 5.715
+      "ratio": 5.715,
+      "decor": false
     },
     {
       "key": "miami/dark panel title@button-elevated-fill",
       "fg": "#cfc7e8",
       "bg": "#1d1828",
-      "ratio": 10.702
+      "ratio": 10.702,
+      "decor": false
     },
     {
       "key": "miami/dark panel label@button-elevated-fill",
       "fg": "#968bbd",
       "bg": "#1d1828",
-      "ratio": 5.541
+      "ratio": 5.541,
+      "decor": false
     },
     {
       "key": "miami/dark panel label@bg-base",
       "fg": "#968bbd",
       "bg": "#140f1e",
-      "ratio": 6.021
+      "ratio": 6.021,
+      "decor": false
     },
     {
       "key": "miami/dark panel pill-on",
       "fg": "#3c0a24",
       "bg": "#f472b6",
-      "ratio": 6.288
+      "ratio": 6.288,
+      "decor": false
     },
     {
       "key": "miami/dark panel danger-armed",
       "fg": "#cfc7e8",
       "bg": "#331a2b",
-      "ratio": 9.814
+      "ratio": 9.814,
+      "decor": false
+    },
+    {
+      "key": "miami/dark sharp-underline(60%)",
+      "fg": "#f472b6@60%",
+      "bg": "#1a1524",
+      "ratio": 4.443,
+      "decor": true
     },
     {
       "key": "phosphor/light panel title@settings-card-fill",
       "fg": "#2a352b",
       "bg": "#edf0ed",
-      "ratio": 11.134
+      "ratio": 11.134,
+      "decor": false
     },
     {
       "key": "phosphor/light panel label@settings-card-fill",
       "fg": "#566b58",
       "bg": "#edf0ed",
-      "ratio": 5.025
+      "ratio": 5.025,
+      "decor": false
     },
     {
       "key": "phosphor/light panel title@button-elevated-fill",
       "fg": "#2a352b",
       "bg": "#edf0ed",
-      "ratio": 11.134
+      "ratio": 11.134,
+      "decor": false
     },
     {
       "key": "phosphor/light panel label@button-elevated-fill",
       "fg": "#566b58",
       "bg": "#edf0ed",
-      "ratio": 5.025
+      "ratio": 5.025,
+      "decor": false
     },
     {
       "key": "phosphor/light panel label@bg-base",
       "fg": "#566b58",
       "bg": "#f1f4f1",
-      "ratio": 5.207
+      "ratio": 5.207,
+      "decor": false
     },
     {
       "key": "phosphor/light panel pill-on",
       "fg": "#ffffff",
       "bg": "#10693a",
-      "ratio": 6.766
+      "ratio": 6.766,
+      "decor": false
     },
     {
       "key": "phosphor/light panel danger-armed",
       "fg": "#2a352b",
       "bg": "#efdfdd",
-      "ratio": 9.905
+      "ratio": 9.905,
+      "decor": false
+    },
+    {
+      "key": "phosphor/light sharp-underline(60%)",
+      "fg": "#10693a@60%",
+      "bg": "#edf0ed",
+      "ratio": 1.993,
+      "decor": true
     },
     {
       "key": "phosphor/dark panel title@settings-card-fill",
       "fg": "#cfe0cf",
       "bg": "#101510",
-      "ratio": 13.385
+      "ratio": 13.385,
+      "decor": false
     },
     {
       "key": "phosphor/dark panel label@settings-card-fill",
       "fg": "#93ac95",
       "bg": "#101510",
-      "ratio": 7.544
+      "ratio": 7.544,
+      "decor": false
     },
     {
       "key": "phosphor/dark panel title@button-elevated-fill",
       "fg": "#cfe0cf",
       "bg": "#141914",
-      "ratio": 12.907
+      "ratio": 12.907,
+      "decor": false
     },
     {
       "key": "phosphor/dark panel label@button-elevated-fill",
       "fg": "#93ac95",
       "bg": "#141914",
-      "ratio": 7.274
+      "ratio": 7.274,
+      "decor": false
     },
     {
       "key": "phosphor/dark panel label@bg-base",
       "fg": "#93ac95",
       "bg": "#0a0f0a",
-      "ratio": 7.899
+      "ratio": 7.899,
+      "decor": false
     },
     {
       "key": "phosphor/dark panel pill-on",
       "fg": "#07120a",
       "bg": "#4ade80",
-      "ratio": 10.956
+      "ratio": 10.956,
+      "decor": false
     },
     {
       "key": "phosphor/dark panel danger-armed",
       "fg": "#cfe0cf",
       "bg": "#26130f",
-      "ratio": 12.868
+      "ratio": 12.868,
+      "decor": false
+    },
+    {
+      "key": "phosphor/dark sharp-underline(60%)",
+      "fg": "#4ade80@60%",
+      "bg": "#101510",
+      "ratio": 6.761,
+      "decor": true
     },
     {
       "key": "rose/light panel title@settings-card-fill",
       "fg": "#3e3857",
       "bg": "#edeae7",
-      "ratio": 9.184
+      "ratio": 9.184,
+      "decor": false
     },
     {
       "key": "rose/light panel label@settings-card-fill",
       "fg": "#665d87",
       "bg": "#edeae7",
-      "ratio": 5.035
+      "ratio": 5.035,
+      "decor": false
     },
     {
       "key": "rose/light panel title@button-elevated-fill",
       "fg": "#3e3857",
       "bg": "#edeae7",
-      "ratio": 9.184
+      "ratio": 9.184,
+      "decor": false
     },
     {
       "key": "rose/light panel label@button-elevated-fill",
       "fg": "#665d87",
       "bg": "#edeae7",
-      "ratio": 5.035
+      "ratio": 5.035,
+      "decor": false
     },
     {
       "key": "rose/light panel label@bg-base",
       "fg": "#665d87",
       "bg": "#f1eeea",
-      "ratio": 5.217
+      "ratio": 5.217,
+      "decor": false
     },
     {
       "key": "rose/light panel pill-on",
       "fg": "#ffffff",
       "bg": "#9c4f66",
-      "ratio": 5.639
+      "ratio": 5.639,
+      "decor": false
     },
     {
       "key": "rose/light panel danger-armed",
       "fg": "#3e3857",
       "bg": "#eadcdb",
-      "ratio": 8.259
+      "ratio": 8.259,
+      "decor": false
+    },
+    {
+      "key": "rose/light sharp-underline(60%)",
+      "fg": "#9c4f66@60%",
+      "bg": "#edeae7",
+      "ratio": 1.896,
+      "decor": true
     },
     {
       "key": "rose/dark panel title@settings-card-fill",
       "fg": "#d5d2eb",
       "bg": "#1f1d2a",
-      "ratio": 11.241
+      "ratio": 11.241,
+      "decor": false
     },
     {
       "key": "rose/dark panel label@settings-card-fill",
       "fg": "#9b97b4",
       "bg": "#1f1d2a",
-      "ratio": 5.901
+      "ratio": 5.901,
+      "decor": false
     },
     {
       "key": "rose/dark panel title@button-elevated-fill",
       "fg": "#d5d2eb",
       "bg": "#22202e",
-      "ratio": 10.842
+      "ratio": 10.842,
+      "decor": false
     },
     {
       "key": "rose/dark panel label@button-elevated-fill",
       "fg": "#9b97b4",
       "bg": "#22202e",
-      "ratio": 5.692
+      "ratio": 5.692,
+      "decor": false
     },
     {
       "key": "rose/dark panel label@bg-base",
       "fg": "#9b97b4",
       "bg": "#191724",
-      "ratio": 6.289
+      "ratio": 6.289,
+      "decor": false
     },
     {
       "key": "rose/dark panel pill-on",
       "fg": "#3f2224",
       "bg": "#ebbcba",
-      "ratio": 8.484
+      "ratio": 8.484,
+      "decor": false
     },
     {
       "key": "rose/dark panel danger-armed",
       "fg": "#d5d2eb",
       "bg": "#362333",
-      "ratio": 9.859
+      "ratio": 9.859,
+      "decor": false
+    },
+    {
+      "key": "rose/dark sharp-underline(60%)",
+      "fg": "#ebbcba@60%",
+      "bg": "#1f1d2a",
+      "ratio": 6.287,
+      "decor": true
     },
     {
       "key": "tide/light panel title@settings-card-fill",
       "fg": "#333c45",
       "bg": "#edeff1",
-      "ratio": 9.726
+      "ratio": 9.726,
+      "decor": false
     },
     {
       "key": "tide/light panel label@settings-card-fill",
       "fg": "#5f6b76",
       "bg": "#edeff1",
-      "ratio": 4.73
+      "ratio": 4.73,
+      "decor": false
     },
     {
       "key": "tide/light panel title@button-elevated-fill",
       "fg": "#333c45",
       "bg": "#edeff1",
-      "ratio": 9.726
+      "ratio": 9.726,
+      "decor": false
     },
     {
       "key": "tide/light panel label@button-elevated-fill",
       "fg": "#5f6b76",
       "bg": "#edeff1",
-      "ratio": 4.73
+      "ratio": 4.73,
+      "decor": false
     },
     {
       "key": "tide/light panel label@bg-base",
       "fg": "#5f6b76",
       "bg": "#f1f3f5",
-      "ratio": 4.902
+      "ratio": 4.902,
+      "decor": false
     },
     {
       "key": "tide/light panel pill-on",
       "fg": "#ffffff",
       "bg": "#1f6f8f",
-      "ratio": 5.632
+      "ratio": 5.632,
+      "decor": false
     },
     {
       "key": "tide/light panel danger-armed",
       "fg": "#333c45",
       "bg": "#efdfe0",
-      "ratio": 8.703
+      "ratio": 8.703,
+      "decor": false
+    },
+    {
+      "key": "tide/light sharp-underline(60%)",
+      "fg": "#1f6f8f@60%",
+      "bg": "#edeff1",
+      "ratio": 1.913,
+      "decor": true
     },
     {
       "key": "tide/dark panel title@settings-card-fill",
       "fg": "#c9d2da",
       "bg": "#161b21",
-      "ratio": 11.308
+      "ratio": 11.308,
+      "decor": false
     },
     {
       "key": "tide/dark panel label@settings-card-fill",
       "fg": "#9dabb9",
       "bg": "#161b21",
-      "ratio": 7.387
+      "ratio": 7.387,
+      "decor": false
     },
     {
       "key": "tide/dark panel title@button-elevated-fill",
       "fg": "#c9d2da",
       "bg": "#191e25",
-      "ratio": 10.939
+      "ratio": 10.939,
+      "decor": false
     },
     {
       "key": "tide/dark panel label@button-elevated-fill",
       "fg": "#9dabb9",
       "bg": "#191e25",
-      "ratio": 7.146
+      "ratio": 7.146,
+      "decor": false
     },
     {
       "key": "tide/dark panel label@bg-base",
       "fg": "#9dabb9",
       "bg": "#10151b",
-      "ratio": 7.824
+      "ratio": 7.824,
+      "decor": false
     },
     {
       "key": "tide/dark panel pill-on",
       "fg": "#0b1116",
       "bg": "#5ab6d8",
-      "ratio": 8.244
+      "ratio": 8.244,
+      "decor": false
     },
     {
       "key": "tide/dark panel danger-armed",
       "fg": "#c9d2da",
       "bg": "#2b191e",
-      "ratio": 10.88
+      "ratio": 10.88,
+      "decor": false
+    },
+    {
+      "key": "tide/dark sharp-underline(60%)",
+      "fg": "#5ab6d8@60%",
+      "bg": "#161b21",
+      "ratio": 4.91,
+      "decor": true
     },
     {
       "key": "vintage-paper/light panel title@settings-card-fill",
       "fg": "#4a3f35",
       "bg": "#fffcf5",
-      "ratio": 9.98
+      "ratio": 9.98,
+      "decor": false
     },
     {
       "key": "vintage-paper/light panel label@settings-card-fill",
       "fg": "#7d6b56",
       "bg": "#fffcf5",
-      "ratio": 4.987
+      "ratio": 4.987,
+      "decor": false
     },
     {
       "key": "vintage-paper/light panel title@button-elevated-fill",
       "fg": "#4a3f35",
       "bg": "#fffcf5",
-      "ratio": 9.98
+      "ratio": 9.98,
+      "decor": false
     },
     {
       "key": "vintage-paper/light panel label@button-elevated-fill",
       "fg": "#7d6b56",
       "bg": "#fffcf5",
-      "ratio": 4.987
+      "ratio": 4.987,
+      "decor": false
     },
     {
       "key": "vintage-paper/light panel label@bg-base",
       "fg": "#7d6b56",
       "bg": "#f5f1e6",
-      "ratio": 4.528
+      "ratio": 4.528,
+      "decor": false
     },
     {
       "key": "vintage-paper/light panel pill-on",
       "fg": "#ffffff",
       "bg": "#7e5e3e",
-      "ratio": 5.903
+      "ratio": 5.903,
+      "decor": false
     },
     {
       "key": "vintage-paper/light panel danger-armed",
       "fg": "#4a3f35",
       "bg": "#ecdacd",
-      "ratio": 7.536
+      "ratio": 7.536,
+      "decor": false
+    },
+    {
+      "key": "vintage-paper/light sharp-underline(60%)",
+      "fg": "#7e5e3e@60%",
+      "bg": "#fffcf5",
+      "ratio": 1.984,
+      "decor": true
     },
     {
       "key": "vintage-paper/dark panel title@settings-card-fill",
       "fg": "#ece5d8",
       "bg": "#3a322c",
-      "ratio": 10.024
+      "ratio": 10.024,
+      "decor": false
     },
     {
       "key": "vintage-paper/dark panel label@settings-card-fill",
       "fg": "#c5bcac",
       "bg": "#3a322c",
-      "ratio": 6.674
+      "ratio": 6.674,
+      "decor": false
     },
     {
       "key": "vintage-paper/dark panel title@button-elevated-fill",
       "fg": "#ece5d8",
       "bg": "#3a322c",
-      "ratio": 10.024
+      "ratio": 10.024,
+      "decor": false
     },
     {
       "key": "vintage-paper/dark panel label@button-elevated-fill",
       "fg": "#c5bcac",
       "bg": "#3a322c",
-      "ratio": 6.674
+      "ratio": 6.674,
+      "decor": false
     },
     {
       "key": "vintage-paper/dark panel label@bg-base",
       "fg": "#c5bcac",
       "bg": "#2d2621",
-      "ratio": 7.913
+      "ratio": 7.913,
+      "decor": false
     },
     {
       "key": "vintage-paper/dark panel pill-on",
       "fg": "#2d2621",
       "bg": "#c0a080",
-      "ratio": 6.083
+      "ratio": 6.083,
+      "decor": false
     },
     {
       "key": "vintage-paper/dark panel danger-armed",
       "fg": "#ece5d8",
       "bg": "#402b24",
-      "ratio": 10.551
+      "ratio": 10.551,
+      "decor": false
+    },
+    {
+      "key": "vintage-paper/dark sharp-underline(60%)",
+      "fg": "#c0a080@60%",
+      "bg": "#3a322c",
+      "ratio": 3.478,
+      "decor": true
     }
   ]
 }

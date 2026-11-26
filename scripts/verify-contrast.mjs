@@ -62,11 +62,12 @@ const bad = [];
 // 每次测量都记下来：门禁除了「过线」，还要回答「有没有比上次更差」。
 // 只过线是不够的 —— 某主题卡在 4.51:1 时，下次调色碰一下就越界，而门禁到时才发现。
 const measurements = [];
-const check = (where, fg, bg) => {
+const check = (where, fg, bg, decor) => {
   const r = ratio(fg, bg);
   if (r === null) { bad.push(where + ' 无法计算（' + fg + ' / ' + bg + '）'); return; }
-  measurements.push({ key: where, fg: fg, bg: bg, ratio: Number(r.toFixed(3)) });
-  if (r < MIN) bad.push(where + ' ' + r.toFixed(2) + ':1（' + fg + ' on ' + bg + '）');
+  measurements.push({ key: where, fg: fg, bg: bg, ratio: Number(r.toFixed(3)), decor: !!decor });
+  // decor：装饰性线条（非文字、非组件边界），不按 MIN 判红，但仍进台账守住「只升不降」。
+  if (!decor && r < MIN) bad.push(where + ' ' + r.toFixed(2) + ':1（' + fg + ' on ' + bg + '）');
 };
 
 // 1) 内置 11 套 × 深浅两态
@@ -151,6 +152,17 @@ for (const id of THEME_IDS) {
     // 危险按钮待确认态：浅危险底 + 正文色
     if (t['--dsw-alias-interactive-bg-hover-danger']) {
       check(id + '/' + scheme + ' panel danger-armed', t['--dsw-alias-label-primary'], t['--dsw-alias-interactive-bg-hover-danger']);
+    }
+    // 硬边模式的选中下划线：品牌色 60% 合成到 bg-layer-1 上（color-mix in srgb）。
+    // 这一组是「有意低于 4.5」的装饰线：可辨识性由选中标签的 600 字重承担（非颜色信号）。
+    // 用 measureOnly 记台账、不按 MIN 判红，但它只许升不许降（回退会被台账抓到）。
+    if (t['--dsw-alias-brand-primary'] && t['--dsw-alias-bg-layer-1']) {
+      const a = luminance(t['--dsw-alias-brand-primary']), b = luminance(t['--dsw-alias-bg-layer-1']);
+      if (a !== null && b !== null) {
+        const mixed = 0.6 * a + 0.4 * b;
+        const hi = Math.max(mixed, b), lo = Math.min(mixed, b);
+        measurements.push({ key: id + '/' + scheme + ' sharp-underline(60%)', fg: t['--dsw-alias-brand-primary'] + '@60%', bg: t['--dsw-alias-bg-layer-1'], ratio: Number(((hi + 0.05) / (lo + 0.05)).toFixed(3)), decor: true });
+      }
     }
   }
 }

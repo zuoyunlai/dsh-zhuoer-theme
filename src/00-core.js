@@ -51,12 +51,9 @@ window.__ModuleLoader__.load({
     }
     report({ phase: 'bundle-evaluated' });
     report({ phase: 'factory-entered' });
-    try {
-      if (typeof window !== 'undefined') {
-        window.addEventListener('error', function (ev) {
-          report({ phase: 'window-error', message: String((ev && ev.message) || ev).slice(0, 300), file: String((ev && ev.filename) || '').slice(0, 200), line: ev && ev.lineno });
-        });
-      }
-    } catch (e) { /* ignore */ }
+    // 全局 error 监听：句柄留成模块级，apply() 里挂进 ctx.effect，卸载/HMR 时随 effect 回收（doctor K3）。
+    const onWindowError = function (ev) {
+      report({ phase: 'window-error', message: String((ev && ev.message) || ev).slice(0, 300), file: String((ev && ev.filename) || '').slice(0, 200), line: ev && ev.lineno });
+    };
 
     
