@@ -41,7 +41,8 @@
 - 对比度台账 **655 → 679 组**：新增硬边模式选中下划线（品牌色 60% 合成到 `bg-layer-1`）这一组。
 - 新增 `verify:important`（棘轮），已并入 `verify:all`。
 - 文案 153 → **155 条**（新增 `panel.custom.dropped` / `droppedClose` / `panel.a11y.live`，中英成对）。
-- CSS 快照与视觉基线已按本批重采（CSS 65674 B ×2）。
+- CSS 快照与视觉基线已按本批重采（CSS 65729 B ×2；视觉 3 张，含 360×780 窄屏）。
+- **窄屏判定改为按面板自身宽度**：`ResizeObserver` 量 `.zp-root`，窄于 360px 打 `data-zr-narrow`。原先那条 `@media (max-width:359px)` 在真实宿主里**从未生效**——面板活在宿主设置栏里，视口宽不代表面板宽（宿主设置弹层固定 800px、内容列约 559px，视口永远 > 359px；反过来把窗口拉窄时宿主自己又不渲染设置弹层）。
 
 ## 0.6.24（修复：打开自定义主题编辑器就抛 pref is not defined）
 

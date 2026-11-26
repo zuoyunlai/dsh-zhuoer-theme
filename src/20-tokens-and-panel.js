@@ -1164,6 +1164,10 @@ function applyTokens(theme, pref) {
       '@media (prefers-reduced-motion: reduce){.zp-root *{transition:none !important;',
       'animation:none !important;}}',
       // 极窄容器：行标签独占一行，避免「标签被压成竖条」
+      // 窄屏判定按**面板自身宽度**（data-zr-narrow），不是视口：面板活在宿主设置栏里，
+      // 视口宽不代表面板宽（宿主设置弹层固定 800px、内容列约 559px，视口永远 > 359px，
+      // 原来那条 @media (max-width:359px) 在真实宿主里从未生效）。
+      '[data-zr-narrow="1"] .zp-lbl{width:auto;flex:1 0 100%;}',
       '@media (max-width:359px){.zp-lbl{width:auto;flex:1 0 100%;}',
       '.zp-sec{padding-top:14px;margin-top:14px;}.zp-hd{gap:4px;}',
       '.zp-ths{grid-template-columns:repeat(auto-fill,minmax(112px,1fr));}}',
@@ -1975,6 +1979,22 @@ function applyTokens(theme, pref) {
       const [droppedDismissed, setDroppedDismissed] = useState(false);
       // 屏读播报：切主题 / 改模式后把结果说给辅助技术听（视觉用户看不到这块）。
       const [liveMsg, setLiveMsg] = useState('');
+      // 窄屏判定：按**面板自身宽度**（不是视口）。宿主设置栏可能很窄，视口却宽；
+      // 反过来把窗口拉窄时宿主又不渲染设置弹层。ResizeObserver 量自己的盒子才准。
+      const rootRef = useRef(null);
+      useEffect(function () {
+        const el = rootRef.current;
+        if (!el || typeof ResizeObserver !== 'function') return undefined;
+        const mark = function () {
+          const w = el.getBoundingClientRect().width;
+          if (w > 0 && w < 360) el.setAttribute('data-zr-narrow', '1');
+          else el.removeAttribute('data-zr-narrow');
+        };
+        mark();
+        const ro = new ResizeObserver(mark);
+        try { ro.observe(el); } catch (e) { return undefined; }
+        return function () { try { ro.disconnect(); } catch (e) { /* ignore */ } };
+      }, []);
       useEffect(function () {
         const fn = function () { setPref(readPref()); };
         listeners.add(fn);
@@ -2224,7 +2244,7 @@ function applyTokens(theme, pref) {
         setResetArmed(false);
       };
 
-      return h('div', { className: 'zp-root' },
+      return h('div', { className: 'zp-root', ref: rootRef },
         h('style', null, PANEL_CSS),
         jsonIO
           ? h(JsonModal, {

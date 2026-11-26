@@ -15,6 +15,13 @@
       "w": 559,
       "h": 1646,
       "sha256": "34c2d9b0e8ccee78d10833343bb8e7e36de30c5a099c8d9986f63fb7d59553ee"
+    },
+    {
+      "file": "settings-narrow.png",
+      "w": 323,
+      "h": 2334,
+      "sha256": "bd3e1323c245ee5c02f13748818623cdc9cb1964ed521fd8610aae978ec1052c",
+      "viewport": "360x780"
     }
   ]
 }

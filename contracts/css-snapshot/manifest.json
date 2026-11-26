@@ -4,13 +4,13 @@
   "files": [
     {
       "file": "plugin-dark.css",
-      "bytes": 65674,
-      "sha256": "3a912c64afe09e446ecd0ea3be5c9f03cde6ae32b357cb0689b1117baf7451ac"
+      "bytes": 65729,
+      "sha256": "0204e0306e3f5702df75c9dc9959ab292e497b2c62418b64a2d16cb1c2f9a61b"
     },
     {
       "file": "plugin-light.css",
-      "bytes": 65674,
-      "sha256": "407c4dd7cfc6e991f35ebde41d820de2744405b71655706fb0c3f87f146b1e07"
+      "bytes": 65729,
+      "sha256": "c45b70309a3386cd245bf11c857a6c56db4cc7d409c0e3b5823f47ee902e40f0"
     }
   ]
 }
