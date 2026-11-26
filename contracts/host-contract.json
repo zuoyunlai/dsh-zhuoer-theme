@@ -200,6 +200,11 @@
         "attribute": "data-zr-a11y-hit",
         "usedFor": "挂在 html 上的可访问性开关标记（1/0），CSS 据此决定是否给点击区加 44px 下限",
         "breaksIfMissing": "「放大点击区」设置项完全失效（规则永远不命中）"
+      },
+      {
+        "attribute": "data-zr-mdhead",
+        "usedFor": "挂在 html 上的「标题配色」模式（follow/soft/brand），CSS 据此给 Markdown 标题上色",
+        "breaksIfMissing": "「标题配色」设置项完全失效，标题回到跟随正文色"
       }
     ]
   },

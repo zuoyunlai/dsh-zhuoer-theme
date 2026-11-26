@@ -193,6 +193,9 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
           a11yHit: p.a11yHit === true,
           // Markdown 排版密度：只调节奏（行高/段距/标题尺度），不动字号体系。
           mdDensity: p.mdDensity === 'compact' || p.mdDensity === 'roomy' ? p.mdDensity : 'normal',
+          // 标题配色：follow=跟随正文 / soft=品牌色淡化 / brand=品牌色。
+          // 宿主没有「标题色」token，所以这一层由我们从 brand + label 推。
+          mdHeading: p.mdHeading === 'follow' || p.mdHeading === 'brand' ? p.mdHeading : 'soft',
           fontScale: [90, 100, 110, 125, 140].indexOf(p.fontScale) !== -1 ? p.fontScale : 100,
           // 对话正文宽度（px）：0 = 跟随宿主（自适应），非 0 = 用户指定值。
           // 宿主自己的偏好键是 dsh.conversation.contentWidth（拖动写入），我们不复用它——

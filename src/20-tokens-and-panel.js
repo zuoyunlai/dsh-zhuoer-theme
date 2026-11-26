@@ -794,7 +794,14 @@ function applyTokens(theme, pref) {
           + '[class*="_prose"] blockquote{margin-block:' + md.gap + 'em;padding:' + (md.pad - 2) + 'px ' + md.pad + 'px;}'
           + '[class*="_prose"] pre{padding:' + md.pad + 'px;line-height:1.55;}'
           + '[class*="_prose"] table{margin-block:' + md.gap + 'em;}';
-        const nextCss = css + extra + bgCss + fxCss + brandCss + a11yCss + mdCss;
+        // 标题配色：宿主只给了 h1/h2/h4 的字体 token，没有颜色 token。
+        // 所以这层由我们从「品牌色 + 正文色」推：soft 用 55/45 混，brand 用 80/20 混（混正文能保住对比度）。
+        // 用 color-mix 而不是预先算 hex：主题换色、强调色、明暗切换时它自动跟着走，不用重算。
+        const headCss = pref.mdHeading === 'follow' ? ''
+          : (pref.mdHeading === 'brand'
+            ? 'html[data-zr-mdhead="brand"] [class*="_prose"] h1,html[data-zr-mdhead="brand"] [class*="_prose"] h2,html[data-zr-mdhead="brand"] [class*="_prose"] h3,html[data-zr-mdhead="brand"] [class*="_prose"] h4{color:color-mix(in srgb,var(--dsw-alias-brand-primary) 80%,var(--dsw-alias-label-primary));}'
+            : 'html[data-zr-mdhead="soft"] [class*="_prose"] h1,html[data-zr-mdhead="soft"] [class*="_prose"] h2,html[data-zr-mdhead="soft"] [class*="_prose"] h3,html[data-zr-mdhead="soft"] [class*="_prose"] h4{color:color-mix(in srgb,var(--dsw-alias-brand-primary) 55%,var(--dsw-alias-label-primary));}');
+        const nextCss = css + extra + bgCss + fxCss + brandCss + a11yCss + mdCss + headCss;
         const styleEl = ensureStyle();
         if (styleEl.__zrCss !== nextCss) {
           styleEl.textContent = nextCss;
@@ -870,6 +877,7 @@ function applyTokens(theme, pref) {
         // 要按它克隆的 base 生效，否则自定义一个 beacon base 的主题就拿不到灯塔那套提亮边线。
         document.documentElement.setAttribute('data-zr-base', effTheme);
         document.documentElement.setAttribute('data-zr-a11y-hit', pref.a11yHit ? '1' : '0');
+        document.documentElement.setAttribute('data-zr-mdhead', pref.mdHeading || 'soft');
         // 硬边档判定：读计算值而不是看 pref —— 形状可能来自主题预设、半径缩放滑块
         // 或自定义锚点，只有算出来的 radius 才代表「这套主题真的是直角」。
         // 第三方控件（左侧栏分段 tabs）的圆角/边线只在 data-zr-sharp 下被接管。
@@ -2649,6 +2657,15 @@ function applyTokens(theme, pref) {
               onChange: function (v) { set({ mdDensity: v }); },
             }),
             h('span', { className: 'zp-hint' }, t('panel.type.mdNote'))
+          ),
+          h(Row, { label: t('panel.type.mdHeadRow') },
+            h(Pills, {
+              label: t('panel.type.mdHeadAria'),
+              opts: [['follow', t('panel.type.mdHeadFollow')], ['soft', t('panel.type.mdHeadSoft')], ['brand', t('panel.type.mdHeadBrand')]],
+              value: pref.mdHeading || 'soft',
+              onChange: function (v) { set({ mdHeading: v }); },
+            }),
+            h('span', { className: 'zp-hint' }, t('panel.type.mdHeadNote'))
           ),
           h(Row, { label: t('panel.a11y.hitRow') },
             h('label', { className: 'zp-chk' },
