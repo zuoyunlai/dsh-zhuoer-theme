@@ -1963,22 +1963,59 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
       const hi = Math.max(la, lb), lo = Math.min(la, lb);
       return (hi + 0.05) / (lo + 0.05);
     }
-    function enforceTextFloor(out, on) {
+    // 文字地板：把「够不够读」拆成两步——先选**真正会承载文字的面**，再求最小改动量。
+    // 旧实现有两个短板（palette 那边用更好的做法，这里借过来）：
+    //   ① 只看 bg-base；文字同样会落在 layer-2 / hovercard 上，那些面没校验；
+    //   ② 明度按 1% 步进试到够为止，结果不可预测（同一色可能被推过好几阶）。
+    // 现在改成：候选面 = 底色 + 明度相近的抬升层（|ΔL| ≤ 0.15，避免把「深底 + 浅卡」这类
+    // 跨明暗组合混进来破坏单调性），目标是**所有候选面**都达标；求解用二分（18 次）找最小 ΔL。
+    function floorSurfaces(out, bgH) {
+      const list = [out['--dsw-alias-bg-base']];
+      ['--dsw-alias-bg-layer-2', '--dsw-alias-hovercard-bg', '--dsw-alias-card-fill'].forEach(function (k) {
+        const h = hexHsl(out[k]);
+        if (!h) return;
+        if (Math.abs(h[2] - bgH[2]) <= 0.15) list.push(out[k]);
+      });
+      return list;
+    }
+    function solveFloor(cur, surfaces, target, darkBg) {
+      const hsl = hexHsl(cur);
+      if (!hsl) return '';
+      const worst = function (hex) {
+        let w = Infinity;
+        surfaces.forEach(function (s) { const c = contrastOn(hex, s); if (c < w) w = c; });
+        return w;
+      };
+      if (worst(cur) >= target) return cur;
+      // 单调性：往远离底色的方向走，对比度只增不减
+      const limit = darkBg ? 1 : 0;
+      let lo = 0;
+      let hi = Math.abs(limit - hsl[2]);
+      for (let i = 0; i < 18; i++) {
+        const mid = (lo + hi) / 2;
+        const l = darkBg ? Math.min(1, hsl[2] + mid) : Math.max(0, hsl[2] - mid);
+        if (worst(hslHex(hsl[0], hsl[1], l)) >= target) hi = mid; else lo = mid;
+      }
+      const lHit = darkBg ? Math.min(1, hsl[2] + hi) : Math.max(0, hsl[2] - hi);
+      const hit = hslHex(hsl[0], hsl[1], lHit);
+      return worst(hit) >= target ? hit : hslHex(hsl[0], hsl[1], limit);
+    }
+    function enforceTextFloor(out, on, skip) {
       if (!on) return out;
       const bg = out['--dsw-alias-bg-base'];
       const bgH = hexHsl(bg);
       if (!bg || !bgH) return out;
       const darkBg = bgH[2] < 0.5;
+      const surfaces = floorSurfaces(out, bgH);
       TEXT_FLOOR.forEach(function (pair) {
+        if (skip && skip[pair[0]]) return;   // 用户显式覆盖过的文字键不再被地板改
         const cur = out[pair[0]];
-        if (!cur || contrastOn(cur, bg) >= pair[1]) return;
-        const hsl = hexHsl(cur);
-        if (!hsl) return;
-        for (let step = 1; step <= 100; step++) {
-          const l = darkBg ? Math.min(1, hsl[2] + step / 100) : Math.max(0, hsl[2] - step / 100);
-          const hex = hslHex(hsl[0], hsl[1], l);
-          if (contrastOn(hex, bg) >= pair[1]) { out[pair[0]] = hex; return; }
-        }
+        if (!cur) return;
+        let w = Infinity;
+        surfaces.forEach(function (s) { const c = contrastOn(cur, s); if (c < w) w = c; });
+        if (w >= pair[1]) return;
+        const solved = solveFloor(cur, surfaces, pair[1], darkBg);
+        if (solved) out[pair[0]] = solved;
       });
       return out;
     }
@@ -2068,7 +2105,13 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
         // 与浅色分支同样：只在底色/文字锚点被动过时才铺地板，避免改掉没调锚点的主题。
         const touchBg = String(out['--dsw-alias-bg-base']).toLowerCase() !== String(origDark['--dsw-alias-bg-base']).toLowerCase();
         const touchText = String(out['--dsw-alias-label-primary']).toLowerCase() !== String(origDark['--dsw-alias-label-primary']).toLowerCase();
-        return applyOverrides(enforceTextFloor(enforceDepth(ensureReadableOn(out), 'dark', touchBg), touchText), darkOver);
+        // 顺序：派生 → 深度 → 覆盖 → 地板。地板最后跑，才看得见覆盖后的面。
+        // 跳过集合只收「真正写入生效」的覆盖键：被 B 档回退掉的键不算用户意图，
+        // 必须交回地板管——否则会留下一个 2.7:1 的次级文字（第一次就踩了）。
+        const darkOut = applyOverrides(enforceDepth(ensureReadableOn(out), 'dark', touchBg), darkOver);
+        const darkSkip = {};
+        zrOverrideReport.applied.forEach(function (k) { darkSkip[k] = true; });
+        return enforceTextFloor(darkOut, touchText, darkSkip);
       }
       // 先留一份 base 原值：地板要不要跑，取决于锚点**值**是否真的变了，
       // 而不是「锚点键存在」。否则把原值写回去时地板仍会动手，等于悄悄改主题。
@@ -2085,7 +2128,10 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
       });
       const touchBg2 = String(base['--dsw-alias-bg-base']).toLowerCase() !== String(orig['--dsw-alias-bg-base']).toLowerCase();
       const touchText2 = String(base['--dsw-alias-label-primary']).toLowerCase() !== String(orig['--dsw-alias-label-primary']).toLowerCase();
-      return applyOverrides(enforceTextFloor(enforceDepth(ensureReadableOn(base), scheme, touchBg2), touchText2), anchors);
+      const lightOut = applyOverrides(enforceDepth(ensureReadableOn(base), scheme, touchBg2), anchors);
+      const lightSkip = {};
+      zrOverrideReport.applied.forEach(function (k) { lightSkip[k] = true; });
+      return enforceTextFloor(lightOut, touchText2, lightSkip);
     }
 
     // #endregion derive

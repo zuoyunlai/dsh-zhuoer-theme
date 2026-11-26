@@ -217,6 +217,22 @@ else {
 }
 if (ct['--dsw-specific-bubble'] !== '#3a332e') bad.push('自定义:暖灰 少量覆盖未生效（--dsw-specific-bubble=' + ct['--dsw-specific-bubble'] + '）');
 
+// 地板要覆盖「文字真正会落在的抬升面」，不只是 bg-base（借 palette 多背景思路）
+// 注意：必须压低**锚点**（label-primary）来触发地板；直接覆盖 label-secondary 是无效测试——
+// 覆盖发生在地板之后，测到的是覆盖值本身（第一次就写错了，被这条断言自己抓出来）。
+const multi = api.buildCustomTokens({
+  base: 'dash', autoDark: false, font: {}, radiusScale: 1, light: {},
+  dark: {
+    '--dsw-alias-bg-base': '#2b2522',
+    '--dsw-alias-label-primary': '#3a332e',
+    '--dsw-alias-bg-layer-2': '#4a4038',
+  },
+}, 'dark');
+const onBg = api.contrastOn ? api.contrastOn(multi['--dsw-alias-label-secondary'], multi['--dsw-alias-bg-base']) : ratio(multi['--dsw-alias-label-secondary'], multi['--dsw-alias-bg-base']);
+const onLayer = ratio(multi['--dsw-alias-label-secondary'], multi['--dsw-alias-bg-layer-2']);
+if (!(onLayer >= 5.9)) bad.push('次级文字在抬升层上只有 ' + Number(onLayer || 0).toFixed(2) + ':1（地板 6:1，旧实现只校验 bg-base 会漏掉这个面）');
+if (!(onBg >= 5.9)) bad.push('次级文字在底色上只有 ' + Number(onBg || 0).toFixed(2) + ':1（地板 6:1）');
+
 // B 档：前景文字的覆盖若低于 3:1 必须回退到派生值（覆盖多来自 AI 生成 / JSON 导入）。
 // 注意用文字组的**成员** token 测：锚点 label-primary 本来就不走覆盖路径（它走 applyGroup + 文字地板）。
 const evilOv = { base: 'dash', autoDark: false, font: {}, radiusScale: 1, light: {},
