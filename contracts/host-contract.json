@@ -175,6 +175,11 @@
         "attribute": "data-zr-hosttext",
         "usedFor": "界面文字缩放：在 shadow root 内标记我们注入的那张 <style>，重算时据此复用/清理，避免同一 root 里叠出多张互相放大的表",
         "breaksIfMissing": "shadow root 里的缩放样式无法被识别：改字号时重复插入导致字号被连乘放大（k²），关掉缩放时又漏删、残留旧倍率"
+      },
+      {
+        "attribute": "data-input-modality",
+        "usedFor": "焦点环接管的作用域判断：宿主在 pointer 模态下刻意把 outline-color 设为 transparent，我们用 html:not([data-input-modality=\"pointer\"]) 只在键盘语境生效",
+        "breaksIfMissing": "选择器永远命中（:not 对缺失属性成立）→ 鼠标点击也会画出焦点环，违背宿主「指针不显示焦点环」的设计"
       }
     ]
   },

@@ -525,6 +525,12 @@ function applyTokens(theme, pref) {
           + 'html [role="switch"]>span{border-radius:inherit !important;'
           + 'transition:transform .16s cubic-bezier(.2,.8,.2,1),background-color .16s ease;}'
           + '@media (prefers-reduced-motion:reduce){html [role="switch"]>span{transition:none !important;}}';
+        // M2：焦点环统一成主题的 brand-primary。宿主自己有一条策略——
+        //   html[data-input-modality='pointer'] body :focus-visible { outline-color: transparent }
+        // 那是它刻意「鼠标点击不留焦点环」的设计，不能覆盖。所以这里显式排除 pointer 模态，
+        // 只在键盘（Tab）语境下接管，且不改宽度/偏移（用宿主自己的 2px/2px）。
+        fxCss += 'html:not([data-input-modality="pointer"]) body :focus-visible{'
+          + 'outline-color:var(--dsw-alias-brand-primary) !important;}';
         // 左右栏的拖拽分隔条：宿主实现是「元素宽 0 + ::before 画 0.5px 竖线」，
         // 命中区只有半像素，鼠标很难精确压住，所以拖动时也没有任何反馈。
         // 这里补两件事：
