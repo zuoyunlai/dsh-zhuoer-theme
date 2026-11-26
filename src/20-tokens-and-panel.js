@@ -171,10 +171,11 @@ function bgCssFor(o) {
   // 明暗统一 lighten：用户纹理的线条比底色更亮（实测暗色 5→7.4、浅色 238→245 亮度），
   // lighten 只让「比底色亮」的像素透出——线条留下、图底自动消失。
   // 之前浅色用 multiply，正好把更亮的线条乘没了，表现为「自定义底图只在暗色生效」。
-  // 反相的那张（缺本方案的图）已经是「浅底深线」，用 multiply 让线透出；
-  // 正常取到本方案图时线比底亮，用 lighten。
-  var blendCss = isImageBg ? ('mix-blend-mode:' + (o.bgInvert ? 'multiply' : 'lighten') + ' !important;') : '';
-  var invertCss = o.bgInvert ? 'filter:invert(1);' : '';
+  // blend / 反相只对**线稿纹理**生效；手动上传的照片整张显示，不加任何混合，
+  // 否则照片会被「只留比底色亮的像素」吃掉——这就是浅色模式看不见照片的原因。
+  var isTexture = o.bgKind === 'texture';
+  var blendCss = (isImageBg && isTexture) ? ('mix-blend-mode:' + (o.bgInvert ? 'multiply' : 'lighten') + ' !important;') : '';
+  var invertCss = (o.bgInvert && isTexture) ? 'filter:invert(1);' : '';
   var imgOpacity = +(vis * 0.7).toFixed(3);
   // 淡化：另加一层垂直渐隐遮罩做出「边缘化开」；Zhuoer 的 faded 靠面板层不透明压暗，
   // 我们的内容层是透明的，直接照抄会更浓，所以用 mask 达到同样效果。
@@ -390,6 +391,7 @@ function applyTokens(theme, pref) {
       // 背景：主题自带底图或用户上传图。启用时把内容底色改成半透明，让底图透出来。
       let bgUrl = '';
       let bgInvert = false;
+      let bgKind = '';
       let bgOpacity = pref.bgOpacity;
       let bgStyle = pref.bgStyle;
       // 自定义主题可以自带底图；source 为空表示跟随全局底图设置。
@@ -404,12 +406,19 @@ function applyTokens(theme, pref) {
         if (specBg.style) bgStyle = specBg.style;
         if (specBg.source === 'theme') bgUrl = themeBgFor();
         else if (specBg.source === 'image' && (specBg.key || specBg.keyLight)) {
-          // 明暗各有一张时按方案取；只有一张时**反相**用另一张，而不是硬塞。
-          // 面板「上传图片」只存了 key（没有浅色版），浅色模式原先拿暗图 + lighten，
-          // 而暗图的每个像素都比浅底暗 → 整张被抑制，表现为「浅色模式下自定义图片不可见」。
+          // 两类底图分开对待：
+          //  - texture（主题自带底图 / AI 生成的线稿）：只透出线，缺哪张就反相用另一张；
+          //  - photo（设置里手动上传的照片）：整张显示，**绝不**做 blend / 反相。
+          //    照片被「只留线条」的规则处理，就是浅色模式看不见的那个 bug。
+          const kind = specBg.kind === 'photo' || specBg.kind === 'texture'
+            ? specBg.kind
+            : (specBg.keyLight ? 'texture' : 'photo');
+          bgKind = kind;
           const darkUrl = imageCache.get(specBg.key) || '';
           const lightUrl = imageCache.get(specBg.keyLight) || '';
-          if (scheme === 'light') {
+          if (kind === 'photo') {
+            bgUrl = (scheme === 'light' && lightUrl) ? lightUrl : (darkUrl || lightUrl);
+          } else if (scheme === 'light') {
             if (lightUrl) bgUrl = lightUrl;
             else if (darkUrl) { bgUrl = darkUrl; bgInvert = true; }
           } else {
@@ -484,7 +493,7 @@ function applyTokens(theme, pref) {
         // 盒子尺寸由宿主的 width/height 决定，用 contain + 贴左居中：比例不匹配时留白，不会裁切。
         // 来源优先级：用户上传的图 > 主题自带 logo。开但没选图 = 用自带的，不是「不生效」。
         const brandCss = brandCssFor(pref);
-        const bgCss = bgCssFor({ bgUrl: bgUrl, bgOpacity: bgOpacity, bgStyle: bgStyle, bgIsImage: !!(specBg && specBg.source === 'image') || pref.bgSource === 'image', bgInvert: bgInvert, tokens: tokens, scheme: scheme });
+        const bgCss = bgCssFor({ bgUrl: bgUrl, bgOpacity: bgOpacity, bgStyle: bgStyle, bgIsImage: !!(specBg && specBg.source === 'image') || pref.bgSource === 'image', bgInvert: bgInvert, bgKind: bgKind, tokens: tokens, scheme: scheme });
         // 文字大小 / 强调色 / 字体（照 Zhuoer 外观页的三组设置）
         let fxCss = '';
         // 主栏四个角永远是直角 —— 用户明确要求「无论何种主题、无论什么情况」。
@@ -1532,7 +1541,7 @@ function applyTokens(theme, pref) {
             if (prevKey && prevKey !== key) {
               try { idbDelete(prevKey).then(function () { imageCache.delete(prevKey); }).catch(function () { /* ignore */ }); } catch (e) { /* ignore */ }
             }
-            setBg({ source: 'image', key: key });
+            setBg({ source: 'image', key: key, keyLight: '', kind: 'photo' });
           }).catch(function (e) {
             try { window.alert(t('panel.alert.imgStore')); } catch (e2) { /* ignore */ }
           });

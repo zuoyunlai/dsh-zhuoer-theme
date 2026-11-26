@@ -1247,6 +1247,7 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
             source: b.source === 'image' || b.source === 'theme' || b.source === 'none' ? b.source : '',
             key: typeof b.key === 'string' && /^img_[a-z0-9]{4,32}$/.test(b.key) ? b.key : '',
             keyLight: typeof b.keyLight === 'string' && /^img_[a-z0-9]{4,32}$/.test(b.keyLight) ? b.keyLight : '',
+            kind: b.kind === 'photo' ? 'photo' : (b.kind === 'texture' ? 'texture' : ''),
             opacity: typeof b.opacity === 'number' && b.opacity >= 0 && b.opacity <= 100 ? Math.round(b.opacity) : null,
             style: b.style === 'full' || b.style === 'fade' ? b.style : '',
           };

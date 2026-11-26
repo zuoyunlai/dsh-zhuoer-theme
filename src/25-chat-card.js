@@ -187,7 +187,7 @@
             imageCache.set(keyLight, urlL);
             try { idbPut(keyLight, urlL).catch(function () { /* 落库失败不影响本次应用 */ }); } catch (e) { /* ignore */ }
           }
-          return { source: 'image', key: key, keyLight: keyLight, opacity: null, style: '' };
+          return { source: 'image', key: key, keyLight: keyLight, opacity: null, style: '', kind: 'texture' };
         })(),
       };
       const safe = sanitizeCustomSpec(candidate);
