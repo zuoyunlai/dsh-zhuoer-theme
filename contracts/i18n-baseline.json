@@ -4,7 +4,9 @@
     "src/00-core.js": 0,
     "src/05-i18n.js": 0,
     "src/10-themes.js": 33,
+    "src/15-host-text.js": 0,
     "src/20-tokens-and-panel.js": 3,
+    "src/25-chat-card.js": 0,
     "src/30-quicknav.js": 10
   },
   "total": 46

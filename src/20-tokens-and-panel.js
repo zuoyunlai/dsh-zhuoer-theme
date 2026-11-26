@@ -766,7 +766,16 @@ function applyTokens(theme, pref) {
             fontEl.__zrCss = fontFaceCss;
           }
         } catch (e) { /* ignore */ }
-        const nextCss = css + extra + bgCss + fxCss + brandCss;
+        // 可访问性三件套：两条默认就生效（焦点环、减少动画），一条显式开关（放大点击区）。
+        // 前两条刻意不用优先级强制——我们的 <style> 后插入，同优先级即胜出；
+        // 减少动画那段必须优先级强制（要盖掉宿主的 transition 声明），共 4 处。
+        const a11yCss = ''
+          + ':focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;}'
+          + 'button:focus:not(:focus-visible),a:focus:not(:focus-visible),input:focus:not(:focus-visible),select:focus:not(:focus-visible),textarea:focus:not(:focus-visible){outline:none;}'
+          + '@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important;}}'
+          + 'html[data-zr-a11y-hit="1"] button,html[data-zr-a11y-hit="1"] [role="button"],html[data-zr-a11y-hit="1"] a[href]{min-height:44px;min-width:44px;}'
+          + 'html[data-zr-a11y-hit="1"] [class*="_iconBtn"],html[data-zr-a11y-hit="1"] [class*="_btn"]{min-height:44px;min-width:44px;}';
+        const nextCss = css + extra + bgCss + fxCss + brandCss + a11yCss;
         const styleEl = ensureStyle();
         if (styleEl.__zrCss !== nextCss) {
           styleEl.textContent = nextCss;
@@ -841,6 +850,7 @@ function applyTokens(theme, pref) {
         // 自定义主题的 marker 是它自己的 id，但 SHAPES / 边线这类「按主题特性」的规则
         // 要按它克隆的 base 生效，否则自定义一个 beacon base 的主题就拿不到灯塔那套提亮边线。
         document.documentElement.setAttribute('data-zr-base', effTheme);
+        document.documentElement.setAttribute('data-zr-a11y-hit', pref.a11yHit ? '1' : '0');
         // 硬边档判定：读计算值而不是看 pref —— 形状可能来自主题预设、半径缩放滑块
         // 或自定义锚点，只有算出来的 radius 才代表「这套主题真的是直角」。
         // 第三方控件（左侧栏分段 tabs）的圆角/边线只在 data-zr-sharp 下被接管。
@@ -2611,6 +2621,16 @@ function applyTokens(theme, pref) {
             pref.fontScale !== 100 && HOST_TEXT_STATS && HOST_TEXT_STATS.rules === 0
               ? h('span', { className: 'zp-hint is-warn' }, t('panel.type.scaleMiss'))
               : null
+          ),
+          h(Row, { label: t('panel.a11y.hitRow') },
+            h('label', { className: 'zp-chk' },
+              h('input', {
+                type: 'checkbox', checked: pref.a11yHit === true,
+                onChange: function (ev) { set({ a11yHit: Boolean(ev.target.checked) }); },
+              }),
+              h('span', null, t('panel.a11y.hitOn'))
+            ),
+            h('span', { className: 'zp-hint' }, t('panel.a11y.hitNote'))
           ),
           h(Row, { label: t('panel.type.widthRow') },
             // 非受控输入：边打字边裁剪会把「8」立刻变成「640」，用户只会觉得输不进去。

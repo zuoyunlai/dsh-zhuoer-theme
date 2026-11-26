@@ -148,6 +148,16 @@
         "fragment": "zp-",
         "usedFor": "TODO 补语义：用在哪",
         "breaksIfMissing": "TODO 补语义：失效后果"
+      },
+      {
+        "fragment": "_btn",
+        "usedFor": "可访问性「放大点击区」开关打开时，给按钮/图标按钮一个 44×44 的尺寸下限",
+        "breaksIfMissing": "开关打开后普通按钮与图标按钮仍是小点击区（触屏易误触），其余功能不受影响"
+      },
+      {
+        "fragment": "_iconBtn",
+        "usedFor": "可访问性「放大点击区」开关打开时，给按钮/图标按钮一个 44×44 的尺寸下限",
+        "breaksIfMissing": "开关打开后普通按钮与图标按钮仍是小点击区（触屏易误触），其余功能不受影响"
       }
     ],
     "attributes": [
@@ -180,6 +190,11 @@
         "attribute": "data-input-modality",
         "usedFor": "焦点环接管的作用域判断：宿主在 pointer 模态下刻意把 outline-color 设为 transparent，我们用 html:not([data-input-modality=\"pointer\"]) 只在键盘语境生效",
         "breaksIfMissing": "选择器永远命中（:not 对缺失属性成立）→ 鼠标点击也会画出焦点环，违背宿主「指针不显示焦点环」的设计"
+      },
+      {
+        "attribute": "data-zr-a11y-hit",
+        "usedFor": "挂在 html 上的可访问性开关标记（1/0），CSS 据此决定是否给点击区加 44px 下限",
+        "breaksIfMissing": "「放大点击区」设置项完全失效（规则永远不命中）"
       }
     ]
   },
