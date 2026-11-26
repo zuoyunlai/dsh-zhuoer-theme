@@ -194,8 +194,9 @@ https://ghproxy.net/https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme
 profile 里的插件有两种安装形态，互斥：`link:`（符号链接到源码目录，改完重启即生效，但**无法从市场更新**）与 registry 版本（能从市场更新，但改源码不生效）。`dev:sync` 走第三条路——**保持 registry 安装，把构建产物推进已安装目录**：
 
 ```sh
-npm run dev:sync              # 构建 + 复制 client.js / index.js / cordis.patch.yml / icon.svg / locale / assets
-npm run dev:sync -- --watch   # 同上，且监听 src/ 与 build.mjs，保存即构建并复制
+npm run dev:sync              # 构建并**预览**将要写入的文件（默认不写）
+npm run dev:sync -- --apply    # 真写：复制 client.js / index.js / cordis.patch.yml / icon.svg / locale / assets
+npm run dev:sync -- --watch    # 同上，且监听 src/ 与 build.mjs，保存即构建并复制
 ```
 
 目标目录默认 `~/.dsh/profiles/desktop/node_modules/dsh-zhuoer-theme`，可用 `--profile` / `--dir` 覆盖。复制完按一次刷新按钮（dsh-unlag）即换掉客户端代码；`index.js` 与 `cordis.patch.yml` 属于服务端一半，需要插件重载或重启 App 才生效。
@@ -244,15 +245,16 @@ npm run coverage      # token 覆盖率与「刻意不跟锚点」的豁免清�
 |---|---|
 | `verify:build` | `client.js` 与 `src/` 分片重新拼接的结果逐字节相等 |
 | `verify:version` | `PVERSION`、`package.json`、带引号的三段式版本字符串一致（先剥块注释，避免把 SVG path 里的 `s5.4.7` 当版本号） |
-| `verify:contrast` | 内置 11 套 × 两态的正文/提示/success 与按钮前景色 ≥ 4.5:1；12 套预设走真实 `buildCustomTokens` 复算 |
+| `verify:contrast` | 内置 12 套 × 两态的正文/提示/success/错误色 × 两档底与按钮前景色 ≥ 4.5:1，另含设置面板文字面；12 套预设走真实 `buildCustomTokens` 复算；台账 655 组只升不降 |
 | `gen:hosttext` | 从 `app.asar` 重抽宿主类名 → 字号表（`src/15-host-text.js`）。宿主升级后跑一次；不跑只是部分字号对不上，不会坏交互 |
 | `verify:scale` | 字号缩放只许动文字尺寸：**禁止 `body{zoom}`**（会让宿主侧栏拖拽命中错位），要求 `--dsw-font-*` 的 px 缩放与 `--dsh-content-font-*` 赋值同时存在 |
+| `verify:important` | **优先级棘轮门**：client.js 里的 `!important` 数量不得高于基线（`contracts/important-baseline.json`，当前 77）。宿主加一条、插件就得加两条——这条门让军备竞赛不再升级 |
 | `verify:themes` | 内联副本与真源逐 token 相等、两档 token 集合齐全、对比度达标 |
 | `verify:host` | 宿主选择器与契约对账，另查两类「静默失效」：契约登记的 id 片段是否还在代码里、`package.json` 的插件图标三件套（`icon` / `files` / `exports`）是否齐全 |
 | `verify:market` | **市场索引门**：按官方 schema 校验 `market/index.json`（LocalizedText 必含 `en`、精确 SemVer、`source.type`、`engines.dsh`），并与本仓 `package.json` 交叉对账 |
 | `verify:locale` | **展示元数据门**：`locale/*.json` 的 `meta.title` 非空、`en` 必存、`exports`/`files` 齐全、`./icon` ≤256 KiB 且与 `icon` 字段指向一致 |
 | `verify:keys` | **词典门**（静态）：源码里 `t('…')` 用到的键必须在 zh/en 都存在，且同名键占位符集合一致；缺键或 `{n}`/`{count}` 不一致即红。审的是「渲染不到」的文案（抽屉、错误、ARIA） |
-| `verify:text` | **文案门**（确定性）：Node 端渲染面板，把 153 条文案与属性（`title`/`aria-label`/`placeholder`/`alt`）与 `contracts/text-snapshot/{zh,en}.json` 逐条比对，版本号归一化。改文案要配 `--update`，否则红 |
+| `verify:text` | **文案门**（确定性）：Node 端渲染面板，把 155 条文案与属性（`title`/`aria-label`/`placeholder`/`alt`）与 `contracts/text-snapshot/{zh,en}.json` 逐条比对，版本号归一化。改文案要配 `--update`，否则红 |
 | `verify:visual` | 面板截图像素比对（**已从 `verify:all` 摘除**）：同状态连续两次截 `.zp-root` 在光态下互差 2.3%，无法复现的像素门等于安全错觉。脚本保留，需要人工看图时再跑 |
 | `verify:csssnap` | 把插件**实际注入**的 CSS 文本与 `contracts/css-snapshot/` 逐字节比对；差异会报出首个偏移与上下文。没有 `visual/css-current/` 时 SKIP，`--strict` 才硬判 |
 | `verify:claims` | **对外口径门**：README / market 索引 / locale / package.json 里的主题数、版本号、底图数、文案条数、裸中文基线必须等于现算真值（加主题后忘记改文档 → 红） |
@@ -366,6 +368,8 @@ gh release view v<version> -R zuoyunlai/dsh-zhuoer-theme --json isDraft --jq .is
 - **设置页分区图标走槽、不走字段**：在 `settings.section` 注册对象上写 `icon` 字段无效（0.6.2 实测被丢弃，显示内置齿轮）；正确做法是往 `settings.section.icon` 槽注册，且注册 `id` 必须等于分区 `id`，宿主按 `{ size, active }` 调用它（0.6.6 起自带红 Z）。三件事——`package.json` 的 `icon`、槽贡献、注册字段——互不通用，证据都在 `contracts/host-contract.json` 的 `positives` / `negatives` 里。
 
 ## 隐私
+
+端点信任边界、本机落盘清单与诊断开关见 [SECURITY.md](SECURITY.md)。
 
 - 偏好（主题 id、模式镜像、字号、强调色、底图引用键等）只存本机 `localStorage`；底图存本机 IndexedDB。
 - 诊断日志默认**关闭**。需要复现时在控制台执行 `localStorage['dsh-zhuoer-theme:debug'] = '1'` 再刷新，日志会写到插件数据目录；用完删掉这个键即可。

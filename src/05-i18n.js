@@ -219,6 +219,9 @@
         'panel.custom.newLabel': '自定义 {n}',
         'panel.custom.copySuffix': ' 副本',
         'panel.custom.limitErr': '自定义主题最多 {n} 套，已达上限；先删掉一套再新建或导入。',
+      'panel.custom.dropped': '有 {n} 套自定义主题超出上限 {max}，已被忽略：{ids}',
+      'panel.custom.droppedClose': '知道了',
+      'panel.a11y.live': '已切换到 {label}',
         'panel.theme.deleteConfirm': '再点一次删除',
         'panel.alert.imgMax': '图片不能超过 3 MiB',
         'panel.alert.imgStore': '这张图太大，浏览器本地存储放不下，请换一张更小的图片。',
@@ -452,6 +455,9 @@
         'panel.custom.newLabel': 'Custom {n}',
         'panel.custom.copySuffix': ' copy',
         'panel.custom.limitErr': 'At most {n} custom themes; delete one before creating or importing another.',
+      'panel.custom.dropped': '{n} custom theme(s) exceed the limit of {max} and were ignored: {ids}',
+      'panel.custom.droppedClose': 'Got it',
+      'panel.a11y.live': 'Switched to {label}',
         'panel.theme.deleteConfirm': 'Click again to delete',
         'panel.alert.imgMax': 'Image must be under 3 MiB',
         'panel.alert.imgStore': 'This image is too large for local browser storage; please pick a smaller one.',
@@ -525,13 +531,10 @@
     function zrLangFromHost(ctx) {
       try {
         let loc = null
-        if (ctx && typeof ctx.get === 'function') loc = ctx.get('locale')
-        if (!loc && ctx) {
-          try {
-            loc = ctx.locale
-          } catch (e) {
-            loc = null
-          }
+        // 可选依赖只走 ctx.get()：直接读 ctx.locale 在未 inject 时会抛
+        // 「cannot get property \"locale\" without inject」（plugin_doctor K1）。
+        if (ctx && typeof ctx.get === 'function') {
+          try { loc = ctx.get('locale') } catch (e) { loc = null }
         }
         const snap = loc && typeof loc.getSnapshot === 'function' ? loc.getSnapshot() : null
         const active = snap && snap.active ? String(snap.active).toLowerCase() : ''
@@ -550,13 +553,10 @@
     function zrRegisterLocale(ctx, ns, keys) {
       try {
         let loc = null
-        if (ctx && typeof ctx.get === 'function') loc = ctx.get('locale')
-        if (!loc && ctx) {
-          try {
-            loc = ctx.locale
-          } catch (e) {
-            loc = null
-          }
+        // 可选依赖只走 ctx.get()：直接读 ctx.locale 在未 inject 时会抛
+        // 「cannot get property \"locale\" without inject」（plugin_doctor K1）。
+        if (ctx && typeof ctx.get === 'function') {
+          try { loc = ctx.get('locale') } catch (e) { loc = null }
         }
         if (!loc || typeof loc.register !== 'function') return null
         const bundle = { zh: {}, en: {} }

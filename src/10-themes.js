@@ -170,13 +170,16 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
         const raw = window.localStorage.getItem(STORE);
         const p = raw ? JSON.parse(raw) : {};
         // 自定义主题：只存锚点，上限 CUSTOM_MAX 套（写入前判、读取再截一次兜底）；theme 既可以是内置 id，也可以是自定义 id
-        const customs = (Array.isArray(p.customThemes) ? p.customThemes : [])
-          .slice(0, CUSTOM_MAX).map(sanitizeCustomSpec).filter(Boolean);
+        const rawCustoms = Array.isArray(p.customThemes) ? p.customThemes : [];
+        // 读取侧截断不能再静默：超过上限的部分丢掉时，把被丢的 id 记下来给面板提示。
+        const customs = rawCustoms.slice(0, CUSTOM_MAX).map(sanitizeCustomSpec).filter(Boolean);
+        const dropped = rawCustoms.slice(CUSTOM_MAX).map(function (c) { return c && typeof c.id === 'string' ? c.id : ''; }).filter(Boolean);
         const themeKnown = THEME_IDS.indexOf(p.theme) !== -1
           || customs.some(function (c) { return c.id === p.theme; });
         return {
           theme: themeKnown ? p.theme : 'zhuoer',
           customThemes: customs,
+          droppedCustomIds: dropped,
           mode: p.mode === 'light' || p.mode === 'dark' ? p.mode : 'auto',
           bgSource: ['none', 'theme', 'image'].indexOf(p.bgSource) !== -1 ? p.bgSource : 'none',
           bgStyle: p.bgStyle === 'full' ? 'full' : 'fade',
