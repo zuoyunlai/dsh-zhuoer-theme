@@ -3162,9 +3162,12 @@ function applyTokens(theme, pref) {
           //  - texture（主题自带底图 / AI 生成的线稿）：只透出线，缺哪张就反相用另一张；
           //  - photo（设置里手动上传的照片）：整张显示，**绝不**做 blend / 反相。
           //    照片被「只留线条」的规则处理，就是浅色模式看不见的那个 bug。
+          // 旧数据没有 kind：只有「主题自带底图」能确定是线稿；其余（含历史上传的图片，
+          // 哪怕带 keyLight）一律按照片处理。之前按「有浅色版 = 线稿」推断，
+          // 把用户上传的**照片**判成线稿，浅色模式被 lighten 吃到一片空白。
           const kind = specBg.kind === 'photo' || specBg.kind === 'texture'
             ? specBg.kind
-            : (specBg.keyLight ? 'texture' : 'photo');
+            : (specBg.source === 'theme' ? 'texture' : 'photo');
           bgKind = kind;
           const darkUrl = imageCache.get(specBg.key) || '';
           const lightUrl = imageCache.get(specBg.keyLight) || '';
