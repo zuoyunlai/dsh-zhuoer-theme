@@ -42,9 +42,9 @@ _真机截图：左侧抽屉只放 8 组锚点，右侧是宿主真实界面在�
 
 界面默认中文（英文界面同一套组件，见 [README.en.md](README.en.md)）。图片取自空配置的一次性 profile，没有会话、工作区等个人信息。
 
-![配色主题 · 浅色](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/panel-light.png)
-
-![配色主题 · 深色](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/panel-dark.png)
+| 配色主题 · 浅色 | 配色主题 · 深色 |
+|---|---|
+| ![浅色](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/panel-light.png) | ![深色](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/panel-dark.png) |
 
 ![自定义主题编辑器（左抽屉 + 右侧真实界面预览）](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/editor.png)
 

@@ -42,9 +42,9 @@ Not "probably readable" — every text role has a floor, re-measured by the gate
 
 The UI shown is the Chinese one (same components in English; see [README.md](README.md)). Captured from a throwaway profile with an empty config, so no session or workspace data is visible.
 
-![Colour themes · light](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/panel-light.png)
-
-![Colour themes · dark](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/panel-dark.png)
+| Colour themes · light | Colour themes · dark |
+|---|---|
+| ![light](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/panel-light.png) | ![dark](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/panel-dark.png) |
 
 ![Custom theme editor: drawer on the left, live UI preview on the right](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/editor.png)
 
