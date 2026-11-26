@@ -51,13 +51,10 @@ window.__ModuleLoader__.load({
     }
     report({ phase: 'bundle-evaluated' });
     report({ phase: 'factory-entered' });
-    try {
-      if (typeof window !== 'undefined') {
-        window.addEventListener('error', function (ev) {
-          report({ phase: 'window-error', message: String((ev && ev.message) || ev).slice(0, 300), file: String((ev && ev.filename) || '').slice(0, 200), line: ev && ev.lineno });
-        });
-      }
-    } catch (e) { /* ignore */ }
+    // 全局 error 监听：句柄留成模块级，apply() 里挂进 ctx.effect，卸载/HMR 时随 effect 回收（doctor K3）。
+    const onWindowError = function (ev) {
+      report({ phase: 'window-error', message: String((ev && ev.message) || ev).slice(0, 300), file: String((ev && ev.filename) || '').slice(0, 200), line: ev && ev.lineno });
+    };
 
         /* ================= 多语言真源（i18n） =================
      * 为什么单独一片：右侧栏轨道在 makeQuicknavModule 的闭包里、设置面板在 factory 层，
@@ -280,6 +277,9 @@ window.__ModuleLoader__.load({
         'panel.custom.newLabel': '自定义 {n}',
         'panel.custom.copySuffix': ' 副本',
         'panel.custom.limitErr': '自定义主题最多 {n} 套，已达上限；先删掉一套再新建或导入。',
+      'panel.custom.dropped': '有 {n} 套自定义主题超出上限 {max}，已被忽略：{ids}',
+      'panel.custom.droppedClose': '知道了',
+      'panel.a11y.live': '已切换到 {label}',
         'panel.theme.deleteConfirm': '再点一次删除',
         'panel.alert.imgMax': '图片不能超过 3 MiB',
         'panel.alert.imgStore': '这张图太大，浏览器本地存储放不下，请换一张更小的图片。',
@@ -513,6 +513,9 @@ window.__ModuleLoader__.load({
         'panel.custom.newLabel': 'Custom {n}',
         'panel.custom.copySuffix': ' copy',
         'panel.custom.limitErr': 'At most {n} custom themes; delete one before creating or importing another.',
+      'panel.custom.dropped': '{n} custom theme(s) exceed the limit of {max} and were ignored: {ids}',
+      'panel.custom.droppedClose': 'Got it',
+      'panel.a11y.live': 'Switched to {label}',
         'panel.theme.deleteConfirm': 'Click again to delete',
         'panel.alert.imgMax': 'Image must be under 3 MiB',
         'panel.alert.imgStore': 'This image is too large for local browser storage; please pick a smaller one.',
@@ -586,13 +589,10 @@ window.__ModuleLoader__.load({
     function zrLangFromHost(ctx) {
       try {
         let loc = null
-        if (ctx && typeof ctx.get === 'function') loc = ctx.get('locale')
-        if (!loc && ctx) {
-          try {
-            loc = ctx.locale
-          } catch (e) {
-            loc = null
-          }
+        // 可选依赖只走 ctx.get()：直接读 ctx.locale 在未 inject 时会抛
+        // 「cannot get property \"locale\" without inject」（plugin_doctor K1）。
+        if (ctx && typeof ctx.get === 'function') {
+          try { loc = ctx.get('locale') } catch (e) { loc = null }
         }
         const snap = loc && typeof loc.getSnapshot === 'function' ? loc.getSnapshot() : null
         const active = snap && snap.active ? String(snap.active).toLowerCase() : ''
@@ -611,13 +611,10 @@ window.__ModuleLoader__.load({
     function zrRegisterLocale(ctx, ns, keys) {
       try {
         let loc = null
-        if (ctx && typeof ctx.get === 'function') loc = ctx.get('locale')
-        if (!loc && ctx) {
-          try {
-            loc = ctx.locale
-          } catch (e) {
-            loc = null
-          }
+        // 可选依赖只走 ctx.get()：直接读 ctx.locale 在未 inject 时会抛
+        // 「cannot get property \"locale\" without inject」（plugin_doctor K1）。
+        if (ctx && typeof ctx.get === 'function') {
+          try { loc = ctx.get('locale') } catch (e) { loc = null }
         }
         if (!loc || typeof loc.register !== 'function') return null
         const bundle = { zh: {}, en: {} }
@@ -803,13 +800,16 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
         const raw = window.localStorage.getItem(STORE);
         const p = raw ? JSON.parse(raw) : {};
         // 自定义主题：只存锚点，上限 CUSTOM_MAX 套（写入前判、读取再截一次兜底）；theme 既可以是内置 id，也可以是自定义 id
-        const customs = (Array.isArray(p.customThemes) ? p.customThemes : [])
-          .slice(0, CUSTOM_MAX).map(sanitizeCustomSpec).filter(Boolean);
+        const rawCustoms = Array.isArray(p.customThemes) ? p.customThemes : [];
+        // 读取侧截断不能再静默：超过上限的部分丢掉时，把被丢的 id 记下来给面板提示。
+        const customs = rawCustoms.slice(0, CUSTOM_MAX).map(sanitizeCustomSpec).filter(Boolean);
+        const dropped = rawCustoms.slice(CUSTOM_MAX).map(function (c) { return c && typeof c.id === 'string' ? c.id : ''; }).filter(Boolean);
         const themeKnown = THEME_IDS.indexOf(p.theme) !== -1
           || customs.some(function (c) { return c.id === p.theme; });
         return {
           theme: themeKnown ? p.theme : 'zhuoer',
           customThemes: customs,
+          droppedCustomIds: dropped,
           mode: p.mode === 'light' || p.mode === 'dark' ? p.mode : 'auto',
           bgSource: ['none', 'theme', 'image'].indexOf(p.bgSource) !== -1 ? p.bgSource : 'none',
           bgStyle: p.bgStyle === 'full' ? 'full' : 'fade',
@@ -1854,6 +1854,7 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
 
     const STYLE_ID = 'dsh-zhuoer-theme-tokens';
 // 由 scripts/gen-host-text.mjs 生成，勿手改。宿主升级后重跑该脚本。
+// HOST_ASAR_BYTES=209083008
 // 形如 ["[class*="_title"]", 14]：选择器（CSS Modules local 名）+ 原始 px 字号。
 const HOST_TEXT_RULES = [
   ["[class*=\"_accountInfo\"]", 13],
@@ -2448,6 +2449,13 @@ const HOST_TEXT_RULES = [
 let ZR_SCALE = 1;
 // 上一次界面文字缩放的结果（面板用它给用户可见的失败反馈）
 let HOST_TEXT_STATS = null;
+// debug 晚探针的定时器句柄：模块作用域，卸载时由 quicknav 的 disposer 统一清（doctor K3）。
+let lateProbeTimer = 0;
+// 上一层的 token disposer / 底图观察器 / 去抖定时器：改为分片间共享的模块作用域变量。
+// 原来是 window.__zrSkin* —— 同页别的脚本能读到也能改（清了就没了），且是全局污染。
+let zrSkinDispose = null;
+let zrSkinObs = null;
+let zrSkinT = 0;
 
     // 预览路径（编辑器 / 取色器 / 滑块）此前传 null，导致 overrideTokens 拿不到服务、抛错被吞，
     // 编辑期间只剩 CSS 兜底层。这里留一个模块级引用，任何调用点都能拿到宿主主题服务。
@@ -2816,12 +2824,12 @@ function applyTokens(theme, pref) {
       });
       let overrideApplied = false;
       try {
-        if (window.__zrSkinDispose) {
-          try { window.__zrSkinDispose(); } catch (e) { /* 旧的已经不在了也无妨 */ }
-          window.__zrSkinDispose = null;
+        if (zrSkinDispose) {
+          try { zrSkinDispose(); } catch (e) { /* 旧的已经不在了也无妨 */ }
+          zrSkinDispose = null;
         }
         dispose = theme.overrideTokens(SOURCE, overrideMap) || (function () {});
-        window.__zrSkinDispose = dispose;
+        zrSkinDispose = dispose;
         overrideApplied = true;
       } catch (e) {
         try { console.warn('[zhuoer-theme] overrideTokens 失败', (e && e.message) || e); } catch (e2) { /* ignore */ }
@@ -3118,10 +3126,10 @@ function applyTokens(theme, pref) {
           // 状态标注与观察器只服务底图相关的 CSS（data-zr-state / bg 开关）；
           // 没开底图时它们纯属白付成本，直接跳过。
           if (bgUrl) markState();
-          if (bgUrl && !window.__zrSkinObs) {
-            window.__zrSkinObs = new MutationObserver(function () {
-              clearTimeout(window.__zrSkinT);
-              window.__zrSkinT = setTimeout(function () {
+          if (bgUrl && !zrSkinObs) {
+            zrSkinObs = new MutationObserver(function () {
+              clearTimeout(zrSkinT);
+              zrSkinT = setTimeout(function () {
                 markState();
                 // 守卫：dsh-theme-palette 这类插件会用它自己的 <style> 覆盖同一批
                 // CSS 变量，同优先级下后写者赢。检测到我们的 style 不在末尾就移回去，
@@ -3136,7 +3144,7 @@ function applyTokens(theme, pref) {
                 } catch (e) { /* ignore */ }
               }, 200);
             });
-            window.__zrSkinObs.observe(document.body, { childList: true, subtree: true });
+            zrSkinObs.observe(document.body, { childList: true, subtree: true });
           }
         } catch (e) { /* 状态标注失败不影响主题 */ }
         // 同步注入 open shadow root（closed 的无法访问，只能靠继承）。
@@ -3374,7 +3382,7 @@ function applyTokens(theme, pref) {
       '.zp-sec{display:flex;flex-direction:column;gap:12px;',
       'padding-top:18px;margin-top:18px;border-top:1px solid var(--dsw-alias-border-l1);}',
       '.zp-sec-hd{display:flex;flex-direction:column;gap:2px;}',
-      '.zp-sec-t{font-size:13px;font-weight:600;letter-spacing:.01em;}',
+      '.zp-sec-t{font-size:13px;font-weight:600;letter-spacing:.01em;margin:0;}',
       '.zp-sec-n{font-size:12px;line-height:1.55;color:var(--dsw-alias-label-secondary);max-width:56em;}',
       // 主题卡：132px 起跳，320px 宽能放两列，再宽自动三列/四列，永不横向溢出
       '.zp-ths{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:8px;}',
@@ -3413,7 +3421,7 @@ function applyTokens(theme, pref) {
       // 胶囊组：flex-wrap 而不是等分分段——5 档字号在窄容器里换行比压扁可读
       '.zp-seg{display:inline-flex;flex-wrap:wrap;gap:2px;padding:2px;border-radius:10px;',
       'background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l2);}',
-      '.zp-pill{appearance:none;display:inline-flex;align-items:center;gap:4px;padding:4px 12px;',
+      '.zp-pill{appearance:none;display:inline-flex;align-items:center;gap:4px;min-height:24px;padding:4px 12px;',
       'border-radius:8px;border:1px solid transparent;background:transparent;',
       'font:inherit;font-size:12px;line-height:1.4;cursor:pointer;',
       'color:var(--dsw-alias-label-secondary);',
@@ -3456,7 +3464,7 @@ function applyTokens(theme, pref) {
       '.zp-inp::placeholder{color:var(--dsw-alias-label-dimmed);}',
       '.zp-inp:focus{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;',
       'border-color:var(--dsw-alias-brand-primary);}',
-      '.zp-btn{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:8px;',
+      '.zp-btn{display:inline-flex;align-items:center;gap:6px;min-height:24px;padding:4px 12px;border-radius:8px;',
       'font:inherit;font-size:12px;line-height:1.5;cursor:pointer;',
       'background:var(--dsw-alias-button-elevated-fill);border:1px solid var(--dsw-alias-border-l2);',
       'color:var(--dsw-alias-label-primary);',
@@ -3479,7 +3487,7 @@ function applyTokens(theme, pref) {
       '.zp-file:focus-within{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;}',
       '.zp-sws{display:flex;align-items:center;flex-wrap:wrap;gap:12px;}',
       // 视觉 22px，命中区靠 ::after 外扩到 34px：一排 9 个色点，不能为了 44px 把面板撑爆
-      '.zp-sw{position:relative;width:22px;height:22px;padding:0;border-radius:999px;cursor:pointer;',
+      '.zp-sw{position:relative;width:24px;height:24px;min-width:24px;min-height:24px;padding:0;border-radius:999px;cursor:pointer;',
       'border:1px solid var(--dsw-alias-border-l3);background:transparent;',
       'transition:transform .12s ease,box-shadow .12s ease;}',
       '.zp-sw::after{content:"";position:absolute;inset:-6px;border-radius:999px;}',
@@ -3496,6 +3504,13 @@ function applyTokens(theme, pref) {
       // 用字重 + 点线更稳，颜色只做非文本的装饰线。
       '.zp-hint.is-warn{font-weight:600;text-decoration:underline dotted var(--dsw-alias-state-error-primary);',
       'text-underline-offset:2px;}',
+      // 视觉隐藏（屏读可见）：给 aria-live 播报区用。不能用 display:none/visibility:hidden，那会连屏读一起隐藏。
+      '.zp-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;',
+      'clip:rect(0,0,0,0);white-space:nowrap;border:0;}',
+      // 读取侧截断提示条：非模态、可关闭。
+      '.zp-note{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:8px 10px;border-radius:8px;',
+      'font-size:12px;line-height:1.5;color:var(--dsw-alias-label-primary);',
+      'background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l2);}',
       // ---- 自定义主题：卡片 / 编辑器 ----
       '.zp-th-add{border-style:dashed;align-items:center;justify-content:center;min-height:78px;}',
       '.zp-th-p-add{display:flex;align-items:center;justify-content:center;height:46px;',
@@ -3571,7 +3586,7 @@ function applyTokens(theme, pref) {
     function Section(props) {
       return h('section', { className: 'zp-sec', 'aria-label': props.title },
         h('div', { className: 'zp-sec-hd' },
-          h('div', { className: 'zp-sec-t' }, props.title),
+          h('h3', { className: 'zp-sec-t' }, props.title),
           props.note ? h('div', { className: 'zp-sec-n' }, props.note) : null
         ),
         props.children
@@ -3588,13 +3603,15 @@ function applyTokens(theme, pref) {
 
     // 胶囊单选组：用 aria-pressed 而不是 role=radio。
     // radio 组要求方向键导航，宿主里没人教；按钮组 Tab 能直接落到每一项。
+    // 语义用 radiogroup + aria-checked：屏读会播报「X，单选，已选中 2/5」。
+    // 仍然是 <button>（不是真 radio），这样 Tab 能逐项落下、不需要实现方向键导航。
     function Pills(props) {
-      return h('div', { className: 'zp-seg', role: 'group', 'aria-label': props.label },
+      return h('div', { className: 'zp-seg', role: 'radiogroup', 'aria-label': props.label },
         props.opts.map(function (o) {
           const on = props.value === o[0];
           return h('button', {
-            key: String(o[0]), type: 'button', className: 'zp-pill',
-            'data-on': on ? '1' : '0', 'aria-pressed': on,
+            key: String(o[0]), type: 'button', className: 'zp-pill', role: 'radio',
+            'data-on': on ? '1' : '0', 'aria-checked': on,
             onClick: function () { props.onChange(o[0]); },
           }, o[1]);
         })
@@ -3721,8 +3738,8 @@ function applyTokens(theme, pref) {
         if (tk[pair[1]]) pv[pair[0]] = tk[pair[1]];
       });
       return h('button', {
-        type: 'button', className: 'zp-th', 'data-on': active ? '1' : '0',
-        'aria-pressed': active, title: label + ' (' + props.id + ')',
+        type: 'button', className: 'zp-th', 'data-on': active ? '1' : '0', role: 'radio',
+        'aria-checked': active, 'aria-pressed': active, title: label + ' (' + props.id + ')',
         onClick: function () { props.onPick(props.id); },
       },
         h('span', { className: 'zp-th-p', 'aria-hidden': 'true', style: pv },
@@ -3975,12 +3992,23 @@ function applyTokens(theme, pref) {
         if (props.onSwitchToLight) props.onSwitchToLight();
         setAiResult(null); setAiPrompt('');
       };
+      // 会话随机数：AI 生成会消耗宿主模型额度，服务端要求带上它。取一次缓存住即可。
+      let aiNonce = '';
+      const fetchAiNonce = function () {
+        if (aiNonce) return Promise.resolve(aiNonce);
+        return fetch('/dsh-zhuoer-theme/api/nonce', { headers: { 'x-zhuoer-client': '1' } })
+          .then(function (r) { return r.json(); })
+          .then(function (d) { aiNonce = (d && d.nonce) || ''; return aiNonce; });
+      };
       const aiGenerate = function () {
         const prompt = String(aiPrompt || '').trim();
         if (!prompt) return;
         setAiBusy(true); setAiErr(''); setAiResult(null);
         // query string 传参：宿主会在 handler 之前截走 POST body。
-        fetch('/dsh-zhuoer-theme/api/gen-theme?prompt=' + encodeURIComponent(prompt), { method: 'GET', headers: { 'x-zhuoer-client': '1' } })
+        fetchAiNonce()
+          .then(function (nonce) {
+            return fetch('/dsh-zhuoer-theme/api/gen-theme?prompt=' + encodeURIComponent(prompt), { method: 'GET', headers: { 'x-zhuoer-client': '1', 'x-zhuoer-nonce': nonce } });
+          })
           .then(function (resp) { return resp.json(); })
           .then(function (data) {
             if (!data || !data.ok) {
@@ -4030,7 +4058,7 @@ function applyTokens(theme, pref) {
               onClick: function () { requestCloseRef.current(); },
             }, '×')
           ),
-          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, t('panel.ed.secAppearance')), h('div', { className: 'zp-sec-n' }, t('panel.ed.clonedFrom', { theme: THEMES[props.spec.base] ? (THEMES[props.spec.base].label || props.spec.base) : props.spec.base })))),
+          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('h3', { className: 'zp-sec-t' }, t('panel.ed.secAppearance')), h('div', { className: 'zp-sec-n' }, t('panel.ed.clonedFrom', { theme: THEMES[props.spec.base] ? (THEMES[props.spec.base].label || props.spec.base) : props.spec.base })))),
           h(Row, { label: t('panel.ed.name') },
             h('input', {
               type: 'text', className: 'zp-txt', value: draft.label, maxLength: 24,
@@ -4063,7 +4091,7 @@ function applyTokens(theme, pref) {
               },
             })
           ),
-          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, t('panel.ed.anchors')), h('div', { className: 'zp-sec-n' }, t('panel.ed.anchorsNote')))),
+          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('h3', { className: 'zp-sec-t' }, t('panel.ed.anchors')), h('div', { className: 'zp-sec-n' }, t('panel.ed.anchorsNote')))),
           h('div', { className: 'zp-ed-list' },
             ANCHOR_GROUPS.map(function (g) {
               const own = anchors[g.anchor];
@@ -4078,7 +4106,7 @@ function applyTokens(theme, pref) {
               });
             })
           ),
-          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, t('panel.ed.presets')), h('div', { className: 'zp-sec-n' }, t('panel.ed.presetsNote')))),
+          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('h3', { className: 'zp-sec-t' }, t('panel.ed.presets')), h('div', { className: 'zp-sec-n' }, t('panel.ed.presetsNote')))),
           h(Row, { label: t('panel.ed.presets') },
             h('div', { className: 'zp-presets' },
               STYLE_PRESETS.map(function (p) {
@@ -4090,7 +4118,7 @@ function applyTokens(theme, pref) {
               })
             )
           ),
-          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, t('panel.ed.aiSection')), h('div', { className: 'zp-sec-n' }, t('panel.ed.aiNote')))),
+          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('h3', { className: 'zp-sec-t' }, t('panel.ed.aiSection')), h('div', { className: 'zp-sec-n' }, t('panel.ed.aiNote')))),
           h(Row, { label: t('panel.ed.aiRow') },
             h('div', { className: 'zp-ed-ai' },
               h('textarea', {
@@ -4167,7 +4195,7 @@ function applyTokens(theme, pref) {
             )
           ),
 
-          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, t('panel.ed.bgSection')), h('div', { className: 'zp-sec-n' }, t('panel.ed.bgNote')))),
+          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('h3', { className: 'zp-sec-t' }, t('panel.ed.bgSection')), h('div', { className: 'zp-sec-n' }, t('panel.ed.bgNote')))),
           h(Row, { label: t('panel.ed.bgSection') },
             h(Pills, {
               label: t('panel.ed.bgSourceAria'),
@@ -4201,7 +4229,7 @@ function applyTokens(theme, pref) {
                 h('span', { className: 'zp-val' }, (typeof bg.opacity === 'number' ? bg.opacity : 85) + '%')
               )
             : null,
-          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('div', { className: 'zp-sec-t' }, t('panel.ed.shapeSection')), h('div', { className: 'zp-sec-n' }, t('panel.ed.shapeNote')))),
+          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('h3', { className: 'zp-sec-t' }, t('panel.ed.shapeSection')), h('div', { className: 'zp-sec-n' }, t('panel.ed.shapeNote')))),
           h(Row, { label: t('panel.ed.radiusRow') },
             h(Pills, {
               label: t('panel.ed.radiusAria'),
@@ -4356,6 +4384,10 @@ function applyTokens(theme, pref) {
       // 删除主题的两步确认：删除会连同该主题的底图一起清掉，底图没备份就找不回来，
       // 值得多问一次。照抄「恢复默认设置」的定时撤销模式（3.5 秒）。
       const [deleteArmed, setDeleteArmed] = useState(false);
+      // 读取侧截断提示：被丢的主题 id 存在 pref 里，用户点「知道了」才清掉（不自动消失，避免再次静默）。
+      const [droppedDismissed, setDroppedDismissed] = useState(false);
+      // 屏读播报：切主题 / 改模式后把结果说给辅助技术听（视觉用户看不到这块）。
+      const [liveMsg, setLiveMsg] = useState('');
       useEffect(function () {
         const fn = function () { setPref(readPref()); };
         listeners.add(fn);
@@ -4646,18 +4678,26 @@ function applyTokens(theme, pref) {
             h('span', { className: 'zp-live' }, t('panel.header.live'))
           )
         ),
+        // 视觉隐藏的播报区：只在内容变化时被屏读读出。
+        h('div', { className: 'zp-sr', 'aria-live': 'polite', 'aria-atomic': 'true' }, liveMsg),
+        (!droppedDismissed && pref.droppedCustomIds && pref.droppedCustomIds.length)
+          ? h('div', { className: 'zp-note', role: 'status' },
+              t('panel.custom.dropped', { n: pref.droppedCustomIds.length, max: CUSTOM_MAX, ids: pref.droppedCustomIds.join(', ') }),
+              h('button', { type: 'button', className: 'zp-btn', onClick: function () { setDroppedDismissed(true); } }, t('panel.custom.droppedClose'))
+            )
+          : null,
 
         h(Section, { title: t('panel.theme.title'), note: t('panel.theme.note') },
           h(Row, { label: t('panel.theme.modeRow') },
             h(Pills, { label: t('panel.theme.modeAria'), opts: modes(), value: modeNow,
               onChange: function (v) { syncMode(v); } })
           ),
-          h('div', { className: 'zp-ths' },
+          h('div', { className: 'zp-ths', role: 'radiogroup', 'aria-label': t('panel.theme.title') },
             THEME_IDS.map(function (id) {
               return h(Swatch, {
                 key: id, id: id, def: THEMES[id], scheme: scheme,
                 active: pref.theme === id,
-                onPick: function (x) { set({ theme: x }); },
+                onPick: function (x) { set({ theme: x }); setLiveMsg(t('panel.a11y.live', { label: themeLabelOf((THEMES[x] && THEMES[x].label) || x) })); },
               });
             }),
             customs.map(function (spec) {
@@ -4669,7 +4709,7 @@ function applyTokens(theme, pref) {
                   light: buildCustomTokens(spec, 'light'),
                 },
                 active: pref.theme === spec.id,
-                onPick: function (x) { set({ theme: x }); },
+                onPick: function (x) { set({ theme: x }); setLiveMsg(t('panel.a11y.live', { label: themeLabelOf((THEMES[x] && THEMES[x].label) || x) })); },
               });
             }),
             h('button', {
@@ -4902,9 +4942,18 @@ function applyTokens(theme, pref) {
         try { hostThemeApi = (ctx && ctx.theme) || hostThemeApi; } catch (e) { /* ignore */ }
         try { themeRef = hostThemeApi; } catch (e) { /* ignore */ }
         subscribeHostChange(ctx);
+        // 全局 error 监听走 effect：卸载/HMR 时回收，不再泄漏到下一个实例（doctor K3）。
+        try {
+          if (typeof ctx.effect === 'function') {
+            ctx.effect(function () {
+              window.addEventListener('error', onWindowError);
+              return function () { try { window.removeEventListener('error', onWindowError); } catch (e) { /* ignore */ } };
+            }, 'zhuoer-theme: window error listener');
+          }
+        } catch (e) { /* ignore */ }
         // 延迟探针：等消息渲染完成后再扫「亮底」元素（内联 code 白底）。
         // 它会对全 DOM 逐元素 getComputedStyle，生产里纯属开销，只在 debug 下挂。
-        if (zrDebug()) setTimeout(function () {
+        if (zrDebug()) lateProbeTimer = setTimeout(function () {
           try {
             const luma = function (bg) {
               const m = String(bg).match(/[\d.]+/g);
@@ -5703,6 +5752,12 @@ function applyTokens(theme, pref) {
         }, CLOSE_DELAY)
       }, [cancelCollapse])
 
+      /* 卸载时清掉两个定时器：组件消失后仍回调 setState 会警告并泄漏（doctor K3）。 */
+      useEffect(() => () => {
+        try { if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = 0 } } catch (e) { /* ignore */ }
+        try { if (flashTimer.current) { clearTimeout(flashTimer.current); flashTimer.current = 0 } } catch (e) { /* ignore */ }
+      }, [])
+
       /* 主题设置改了三态要立刻生效：同窗口靠自定义事件，跨窗口靠 storage */
       useEffect(() => {
         const onPref = () => setMode(readQuicknavMode())
@@ -6233,8 +6288,9 @@ function applyTokens(theme, pref) {
             try { disposeResizeHint(); } catch (e) { /* ignore */ }
             try { const el = document.getElementById(STYLE_ID); if (el) el.remove(); } catch (e) { /* ignore */ }
             // 插件卸载/HMR：观察器与去抖/合并定时器都要断开，否则会继续挂在 document.body 上。
-            try { clearTimeout(window.__zrSkinT); window.__zrSkinT = 0; } catch (e) { /* ignore */ }
-            try { if (window.__zrSkinObs) { window.__zrSkinObs.disconnect(); window.__zrSkinObs = null; } } catch (e) { /* ignore */ }
+            try { clearTimeout(zrSkinT); zrSkinT = 0; } catch (e) { /* ignore */ }
+            try { clearTimeout(lateProbeTimer); lateProbeTimer = 0; } catch (e) { /* ignore */ }
+            try { if (zrSkinObs) { zrSkinObs.disconnect(); zrSkinObs = null; } } catch (e) { /* ignore */ }
             try { clearTimeout(hostReapplyTimer); hostReapplyTimer = 0; } catch (e) { /* ignore */ }
           };
         }, 'dsh-zhuoer-theme: token layer');

@@ -20,6 +20,14 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const argAsar = process.argv.indexOf('--asar')
 const asar = argAsar > 0 ? process.argv[argAsar + 1] : 'D:/Programs/DeepSeek Harness/resources/app.asar'
 
+// 宿主指纹：取 app.asar 的字节数（宿主升级 → asar 换新 → 体积几乎必变）。
+// 版本号在 asar 里拿不到（asar 头部只存文件表、不存内容），体积是更可靠的代理指标。
+let hostVersion = 'unknown'
+try {
+  const { statSync } = await import('node:fs')
+  hostVersion = String(statSync(asar).size)
+} catch (e) { /* 取不到就记 unknown */ }
+
 const rules = []
 const seen = new Set()
 const ruleRe = /([^{}]{1,400})\{([^{}]{0,600})\}/g
@@ -86,6 +94,9 @@ await new Promise((resolve, reject) => {
 rules.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
 const lines = []
 lines.push('// 由 scripts/gen-host-text.mjs 生成，勿手改。宿主升级后重跑该脚本。')
+// 宿主版本戳：字号表是「针对某个宿主版本抽的事实」，宿主升级后选择器与 px 都会变。
+// 记下抽取时的宿主版本，verify:hosttext 能据此提示「该重抽了」。
+lines.push('// HOST_ASAR_BYTES=' + hostVersion)
 lines.push('// 形如 ["[class*=\"_title\"]", 14]：选择器（CSS Modules local 名）+ 原始 px 字号。')
 lines.push('const HOST_TEXT_RULES = [')
 for (const [sel, px] of rules) lines.push('  [' + JSON.stringify(sel) + ', ' + px + '],')

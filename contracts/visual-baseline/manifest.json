@@ -7,14 +7,14 @@
     {
       "file": "settings-dark.png",
       "w": 559,
-      "h": 1644,
-      "sha256": "d7dccf097a170106e5b5b897ef78ef6c92f24072e61b21941a28b3add3b2b39e"
+      "h": 1646,
+      "sha256": "ec217945e764263d14dee451669aa25b44e4b8958e011d4fecb429729c888fd4"
     },
     {
       "file": "settings-light.png",
       "w": 559,
-      "h": 1644,
-      "sha256": "65d444908e99666c3177261218137631a6b815d71c4fed2a754cb30af97adca9"
+      "h": 1646,
+      "sha256": "34c2d9b0e8ccee78d10833343bb8e7e36de30c5a099c8d9986f63fb7d59553ee"
     }
   ]
 }

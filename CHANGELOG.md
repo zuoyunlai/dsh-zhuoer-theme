@@ -12,6 +12,37 @@
 
 
 
+## 未发布（审计整改批 A / B / C）
+
+依据 `docs/audit-2026-11-26.md`（全量审计，82/100）逐条整改，分三批落地：
+
+### 批 A（宿主契约 / 数据安全 / 无障碍）
+
+- **peer 走廊扩线**：`>=0.2.2-0 <0.3.0` → `>=0.1.2-rc.1 <0.2.0 || >=0.2.0-0 <0.3.0`。原走廊与宿主 0.2.1-alpha.1、0.1.7-rc.2 都不相交——宿主对不相交的插件是**静默禁用**（能装、不生效、零报错）。plugin_doctor 的 X1 由 FAIL 转 WARN（只剩 0.0.1-rc.5 这条老线，属「支持到哪条线」的选择）。
+- **读取侧截断不再静默**：存档超过 24 套自定义主题时，超出的 id 记进 `pref.droppedCustomIds`，面板顶部给一条可关闭提示（`panel.custom.dropped` / `droppedClose`）。原先 `.slice(0, CUSTOM_MAX)` 无声截掉，重启即消失。
+- **无障碍**：分区标题由 `<div>` 改 `<h3>`（屏读可按标题跳转）；胶囊组与主题卡组改 `role="radiogroup"` + `role="radio"` + `aria-checked`；按钮与色板最小点击区提到 24px（真机探针：小于 24px 的按钮 8 → **0**）；切主题后往 `aria-live` 区播报「已切换到 X」（`.zp-sr` 视觉隐藏但屏读可见）。
+
+### 批 B（门禁与生命周期）
+
+- **!important 棘轮门**（新增 `scripts/verify-important.mjs`）：只许降不许升，防「宿主加一条、插件加两条」的优先级军备竞赛。当前基线 77。
+- **locale 服务只走 `ctx.get()`**：原先还直读 `ctx.locale`，未 inject 时会抛 `cannot get property "locale" without inject`（plugin_doctor K1）。K1 现为 PASS。
+- **全局资源回收**：window 的 error 监听改挂 `ctx.effect`；debug 晚探针与底图去抖定时器改为模块作用域句柄并在 disposer 里清；快捷导航的收起/闪烁定时器在组件卸载时清。
+- **AI 生成端点加会话随机数**：服务端每次实例启动生成 24 字节随机数，`/api/gen-theme` 必须带匹配的 `x-zhuoer-nonce`（客户端先取 `/api/nonce`）。这是**有边界**的加固——浏览器里同源脚本彼此无法隔离，它挡的是外部直连探测与误撞，不是同源恶意脚本；边界写进新的 `SECURITY.md`。
+
+### 批 C（工程整洁）
+
+- `window.__zrSkin*` 三个全局改为模块作用域变量（同页别的脚本读不到也改不了）。
+- `dev:sync` 改为**默认只预览**，要真写加 `--apply`（它覆盖的是你正在跑的插件目录）。
+- 视觉门支持**每张图各自的视口**（采集目录放 `viewport.json`），窄屏基线可与宽屏并存。
+- 新增 `SECURITY.md`：端点信任边界、本机落盘清单、诊断开关、依赖与供应链。
+
+### 门禁变化
+
+- 对比度台账 **655 → 679 组**：新增硬边模式选中下划线（品牌色 60% 合成到 `bg-layer-1`）这一组。
+- 新增 `verify:important`（棘轮），已并入 `verify:all`。
+- 文案 153 → **155 条**（新增 `panel.custom.dropped` / `droppedClose` / `panel.a11y.live`，中英成对）。
+- CSS 快照与视觉基线已按本批重采（CSS 65674 B ×2）。
+
 ## 0.6.24（修复：打开自定义主题编辑器就抛 pref is not defined）
 
 0.6.23 的「硬边强化」把一行全局开关放进了**自定义主题编辑器**，但那行是从面板里复制过来的，直接引用了面板作用域的 `pref` / `set`。编辑器里两者都不存在，于是「新建主题」或「编辑」一打开就抛 `ReferenceError: pref is not defined`，面板显示「主题面板渲染出错」。

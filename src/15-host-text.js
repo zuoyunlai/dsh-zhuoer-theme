@@ -1,4 +1,5 @@
 // 由 scripts/gen-host-text.mjs 生成，勿手改。宿主升级后重跑该脚本。
+// HOST_ASAR_BYTES=209083008
 // 形如 ["[class*="_title"]", 14]：选择器（CSS Modules local 名）+ 原始 px 字号。
 const HOST_TEXT_RULES = [
   ["[class*=\"_accountInfo\"]", 13],

@@ -28,6 +28,18 @@ function build() {
   console.log('ok');
 }
 
+function plan() {
+  if (!existsSync(join(target, 'package.json'))) {
+    console.error('[dev-sync] installed package not found at ' + target);
+    console.error('[dev-sync] install it from the plugin market (or pass --dir/--profile) and retry.');
+    return false;
+  }
+  console.log('[dev-sync] would write into: ' + target);
+  for (const f of FILES) { if (existsSync(join(repo, f))) console.log('  - ' + f); }
+  for (const d of DIRS) { if (existsSync(join(repo, d))) console.log('  - ' + d + '/'); }
+  return true;
+}
+
 function sync() {
   if (!existsSync(join(target, 'package.json'))) {
     console.error('[dev-sync] installed package not found at ' + target);
@@ -53,7 +65,15 @@ function sync() {
   return true;
 }
 
+// 默认只预览：dev:sync 会覆盖已安装目录（那是你在跑的插件），默认不动它。
+// 真要写：node scripts/dev-sync.mjs --apply
+const apply = flag('--apply');
 if (!flag('--no-build')) build();
+if (!plan()) process.exit(2);
+if (!apply) {
+  console.log('[dev-sync] 预览模式（未写入）。加 --apply 才会覆盖已安装目录。');
+  process.exit(0);
+}
 if (!sync()) process.exit(2);
 console.log('[dev-sync] target: ' + target);
 console.log('[dev-sync] next: press the refresh button (dsh-unlag) to swap the client bundle;');

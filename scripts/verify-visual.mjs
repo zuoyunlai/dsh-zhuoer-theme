@@ -146,12 +146,19 @@ function capture() {
     const img = decodePng(buf)
     entries.push({ file: name, w: img.w, h: img.h, sha256: sha(buf) })
   }
+  // 每张图可以有自己的视口：在采集目录放 viewport.json（{ "文件名": "宽x高" }），
+  // 缺省用 --viewport。窄屏（359px）基线就是这样并存的。
+  let viewports = {}
+  try {
+    const side = join(from, 'viewport.json')
+    if (existsSync(side)) viewports = JSON.parse(readFileSync(side, 'utf8'))
+  } catch (e) { viewports = {} }
   const manifest = {
     $comment: '视觉基线清单。改动 UI 后重新采集：node scripts/verify-visual.mjs --capture <dir>',
     viewport: valueOf('--viewport') ?? '1264x771',
     tolerance,
     ratioLimit,
-    images: entries.sort((a, b) => a.file.localeCompare(b.file)),
+    images: entries.map((e) => (viewports[e.file] ? { ...e, viewport: viewports[e.file] } : e)).sort((a, b) => a.file.localeCompare(b.file)),
   }
   writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n')
   console.log('WROTE 基线 ' + entries.length + ' 张，manifest: ' + manifestPath)
