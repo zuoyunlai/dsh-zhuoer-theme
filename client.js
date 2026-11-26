@@ -2964,7 +2964,10 @@ function applyTokens(theme, pref) {
           // 12 套主题 × 两态全部低于 3:1，所以这里补一条品牌色下划线。
           // brand-primary 对 layer-1 最低 3.85:1（zhuoer/dark），过 UI 组件 3:1 门槛。
           + 'border-radius:0 !important;border:0 !important;'
-          + 'box-shadow:inset 0 -2px 0 var(--dsw-alias-brand-primary) !important;}'
+          // 用户要「浅一些」：品牌色降到 60% 不透明度（color-mix 只淡这条线，不动指示块底色）。
+          // 代价要写明：合成后对 layer-1 最低 2.09:1（knot/dark）、平均 3.12:1，
+          // 低于 UI 组件 3:1；可辨识性由同时给选中标签加的 600 字重承担（非颜色信号）。
+          + 'box-shadow:inset 0 -2px 0 color-mix(in srgb, var(--dsw-alias-brand-primary) 60%, transparent) !important;}'
           + 'html[data-zr-sharp] .dsh-st-shell-segmented-tabs [role="tab"],'
           + 'html[data-zr-sharp] .dsh-st-settings-tabs [role="tab"],'
           + 'html[data-zr-sharp] [role="tablist"] [role="tab"]{'
