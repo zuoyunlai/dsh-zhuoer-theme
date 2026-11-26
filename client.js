@@ -2949,14 +2949,21 @@ function applyTokens(theme, pref) {
         //   指示块 -> border-radius:6px !important + border:.5px solid（选中态那圈线）
         // 所以只在 data-zr-sharp（radius 全 0 的硬边主题）下接管：圆角归 0、线全去掉，
         // 选中态靠底色区分。圆角主题一个字不受影响。
+        // 只压圆角与「按钮自己那圈线」，容器外框线保留——用户明确要那条外框还在。
+        // 同时按语义选择器兜住通用实现：[role=tablist] 容器 + [role=tab] 标签 +
+        // 子级的 aria-hidden 指示块（多数分段控件都是这个结构），这样换一个插件实现
+        // 也不必再加类名。
         fxCss += 'html[data-zr-sharp] .dsh-st-shell-segmented-tabs,'
-          + 'html[data-zr-sharp] .dsh-st-settings-tabs{'
-          + 'border-radius:0 !important;box-shadow:none !important;}'
+          + 'html[data-zr-sharp] .dsh-st-settings-tabs,'
+          + 'html[data-zr-sharp] [role="tablist"]{'
+          + 'border-radius:0 !important;}'
           + 'html[data-zr-sharp] .dsh-st-shell-segmented-tabs>span[aria-hidden="true"],'
-          + 'html[data-zr-sharp] .dsh-st-settings-tabs>span[aria-hidden="true"]{'
+          + 'html[data-zr-sharp] .dsh-st-settings-tabs>span[aria-hidden="true"],'
+          + 'html[data-zr-sharp] [role="tablist"]>span[aria-hidden="true"]{'
           + 'border-radius:0 !important;border:0 !important;box-shadow:none !important;}'
           + 'html[data-zr-sharp] .dsh-st-shell-segmented-tabs [role="tab"],'
-          + 'html[data-zr-sharp] .dsh-st-settings-tabs [role="tab"]{'
+          + 'html[data-zr-sharp] .dsh-st-settings-tabs [role="tab"],'
+          + 'html[data-zr-sharp] [role="tablist"] [role="tab"]{'
           + 'border-radius:0 !important;border:0 !important;}';
         // 左右栏的拖拽分隔条：宿主实现是「元素宽 0 + ::before 画 0.5px 竖线」，
         // 命中区只有半像素，鼠标很难精确压住，所以拖动时也没有任何反馈。
