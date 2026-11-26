@@ -66,6 +66,7 @@
     "./client.js": "./client.js",
     "./icon": "./icon.svg",
     "./locale/*.json": "./locale/*.json",
+    "./i18n/*.json": "./i18n/*.json",
     "./cordis.patch.yml": "./cordis.patch.yml",
     "./package.json": "./package.json"
   },
@@ -80,6 +81,7 @@
     "README.en.md",
     "CHANGELOG.md",
     "locale",
+    "i18n",
     "LICENSE",
     "assets"
   ],
