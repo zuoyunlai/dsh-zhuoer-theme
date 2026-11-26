@@ -13,6 +13,16 @@
 
 本批次**只用 M1 + M2**，不新增 M3 依赖。
 
+## 0b. 实施状态（2026-11-26）
+
+| 项 | 状态 | 提交 / 结论 |
+|---|---|---|
+| 2.3 弹层圆角 | **已做** | `a4452bc`：dialog→radius-panel、menu→radius-lg、tooltip→radius-sm，只改圆角 |
+| 2.1 开关形状与过渡 | **已做** | `2c9209b`：轨道取 radius-lg、滑块 `border-radius:inherit`、160ms 过渡 + reduced-motion 关闭 |
+| 2.2 标签页指示条 | **降级不做** | 指示条是 `<span className={K0.indicator} aria-hidden style={width:calc(...)}>`：只有哈希类名 + 内联宽度，`aria-hidden` 还会命中图标，没有稳定语义锚点（M3 才做得到，本批次明确不用 M3） |
+| 2.4 按钮过渡 | **降级不做** | 实测宿主 411 个按钮样式块里 39 个自带过渡（`opacity .2s`、`color 100ms` 等）；CSS 没有「追加到已有 transition」的语法，整条覆盖会把宿主的淡入淡出换掉，属于制造回归 |
+| 2.5 焦点描边 | **已做** | `d529543`：仅键盘语境（`html:not([data-input-modality="pointer"])`），颜色取 brand-primary，宽度/偏移沿用宿主 |
+
 ## 1. 已确认可设的组件（M1，现状已生效）
 
 按 `themes.mjs` 224 个已建模 token 归纳（数字=该家族 token 数）：
@@ -50,6 +60,8 @@
 - 依据：宿主有 3 处 `role="tab"`；指示条目前是 `::after`/`border-bottom` 形态之一，实施时以真机 DOM 为准。
 - 验收：切换标签时指示条圆角与预设一致。
 - 风险：中低。若宿主把指示条画在父容器上，需改命中位置，**允许本项降级为不做**。
+- **实施结论（2026-11-26）：降级不做。** 宿主指示条是 `<span aria-hidden style="width:calc(...)">`，只有哈希类名可锚定；
+  `aria-hidden` 又会被图标复用。要命中就必须引入 M3 类名依赖，与本批次口径冲突。
 
 ### 2.3 弹层圆角统一
 
@@ -64,6 +76,9 @@
 - 依据：插件自身 UI 已是 120ms 节奏；宿主 `--ds-transition-duration-fast = .1s`，取 120ms 与自身一致。
 - 验收：hover 有过渡但无闪烁；`prefers-reduced-motion` 下无过渡。
 - 风险：低。但**不要**加在 `width/height/padding` 上。
+- **实施结论（2026-11-26）：降级不做。** 实测宿主 411 个按钮样式块中 39 个已有自己的过渡
+  （`opacity .2s ease-in-out`、`color 100ms ease` 等）；CSS 无法「追加」到现有 transition，整条覆盖会替换掉
+  宿主的淡入/按压动画，属于用一个小收益换一类回归。
 
 ### 2.5 输入焦点描边
 
