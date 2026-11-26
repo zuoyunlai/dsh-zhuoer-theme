@@ -359,6 +359,7 @@ window.__ModuleLoader__.load({
         'panel.chat.modify': '修改',
         'panel.chat.applied': '已应用到 DSH',
         'panel.chat.ovApplied': '已应用 · 覆盖 {n} 键',
+        'panel.chat.sampled': '已按参考图取色',
         'panel.chat.ovSoft': '{s} 键因对比度回退',
         'panel.chat.preview': '预览',
         'panel.chat.editing': '修改中',
@@ -608,6 +609,7 @@ window.__ModuleLoader__.load({
         'panel.chat.modify': 'Modify',
         'panel.chat.applied': 'Applied to DSH',
         'panel.chat.ovApplied': 'Applied · overrides {n}',
+        'panel.chat.sampled': 'Sampled from the reference image',
         'panel.chat.ovSoft': '{s} reverted for contrast',
         'panel.chat.preview': 'Preview',
         'panel.chat.editing': 'Editing',
@@ -5612,6 +5614,7 @@ function applyTokens(theme, pref) {
         },
         radiusScale: typeof m.radiusScale === 'number' ? Math.max(0, Math.min(3, m.radiusScale)) : 1,
         textureDecision: m.textureDecision === 'want' ? 'want' : 'no',
+        refName: m.ref && typeof m.ref.name === 'string' ? m.ref.name : '',
         texture: (function () {
           const tb = zrRec(m.texture);
           if (!tb || typeof tb.name !== 'string') return null;
@@ -5825,6 +5828,34 @@ function applyTokens(theme, pref) {
       const incoming = data && data.spec ? data.spec : null;
       const [spec, setSpec] = useState(incoming);
       const [draft, setDraft] = useState(incoming);
+      // 参考图取色：图片由 /api/texture 回传，本地 canvas 采样（与面板同一算法），
+      // 采样成功后直接用真实颜色覆盖锚点——这才是「按图配色」，不是模型猜色。
+      React.useEffect(function () {
+        if (!spec || !spec.refName) return undefined;
+        let dead = false;
+        const url = '/dsh-zhuoer-theme/api/texture?name=' + encodeURIComponent(spec.refName);
+        fetch(url, { headers: { 'x-zhuoer-client': '1' } })
+          .then(function (r) { return r && r.ok ? r.blob() : null; })
+          .then(function (blob) {
+            if (!blob || dead) return null;
+            const file = new File([blob], 'ref', { type: blob.type || 'image/jpeg' });
+            return imageToImageData(file, 640);
+          })
+          .then(function (img) {
+            if (!img || dead) return;
+            const palette = extractPalette(img, 6);
+            const anchors = paletteToAnchors(palette);
+            if (!anchors) return;
+            const next = Object.assign({}, spec, {
+              light: anchors, dark: {}, autoDark: true, sampled: true,
+              sampledHex: palette.map(function (c) { return c.hex; }).slice(0, 6),
+            });
+            setSpec(next);
+            setDraft(next);
+          })
+          .catch(function () { /* 取色失败就保留模型给的锚点 */ });
+        return function () { dead = true; };
+      }, [spec && spec.refName]);
       const [mode, setMode] = useState('view');
       const [done, setDone] = useState(false);
       const [err, setErr] = useState('');
@@ -5920,6 +5951,9 @@ function applyTokens(theme, pref) {
             ),
         spec.textureDecision === 'no' && !spec.texture
           ? h('div', { className: 'zrc-texnote' }, t('panel.chat.texOff'))
+          : null,
+        spec.sampledHex && spec.sampledHex.length
+          ? h('div', { className: 'zrc-texnote' }, t('panel.chat.sampled') + '：' + spec.sampledHex.join(' · '))
           : null,
         err ? h('div', { className: 'zrc-err', role: 'alert' }, err) : null,
       );

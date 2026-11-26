@@ -134,6 +134,7 @@ The assistant first asks one explicit question — **do you want a background te
 Three things worth knowing:
 
 - **Never auto-applied**: the card is a preview, only your confirmation writes it.
+- **Colours can come from a picture**: pass a reference image path (`imagePath`) and the anchors are sampled locally from it; the card lists the sampled hex values.
 - **At most 4 direct token keys**: the 8 anchors cover 156 tokens; the model may add up to 4 extra `--dsw-*` keys for spot fixes.
 - **Textures draw lines, not a new base**: image textures are composited with `mix-blend-mode` (dark `lighten` / light `multiply`), the same technique as the built-in transparent line art.
 

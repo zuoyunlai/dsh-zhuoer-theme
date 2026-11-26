@@ -133,6 +133,7 @@ https://ghproxy.net/https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme
 三点要知道：
 
 - **绝不自动应用**：卡片只是预览，只有你点确认才落地。
+- **可以按图配色**：把参考图路径传给工具（`imagePath`），锚点由图片**本地真实采样**得出，卡片会列出取到的色值。
 - **最多 4 个直写键**：8 组锚点覆盖 156 个 token，模型还能额外给不超过 4 个 `--dsw-*` 键做点对点修正。
 - **底纹只画线、不换底**：图像底纹以 `mix-blend-mode` 叠加（深色 `lighten` / 浅色 `multiply`），与内置主题的「透明线稿」同一种画法。
 

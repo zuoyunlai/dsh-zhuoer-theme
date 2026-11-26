@@ -90,13 +90,24 @@ const OUTPUT_SCHEMA = {
         bytes: { type: 'number' },
       },
     },
+    // 参考图（用于取色）：图片落在插件目录，由 /api/texture 回传给卡片本地取色。
+    ref: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['name'],
+      properties: {
+        name: { type: 'string' },
+        mime: { type: 'string' },
+        bytes: { type: 'number' },
+      },
+    },
   },
 };
 
 // 只回 OUTPUT_SCHEMA 声明过的键，font 只留 body/chat。
 // 输出校验是严格的（additionalProperties:false 拒收任何未声明键），
 // 与其祈祷模型不越界，不如在返回处收口——返回值与 schema 从此不可能脱节。
-function toOutput(spec, texture, textureLight, decision) {
+function toOutput(spec, texture, textureLight, decision, ref) {
   const src = spec || {};
   const light = src.light && typeof src.light === 'object' ? src.light : {};
   const dark = src.dark && typeof src.dark === 'object' ? src.dark : {};
@@ -112,6 +123,7 @@ function toOutput(spec, texture, textureLight, decision) {
   if (typeof src.radiusScale === 'number' && isFinite(src.radiusScale)) out.radiusScale = src.radiusScale;
   if (texture) out.texture = texture;
   if (textureLight) out.textureLight = textureLight;
+  if (ref) out.ref = ref;
   return out;
 }
 // presentationMeta 必须整体可无损序列化：值为 undefined 的键会被宿主判成 non-lossless，
@@ -131,6 +143,7 @@ function toMeta(value) {
   meta.textureDecision = v.textureDecision === 'want' ? 'want' : 'no';
   if (v.texture) meta.texture = v.texture;
   if (v.textureLight) meta.textureLight = v.textureLight;
+  if (v.ref) meta.ref = v.ref;
   return meta;
 }
 
@@ -212,6 +225,10 @@ export function registerThemeTool(ctx, report, opts) {
           type: 'string',
           description: 'Optional absolute local path to a background texture image you generated (JPEG/PNG/WebP, <=3 MiB). Omit for a flat theme.',
         },
+        imagePath: {
+          type: 'string',
+          description: 'Optional absolute path to a REFERENCE IMAGE for colour sampling (photo, screenshot, anything). When given, the anchors are replaced by colours sampled from that image locally (same algorithm as the panel image picker), so the theme really matches the picture instead of the model\'s guess. Accepts PNG/JPEG/WebP up to 3 MiB.',
+        },
         texturePathLight: {
           type: 'string',
           description: 'Optional absolute local path to a LIGHT-mode variant of that texture (light base, faint strokes). Built-in themes ship two backgrounds because one dark image looks muddy under a light palette.',
@@ -246,7 +263,11 @@ export function registerThemeTool(ctx, report, opts) {
           ? style + '\n主题名：' + args.name.trim()
           : style;
         const { spec } = await generateThemeSpec(ctx, prompt, {});
-        return toOutput(spec, decision === 'want' ? stashTexture(args && args.texturePath, textureDir) : null, decision === 'want' ? stashTexture(args && args.texturePathLight, textureDir) : null, decision);
+        // 参考图：只落到插件目录，由 /api/texture 回传客户端做真实取色。
+        const refPath = String((args && args.imagePath) || '').trim();
+        const ref = refPath ? stashTexture(refPath, textureDir) : null;
+        if (refPath && !ref) throw new Error('imagePath 不是可读的图片（PNG/JPEG/WebP，≤3 MiB）：' + refPath);
+        return toOutput(spec, decision === 'want' ? stashTexture(args && args.texturePath, textureDir) : null, decision === 'want' ? stashTexture(args && args.texturePathLight, textureDir) : null, decision, ref);
       },
     });
 
