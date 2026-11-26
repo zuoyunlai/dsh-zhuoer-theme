@@ -378,9 +378,9 @@ window.__ModuleLoader__.load({
         'panel.ed.bgNote': '单张 ≤ 3 MiB，存本机 IndexedDB',
         'panel.ed.bgSourceAria': '主题底图来源',
         'panel.ed.bgFollowGlobal': '跟随全局',
-        'panel.ed.bgThemeOwn': '主题自带',
-        'panel.ed.bgCustom': '自定义图片',
-        'panel.ed.bgNone': '无',
+        'panel.ed.bgThemeOwn': '用主题底纹',
+        'panel.ed.bgCustom': '用我的照片',
+        'panel.ed.bgNone': '不用底图',
         'panel.ed.imageRow': '图片',
         'panel.ed.bgPreviewAlt': '主题底图预览',
         'panel.ed.bgStoredHint': '存 IndexedDB，单张 ≤ 3 MiB',
@@ -628,9 +628,9 @@ window.__ModuleLoader__.load({
         'panel.ed.bgNote': 'One image ≤ 3 MiB, stored in local IndexedDB',
         'panel.ed.bgSourceAria': 'Theme background source',
         'panel.ed.bgFollowGlobal': 'Follow global',
-        'panel.ed.bgThemeOwn': 'Theme built-in',
-        'panel.ed.bgCustom': 'Custom image',
-        'panel.ed.bgNone': 'None',
+        'panel.ed.bgThemeOwn': 'Theme texture',
+        'panel.ed.bgCustom': 'My photo',
+        'panel.ed.bgNone': 'No background',
         'panel.ed.imageRow': 'Image',
         'panel.ed.bgPreviewAlt': 'Theme background preview',
         'panel.ed.bgStoredHint': 'Stored in IndexedDB, ≤ 3 MiB per image',
@@ -4648,7 +4648,13 @@ function applyTokens(theme, pref) {
           h(Row, { label: t('panel.ed.bgSection') },
             h(Pills, {
               label: t('panel.ed.bgSourceAria'),
-              opts: [['', t('panel.ed.bgFollowGlobal')], ['theme', t('panel.ed.bgThemeOwn')], ['image', t('panel.ed.bgCustom')], ['none', t('panel.ed.bgNone')]],
+              // 顺序按「最常用 → 最少用」排，并把抽象词换成大白话：
+              // 用户不需要知道「跟随全局」是什么意思，只有老数据还在用它时才看得见它。
+              opts: (function () {
+                const list = [['none', t('panel.ed.bgNone')], ['theme', t('panel.ed.bgThemeOwn')], ['image', t('panel.ed.bgCustom')]];
+                if (!bg.source) list.push(['', t('panel.ed.bgFollowGlobal')]);
+                return list;
+              })(),
               value: (bg.source || ''),
               onChange: function (v) {
                 // 只切「用哪种底图」，**不动**已存的图片引用。

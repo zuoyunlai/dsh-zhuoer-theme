@@ -11,6 +11,10 @@
 
 ## 一眼看清
 
+![自定义主题编辑器：左边调色，右边是真实界面在实时变](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/editor.png)
+
+_真机截图：左侧抽屉只放 8 组锚点，右侧是宿主真实界面在跟着变——不是效果图。_
+
 ![12 套内置主题 · 深浅两档](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/theme-grid.png)
 
 - **12 套内置 + 12 套风格预设**，每套都出明/暗两档（深色不是由浅色反算）。

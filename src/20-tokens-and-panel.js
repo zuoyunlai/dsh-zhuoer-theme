@@ -1875,7 +1875,13 @@ function applyTokens(theme, pref) {
           h(Row, { label: t('panel.ed.bgSection') },
             h(Pills, {
               label: t('panel.ed.bgSourceAria'),
-              opts: [['', t('panel.ed.bgFollowGlobal')], ['theme', t('panel.ed.bgThemeOwn')], ['image', t('panel.ed.bgCustom')], ['none', t('panel.ed.bgNone')]],
+              // 顺序按「最常用 → 最少用」排，并把抽象词换成大白话：
+              // 用户不需要知道「跟随全局」是什么意思，只有老数据还在用它时才看得见它。
+              opts: (function () {
+                const list = [['none', t('panel.ed.bgNone')], ['theme', t('panel.ed.bgThemeOwn')], ['image', t('panel.ed.bgCustom')]];
+                if (!bg.source) list.push(['', t('panel.ed.bgFollowGlobal')]);
+                return list;
+              })(),
               value: (bg.source || ''),
               onChange: function (v) {
                 // 只切「用哪种底图」，**不动**已存的图片引用。

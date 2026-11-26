@@ -11,6 +11,10 @@ A skin plugin that recolours the whole DSH UI: **12 built-in themes + 12 style p
 
 ## At a glance
 
+![Custom theme editor: anchors on the left, the real UI changing on the right](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/editor.png)
+
+_A real capture: the drawer only exposes 8 anchors, the right side is the actual host UI re-rendering — not a mockup._
+
 ![12 built-in themes · light and dark](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/theme-grid.png)
 
 - **12 built-in themes + 12 style presets**, each with its own light and dark set (dark is authored, not derived from light).
