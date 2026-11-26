@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="420" viewBox="0 0 1400 420" font-family="Segoe UI, Microsoft YaHei, sans-serif">
+<rect width="1400" height="420" fill="#0e1015"/>
+<line x1="34" y1="150" x2="1366" y2="150" stroke="#c4694f" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="1362" y="143" fill="#e08a6c" font-size="13" text-anchor="end">Lc 60</text>
+<line x1="34" y1="237" x2="1366" y2="237" stroke="#6d6157" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="1362" y="230" fill="#9a8c7e" font-size="13" text-anchor="end">Lc 30</text>
+<rect x="100.264" y="132.48399999999998" width="63.93599999999999" height="191.51600000000002" fill="#7896c8" rx="3"/>
+<text x="132.232" y="125.48399999999998" fill="#cdc8c2" font-size="12" text-anchor="middle">66.0</text>
+<rect x="170.2" y="63.17399999999998" width="63.93599999999999" height="260.826" fill="#96beeb" rx="3"/>
+<text x="202.16799999999998" y="56.17399999999998" fill="#cdc8c2" font-size="12" text-anchor="middle">89.9</text>
+<text x="167.2" y="350" fill="#d8d3cd" font-size="15" text-anchor="middle">正文</text>
+<text x="167.2" y="372" fill="#a49c93" font-size="12" text-anchor="middle">最差比 8.91:1</text>
+<text x="167.2" y="390" fill="#8d857c" font-size="11" text-anchor="middle">n=97 组</text>
+<rect x="366.664" y="230.678" width="63.93599999999999" height="93.322" fill="#7896c8" rx="3"/>
+<text x="398.632" y="223.678" fill="#cdc8c2" font-size="12" text-anchor="middle">32.2</text>
+<rect x="436.59999999999997" y="130.57" width="63.93599999999999" height="193.43" fill="#96beeb" rx="3"/>
+<text x="468.568" y="123.57" fill="#cdc8c2" font-size="12" text-anchor="middle">66.7</text>
+<text x="433.59999999999997" y="350" fill="#d8d3cd" font-size="15" text-anchor="middle">三级</text>
+<text x="433.59999999999997" y="372" fill="#a49c93" font-size="12" text-anchor="middle">最差比 4.50:1</text>
+<text x="433.59999999999997" y="390" fill="#8d857c" font-size="11" text-anchor="middle">n=24 组</text>
+<rect x="633.064" y="226.618" width="63.93599999999999" height="97.382" fill="#7896c8" rx="3"/>
+<text x="665.0319999999999" y="219.618" fill="#cdc8c2" font-size="12" text-anchor="middle">33.6</text>
+<rect x="703" y="130.07699999999997" width="63.93599999999999" height="193.92300000000003" fill="#96beeb" rx="3"/>
+<text x="734.968" y="123.07699999999997" fill="#cdc8c2" font-size="12" text-anchor="middle">66.9</text>
+<text x="700" y="350" fill="#d8d3cd" font-size="15" text-anchor="middle">提示</text>
+<text x="700" y="372" fill="#a49c93" font-size="12" text-anchor="middle">最差比 4.50:1</text>
+<text x="700" y="390" fill="#8d857c" font-size="11" text-anchor="middle">n=24 组</text>
+<rect x="899.4639999999998" y="224.327" width="63.93599999999999" height="99.673" fill="#7896c8" rx="3"/>
+<text x="931.4319999999998" y="217.327" fill="#cdc8c2" font-size="12" text-anchor="middle">34.4</text>
+<rect x="969.3999999999999" y="130.36700000000002" width="63.93599999999999" height="193.63299999999998" fill="#96beeb" rx="3"/>
+<text x="1001.3679999999998" y="123.36700000000002" fill="#cdc8c2" font-size="12" text-anchor="middle">66.8</text>
+<text x="966.3999999999999" y="350" fill="#d8d3cd" font-size="15" text-anchor="middle">错误</text>
+<text x="966.3999999999999" y="372" fill="#a49c93" font-size="12" text-anchor="middle">最差比 4.66:1</text>
+<text x="966.3999999999999" y="390" fill="#8d857c" font-size="11" text-anchor="middle">n=24 组</text>
+<rect x="1165.864" y="176.912" width="63.93599999999999" height="147.088" fill="#7896c8" rx="3"/>
+<text x="1197.832" y="169.912" fill="#cdc8c2" font-size="12" text-anchor="middle">50.7</text>
+<rect x="1235.8" y="140.111" width="63.93599999999999" height="183.889" fill="#96beeb" rx="3"/>
+<text x="1267.768" y="133.111" fill="#cdc8c2" font-size="12" text-anchor="middle">63.4</text>
+<text x="1232.8" y="350" fill="#d8d3cd" font-size="15" text-anchor="middle">成功</text>
+<text x="1232.8" y="372" fill="#a49c93" font-size="12" text-anchor="middle">最差比 4.50:1</text>
+<text x="1232.8" y="390" fill="#8d857c" font-size="11" text-anchor="middle">n=24 组</text>
+<text x="34" y="390" fill="#b0a89e" font-size="13">APCA Lc：亮底黑字为正、暗底浅字为负，取绝对值。蓝=最差，浅蓝=中位；虚线为 Lc 60（正文标准）与 Lc 30（最小可读）。</text>
+<text x="34" y="408" fill="#7d766e" font-size="12">数据源：contracts/contrast-baseline.json（对比度门禁台账，681 组）</text>
+</svg>

@@ -24,9 +24,13 @@ _A real capture: the drawer only exposes 8 anchors, the right side is the actual
 
 ## Contrast ledger
 
-![Text contrast: worst and median per role](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/contrast-audit.png)
+![Text contrast: worst and median per role](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/contrast-audit.svg)
 
 Not "probably readable" — every text role has a floor, re-measured by the gate on every theme change:
+
+The chart plots **APCA Lc** (positive on light backgrounds, negative on dark; absolute value shown) — a *secondary* metric next to the WCAG ratio:
+a passing ratio does not mean "readable"; on dark surfaces a 4.6:1 pair can sit at Lc 52.
+Body text is held to the widely used **Lc ≥ 60** line by the gate; the other roles are recorded but not gated.
 
 | Role | Built-in themes (worst of 24 / median) | Derived floor (custom themes) |
 |---|---|---|

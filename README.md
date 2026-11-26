@@ -24,9 +24,13 @@ _真机截图：左侧抽屉只放 8 组锚点，右侧是宿主真实界面在�
 
 ## 对比度台账
 
-![文字对比度：每个角色的最差与中位值](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/contrast-audit.png)
+![文字对比度：每个角色的最差与中位值](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/contrast-audit.svg)
 
-不是「大概看得清」，是每个文字角色都有地板，并且每次改主题都会被门禁重新量一遍：
+不是「大概看得清」，是每个文字角色都有地板，并且每次改主题都会被门禁重新量一遍。
+
+图里是 **APCA Lc**（亮底黑字为正、暗底浅字为负，取绝对值）——这是 WCAG 比值之外的**副指标**：
+比值达标不等于看得清，同一对颜色在深色面上「4.6:1」可能 Lc 只有 50 出头。
+正文按通行标准 **Lc ≥ 60** 卡线（门禁会查），其余角色只记录、不设门槛。
 
 | 角色 | 内置主题实测（24 组合最差 / 中位） | 自定义主题派生地板 |
 |---|---|---|

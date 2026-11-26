@@ -37,9 +37,9 @@ const start = src.indexOf('// #region derive');
 const end = src.indexOf('// #endregion derive');
 if (start < 0 || end < start) throw new Error('client.js 里找不到 #region derive 标记');
 const region = src.slice(start, end);
-const helpers = [grabFn('hexHsl'), grabFn('hslHex'), grabFn('parseHexColor'), grabFn('toHexColor')].join('\n');
+const helpers = [grabFn('hexHsl'), grabFn('hslHex'), grabFn('parseHexColor'), grabFn('toHexColor'), grabFn('apcaContrast')].join('\n');
 const make = new Function('THEMES', 'THEME_IDS',
-  helpers + '\n' + region + '\nreturn { buildCustomTokens, STYLE_PRESETS, pickOnColor, hexHsl, contrastOn, overrideReport };');
+  helpers + '\n' + region + '\nreturn { buildCustomTokens, STYLE_PRESETS, pickOnColor, hexHsl, contrastOn, overrideReport, apcaContrast };');
 const api = make(THEMES, THEME_IDS);
 
 const luminance = (hex) => {
@@ -65,7 +65,10 @@ const measurements = [];
 const check = (where, fg, bg, decor) => {
   const r = ratio(fg, bg);
   if (r === null) { bad.push(where + ' 无法计算（' + fg + ' / ' + bg + '）'); return; }
-  measurements.push({ key: where, fg: fg, bg: bg, ratio: Number(r.toFixed(3)), decor: !!decor });
+  // lc：APCA 副指标（单位就是 Lc，亮底为正、暗底为负）。
+  // 只进台账与展示，**不做门槛**——门槛仍由 WCAG 地板负责。
+  const lc = Math.round(api.apcaContrast(fg, bg) * 100) / 100;
+  measurements.push({ key: where, fg: fg, bg: bg, ratio: Number(r.toFixed(3)), lc: lc, decor: !!decor });
   // decor：装饰性线条（非文字、非组件边界），不按 MIN 判红，但仍进台账守住「只升不降」。
   if (!decor && r < MIN) bad.push(where + ' ' + r.toFixed(2) + ':1（' + fg + ' on ' + bg + '）');
 };
@@ -233,6 +236,24 @@ const onLayer = ratio(multi['--dsw-alias-label-secondary'], multi['--dsw-alias-b
 if (!(onLayer >= 5.9)) bad.push('次级文字在抬升层上只有 ' + Number(onLayer || 0).toFixed(2) + ':1（地板 6:1，旧实现只校验 bg-base 会漏掉这个面）');
 if (!(onBg >= 5.9)) bad.push('次级文字在底色上只有 ' + Number(onBg || 0).toFixed(2) + ':1（地板 6:1）');
 
+// APCA 副指标：正文 |Lc| >= 60（APCA 对正文的通行标准）。
+// 只对**正文**设线：次级/三级文字的 Lc 天然更低（实测内置最差 三级/dark = -32.75），
+// 一刀切会把正常的层级差判成失败。正文这一档是「能读」的底线，LC 60 是公认门槛。
+const lcOf = (fg, bg) => Math.abs(Math.round(api.apcaContrast(fg, bg) * 100));
+let minLc = Infinity, minLcKey = '';
+for (const id of THEME_IDS) {
+  const t = THEMES[id];
+  if (!t) continue;
+  for (const sc of ['light', 'dark']) {
+    const tt = t[sc] || {};
+    const v = lcOf(tt['--dsw-alias-label-primary'], tt['--dsw-alias-bg-base']);
+    if (v < minLc) { minLc = v; minLcKey = id + '/' + sc; }
+  }
+}
+if (!(minLc >= 60)) bad.push('内置主题正文 Lc 最差只有 ' + minLc + '（' + minLcKey + '），APCA 正文标准是 60）');
+const lcWarm = lcOf(ct['--dsw-alias-label-primary'], ct['--dsw-alias-bg-base']);
+if (!(lcWarm >= 60)) bad.push('自定义:暖灰 正文 Lc 只有 ' + lcWarm + '（APCA 正文标准 60）');
+
 // B 档：前景文字的覆盖若低于 3:1 必须回退到派生值（覆盖多来自 AI 生成 / JSON 导入）。
 // 注意用文字组的**成员** token 测：锚点 label-primary 本来就不走覆盖路径（它走 applyGroup + 文字地板）。
 const evilOv = { base: 'dash', autoDark: false, font: {}, radiusScale: 1, light: {},
@@ -258,7 +279,7 @@ const BASELINE = join(root, 'contracts', 'contrast-baseline.json');
 const wantUpdate = process.argv.indexOf('--update') >= 0;
 if (wantUpdate) {
   writeFileSync(BASELINE, JSON.stringify({
-    note: '由 npm run contrast:update 生成。ratio 是实测对比度；门禁要求任何一组都不得比它低 0.01 以上。',
+    note: '由 npm run contrast:update 生成。ratio 是实测 WCAG 对比度；lc 是 APCA 副指标（Lc/100，只展示不设门槛）。门禁要求 ratio 与 lc 都不得退步。',
     min: MIN,
     count: measurements.length,
     pairs: measurements,
@@ -271,10 +292,15 @@ try { baseline = JSON.parse(readFileSync(BASELINE, 'utf8')); } catch (e) { basel
 const drops = [];
 if (baseline && baseline.pairs) {
   const prev = {};
-  for (const p of baseline.pairs) prev[p.key] = p.ratio;
+  const prevLc = {};
+  for (const p of baseline.pairs) { prev[p.key] = p.ratio; if (typeof p.lc === 'number') prevLc[p.key] = p.lc; }
   for (const m of measurements) {
     if (prev[m.key] === undefined) continue;
     if (m.ratio < prev[m.key] - 0.01) drops.push(m.key + ' ' + prev[m.key] + ':1 → ' + m.ratio + ':1');
+    // Lc 同样只升不降：它是「看得清」的副指标，退步了要说出来。
+    if (typeof prevLc[m.key] === 'number' && typeof m.lc === 'number' && m.lc < prevLc[m.key] - 0.5) {
+      drops.push(m.key + ' Lc ' + prevLc[m.key] + ' → ' + m.lc + '（APCA 副指标退步）');
+    }
   }
 }
 if (bad.length) {

@@ -1963,6 +1963,39 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
       const hi = Math.max(la, lb), lo = Math.min(la, lb);
       return (hi + 0.05) / (lo + 0.05);
     }
+    // APCA Lc：作为 WCAG 比值之外的**副指标**（借 dsh-theme-palette 的实现）。
+    // 为什么要有它：WCAG 比值在深色面上「达标」不等于「看得清」——
+    // 同一对颜色在 4.6:1 时，亮色面上可能 Lc 只有 50 出头。
+    // 本函数只用于**展示与观察**，不做门槛（门槛仍由 WCAG 地板负责）。
+    // 返回 **Lc 本身**（亮底黑字为正、暗底浅字为负），精度 0.01 Lc。
+    // 例：87.24 = 正文可读度良好；-66.04 = 暗底上的浅字；绝对值越大越清楚。
+    function apcaContrast(fgHex, bgHex) {
+      const TRC = 2.4, R = 0.2126729, G = 0.7151522, B = 0.072175;
+      const NORM_BG = 0.56, NORM_TXT = 0.57, REV_TXT = 0.62, REV_BG = 0.65;
+      const BLK_THRS = 0.022, BLK_CLMP = 1.414, SCALE = 1.14;
+      const LO_OFF = 0.027, LO_CLIP = 0.1, DELTA_Y_MIN = 0.0005;
+      const yOf = function (hex) {
+        const rgb = parseHexColor(hex);
+        if (!rgb) return null;
+        const trc = rgb.map(function (v) { return Math.pow(v / 255, TRC); });
+        return R * trc[0] + G * trc[1] + B * trc[2];
+      };
+      let txt = yOf(fgHex), bg = yOf(bgHex);
+      if (txt === null || bg === null) return 0;
+      txt = txt > BLK_THRS ? txt : txt + Math.pow(BLK_THRS - txt, BLK_CLMP);
+      bg = bg > BLK_THRS ? bg : bg + Math.pow(BLK_THRS - bg, BLK_CLMP);
+      if (Math.abs(bg - txt) < DELTA_Y_MIN) return 0;
+      let out;
+      if (bg > txt) {
+        out = (Math.pow(bg, NORM_BG) - Math.pow(txt, NORM_TXT)) * SCALE;
+        out = out < LO_CLIP ? 0 : out - LO_OFF;
+      } else {
+        out = (Math.pow(bg, REV_BG) - Math.pow(txt, REV_TXT)) * SCALE;
+        out = out > -LO_CLIP ? 0 : out + LO_OFF;
+      };
+      // Lc = out × 100；保留 0.01 Lc 精度（直接 round(out×100) 会把每个 Lc 取整）。
+      return Math.round(out * 10000) / 100;
+    }
     // 文字地板：把「够不够读」拆成两步——先选**真正会承载文字的面**，再求最小改动量。
     // 旧实现有两个短板（palette 那边用更好的做法，这里借过来）：
     //   ① 只看 bg-base；文字同样会落在 layer-2 / hovercard 上，那些面没校验；
