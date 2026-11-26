@@ -202,7 +202,7 @@ window.__ModuleLoader__.load({
     }
 
     // 版本号唯一源：面板文案与自检回传都用它，别再出现「构建 0.1.101」这种漂移。
-    const PVERSION = '0.6.26';
+    const PVERSION = '0.6.27';
     // 诊断探针总闸：默认关闭，开启方式 localStorage['dsh-zhuoer-theme:debug'] = '1'。
     // 下面若干探针会在每次 apply 时全文档遍历 DOM、逐元素 getComputedStyle、扫 styleSheets，
     // 是「启动 / 切主题卡顿」的主要来源之一，只在排障时打开。
@@ -2904,7 +2904,6 @@ function bgCssFor(o) {
   var bgOpacity = o.bgOpacity;
   var bgStyle = o.bgStyle;
   var tokens = o.tokens;
-  var scheme = o.scheme;
   // 可见度滑块接到图片上：Zhuoer full-bleed 实测 opacity = 可见度 × 0.7（85% → 0.595）。
   var vis = Math.max(0, Math.min(100, bgOpacity)) / 100;
   // 内容压底：把 _root 从「全透明」换成「bg-base 的半透明压底」，
@@ -2920,13 +2919,22 @@ function bgCssFor(o) {
   // 解法：用混合模式把满幅图降级成线稿——深色 lighten（只留比底色亮的部分），
   // 浅色 multiply（只留比底色暗的部分）。图里与底色一致的部分自动消失。
   var isImageBg = !!o.bgIsImage;
-  var blendCss = isImageBg ? ('mix-blend-mode:' + (scheme === 'light' ? 'multiply' : 'lighten') + ' !important;') : '';
+  // 明暗统一 lighten：用户纹理的线条比底色更亮（实测暗色 5→7.4、浅色 238→245 亮度），
+  // lighten 只让「比底色亮」的像素透出——线条留下、图底自动消失。
+  // 之前浅色用 multiply，正好把更亮的线条乘没了，表现为「自定义底图只在暗色生效」。
+  var blendCss = isImageBg ? 'mix-blend-mode:lighten !important;' : '';
   var imgOpacity = +(vis * 0.7).toFixed(3);
   // 淡化：另加一层垂直渐隐遮罩做出「边缘化开」；Zhuoer 的 faded 靠面板层不透明压暗，
   // 我们的内容层是透明的，直接照抄会更浓，所以用 mask 达到同样效果。
-  var fadeMask = bgStyle === 'fade'
-    ? '-webkit-mask-image:linear-gradient(180deg,#000 0%,#000 42%,rgba(0,0,0,.55) 74%,transparent 100%) !important;mask-image:linear-gradient(180deg,#000 0%,#000 42%,rgba(0,0,0,.55) 74%,transparent 100%) !important;'
-    : '';
+  // 底部对齐宿主：composer 自己有一条 36px 的「透明 → bg-base 实心」渐变（宿主 CSS 注释写明
+  // stops 用 px 不用 %），纹理若一直铺到列底，就会在 36px 处留一条硬边。
+  // 所以在离底 ~190px 开始淡、~140px 淡完，让纹理在宿主实心区之前先消失。
+  // 「淡化」再额外压中间段（45% 处 0.55），这样这个选项才有可见差别——
+  // 原先是整列均匀压淡，与实际可见度重叠，等于没压。
+  var maskVal = bgStyle === 'fade'
+    ? 'linear-gradient(180deg,#000 0%,rgba(0,0,0,.55) 45%,rgba(0,0,0,.18) calc(100% - 190px),transparent calc(100% - 140px))'
+    : 'linear-gradient(180deg,#000 0%,#000 calc(100% - 190px),transparent calc(100% - 140px))';
+  var fadeMask = '-webkit-mask-image:' + maskVal + ' !important;mask-image:' + maskVal + ' !important;';
   return '[class*="_centerCol"],[class*="_mainPanel"]{background-color:var(--dsw-alias-bg-base) !important;background-image:none !important;position:relative !important;isolation:isolate !important;}'
     + '[class*="_centerCol"]::before,[class*="_mainPanel"]::before{content:"" !important;' + blendCss + 'position:absolute !important;inset:0 !important;background-image:url("' + bgUrl + '") !important;background-size:cover !important;background-position:50% 0% !important;background-repeat:no-repeat !important;opacity:' + imgOpacity + ' !important;' + fadeMask + 'pointer-events:none !important;z-index:0 !important;}'
     + '[class*="_centerCol"] [class*="_root"],[class*="_mainPanel"] [class*="_root"]{background-color:transparent !important;}'
