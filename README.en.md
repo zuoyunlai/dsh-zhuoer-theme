@@ -23,11 +23,15 @@ A skin plugin that recolours the whole DSH UI: **12 built-in themes + 12 style p
 
 Not "probably readable" — every text role has a floor, re-measured by the gate on every theme change:
 
-| Role | Floor | Worst of 24 | Median |
-|---|---|---|---|
-| Body | 7:1 | 7.0+ | see chart |
-| Secondary | 6:1 | 6.0+ | see chart |
-| Tertiary / error / success | 4.5:1 | 4.50 | see chart |
+| Role | Built-in themes (worst of 24 / median) | Derived floor (custom themes) |
+|---|---|---|
+| Body | **8.91** / 11.54 | 7:1 |
+| Secondary | **4.53** / 6.02 | 6:1 |
+| Tertiary | **4.50** / 4.70 | 4.5:1 |
+| Error | **4.66** / 5.00 | — |
+| Success | **4.50** / 6.54 | — |
+
+> The two columns mean different things: built-in themes are **measured** (hand-tuned, worst secondary 4.53), while the floor only constrains **custom** themes derived from anchors (`enforceTextFloor`: body 7:1, secondary 6:1). The previous version conflated them; corrected.
 
 `npm run verify:contrast` additionally measures preset themes and button foregrounds — 679 pairs in total, ratchet-only (ledger lives in `contracts/`).
 ## Screenshots
