@@ -189,6 +189,10 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
           bgOnSession: p.bgOnSession !== false,
           // 硬边强化：把第三方插件里硬编码的圆角/描边也压平（token 到不了它们）。
           sharp: p.sharp === true,
+          // 可访问性：放大点击区（44×44）。默认关——会撑动布局，属于显式选择。
+          a11yHit: p.a11yHit === true,
+          // Markdown 排版密度：只调节奏（行高/段距/标题尺度），不动字号体系。
+          mdDensity: p.mdDensity === 'compact' || p.mdDensity === 'roomy' ? p.mdDensity : 'normal',
           fontScale: [90, 100, 110, 125, 140].indexOf(p.fontScale) !== -1 ? p.fontScale : 100,
           // 对话正文宽度（px）：0 = 跟随宿主（自适应），非 0 = 用户指定值。
           // 宿主自己的偏好键是 dsh.conversation.contentWidth（拖动写入），我们不复用它——
@@ -204,7 +208,7 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
           brandImage: typeof p.brandImage === 'string' && p.brandImage.indexOf('data:image/') === 0 ? p.brandImage : '',
         };
       } catch (e) {
-        return { customThemes: [], theme: 'zhuoer', mode: 'auto', bgSource: 'none', bgStyle: 'fade', bgOpacity: 85, bgImage: '', bgOnEmpty: true, bgOnSession: true, fontScale: 100, accent: '', uiFont: '', quicknav: 'three' };
+        return { customThemes: [], theme: 'zhuoer', mode: 'auto', bgSource: 'none', bgStyle: 'fade', bgOpacity: 85, bgImage: '', bgOnEmpty: true, bgOnSession: true, fontScale: 100, a11yHit: false, mdDensity: 'normal', accent: '', uiFont: '', quicknav: 'three' };
       }
     }
     function writePref(patch) {

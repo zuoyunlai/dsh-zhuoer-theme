@@ -775,7 +775,26 @@ function applyTokens(theme, pref) {
           + '@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important;}}'
           + 'html[data-zr-a11y-hit="1"] button,html[data-zr-a11y-hit="1"] [role="button"],html[data-zr-a11y-hit="1"] a[href]{min-height:44px;min-width:44px;}'
           + 'html[data-zr-a11y-hit="1"] [class*="_iconBtn"],html[data-zr-a11y-hit="1"] [class*="_btn"]{min-height:44px;min-width:44px;}';
-        const nextCss = css + extra + bgCss + fxCss + brandCss + a11yCss;
+        // Markdown 排版：只动节奏，不动字号体系（字号由 fontScale 那三条通路负责）。
+        // 容器类 *_prose 是宿主给助手正文的稳定片段（15-host-text 的类名表里也在用）。
+        const MD = {
+          compact: { lh: 1.5, p: 0.45, h1: 1.32, h2: 1.18, h3: 1.06, gap: 0.2, pad: 10 },
+          normal: { lh: 1.7, p: 0.7, h1: 1.5, h2: 1.3, h3: 1.12, gap: 0.4, pad: 12 },
+          roomy: { lh: 1.9, p: 1.0, h1: 1.62, h2: 1.38, h3: 1.18, gap: 0.6, pad: 14 },
+        };
+        const md = MD[pref.mdDensity] || MD.normal;
+        const mdCss = ''
+          + '[class*="_prose"]{line-height:' + md.lh + ' !important;}'
+          + '[class*="_prose"] p{margin-block:' + md.p + 'em;}'
+          + '[class*="_prose"] h1{font-size:' + md.h1 + 'em;line-height:1.25;margin:1.2em 0 .5em;}'
+          + '[class*="_prose"] h2{font-size:' + md.h2 + 'em;line-height:1.3;margin:1.1em 0 .45em;}'
+          + '[class*="_prose"] h3{font-size:' + md.h3 + 'em;line-height:1.35;margin:1em 0 .4em;}'
+          + '[class*="_prose"] ul,[class*="_prose"] ol{margin-block:' + md.gap + 'em;padding-inline-start:1.4em;}'
+          + '[class*="_prose"] li{margin-block:' + (md.gap / 2) + 'em;}'
+          + '[class*="_prose"] blockquote{margin-block:' + md.gap + 'em;padding:' + (md.pad - 2) + 'px ' + md.pad + 'px;}'
+          + '[class*="_prose"] pre{padding:' + md.pad + 'px;line-height:1.55;}'
+          + '[class*="_prose"] table{margin-block:' + md.gap + 'em;}';
+        const nextCss = css + extra + bgCss + fxCss + brandCss + a11yCss + mdCss;
         const styleEl = ensureStyle();
         if (styleEl.__zrCss !== nextCss) {
           styleEl.textContent = nextCss;
@@ -2621,6 +2640,15 @@ function applyTokens(theme, pref) {
             pref.fontScale !== 100 && HOST_TEXT_STATS && HOST_TEXT_STATS.rules === 0
               ? h('span', { className: 'zp-hint is-warn' }, t('panel.type.scaleMiss'))
               : null
+          ),
+          h(Row, { label: t('panel.type.mdRow') },
+            h(Pills, {
+              label: t('panel.type.mdAria'),
+              opts: [['compact', t('panel.type.mdCompact')], ['normal', t('panel.type.mdNormal')], ['roomy', t('panel.type.mdRoomy')]],
+              value: pref.mdDensity || 'normal',
+              onChange: function (v) { set({ mdDensity: v }); },
+            }),
+            h('span', { className: 'zp-hint' }, t('panel.type.mdNote'))
           ),
           h(Row, { label: t('panel.a11y.hitRow') },
             h('label', { className: 'zp-chk' },

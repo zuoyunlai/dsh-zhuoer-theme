@@ -158,6 +158,11 @@
         "fragment": "_iconBtn",
         "usedFor": "可访问性「放大点击区」开关打开时，给按钮/图标按钮一个 44×44 的尺寸下限",
         "breaksIfMissing": "开关打开后普通按钮与图标按钮仍是小点击区（触屏易误触），其余功能不受影响"
+      },
+      {
+        "fragment": "_prose",
+        "usedFor": "Markdown 排版节奏（行高/段距/标题尺度）挂在助手正文容器上；字号不在这里，走 --dsw-font-* 那三条通路",
+        "breaksIfMissing": "「排版节奏」设置项完全失效（紧凑/标准/舒展三档没有区别），其余功能不受影响"
       }
     ],
     "attributes": [
