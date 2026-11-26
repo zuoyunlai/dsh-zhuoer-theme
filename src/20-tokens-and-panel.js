@@ -417,6 +417,24 @@ function applyTokens(theme, pref) {
             ? specBg.kind
             : (specBg.source === 'theme' ? 'texture' : 'photo');
           bgKind = kind;
+          // 自愈：主题写着「自定义图片」，但引用被切没了（旧版切 source 会清 key 造成）。
+          // 内存缓存里已经装了 IDB 的全部图，这里挑「没被任何主题引用」的孤儿；
+          // 只有恰好一张时才认领，避免把别的主题的图接过来。只影响显示，不改用户存档。
+          if (specBg.source === 'image' && !specBg.key && !specBg.keyLight) {
+            const used = {};
+            (pref.customThemes || []).forEach(function (tt) {
+              const b = tt && tt.bg;
+              if (!b) return;
+              if (b.key) used[b.key] = 1;
+              if (b.keyLight) used[b.keyLight] = 1;
+            });
+            const orphans = [];
+            imageCache.forEach(function (v, k) { if (!used[k]) orphans.push(k); });
+            if (orphans.length === 1) {
+              bgUrl = imageCache.get(orphans[0]) || '';
+              bgKind = 'photo';
+            }
+          } else {
           const darkUrl = imageCache.get(specBg.key) || '';
           const lightUrl = imageCache.get(specBg.keyLight) || '';
           if (kind === 'photo') {
@@ -430,6 +448,7 @@ function applyTokens(theme, pref) {
           } else {
             if (darkUrl) bgUrl = darkUrl;
             else if (lightUrl) { bgUrl = lightUrl; bgInvert = true; }
+          }
           }
         }
         // source === 'none' → 该主题明确不要底图
@@ -1858,7 +1877,12 @@ function applyTokens(theme, pref) {
               label: t('panel.ed.bgSourceAria'),
               opts: [['', t('panel.ed.bgFollowGlobal')], ['theme', t('panel.ed.bgThemeOwn')], ['image', t('panel.ed.bgCustom')], ['none', t('panel.ed.bgNone')]],
               value: (bg.source || ''),
-              onChange: function (v) { setBg({ source: v, key: v === 'image' ? bg.key : '' }); },
+              onChange: function (v) {
+                // 只切「用哪种底图」，**不动**已存的图片引用。
+                // 旧实现在这里把 key 清成 ''：切到「主题自带」再切回来，图片就永久丢了
+                // （IDB 里的图还在，但主题不再引它，等于变成孤儿）。
+                setBg({ source: v });
+              },
             })
           ),
           bg.source === 'image'
