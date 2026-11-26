@@ -2,7 +2,7 @@
 
 记录 `dsh-zhuoer-theme` 向各 DSH 插件清单的投递。**当次记录、不事后补写**。
 
-插件仓库：https://github.com/zuoyunlai/dsh-zhuoer-theme ｜ 投递时版本：`0.6.20`（npm `latest` + GitHub Release `v0.6.20`）
+插件仓库：https://github.com/zuoyunlai/dsh-zhuoer-theme ｜ 投递时版本：`0.6.21`（npm `latest` + GitHub Release `v0.6.21`）
 
 ## 零、自建索引源（2026-11-25 起）
 
@@ -12,7 +12,7 @@ DSH 不内置索引源，所以「被市场收录」的可控路径是自己发�
 https://ghproxy.net/https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/market/index.json
 ```
 
-- 内容：`market/index.json`，只列 0.6.20 / 0.6.19 / 0.6.18（跳过 0.6.11 那版面板报错的）；
+- 内容：`market/index.json`，只列 0.6.21 / 0.6.20 / 0.6.19（跳过 0.6.11 那版面板报错的）；
 - 守门：`verify:market`（schema + 与 `package.json` 交叉对账）；
 - 实测：在该 profile 的「插件 → 实验性插件 → 自定义插件索引」里添加上面的 URL，「发现」出现索引标题 `卓尔主题索引` 与卡片（`Zhuoer 主题`、说明、0.6.19、作者、`已安装`）；
 - 镜像副本：也推了一份到 Gitee（`https://gitee.com/zuoyunlai/dsh-zhuoer-theme-market`），但**不能直接用它的 raw 链接**——Gitee 会 302 跳到带签名的 `raw.giteeusercontent.com`，而 DSH 要求索引不经重定向返回 2xx，会报 `unexpected redirect`；
