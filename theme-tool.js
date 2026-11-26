@@ -225,7 +225,7 @@ export function registerThemeTool(ctx, report, opts) {
             + 'tell the user it is ready and ask them to confirm there. Do not list the colors yourself. '
             + (value.textureDecision === 'want'
               ? 'A background texture is attached (dark + light).'
-              : 'No background texture was added - tell the user they can reply "add a texture" if they want one.',
+              : 'No background texture was added - tell the user they can reply "add a texture" if they want one.'),
           }, {
             type: 'text',
             text: SPEC_MARKER + JSON.stringify(value),
@@ -286,7 +286,7 @@ export function registerThemeTool(ctx, report, opts) {
               + 'tell the user it is ready and ask them to confirm there. Do not list the colors yourself. '
               + (value.textureDecision === 'want'
                 ? 'A background texture is attached (dark + light).'
-                : 'No background texture was added - tell the user they can reply "add a texture" if they want one.',
+                : 'No background texture was added - tell the user they can reply "add a texture" if they want one.'),
             }, {
               type: 'text',
               text: SPEC_MARKER + JSON.stringify(value),

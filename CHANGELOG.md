@@ -32,6 +32,8 @@
 - **门禁补位**：`verify-schema-output.mjs` 原来只校验 `toOutput` 与 schema，不碰 `presentationMeta`，所以这个 bug 一路 `PASS`。现在把 `toMeta` 也抽出来，用「有底纹 / 无底纹」两份数据跑无损序列化断言。
 
 - **底纹改成必答 + 走到生成**：新增**必填**参数 `texture: 'want' | 'no'`。此前只在描述里写「请先询问用户」，模型可以直接跳过——实测既没问，也**根本没生成底图**。现在三层兜住：（1）缺参数/取值非法/`want` 无路径都直接报错，错误文案即操作指引；（2）工具描述开头改成 `STEP 1 - ASK FIRST` / `STEP 2 - FOLLOW THE ANSWER`，明确「要就生成深色+浅色两张再传路径」；（3）工具返回文案按 `textureDecision` 分叉，没有底纹时要求模型在回复里告知「可以再说一句加底纹」。
+- **修复：语法错误让插件整体加载失败**。上一批改工具返回文案时，`render` 里的三元表达式少了一个右括号（`theme-tool.js:229`），服务端模块无法解析 → 宿主报「启动时未能加载」，`zhuoer_theme_generate` 从工具列表里**整体消失**（表现成「这个会话没有主题生成工具」，与参数校验失败极难区分）。
+- **新增启动期语法门** `scripts/verify-syntax.mjs`：对 `index.js` / `theme-tool.js` / `theme-gen.js` / `build.mjs` / `scripts/dev-sync.mjs` 跑 `node --check`，作为 `verify:all` 的第一道。此前 `verify:all` 全绿也照样能让宿主起不来——没有一道门碰过服务端语法。
 - **卡片状态可见**：`textureDecision` 随输出与 `presentationMeta` 下发，未启用底纹时卡片底部显示「底纹：未启用 · 想要就说「加个底纹」」。
 
 踩坑与取证全过程见 `docs/report-chat-theme-gen-2026-11-26.md`。
