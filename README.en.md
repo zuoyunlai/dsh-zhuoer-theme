@@ -17,6 +17,19 @@ A skin plugin that recolours the whole DSH UI: **12 built-in themes + 12 style p
 - **Contrast is measured**: 679 body/hint/semantic pairs clear 4.5:1 on both backgrounds — reproducible via `npm run coverage`.
 - **Theme engineering, not a skin pack**: 8 anchors derive 156 tokens; sample colours from a picture locally, or generate a theme from a chat message.
 
+## Contrast ledger
+
+![Text contrast: worst and median per role](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/contrast-audit.png)
+
+Not "probably readable" — every text role has a floor, re-measured by the gate on every theme change:
+
+| Role | Floor | Worst of 24 | Median |
+|---|---|---|---|
+| Body | 7:1 | 7.0+ | see chart |
+| Secondary | 6:1 | 6.0+ | see chart |
+| Tertiary / error / success | 4.5:1 | 4.50 | see chart |
+
+`npm run verify:contrast` additionally measures preset themes and button foregrounds — 679 pairs in total, ratchet-only (ledger lives in `contracts/`).
 ## Screenshots
 
 The UI shown is the Chinese one (same components in English; see [README.md](README.md)). Captured from a throwaway profile with an empty config, so no session or workspace data is visible.
