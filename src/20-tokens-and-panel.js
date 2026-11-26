@@ -171,21 +171,25 @@ function bgCssFor(o) {
   // 明暗统一 lighten：用户纹理的线条比底色更亮（实测暗色 5→7.4、浅色 238→245 亮度），
   // lighten 只让「比底色亮」的像素透出——线条留下、图底自动消失。
   // 之前浅色用 multiply，正好把更亮的线条乘没了，表现为「自定义底图只在暗色生效」。
-  var blendCss = isImageBg ? 'mix-blend-mode:lighten !important;' : '';
+  // 反相的那张（缺本方案的图）已经是「浅底深线」，用 multiply 让线透出；
+  // 正常取到本方案图时线比底亮，用 lighten。
+  var blendCss = isImageBg ? ('mix-blend-mode:' + (o.bgInvert ? 'multiply' : 'lighten') + ' !important;') : '';
+  var invertCss = o.bgInvert ? 'filter:invert(1);' : '';
   var imgOpacity = +(vis * 0.7).toFixed(3);
   // 淡化：另加一层垂直渐隐遮罩做出「边缘化开」；Zhuoer 的 faded 靠面板层不透明压暗，
   // 我们的内容层是透明的，直接照抄会更浓，所以用 mask 达到同样效果。
   // 底部对齐宿主：composer 自己有一条 36px 的「透明 → bg-base 实心」渐变（宿主 CSS 注释写明
-  // stops 用 px 不用 %），纹理若一直铺到列底，就会在 36px 处留一条硬边。
-  // 所以在离底 ~190px 开始淡、~140px 淡完，让纹理在宿主实心区之前先消失。
-  // 「淡化」再额外压中间段（45% 处 0.55），这样这个选项才有可见差别——
-  // 原先是整列均匀压淡，与实际可见度重叠，等于没压。
+  // stops 用 px 不用 %）。第一版在离底 190→140px 淡完，实测仍有一条生硬的横带：
+  // 因为那时淡出已经结束，而宿主实心区还没开始，中间露出一段「无纹理」的纯底色。
+  // 现在把淡出拉长到 320→60px：纹理一直淡到 composer 内部（实心区起点约在离底 74px），
+  // 两者重叠，边界落在 alpha 已接近 0 的位置，看不出接口。
+  // 「淡化」仍额外压中间段（45% 处 0.55），与「全幅」保持可见差别。
   var maskVal = bgStyle === 'fade'
-    ? 'linear-gradient(180deg,#000 0%,rgba(0,0,0,.55) 45%,rgba(0,0,0,.18) calc(100% - 190px),transparent calc(100% - 140px))'
-    : 'linear-gradient(180deg,#000 0%,#000 calc(100% - 190px),transparent calc(100% - 140px))';
+    ? 'linear-gradient(180deg,#000 0%,rgba(0,0,0,.55) 45%,rgba(0,0,0,.12) calc(100% - 320px),transparent calc(100% - 60px))'
+    : 'linear-gradient(180deg,#000 0%,#000 calc(100% - 320px),transparent calc(100% - 60px))';
   var fadeMask = '-webkit-mask-image:' + maskVal + ' !important;mask-image:' + maskVal + ' !important;';
   return '[class*="_centerCol"],[class*="_mainPanel"]{background-color:var(--dsw-alias-bg-base) !important;background-image:none !important;position:relative !important;isolation:isolate !important;}'
-    + '[class*="_centerCol"]::before,[class*="_mainPanel"]::before{content:"" !important;' + blendCss + 'position:absolute !important;inset:0 !important;background-image:url("' + bgUrl + '") !important;background-size:cover !important;background-position:50% 0% !important;background-repeat:no-repeat !important;opacity:' + imgOpacity + ' !important;' + fadeMask + 'pointer-events:none !important;z-index:0 !important;}'
+    + '[class*="_centerCol"]::before,[class*="_mainPanel"]::before{content:"" !important;' + blendCss + 'position:absolute !important;inset:0 !important;background-image:url("' + bgUrl + '") !important;background-size:cover !important;background-position:50% 0% !important;background-repeat:no-repeat !important;opacity:' + imgOpacity + ' !important;' + invertCss + fadeMask + 'pointer-events:none !important;z-index:0 !important;}'
     + '[class*="_centerCol"] [class*="_root"],[class*="_mainPanel"] [class*="_root"]{background-color:transparent !important;}'
     + 'html[data-zr-state="empty"][data-zr-bg-empty="0"] [class*="_centerCol"]::before,html[data-zr-state="empty"][data-zr-bg-empty="0"] [class*="_mainPanel"]::before,html[data-zr-state="session"][data-zr-bg-session="0"] [class*="_centerCol"]::before,html[data-zr-state="session"][data-zr-bg-session="0"] [class*="_mainPanel"]::before{display:none !important;}';
 }
@@ -385,6 +389,7 @@ function applyTokens(theme, pref) {
       ensureReadableOn(tokens);
       // 背景：主题自带底图或用户上传图。启用时把内容底色改成半透明，让底图透出来。
       let bgUrl = '';
+      let bgInvert = false;
       let bgOpacity = pref.bgOpacity;
       let bgStyle = pref.bgStyle;
       // 自定义主题可以自带底图；source 为空表示跟随全局底图设置。
@@ -399,8 +404,18 @@ function applyTokens(theme, pref) {
         if (specBg.style) bgStyle = specBg.style;
         if (specBg.source === 'theme') bgUrl = themeBgFor();
         else if (specBg.source === 'image' && (specBg.key || specBg.keyLight)) {
-          const wantLight = scheme === 'light' ? specBg.keyLight : '';
-          bgUrl = (wantLight && imageCache.get(wantLight)) || imageCache.get(specBg.key) || imageCache.get(specBg.keyLight) || '';
+          // 明暗各有一张时按方案取；只有一张时**反相**用另一张，而不是硬塞。
+          // 面板「上传图片」只存了 key（没有浅色版），浅色模式原先拿暗图 + lighten，
+          // 而暗图的每个像素都比浅底暗 → 整张被抑制，表现为「浅色模式下自定义图片不可见」。
+          const darkUrl = imageCache.get(specBg.key) || '';
+          const lightUrl = imageCache.get(specBg.keyLight) || '';
+          if (scheme === 'light') {
+            if (lightUrl) bgUrl = lightUrl;
+            else if (darkUrl) { bgUrl = darkUrl; bgInvert = true; }
+          } else {
+            if (darkUrl) bgUrl = darkUrl;
+            else if (lightUrl) { bgUrl = lightUrl; bgInvert = true; }
+          }
         }
         // source === 'none' → 该主题明确不要底图
       } else if (pref.bgSource === 'theme') bgUrl = themeBgFor();
@@ -469,7 +484,7 @@ function applyTokens(theme, pref) {
         // 盒子尺寸由宿主的 width/height 决定，用 contain + 贴左居中：比例不匹配时留白，不会裁切。
         // 来源优先级：用户上传的图 > 主题自带 logo。开但没选图 = 用自带的，不是「不生效」。
         const brandCss = brandCssFor(pref);
-        const bgCss = bgCssFor({ bgUrl: bgUrl, bgOpacity: bgOpacity, bgStyle: bgStyle, bgIsImage: !!(specBg && specBg.source === 'image') || pref.bgSource === 'image', tokens: tokens, scheme: scheme });
+        const bgCss = bgCssFor({ bgUrl: bgUrl, bgOpacity: bgOpacity, bgStyle: bgStyle, bgIsImage: !!(specBg && specBg.source === 'image') || pref.bgSource === 'image', bgInvert: bgInvert, tokens: tokens, scheme: scheme });
         // 文字大小 / 强调色 / 字体（照 Zhuoer 外观页的三组设置）
         let fxCss = '';
         // 主栏四个角永远是直角 —— 用户明确要求「无论何种主题、无论什么情况」。
