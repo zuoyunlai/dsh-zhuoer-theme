@@ -29,6 +29,12 @@
 - 说明文字与提示语原本用 label-tertiary，压在设置卡片底上 24 态里 **11 态 < 4.5（最低 4.29）** → 改 label-secondary（两档底最低 4.53 / 4.67）。
 - 报错行原本和普通说明共用同一 class。label-error 压卡片底最低 **4.36**（vintage-paper 深色），所以不加红色文本，改 is-warn：**字重 600 + 点线下划线**，颜色只用于装饰线。
 
+**基线重采（真机运行时）**：CSS 快照与视觉基线都已按这一版重采，两门从 advisory 恢复为真判。
+
+- 采集环境：临时 `dsh web` 实例（web profile 装本插件并覆盖当前构建），视口 1264×771，浅色/深色各一次；
+- CSS 快照取 `id=dsh-zhuoer-theme-tokens` 的 style 与以 `.zp-root{` 开头的面板 style，按 DOM 顺序以换行拼接（两份各 60379 B；旧基线 60237 B）；
+- 视觉基线截 `.zp-root` 元素（559×1644，旧图 559×1236——面板变高是内容增加所致）。
+
 **门禁**：对比度门新增「设置面板文字面」一组（label-primary / label-secondary 压 settings-card-fill 与 button-elevated-fill、胶囊选中、危险待确认），从 487 组扩到 655 组；i18n 新增 panel.bg.opacityCap（中英成对）后为 153 条。
 
 ## 0.6.22（发布汇总：组件面 2.3 / 2.1 / 2.5，另两项有据降级）
