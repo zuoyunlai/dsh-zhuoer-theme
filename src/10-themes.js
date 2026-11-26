@@ -1104,15 +1104,48 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
     // 少量覆盖：允许直接指定**非锚点** alias token（侧栏、卡片面、代码块底等），
     // 在派生与地板之后写入 —— 显式指定优先于派生。锚点本身不走这里（它们走 applyGroup），
     // 避免出现「锚点说一套、覆盖说另一套」。
+    // 覆盖报告：最近一次派生里覆盖键的去向（卡片用它显示「改了几键、几键被回退」）
+    let zrOverrideReport = { applied: [], softened: [], weak: [] };
+    function overrideReport() { return zrOverrideReport; }
+    // 前景文字 token 集合：只有它们受「覆盖值对比度」约束。
+    // 底色/卡片面/遮罩/代码块底本来就是低对比的背景层，一并约束会被误判回退。
+    const TEXT_TOKEN_SET = (function () {
+      const set = {};
+      ANCHOR_GROUPS.forEach(function (g) {
+        if (g.key !== 'text') return;
+        set[g.anchor] = true;
+        (g.members || []).forEach(function (m) { set[m[0]] = true; });
+      });
+      return set;
+    })();
+
+    // 少量覆盖：允许直接指定**非锚点** alias token（侧栏、卡片面、代码块底等），
+    // 在派生与地板之后写入 —— 显式指定优先于派生。锚点本身不走这里（它们走 applyGroup），
+    // 避免出现「锚点说一套、覆盖说另一套」。
+    // B 档对比度约束：覆盖落在**前景文字** token 上时，与底色之比 <3.0 → 回退到派生值
+    // （记入 softened）；3.0–4.5 → 保留但记入 weak。覆盖主要来自 AI 生成与 JSON 导入
+    // （编辑器只给 8 组锚点），这里兜住「AI 给了个几乎看不见的正文色」这类最坏情况。
     function applyOverrides(out, table) {
+      zrOverrideReport = { applied: [], softened: [], weak: [] };
       if (!table || typeof table !== 'object') return out;
       const anchorSet = {};
       ANCHOR_GROUPS.forEach(function (g) { anchorSet[g.anchor] = true; });
+      const refBg = out['--dsw-alias-bg-base'];
       Object.keys(table).forEach(function (k) {
         if (anchorSet[k]) return;
         if (!/^--dsw-(alias|specific)-[a-z0-9-]+$/.test(k)) return;
         if (!/^#[0-9a-fA-F]{6}$/.test(String(table[k]))) return;
-        out[k] = String(table[k]);
+        const next = String(table[k]);
+        if (TEXT_TOKEN_SET[k]) {
+          const r = contrastOn(next, refBg);
+          if (r !== null && r < 3.0) {
+            zrOverrideReport.softened.push({ token: k, tried: next, kept: out[k], ratio: Math.round(r * 100) / 100 });
+            return;
+          }
+          if (r !== null && r < 4.5) zrOverrideReport.weak.push({ token: k, ratio: Math.round(r * 100) / 100 });
+        }
+        out[k] = next;
+        zrOverrideReport.applied.push(k);
       });
       return out;
     }

@@ -39,7 +39,7 @@ if (start < 0 || end < start) throw new Error('client.js 里找不到 #region de
 const region = src.slice(start, end);
 const helpers = [grabFn('hexHsl'), grabFn('hslHex'), grabFn('parseHexColor'), grabFn('toHexColor')].join('\n');
 const make = new Function('THEMES', 'THEME_IDS',
-  helpers + '\n' + region + '\nreturn { buildCustomTokens, STYLE_PRESETS, pickOnColor, hexHsl, contrastOn };');
+  helpers + '\n' + region + '\nreturn { buildCustomTokens, STYLE_PRESETS, pickOnColor, hexHsl, contrastOn, overrideReport };');
 const api = make(THEMES, THEME_IDS);
 
 const luminance = (hex) => {
@@ -216,6 +216,21 @@ else {
   if (mH[2] > 0.14) bad.push('自定义:暖灰 遮罩不够暗 L=' + mH[2].toFixed(2) + '（上限 0.14）');
 }
 if (ct['--dsw-specific-bubble'] !== '#3a332e') bad.push('自定义:暖灰 少量覆盖未生效（--dsw-specific-bubble=' + ct['--dsw-specific-bubble'] + '）');
+
+// B 档：前景文字的覆盖若低于 3:1 必须回退到派生值（覆盖多来自 AI 生成 / JSON 导入）。
+// 注意用文字组的**成员** token 测：锚点 label-primary 本来就不走覆盖路径（它走 applyGroup + 文字地板）。
+const evilOv = { base: 'dash', autoDark: false, font: {}, radiusScale: 1, light: {},
+  dark: Object.assign({}, customDark.dark, { '--dsw-alias-label-secondary': '#2f2825' }) };
+const ev = api.buildCustomTokens(evilOv, 'dark');
+const evRatio = ratio(ev['--dsw-alias-label-secondary'], ev['--dsw-alias-bg-base']);
+if (evRatio === null || evRatio < 3) bad.push('覆盖把次级文字压到 ' + Number(evRatio || 0).toFixed(2) + ':1 却没回退（B 档要求 <3:1 回退）');
+const evRep = api.overrideReport();
+if (!evRep || evRep.softened.length !== 1) bad.push('覆盖报告 softened 应为 1，实得 ' + (evRep ? evRep.softened.length : 'null'));
+if (evRep && evRep.applied.indexOf('--dsw-specific-bubble') < 0) bad.push('正常覆盖应记入 applied');
+// 背景类覆盖不受该约束：卡片面本来就和底色接近
+const bgOv = { base: 'dash', autoDark: false, font: {}, radiusScale: 1, light: {},
+  dark: Object.assign({}, customDark.dark, { '--dsw-alias-card-fill': '#3b332d' }) };
+if (api.buildCustomTokens(bgOv, 'dark')['--dsw-alias-card-fill'] !== '#3b332d') bad.push('背景类覆盖被误判回退（B 档只约束前景文字）');
 // 身份性质：只换品牌色时不得改动底色层级（否则等于悄悄改掉所有老主题的外观）
 const brandOnly = api.buildCustomTokens({ base: 'dash', autoDark: false, font: {}, radiusScale: 1, light: {}, dark: { '--dsw-alias-brand-primary': '#b08968' } }, 'dark');
 if (brandOnly['--dsw-alias-bg-layer-1'] !== THEMES.dash.dark['--dsw-alias-bg-layer-1']) bad.push('只换品牌色却改动了底色层级（应保持 base 值）');

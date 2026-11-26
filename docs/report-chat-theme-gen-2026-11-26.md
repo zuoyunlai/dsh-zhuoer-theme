@@ -156,6 +156,14 @@
 - **保留项（附理由）**：`00-core.js` 的 160 行排障探针（token 快照 + 半透明取样）保留但已用 `zrDebug()` 关掉——下次同类取证不必重写；覆盖键正则的 4 份字面量未抽常量（跨分片共享成本高于收益）。
 - **状态**：`verify:all` exit 0、`client.js` 739,641 B、已同步 desktop profile。
 
+### R18：覆盖值的对比度兜底（B 档）——方案里漏掉的那半句
+- **核验结论（对照用户截图里的 C 行）**：8 锚点定骨架 ✅、最多 4 键 ✅（但**不是白名单**，任意 `--dsw-(alias|specific)-*` 都收）、在派生之上写入 ✅、**对比度兜底只覆盖派生值** ❌——因为 `applyOverrides` 在 `enforceTextFloor` 之后执行，覆盖会原样落地。
+- **取证**：`applyOverrides` 位于最外层（10-themes.js:1156 / 1170），内部只跳过 8 个锚点（:1111），所以锚点由地板保护、**成员 token 没有任何保护**。
+- **用户决策**：选 B（宽松）——文字覆盖 <3:1 回退、3–4.5:1 保留并标注；理由是这些覆盖多来自 AI 生成与 JSON 导入（编辑器界面只有 8 组锚点，手工造不出坏值）。
+- **实现**：`TEXT_TOKEN_SET` 由文字组锚点 + 成员构成；`applyOverrides` 只对集合内 token 做 `contrastOn(next, bg-base)` 判定；`zrOverrideReport` 记录三张清单并经 `overrideReport()` 暴露；卡片在已应用状态后追加一行「覆盖 N 键 / M 键回退」。
+- **过程偏差（留证）**：门禁第一次红的是「softened 应为 1，实得 0」——我的测试拿锚点 `label-primary` 当覆盖对象，而锚点按设计走 `applyGroup` + 地板，根本不进覆盖分支。改成文字组成员 `label-secondary` 后通过。**这条偏差说明「测试对象选错」和「功能没实现」在报告里长得很像**，得先确认被测对象属于哪条路径。
+- **覆盖与状态**：`verify:contrast` 679 组无回退、`verify:all` exit 0、`client.js` 742,346 B、已同步 desktop profile。
+
 ## 4. 收口汇总
 
 最终验证（2026-11-26）：

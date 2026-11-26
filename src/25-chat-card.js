@@ -365,7 +365,12 @@
             )
           : h('div', { className: 'zrc-acts' },
               done
-                ? h('span', { className: 'zrc-ok' }, t('panel.chat.applied'))
+                ? (function () {
+                    const rep = typeof overrideReport === 'function' ? overrideReport() : null;
+                    if (!rep || !rep.applied || !rep.applied.length) return h('span', { className: 'zrc-ok' }, t('panel.chat.applied'));
+                    const soft = rep.softened && rep.softened.length ? ' · ' + t('panel.chat.ovSoft').replace('{s}', String(rep.softened.length)) : '';
+                    return h('span', { className: 'zrc-ok' }, t('panel.chat.ovApplied').replace('{n}', String(rep.applied.length)) + soft);
+                  })()
                 : h('button', { type: 'button', className: 'zrc-btn', 'data-pri': '1', onClick: function () { applied(spec); } }, t('panel.chat.apply')),
               h('button', { type: 'button', className: 'zrc-btn', onClick: startEdit }, t('panel.chat.modify')),
             ),
