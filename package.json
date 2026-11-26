@@ -11,6 +11,7 @@
     "check:themes": "node scripts/sync-themes.mjs --check",
     "verify:host": "node scripts/verify-host-contract.mjs",
     "build": "node build.mjs",
+    "dev:sync": "node scripts/dev-sync.mjs",
     "verify:build": "node scripts/verify-build.mjs",
     "verify:release": "node scripts/verify-release-clean.mjs",
     "verify:assets": "node scripts/verify-assets.mjs",
