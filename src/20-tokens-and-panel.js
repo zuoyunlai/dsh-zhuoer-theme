@@ -154,15 +154,6 @@ function bgCssFor(o) {
   var bgStyle = o.bgStyle;
   var tokens = o.tokens;
   var scheme = o.scheme;
-  var fbase = (function () {
-    var raw = String(tokens['--dsw-alias-bg-base'] || '');
-    var m = raw.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-    if (!m) {
-      var conv = hexToRgba(raw, 1);
-      m = conv ? String(conv).match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/) : null;
-    }
-    return m ? (m[1] + ',' + m[2] + ',' + m[3]) : (scheme === 'light' ? '244,241,236' : '14,16,21');
-  })();
   // 可见度滑块接到图片上：Zhuoer full-bleed 实测 opacity = 可见度 × 0.7（85% → 0.595）。
   var vis = Math.max(0, Math.min(100, bgOpacity)) / 100;
   // 内容压底：把 _root 从「全透明」换成「bg-base 的半透明压底」，

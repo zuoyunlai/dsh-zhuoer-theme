@@ -193,11 +193,11 @@ if (priRatio === null || priRatio < 7) bad.push('自定义:暖灰 正文只 ' + 
 check('自定义:暖灰 次级', ct['--dsw-alias-label-secondary'], cbg);
 const terRatio = ratio(ct['--dsw-alias-label-tertiary'], cbg);
 if (terRatio === null || terRatio < 3) bad.push('自定义:暖灰 三级文字 ' + Number(terRatio || 0).toFixed(2) + ':1（地板 3:1）');
-// 阈值来自实测（同一套暖灰样本）：有地板 1.089/1.086/1.102/1.111，无地板 1.074/1.046/1.052/1.060。
-// 取 1.08 起跳，正好落在两者之间——把 enforceDepth 摘掉，这四条会一起红。
+// 阈值来自实测：阶梯 4/8/12/16% 下，暖灰样本相对底色的累计比是 1.13/1.30/1.51/1.77，
+// 相邻比约 1.13/1.15/1.16/1.17。阈值取相邻比略低一档——摘掉 enforceDepth 会一起红。
 const ladder = [
-  ['--dsw-alias-bg-layer-1', 1.08], ['--dsw-alias-bg-layer-2', 1.075],
-  ['--dsw-alias-bg-layer-3', 1.09], ['--dsw-alias-bg-layer-4', 1.10],
+  ['--dsw-alias-bg-layer-1', 1.10], ['--dsw-alias-bg-layer-2', 1.12],
+  ['--dsw-alias-bg-layer-3', 1.13], ['--dsw-alias-bg-layer-4', 1.14],
 ];
 let prevSurface = cbg;
 for (const pair of ladder) {
@@ -206,7 +206,7 @@ for (const pair of ladder) {
   prevSurface = ct[pair[0]];
 }
 const deepRatio = ratio(ct['--dsw-alias-bg-layer-4'], cbg);
-if (deepRatio === null || deepRatio < 1.35) bad.push('自定义:暖灰 最深层与底色只差 ' + Number(deepRatio || 0).toFixed(2) + ':1（地板 1.35）');
+if (deepRatio === null || deepRatio < 1.70) bad.push('自定义:暖灰 最深层与底色只差 ' + Number(deepRatio || 0).toFixed(2) + ':1（地板 1.70）');
 const bgH = api.hexHsl(cbg), mH = api.hexHsl(ct['--dsw-alias-bg-mask-1']);
 if (!bgH || !mH) bad.push('自定义:暖灰 遮罩无法解析');
 else {
