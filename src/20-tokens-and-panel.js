@@ -510,6 +510,14 @@ function applyTokens(theme, pref) {
         // 按钮本身（svg / path）不受影响，点击区域与 app-region 也不变。
         fxCss += 'html[data-windows-titlebar] [data-window-drag-controls],'
           + 'html[data-windows-titlebar] [data-window-drag-controls] > *{background-color:transparent !important;}';
+        // M2（语义选择器）弹层圆角统一：宿主把 role 直接放在盒子本身上
+        //   dialog  -> div[role="dialog"][aria-modal="true"]
+        //   menu    -> div[role="menu"]（含 submenu）
+        //   tooltip -> div[role="tooltip"]
+        // 只改圆角，不动尺寸/内边距/定位；圆角取形状预设的 radius token，方角预设自动得到直角。
+        fxCss += 'html [role="dialog"]{border-radius:var(--dsw-radius-panel,12px) !important;}'
+          + 'html [role="menu"]{border-radius:var(--dsw-radius-lg,10px) !important;}'
+          + 'html [role="tooltip"]{border-radius:var(--dsw-radius-sm,6px) !important;}';
         // 左右栏的拖拽分隔条：宿主实现是「元素宽 0 + ::before 画 0.5px 竖线」，
         // 命中区只有半像素，鼠标很难精确压住，所以拖动时也没有任何反馈。
         // 这里补两件事：
