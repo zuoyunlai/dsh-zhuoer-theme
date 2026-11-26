@@ -10,6 +10,36 @@
 
 
 
+
+## 未发布批次：对话宽度输入框（并入 0.6.21）
+
+**起因**：桌面端聊天正文明显比 web 端窄。查完宿主源码，根因是它自己的测量回路，不是插件：
+
+```js
+function publishWidths(container) {
+  const column = container.offsetWidth              // 量的是「本身已被宽度约束」的元素
+  target.style.setProperty('--dsh-conversation-column-width', column + 'px')
+}
+function resolveContentWidth(col, pref) {
+  return Math.max(680, Math.min(col * 0.64, 920))   // col 被量成 641 时 → 卡在 680 下限
+}
+```
+
+自我引用使宽度收敛到 680 附近（实测正文 683px），窗口再宽也不变。
+
+**第二个坑**：拖动产生的是**内联** `--dsh-chat-user-width`，而清 `localStorage`（键 `dsh.conversation.contentWidth`）不会清内联；
+于是出现「存储里没有键、正文仍是旧宽度」。判据必须同时看 `element.style.cssText`。
+
+**做法**：面板「排版」加一行**对话宽度**输入框：
+
+- 留空 = 自适应（存 0，完全不注入规则，交还宿主逻辑）；
+- 填 640–1600 = 注入 `[style*="--dsh-conversation-column-width"]{--dsh-chat-user-width:max(640px,min(Npx,calc(var(--dsh-conversation-column-width,1024px) - 176px))) !important}`；
+  上限跟着宿主自己的列宽变量走（`CONTENT_EDGE_BUDGET = 176`），下限用宿主的 `CONTENT_MIN = 640`；
+- 只写一个自定义属性，**不动任何布局尺寸**；
+- 附带自愈：宿主偏好键为空时，把残留的内联 `--dsh-chat-user-width` 摘掉（正是上面第二个坑）。
+
+冒烟门新增断言：输入 900 → 存 900；输入 100 → 夹到 640；清空 → 回到 0。
+
 ## 0.6.20（发布汇总：三个只有在真机上才暴露的问题）
 
 这一版没有新功能，三件事都是「门禁全绿但用户一点就出问题」的类型：

@@ -185,6 +185,10 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
           bgOnEmpty: p.bgOnEmpty !== false,
           bgOnSession: p.bgOnSession !== false,
           fontScale: [90, 100, 110, 125, 140].indexOf(p.fontScale) !== -1 ? p.fontScale : 100,
+          // 对话正文宽度（px）：0 = 跟随宿主（自适应），非 0 = 用户指定值。
+          // 宿主自己的偏好键是 dsh.conversation.contentWidth（拖动写入），我们不复用它——
+          // 那是宿主的存储契约，插件另存一份，互不覆盖。
+          chatWidth: typeof p.chatWidth === 'number' && p.chatWidth >= 640 && p.chatWidth <= 1600 ? Math.round(p.chatWidth) : 0,
           accent: typeof p.accent === 'string' && /^#[0-9a-fA-F]{6}$/.test(p.accent) ? p.accent : '',
           uiFont: typeof p.uiFont === 'string' ? p.uiFont.slice(0, 60) : '',
           // 右侧栏快捷导航：off 关闭 / three 只露三个（悬停展开）/ all 全部常驻

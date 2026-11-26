@@ -320,6 +320,42 @@ try {
   process.exit(1)
 }
 
+// 对话宽度输入框：空 = 自适应（0），非空 = 提交夹到 [640,1600] 的整数。
+// 这是「非受控输入 + 失焦提交」的时序，渲染冒烟看不到，必须显式调一次 onBlur。
+try {
+  const findBy = (node, pred, out) => {
+    if (!node || typeof node !== 'object') return out
+    if (Array.isArray(node)) { node.forEach((n) => findBy(n, pred, out)); return out }
+    if (!node.$$el) return out
+    if (pred(node)) out.push(node)
+    ;(node.children || []).forEach((c) => findBy(c, pred, out))
+    return out
+  }
+  const skinNode = findBy(panel.render({ id: 'zhuoer-theme' }), (n) => typeof n.type === 'function' && /SkinSettings/.test(String(n.type.name)), [])[0]
+  if (!skinNode) throw new Error('找不到 SkinSettings')
+  hookReset()
+  const numInput = findBy(skinNode.type(skinNode.props), (n) => n.props && /zp-num/.test(String(n.props.className || '')), [])[0]
+  if (!numInput) throw new Error('没找到对话宽度输入框（className 应含 zp-num）')
+  const readChatWidth = () => {
+    for (const k of store.keys()) {
+      try {
+        const j = JSON.parse(store.get(k))
+        if (j && typeof j === 'object' && 'chatWidth' in j) return j.chatWidth
+      } catch (e) { /* ignore */ }
+    }
+    return undefined
+  }
+  numInput.props.onBlur({ target: { value: '900' } })
+  if (readChatWidth() !== 900) throw new Error('填入 900 后 chatWidth=' + readChatWidth())
+  numInput.props.onBlur({ target: { value: '100' } })
+  if (readChatWidth() !== 640) throw new Error('低于下限应夹到 640，实际 ' + readChatWidth())
+  numInput.props.onBlur({ target: { value: '' } })
+  if (readChatWidth() !== 0) throw new Error('清空应回到 0（自适应），实际 ' + readChatWidth())
+} catch (e) {
+  console.error('FAIL  对话宽度输入：' + (e && e.message))
+  process.exit(1)
+}
+
 if (!names.some((n) => /SkinSettings/.test(n))) {
   console.error('FAIL  SkinSettings 没有被真正渲染（只渲染了：' + names.join(', ') + '）——冒烟门形同虚设')
   process.exit(1)

@@ -583,6 +583,23 @@ function applyTokens(theme, pref) {
             + '--dsh-content-font-delta-secondary:calc(13px * ' + (Math.round((kk - 1) * 1000) / 1000) + ');'
             + '}';
         }
+        // 对话正文宽度：宿主 CSS 是 var(--dsh-chat-user-width, clamp(...))，所以只要给这个变量赋值，
+        // 就完全绕过它那套「按中栏宽度自我测量」的公式（实测那个公式会把宽度锁在下限附近）。
+        // 上限跟着宿主自己的列宽变量走（列宽 − 176px，176 = 两侧手柄预留，宿主 CONTENT_EDGE_BUDGET），
+        // 下限用宿主的 CONTENT_MIN = 640。全程只写一个自定义属性，不动任何布局尺寸。
+        // 选择器用内联样式属性：宿主是把 --dsh-conversation-column-width 内联写在 _root 上的。
+        if (pref.chatWidth) {
+          fxCss += '[style*="--dsh-conversation-column-width"]{--dsh-chat-user-width:max(640px,min(' + pref.chatWidth + 'px,calc(var(--dsh-conversation-column-width,1024px) - 176px))) !important;}';
+        }
+        // 自愈：宿主的旧拖动值会以**内联样式**留在 _root 上，而清 localStorage 不会清它，
+        // 于是出现「存储里没有键，但正文仍是旧宽度」。没有宿主偏好键时把残留内联值摘掉。
+        try {
+          const hostPrefKey = 'dsh.conversation.contentWidth';
+          if (!window.localStorage.getItem(hostPrefKey)) {
+            const stale = document.querySelectorAll('[style*="--dsh-chat-user-width"]');
+            for (let i = 0; i < stale.length; i++) stale[i].style.removeProperty('--dsh-chat-user-width');
+          }
+        } catch (e) { /* ignore */ }
         if (pref.uiFont) {
           const fam = '"' + pref.uiFont.replace(/"/g, '') + '", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
           // html body 提高特异性：宿主用 font shorthand 写在 body 上，单条 body 规则会被重置。
@@ -969,6 +986,7 @@ function applyTokens(theme, pref) {
       '.zp-cus-acts{display:flex;gap:8px;flex-wrap:wrap;padding-top:2px;}',
       '.zp-txt{padding:4px 8px;border-radius:8px;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font-size:13px;min-width:110px;}',
       '.zp-txt:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;}',
+      '.zp-num{width:104px;text-align:right;}',
       '.zp-btn-pri{background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground,var(--dsw-alias-bg-base));border-color:transparent;}',
       '.zp-btn-pri:hover{background:var(--dsw-alias-button-primary-hover);}',
       // 编辑器浮层：外层 pointer-events:none，只有左侧面板接管点击，右半区让真实界面透出来当预览。
@@ -1813,6 +1831,15 @@ function applyTokens(theme, pref) {
       // 所有写入走同一个口子：先落 localStorage，再刷新本地 state，再通知 apply()
       // 重算 token —— 少一步界面就和存储不同步。
       const set = function (patch) { writePref(patch); setPref(readPref()); emitChange(); };
+      // 对话宽度输入框：空 = 自适应（存 0），否则夹到宿主的 [640, 1600] 区间。
+      // 边打字边裁剪会把「8」立刻变成「640」，所以只在失焦/回车时提交。
+      const commitChatWidth = function (raw) {
+        const s = String(raw == null ? '' : raw).trim();
+        if (!s) { set({ chatWidth: 0 }); return; }
+        const n = parseInt(s, 10);
+        if (!isFinite(n)) { set({ chatWidth: 0 }); return; }
+        set({ chatWidth: Math.max(640, Math.min(1600, Math.round(n))) });
+      };
 
       // ---- 自定义主题的增删改 ----
       // 预览只 setPref（改组件 state，不落盘），保存才 writePref —— 否则「取消」会留下痕迹。
@@ -2228,6 +2255,19 @@ function applyTokens(theme, pref) {
             pref.fontScale !== 100 && HOST_TEXT_STATS && HOST_TEXT_STATS.rules === 0
               ? h('span', { className: 'zp-hint' }, t('panel.type.scaleMiss'))
               : null
+          ),
+          h(Row, { label: t('panel.type.widthRow') },
+            // 非受控输入：边打字边裁剪会把「8」立刻变成「640」，用户只会觉得输不进去。
+            // 失焦或回车才提交，清空即恢复自适应。
+            h('input', {
+              type: 'number', className: 'zp-txt zp-num', min: 640, max: 1600, step: 10,
+              defaultValue: pref.chatWidth ? String(pref.chatWidth) : '',
+              placeholder: t('panel.type.widthPh'),
+              'aria-label': t('panel.type.widthAria'),
+              onBlur: function (ev) { commitChatWidth(ev.target.value); },
+              onKeyDown: function (ev) { if (ev.key === 'Enter') { try { ev.currentTarget.blur(); } catch (e) { /* ignore */ } } },
+            }),
+            h('span', { className: 'zp-hint' }, t('panel.type.widthHint'))
           ),
           h(Row, { label: t('panel.type.fontRow') },
             // 受控下拉：只列包内真正 @font-face 注册过的族名。自由输入一旦写错，

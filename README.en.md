@@ -35,6 +35,7 @@ The UI shown is the Chinese one (same components in English; see [README.md](REA
 | Market icon | `assets/icon-180.png` (180×180, rasterised from `assets/logo/zhuoer.svg`) |
 | Brand slot | Replaces the deepseek HARNESS wordmark; off by default. When on it uses the theme's own logo unless you upload an image (downscaled to 512px on the long edge) |
 | Text size | Five steps (90 / 100 / 110 / 125 / 140), enlarging **UI copy and message body** (three text paths: `--dsw-font-*` scaling, `--dsh-content-font-*` assignment, and a build-time host-class size table). No geometric zoom is injected — `body{zoom}` breaks the host's sidebar-drag coordinate math and is banned by the gate |
+| Transcript width | A 640–1600 px value pins the transcript width; leave it empty to follow the host's adaptive behaviour. Only the host's `--dsh-chat-user-width` is written — no layout geometry is touched. The host's own formula self-measures the column and pins the width near its 680 floor, so this field is the escape hatch |
 | Accent colour | Candidate colours per theme plus a free colour picker; button foregrounds are derived to stay readable |
 | UI font | Override the UI font family; CJK glyphs fall back to the bundled subsets |
 | Right-sidebar quick nav | Three modes: off / show three with hover expansion / show all |
@@ -239,7 +240,7 @@ npm run coverage      # token coverage and the "deliberately not derived" allowl
 | `verify:market` | **Market index gate**: validates `market/index.json` against the official schema (LocalizedText must contain `en`, exact SemVer, `source.type`, `engines.dsh`) and cross-checks it with this package’s `package.json` |
 | `verify:locale` | **Display metadata gate**: every `locale/*.json` has a non-empty `meta.title`, `en` exists, `exports`/`files` are complete, `./icon` is ≤256 KiB and matches the `icon` field |
 | `verify:keys` | **Dictionary gate** (static): every key used by `t('…')` exists in both zh and en, with identical placeholder sets; a missing key or `{n}` vs `{count}` mismatch is red. Covers copy that never renders (drawer, errors, ARIA) |
-| `verify:text` | **Copy gate** (deterministic): renders the panel in Node and compares 148 strings and attributes (`title`/`aria-label`/`placeholder`/`alt`) against `contracts/text-snapshot/{zh,en}.json`, versions normalised. Change copy ⇒ run `--update` |
+| `verify:text` | **Copy gate** (deterministic): renders the panel in Node and compares 152 strings and attributes (`title`/`aria-label`/`placeholder`/`alt`) against `contracts/text-snapshot/{zh,en}.json`, versions normalised. Change copy ⇒ run `--update` |
 | `verify:visual` | Pixel comparison of the panel (**removed from `verify:all`**): two consecutive captures of the same state differ by 2.3% in light mode, and a gate that cannot reproduce itself is a false sense of safety. Script kept for manual eyeballing |
 | `verify:csssnap` | Compares the **injected** CSS text byte for byte against `contracts/css-snapshot/`, reporting the first offset and context. SKIPs when `visual/css-current/` is absent; `--strict` makes it hard-fail |
 | `verify:claims` | **Public-claim gate**: theme count, version, background count, string count and the bare-Chinese baseline in README / market index / locale / package.json must equal the freshly computed truth (add a theme, forget the docs → red) |
