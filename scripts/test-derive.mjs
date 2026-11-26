@@ -71,8 +71,16 @@ const oldL1 = parseHexColor(base['--dsw-alias-bg-layer-1'])
 const newBg = parseHexColor(shifted['--dsw-alias-bg-base'])
 const newL1 = parseHexColor(shifted['--dsw-alias-bg-layer-1'])
 const expectL1 = oldL1.map((v, i) => v + (newBg[i] - oldBg[i]))
-const l1Ok = expectL1.every((v, i) => Math.abs(Math.max(0, Math.min(255, Math.round(v))) - newL1[i]) <= 1)
-ok('改底色后 layer-1 按差值平移', l1Ok, `bg ${base['--dsw-alias-bg-base']}→${shifted['--dsw-alias-bg-base']}，layer1 ${base['--dsw-alias-bg-layer-1']}→${shifted['--dsw-alias-bg-layer-1']}`)
+// 契约变更（0.6.26 层次阶梯）：layer-1 不再「纯平移」，而是 max(平移结果, 底色 + 4%)。
+// beacon 的深色层距本来只有 ~3%，阶梯会把它抬到 4% —— 这正是阶梯存在的目的。
+// 所以断言改成两条：① 不能比平移结果更暗（平移是下限）；② 与「底色 +4%」相差不超过 2 级。
+const bgh = hexHsl(shifted['--dsw-alias-bg-base'])
+const bgL1 = bgh ? bgh[2] : 0
+const l1L = (Math.max.apply(null, newL1) + Math.min.apply(null, newL1)) / 2 / 255
+const l1LowerOk = newL1.every((v, i) => v >= Math.max(0, Math.min(255, Math.round(expectL1[i]))) - 1)
+const l1FloorOk = l1L >= bgL1 + 0.03
+const l1Ok = l1LowerOk && l1FloorOk
+ok('改底色后 layer-1 ≥ 平移结果且达到底色+4% 层距', l1Ok, `bg ${base['--dsw-alias-bg-base']}→${shifted['--dsw-alias-bg-base']}，layer1 ${base['--dsw-alias-bg-layer-1']}→${shifted['--dsw-alias-bg-layer-1']}（L1 ${l1L.toFixed(3)} vs 底色 ${bgL1.toFixed(3)}+0.04）`)
 
 // 3) 品牌组 same：9 个成员必须与新品牌色完全相同
 const branded = buildCustomTokens({ base: 'beacon', dark: { '--dsw-alias-brand-primary': '#00bcd4' } }, 'dark')

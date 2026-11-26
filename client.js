@@ -1973,7 +1973,8 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
         // 骨架用 base 主题的 dark：它本身就是一套正确的深色，
         // toast / tooltip / 按钮 / diff / chart 这些没被锚点覆盖的 token 都在里面。
         // 之前拿 light 整表反推，未覆盖的 token 还是浅色，界面上一堆亮块。
-        const out = Object.assign({}, tokensFor(spec.base, 'dark'));
+        const origDark = tokensFor(spec.base, 'dark');
+        const out = Object.assign({}, origDark);
         const light = buildCustomTokens(Object.assign({}, spec, { autoDark: false }), 'light');
         // 只把「用户在浅色里实际调出来的锚点」反推成深色锚点，再按 base dark 的组内关系平移。
         ANCHOR_GROUPS.forEach(function (g) {
@@ -1999,12 +2000,14 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
           applyGroup(out, g, oldHex2, nwHex);
         });
         // 与浅色分支同样：只在底色/文字锚点被动过时才铺地板，避免改掉没调锚点的主题。
-        const lightT = (spec && spec.light) || {};
-        const touchBg = !!(lightT['--dsw-alias-bg-base'] || darkOver['--dsw-alias-bg-base']);
-        const touchText = !!(lightT['--dsw-alias-label-primary'] || darkOver['--dsw-alias-label-primary']);
+        const touchBg = String(out['--dsw-alias-bg-base']).toLowerCase() !== String(origDark['--dsw-alias-bg-base']).toLowerCase();
+        const touchText = String(out['--dsw-alias-label-primary']).toLowerCase() !== String(origDark['--dsw-alias-label-primary']).toLowerCase();
         return applyOverrides(enforceTextFloor(enforceDepth(ensureReadableOn(out), 'dark', touchBg), touchText), darkOver);
       }
-      const base = Object.assign({}, tokensFor(spec.base, scheme));
+      // 先留一份 base 原值：地板要不要跑，取决于锚点**值**是否真的变了，
+      // 而不是「锚点键存在」。否则把原值写回去时地板仍会动手，等于悄悄改主题。
+      const orig = tokensFor(spec.base, scheme);
+      const base = Object.assign({}, orig);
       const anchors = (spec && spec[scheme]) || {};
       ANCHOR_GROUPS.forEach(function (g) {
         const nwHex = anchors[g.anchor];
@@ -2014,8 +2017,8 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
         const oldHex3 = base[g.anchor];
         applyGroup(base, g, oldHex3, nwHex);
       });
-      const touchBg2 = !!anchors['--dsw-alias-bg-base'];
-      const touchText2 = !!anchors['--dsw-alias-label-primary'];
+      const touchBg2 = String(base['--dsw-alias-bg-base']).toLowerCase() !== String(orig['--dsw-alias-bg-base']).toLowerCase();
+      const touchText2 = String(base['--dsw-alias-label-primary']).toLowerCase() !== String(orig['--dsw-alias-label-primary']).toLowerCase();
       return applyOverrides(enforceTextFloor(enforceDepth(ensureReadableOn(base), scheme, touchBg2), touchText2), anchors);
     }
 
