@@ -330,6 +330,10 @@ window.__ModuleLoader__.load({
         'panel.ed.light': '浅色',
         'panel.ed.anchors': '配色锚点',
         'panel.ed.anchorsNote': '改这里，右侧真实界面实时跟着变；只有「保存」才落盘',
+        'panel.ed.advanced': '高级 · 逐个 token',
+        'panel.ed.advancedNote': '锚点背后的 156 个 token；文字类低于 3:1 会自动回退',
+        'panel.ed.advShow': '展开全部 token',
+        'panel.ed.advHide': '收起',
         'panel.ed.confirmDiscard': '有未保存改动，确定放弃？',
         'panel.ed.dirtyHint': '有未保存改动',
         'panel.ed.keepEditing': '继续编辑',
@@ -580,6 +584,10 @@ window.__ModuleLoader__.load({
         'panel.ed.light': 'Light',
         'panel.ed.anchors': 'Color anchors',
         'panel.ed.anchorsNote': 'Edits preview on the live UI on the right; nothing is persisted until Save',
+        'panel.ed.advanced': 'Advanced · per token',
+        'panel.ed.advancedNote': 'All 156 tokens behind the anchors; text below 3:1 reverts automatically',
+        'panel.ed.advShow': 'Show all tokens',
+        'panel.ed.advHide': 'Collapse',
         'panel.ed.confirmDiscard': 'Unsaved changes — discard them?',
         'panel.ed.dirtyHint': 'Unsaved changes',
         'panel.ed.keepEditing': 'Keep editing',
@@ -3982,6 +3990,13 @@ function applyTokens(theme, pref) {
       '.zp-ed-x{width:26px;height:26px;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--dsw-alias-label-secondary);font-size:18px;line-height:1;cursor:pointer;}',
       '.zp-ed-x:hover{background:var(--dsw-alias-interactive-bg-hover);}',
       '.zp-ed-list{display:flex;flex-direction:column;gap:2px;}',
+      '.zp-adv-toggle{justify-self:start;font:inherit;font-size:12px;padding:4px 10px;border-radius:8px;cursor:pointer;',
+      'background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary);border:1px solid var(--dsw-alias-border-l2);}',
+      '.zp-adv-toggle:hover{background:var(--dsw-alias-interactive-bg-hover);}',
+      '.zp-adv-grp{display:flex;flex-direction:column;gap:2px;margin-top:2px;}',
+      '.zp-adv-hd{text-align:left;font:inherit;font-size:12px;padding:4px 8px;border-radius:6px;cursor:pointer;',
+      'background:transparent;color:var(--dsw-alias-label-secondary);border:1px solid transparent;}',
+      '.zp-adv-hd:hover{background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary);}',
       // 标签列宽与 .zp-lbl(4.4em) 对齐、颜色同档 tertiary：
       // 原来 58px + secondary，与上面的表单块左边缘差 5px 且深浅不同，看着不像同一张表单。
       '.zp-ed-item{display:grid;grid-template-columns:minmax(4.6em,auto) 26px minmax(0,1fr) 62px 26px;gap:6px 8px;align-items:center;padding:3px 0 3px 2px;border-radius:6px;}',
@@ -4321,6 +4336,9 @@ function applyTokens(theme, pref) {
       // 未保存改动与「放弃确认」：× / Esc / 取消 三条路径都会丢弃 draft，
       // 以前它们直接 onClose，调色 20 分钟误按一次就全没，且没有任何提示。
       const [dirty, setDirty] = useState(false);
+      // 「高级」抽屉：把 8 组锚点背后的 156 个 token 暴露出来，逐个可改。
+      const [advOpen, setAdvOpen] = useState(false);
+      const [advGroup, setAdvGroup] = useState({});
       const [confirmDiscard, setConfirmDiscard] = useState(false);
       // 显示「这一套实际算出来的值」而不是 base 主题原值：
       // autoDark 时深色格子里显示的就是反推结果，用户可以直接在它基础上调。
@@ -4554,6 +4572,50 @@ function applyTokens(theme, pref) {
                 onChange: function (v) { setAnchor(g.anchor, v); },
               });
             })
+          ),
+          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' },
+            h('h3', { className: 'zp-sec-t' }, t('panel.ed.advanced')),
+            h('div', { className: 'zp-sec-n' }, t('panel.ed.advancedNote')))),
+          h('div', { className: 'zp-ed-list' },
+            h('button', {
+              type: 'button', className: 'zp-adv-toggle',
+              'aria-expanded': advOpen ? 'true' : 'false',
+              onClick: function () { setAdvOpen(!advOpen); },
+            }, advOpen ? t('panel.ed.advHide') : t('panel.ed.advShow')),
+            advOpen
+              ? ANCHOR_GROUPS.map(function (g) {
+                  const key = g.key;
+                  const open = Boolean(advGroup[key]);
+                  const bgAll = anchors['--dsw-alias-bg-base'] || baseTokens['--dsw-alias-bg-base'] || '#000000';
+                  return h('div', { key: key, className: 'zp-adv-grp' },
+                    h('button', {
+                      type: 'button', className: 'zp-adv-hd',
+                      'aria-expanded': open ? 'true' : 'false',
+                      onClick: function () {
+                        const n = Object.assign({}, advGroup); n[key] = !open; setAdvGroup(n);
+                      },
+                    }, (open ? '▾ ' : '▸ ') + t('anchor.' + key) + ' · ' + g.members.length),
+                    open
+                      ? h('div', { className: 'zp-ed-list' },
+                          g.members.map(function (m) {
+                            const token = m[0];
+                            const own = anchors[token];
+                            const cur = own || baseTokens[token] || '';
+                            if (!cur) return null;
+                            const ratio = contrastRatio(cur, bgAll);
+                            return h(AnchorRow, {
+                              key: token, label: token.replace('--dsw-alias-', '').replace('--dsw-', ''),
+                              anchor: token, value: cur,
+                              ratio: ratio, low: ratio != null && ratio < 4.5,
+                              dirty: Boolean(own),
+                              onChange: function (v) { setAnchor(token, v); },
+                            });
+                          })
+                        )
+                      : null
+                  );
+                })
+              : null
           ),
           h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('h3', { className: 'zp-sec-t' }, t('panel.ed.presets')), h('div', { className: 'zp-sec-n' }, t('panel.ed.presetsNote')))),
           h(Row, { label: t('panel.ed.presets') },
