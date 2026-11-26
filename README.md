@@ -316,6 +316,7 @@ npm run coverage      # token 覆盖率与「刻意不跟锚点」的豁免清�
 | `verify:panel` | **面板冒烟**：Node 端用最小宿主替身加载 `client.js`、调 `apply()`，把 `settings.section` 真渲染一遍；任何渲染期抛错即红（0.6.11 的 `t is not defined` 就是它该抓的） |
 | `verify:git` | `.git` 元数据（`HEAD`/`config`/`index`）是否完好；损坏时 `node scripts/git-doctor.mjs --fix` 一键重建（见 `docs/git-integrity.md`） |
 | `verify:release` | 发版预检：按内容哈希比对工作区与 HEAD（抓「同长度编辑被 git stat 缓存吞掉」），并校验版本三元组 |
+| `verify:chain` | **发布链核对**：本地 tag → `origin/main` → npm registry（含 `dist-tags.latest`）→ GitHub Release 四段对齐；`PENDING` = CI 已提交、npm 还在队列，不算失败 |
 | `token-surface` | 覆盖了哪些宿主 token、哪些是刻意不跟锚点的 |
 | `node --check` | 产物语法 |
 | `test-derive` | 从 `#region derive` 抠出派生函数无头跑：151 键 × 4 基色 × 2 态 |

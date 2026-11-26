@@ -12,6 +12,13 @@
 
 
 
+## 0.6.34（未发布：发布链核对门禁）
+
+借 `dsh-theme-palette` 的 `check-release-*` 三件套，把「发了但没落地」从人工轮询变成可复跑检查：
+
+- 新增 `npm run verify:chain`：本地 tag → `origin/main` 是否包含该提交 → npm registry 有没有这个版本（含 `dist-tags.latest`）→ GitHub Release 是否建了。
+- **退出码三值**：0 全对 / 3 待落地 / 2 硬失败。npm 的异步处理要几十分钟，所以「还没出现」不能算失败——这正是 0.6.26 当时误判成「发布坏了」的原因。
+- 实测当前 `0.6.29`：tag → `4cd2a62`、已在 main 上、npm `latest=0.6.29`（shasum `b30a9d17…`）、Release 存在，四段对齐。
 ## 0.6.33（未发布：文字地板改为多面 + 二分求解）
 
 借 `dsh-theme-palette` 的两个做法，把「够不够读」从**单面步进**升级成**多面求解**：
