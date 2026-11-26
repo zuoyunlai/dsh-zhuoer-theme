@@ -127,6 +127,34 @@ for (const fill of ['#ffffff', '#000000', '#00ff41', '#f5f5f5', '#4a7fd4', '#a88
   check('pickOnColor(' + fill + ')', api.pickOnColor(fill), fill);
 }
 
+// 4) 设置面板（插件自有 UI）的文字面
+// 面板不铺自己的底色，它继承宿主：可能是设置页底（bg-base），也可能被塞进卡片
+// （settings-card-fill）。所以两档都要测 —— 只测 bg-base 会在卡片里悄悄掉到 4.3 以下。
+// 注：label-error 压 settings-card-fill 实测 24 档里 1 档 4.36（vintage-paper 深色），
+// 因此报错行不许用红色文本，只用字重 + 点线（见 PANEL_CSS 的 .zp-hint.is-warn）。
+for (const id of THEME_IDS) {
+  for (const scheme of ['light', 'dark']) {
+    const t = THEMES[id] && THEMES[id][scheme];
+    if (!t) continue;
+    const surfaces = ['--dsw-alias-settings-card-fill', '--dsw-alias-button-elevated-fill'];
+    for (const surface of surfaces) {
+      if (!t[surface]) continue;
+      const tag = surface.replace('--dsw-alias-', '');
+      check(id + '/' + scheme + ' panel title@' + tag, t['--dsw-alias-label-primary'], t[surface]);
+      check(id + '/' + scheme + ' panel label@' + tag, t['--dsw-alias-label-secondary'], t[surface]);
+    }
+    check(id + '/' + scheme + ' panel label@bg-base', t['--dsw-alias-label-secondary'], t['--dsw-alias-bg-base']);
+    // 胶囊选中：品牌色底上压前景色
+    if (t['--dsw-alias-brand-primary']) {
+      check(id + '/' + scheme + ' panel pill-on', t['--dsw-alias-label-primary-foreground'], t['--dsw-alias-brand-primary']);
+    }
+    // 危险按钮待确认态：浅危险底 + 正文色
+    if (t['--dsw-alias-interactive-bg-hover-danger']) {
+      check(id + '/' + scheme + ' panel danger-armed', t['--dsw-alias-label-primary'], t['--dsw-alias-interactive-bg-hover-danger']);
+    }
+  }
+}
+
 // ---- 余量台账 ----
 // 默认模式：既查「过不过线」，也查「有没有比台账更低」。
 // --update：把当前实测写成新台账（只有明确知情时才该跑，否则等于自己给自己降标准）。

@@ -188,6 +188,17 @@ To add a string: put it in both dictionaries, call `t('panel.xxx')`, then run `n
 
 ## Development
 
+### Previewing local changes without switching install mode
+
+A profile plugin has two mutually exclusive install shapes: `link:` (a symlink to your source tree - instant on restart, but **it cannot be updated from the market**) and the registry version (market updates work, source edits do not). `dev:sync` takes a third path - **keep the registry install and push the build output into the installed copy**:
+
+```sh
+npm run dev:sync              # build, then copy client.js / index.js / cordis.patch.yml / icon.svg / locale / assets
+npm run dev:sync -- --watch   # same, plus watch src/ and build.mjs: save and it rebuilds and copies
+```
+
+Default target is `~/.dsh/profiles/desktop/node_modules/dsh-zhuoer-theme`; override with `--profile` or `--dir`. Press the refresh button (dsh-unlag) to swap the client bundle. `index.js` and `cordis.patch.yml` are the server half and need a plugin reload or an app restart.
+
 Client code lives in `src/` as five shards, concatenated in filename order into a single `client.js` by `build.mjs`:
 
 ```
@@ -240,7 +251,7 @@ npm run coverage      # token coverage and the "deliberately not derived" allowl
 | `verify:market` | **Market index gate**: validates `market/index.json` against the official schema (LocalizedText must contain `en`, exact SemVer, `source.type`, `engines.dsh`) and cross-checks it with this package’s `package.json` |
 | `verify:locale` | **Display metadata gate**: every `locale/*.json` has a non-empty `meta.title`, `en` exists, `exports`/`files` are complete, `./icon` is ≤256 KiB and matches the `icon` field |
 | `verify:keys` | **Dictionary gate** (static): every key used by `t('…')` exists in both zh and en, with identical placeholder sets; a missing key or `{n}` vs `{count}` mismatch is red. Covers copy that never renders (drawer, errors, ARIA) |
-| `verify:text` | **Copy gate** (deterministic): renders the panel in Node and compares 152 strings and attributes (`title`/`aria-label`/`placeholder`/`alt`) against `contracts/text-snapshot/{zh,en}.json`, versions normalised. Change copy ⇒ run `--update` |
+| `verify:text` | **Copy gate** (deterministic): renders the panel in Node and compares 153 strings and attributes (`title`/`aria-label`/`placeholder`/`alt`) against `contracts/text-snapshot/{zh,en}.json`, versions normalised. Change copy ⇒ run `--update` |
 | `verify:visual` | Pixel comparison of the panel (**removed from `verify:all`**): two consecutive captures of the same state differ by 2.3% in light mode, and a gate that cannot reproduce itself is a false sense of safety. Script kept for manual eyeballing |
 | `verify:csssnap` | Compares the **injected** CSS text byte for byte against `contracts/css-snapshot/`, reporting the first offset and context. SKIPs when `visual/css-current/` is absent; `--strict` makes it hard-fail |
 | `verify:claims` | **Public-claim gate**: theme count, version, background count, string count and the bare-Chinese baseline in README / market index / locale / package.json must equal the freshly computed truth (add a theme, forget the docs → red) |

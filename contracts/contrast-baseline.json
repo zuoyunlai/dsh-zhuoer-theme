@@ -1,7 +1,7 @@
 {
   "note": "由 npm run contrast:update 生成。ratio 是实测对比度；门禁要求任何一组都不得比它低 0.01 以上。",
   "min": 4.5,
-  "count": 487,
+  "count": 655,
   "pairs": [
     {
       "key": "zhuoer/light 正文",
@@ -2924,6 +2924,1014 @@
       "fg": "#ffffff",
       "bg": "#e30613",
       "ratio": 4.882
+    },
+    {
+      "key": "zhuoer/light panel title@settings-card-fill",
+      "fg": "#403c35",
+      "bg": "#f0ede8",
+      "ratio": 9.387
+    },
+    {
+      "key": "zhuoer/light panel label@settings-card-fill",
+      "fg": "#6e6960",
+      "bg": "#f0ede8",
+      "ratio": 4.668
+    },
+    {
+      "key": "zhuoer/light panel title@button-elevated-fill",
+      "fg": "#403c35",
+      "bg": "#f0ede8",
+      "ratio": 9.387
+    },
+    {
+      "key": "zhuoer/light panel label@button-elevated-fill",
+      "fg": "#6e6960",
+      "bg": "#f0ede8",
+      "ratio": 4.668
+    },
+    {
+      "key": "zhuoer/light panel label@bg-base",
+      "fg": "#6e6960",
+      "bg": "#f4f1ec",
+      "ratio": 4.838
+    },
+    {
+      "key": "zhuoer/light panel pill-on",
+      "fg": "#ffffff",
+      "bg": "#bd4531",
+      "ratio": 5.173
+    },
+    {
+      "key": "zhuoer/light panel danger-armed",
+      "fg": "#403c35",
+      "bg": "#f2ddd8",
+      "ratio": 8.409
+    },
+    {
+      "key": "zhuoer/dark panel title@settings-card-fill",
+      "fg": "#bcbcc0",
+      "bg": "#13151a",
+      "ratio": 9.647
+    },
+    {
+      "key": "zhuoer/dark panel label@settings-card-fill",
+      "fg": "#8b8b94",
+      "bg": "#13151a",
+      "ratio": 5.408
+    },
+    {
+      "key": "zhuoer/dark panel title@button-elevated-fill",
+      "fg": "#bcbcc0",
+      "bg": "#17191e",
+      "ratio": 9.289
+    },
+    {
+      "key": "zhuoer/dark panel label@button-elevated-fill",
+      "fg": "#8b8b94",
+      "bg": "#17191e",
+      "ratio": 5.207
+    },
+    {
+      "key": "zhuoer/dark panel label@bg-base",
+      "fg": "#8b8b94",
+      "bg": "#0e1015",
+      "ratio": 5.635
+    },
+    {
+      "key": "zhuoer/dark panel pill-on",
+      "fg": "#ffffff",
+      "bg": "#d13c3c",
+      "ratio": 4.748
+    },
+    {
+      "key": "zhuoer/dark panel danger-armed",
+      "fg": "#bcbcc0",
+      "bg": "#2e171c",
+      "ratio": 8.835
+    },
+    {
+      "key": "absolutely/light panel title@settings-card-fill",
+      "fg": "#353531",
+      "bg": "#f3f2f1",
+      "ratio": 11.016
+    },
+    {
+      "key": "absolutely/light panel label@settings-card-fill",
+      "fg": "#5e5e58",
+      "bg": "#f3f2f1",
+      "ratio": 5.837
+    },
+    {
+      "key": "absolutely/light panel title@button-elevated-fill",
+      "fg": "#353531",
+      "bg": "#f3f2f1",
+      "ratio": 11.016
+    },
+    {
+      "key": "absolutely/light panel label@button-elevated-fill",
+      "fg": "#5e5e58",
+      "bg": "#f3f2f1",
+      "ratio": 5.837
+    },
+    {
+      "key": "absolutely/light panel label@bg-base",
+      "fg": "#5e5e58",
+      "bg": "#f7f6f5",
+      "ratio": 6.046
+    },
+    {
+      "key": "absolutely/light panel pill-on",
+      "fg": "#ffffff",
+      "bg": "#a5654b",
+      "ratio": 4.602
+    },
+    {
+      "key": "absolutely/light panel danger-armed",
+      "fg": "#353531",
+      "bg": "#f4e1e0",
+      "ratio": 9.791
+    },
+    {
+      "key": "absolutely/dark panel title@settings-card-fill",
+      "fg": "#ddddd7",
+      "bg": "#212120",
+      "ratio": 11.817
+    },
+    {
+      "key": "absolutely/dark panel label@settings-card-fill",
+      "fg": "#a09f98",
+      "bg": "#212120",
+      "ratio": 6.068
+    },
+    {
+      "key": "absolutely/dark panel title@button-elevated-fill",
+      "fg": "#ddddd7",
+      "bg": "#252523",
+      "ratio": 11.26
+    },
+    {
+      "key": "absolutely/dark panel label@button-elevated-fill",
+      "fg": "#a09f98",
+      "bg": "#252523",
+      "ratio": 5.782
+    },
+    {
+      "key": "absolutely/dark panel label@bg-base",
+      "fg": "#a09f98",
+      "bg": "#1b1b1a",
+      "ratio": 6.491
+    },
+    {
+      "key": "absolutely/dark panel pill-on",
+      "fg": "#241f1b",
+      "bg": "#d97757",
+      "ratio": 5.227
+    },
+    {
+      "key": "absolutely/dark panel danger-armed",
+      "fg": "#ddddd7",
+      "bg": "#351e1d",
+      "ratio": 11.365
+    },
+    {
+      "key": "beacon/light panel title@settings-card-fill",
+      "fg": "#000000",
+      "bg": "#f3f3f3",
+      "ratio": 18.925
+    },
+    {
+      "key": "beacon/light panel label@settings-card-fill",
+      "fg": "#3a3a3a",
+      "bg": "#f3f3f3",
+      "ratio": 10.251
+    },
+    {
+      "key": "beacon/light panel title@button-elevated-fill",
+      "fg": "#000000",
+      "bg": "#f3f3f3",
+      "ratio": 18.925
+    },
+    {
+      "key": "beacon/light panel label@button-elevated-fill",
+      "fg": "#3a3a3a",
+      "bg": "#f3f3f3",
+      "ratio": 10.251
+    },
+    {
+      "key": "beacon/light panel label@bg-base",
+      "fg": "#3a3a3a",
+      "bg": "#f8f8f8",
+      "ratio": 10.71
+    },
+    {
+      "key": "beacon/light panel pill-on",
+      "fg": "#ffffff",
+      "bg": "#6e4a00",
+      "ratio": 7.947
+    },
+    {
+      "key": "beacon/light panel danger-armed",
+      "fg": "#000000",
+      "bg": "#ede1e1",
+      "ratio": 16.458
+    },
+    {
+      "key": "beacon/dark panel title@settings-card-fill",
+      "fg": "#ffffff",
+      "bg": "#080808",
+      "ratio": 20.027
+    },
+    {
+      "key": "beacon/dark panel label@settings-card-fill",
+      "fg": "#c9c9c9",
+      "bg": "#080808",
+      "ratio": 12.094
+    },
+    {
+      "key": "beacon/dark panel title@button-elevated-fill",
+      "fg": "#ffffff",
+      "bg": "#0d0d0d",
+      "ratio": 19.436
+    },
+    {
+      "key": "beacon/dark panel label@button-elevated-fill",
+      "fg": "#c9c9c9",
+      "bg": "#0d0d0d",
+      "ratio": 11.737
+    },
+    {
+      "key": "beacon/dark panel label@bg-base",
+      "fg": "#c9c9c9",
+      "bg": "#000000",
+      "ratio": 12.682
+    },
+    {
+      "key": "beacon/dark panel pill-on",
+      "fg": "#000000",
+      "bg": "#ffc233",
+      "ratio": 13.017
+    },
+    {
+      "key": "beacon/dark panel danger-armed",
+      "fg": "#ffffff",
+      "bg": "#241818",
+      "ratio": 17.229
+    },
+    {
+      "key": "crt/light panel title@settings-card-fill",
+      "fg": "#373737",
+      "bg": "#f0f0f0",
+      "ratio": 10.446
+    },
+    {
+      "key": "crt/light panel label@settings-card-fill",
+      "fg": "#5f5f5f",
+      "bg": "#f0f0f0",
+      "ratio": 5.603
+    },
+    {
+      "key": "crt/light panel title@button-elevated-fill",
+      "fg": "#373737",
+      "bg": "#f0f0f0",
+      "ratio": 10.446
+    },
+    {
+      "key": "crt/light panel label@button-elevated-fill",
+      "fg": "#5f5f5f",
+      "bg": "#f0f0f0",
+      "ratio": 5.603
+    },
+    {
+      "key": "crt/light panel label@bg-base",
+      "fg": "#5f5f5f",
+      "bg": "#f4f4f4",
+      "ratio": 5.806
+    },
+    {
+      "key": "crt/light panel pill-on",
+      "fg": "#ffffff",
+      "bg": "#1f1f1f",
+      "ratio": 16.483
+    },
+    {
+      "key": "crt/light panel danger-armed",
+      "fg": "#373737",
+      "bg": "#f2dfdf",
+      "ratio": 9.294
+    },
+    {
+      "key": "crt/dark panel title@settings-card-fill",
+      "fg": "#c6c6c6",
+      "bg": "#0f100f",
+      "ratio": 11.163
+    },
+    {
+      "key": "crt/dark panel label@settings-card-fill",
+      "fg": "#999999",
+      "bg": "#0f100f",
+      "ratio": 6.693
+    },
+    {
+      "key": "crt/dark panel title@button-elevated-fill",
+      "fg": "#c6c6c6",
+      "bg": "#121312",
+      "ratio": 10.903
+    },
+    {
+      "key": "crt/dark panel label@button-elevated-fill",
+      "fg": "#999999",
+      "bg": "#121312",
+      "ratio": 6.537
+    },
+    {
+      "key": "crt/dark panel label@bg-base",
+      "fg": "#999999",
+      "bg": "#090a09",
+      "ratio": 6.96
+    },
+    {
+      "key": "crt/dark panel pill-on",
+      "fg": "#111111",
+      "bg": "#e8e8e8",
+      "ratio": 15.411
+    },
+    {
+      "key": "crt/dark panel danger-armed",
+      "fg": "#c6c6c6",
+      "bg": "#25100e",
+      "ratio": 10.607
+    },
+    {
+      "key": "dash/light panel title@settings-card-fill",
+      "fg": "#4a3828",
+      "bg": "#e8e2dc",
+      "ratio": 8.659
+    },
+    {
+      "key": "dash/light panel label@settings-card-fill",
+      "fg": "#725d4d",
+      "bg": "#e8e2dc",
+      "ratio": 4.823
+    },
+    {
+      "key": "dash/light panel title@button-elevated-fill",
+      "fg": "#4a3828",
+      "bg": "#e8e2dc",
+      "ratio": 8.659
+    },
+    {
+      "key": "dash/light panel label@button-elevated-fill",
+      "fg": "#725d4d",
+      "bg": "#e8e2dc",
+      "ratio": 4.823
+    },
+    {
+      "key": "dash/light panel label@bg-base",
+      "fg": "#725d4d",
+      "bg": "#ebe5e0",
+      "ratio": 4.963
+    },
+    {
+      "key": "dash/light panel pill-on",
+      "fg": "#ffffff",
+      "bg": "#8a512c",
+      "ratio": 6.375
+    },
+    {
+      "key": "dash/light panel danger-armed",
+      "fg": "#4a3828",
+      "bg": "#ead2cd",
+      "ratio": 7.734
+    },
+    {
+      "key": "dash/dark panel title@settings-card-fill",
+      "fg": "#d8c8b8",
+      "bg": "#201715",
+      "ratio": 10.775
+    },
+    {
+      "key": "dash/dark panel label@settings-card-fill",
+      "fg": "#a39182",
+      "bg": "#201715",
+      "ratio": 5.8
+    },
+    {
+      "key": "dash/dark panel title@button-elevated-fill",
+      "fg": "#d8c8b8",
+      "bg": "#241b18",
+      "ratio": 10.34
+    },
+    {
+      "key": "dash/dark panel label@button-elevated-fill",
+      "fg": "#a39182",
+      "bg": "#241b18",
+      "ratio": 5.566
+    },
+    {
+      "key": "dash/dark panel label@bg-base",
+      "fg": "#a39182",
+      "bg": "#1a1210",
+      "ratio": 6.09
+    },
+    {
+      "key": "dash/dark panel pill-on",
+      "fg": "#1a1210",
+      "bg": "#cf8b4d",
+      "ratio": 6.55
+    },
+    {
+      "key": "dash/dark panel danger-armed",
+      "fg": "#d8c8b8",
+      "bg": "#341614",
+      "ratio": 10.13
+    },
+    {
+      "key": "knot/light panel title@settings-card-fill",
+      "fg": "#3a3a42",
+      "bg": "#f0f0f3",
+      "ratio": 9.906
+    },
+    {
+      "key": "knot/light panel label@settings-card-fill",
+      "fg": "#68676f",
+      "bg": "#f0f0f3",
+      "ratio": 4.913
+    },
+    {
+      "key": "knot/light panel title@button-elevated-fill",
+      "fg": "#3a3a42",
+      "bg": "#f0f0f3",
+      "ratio": 9.906
+    },
+    {
+      "key": "knot/light panel label@button-elevated-fill",
+      "fg": "#68676f",
+      "bg": "#f0f0f3",
+      "ratio": 4.913
+    },
+    {
+      "key": "knot/light panel label@bg-base",
+      "fg": "#68676f",
+      "bg": "#f4f4f7",
+      "ratio": 5.09
+    },
+    {
+      "key": "knot/light panel pill-on",
+      "fg": "#ffffff",
+      "bg": "#c41e30",
+      "ratio": 5.873
+    },
+    {
+      "key": "knot/light panel danger-armed",
+      "fg": "#3a3a42",
+      "bg": "#f2dfe2",
+      "ratio": 8.815
+    },
+    {
+      "key": "knot/dark panel title@settings-card-fill",
+      "fg": "#c6c6cb",
+      "bg": "#0e0e0e",
+      "ratio": 11.345
+    },
+    {
+      "key": "knot/dark panel label@settings-card-fill",
+      "fg": "#8a8a94",
+      "bg": "#0e0e0e",
+      "ratio": 5.648
+    },
+    {
+      "key": "knot/dark panel title@button-elevated-fill",
+      "fg": "#c6c6cb",
+      "bg": "#121212",
+      "ratio": 11.009
+    },
+    {
+      "key": "knot/dark panel label@button-elevated-fill",
+      "fg": "#8a8a94",
+      "bg": "#121212",
+      "ratio": 5.481
+    },
+    {
+      "key": "knot/dark panel label@bg-base",
+      "fg": "#8a8a94",
+      "bg": "#080808",
+      "ratio": 5.859
+    },
+    {
+      "key": "knot/dark panel pill-on",
+      "fg": "#fafafa",
+      "bg": "#d92a3f",
+      "ratio": 4.622
+    },
+    {
+      "key": "knot/dark panel danger-armed",
+      "fg": "#c6c6cb",
+      "bg": "#240d0d",
+      "ratio": 10.841
+    },
+    {
+      "key": "manuscript/light panel title@settings-card-fill",
+      "fg": "#322d22",
+      "bg": "#edece6",
+      "ratio": 11.565
+    },
+    {
+      "key": "manuscript/light panel label@settings-card-fill",
+      "fg": "#6a604e",
+      "bg": "#edece6",
+      "ratio": 5.224
+    },
+    {
+      "key": "manuscript/light panel title@button-elevated-fill",
+      "fg": "#322d22",
+      "bg": "#edece6",
+      "ratio": 11.565
+    },
+    {
+      "key": "manuscript/light panel label@button-elevated-fill",
+      "fg": "#6a604e",
+      "bg": "#edece6",
+      "ratio": 5.224
+    },
+    {
+      "key": "manuscript/light panel label@bg-base",
+      "fg": "#6a604e",
+      "bg": "#f1f0ea",
+      "ratio": 5.416
+    },
+    {
+      "key": "manuscript/light panel pill-on",
+      "fg": "#ffffff",
+      "bg": "#31549b",
+      "ratio": 7.312
+    },
+    {
+      "key": "manuscript/light panel danger-armed",
+      "fg": "#322d22",
+      "bg": "#ecddd6",
+      "ratio": 10.352
+    },
+    {
+      "key": "manuscript/dark panel title@settings-card-fill",
+      "fg": "#d8d0bc",
+      "bg": "#26231d",
+      "ratio": 10.196
+    },
+    {
+      "key": "manuscript/dark panel label@settings-card-fill",
+      "fg": "#ab9f84",
+      "bg": "#26231d",
+      "ratio": 5.986
+    },
+    {
+      "key": "manuscript/dark panel title@button-elevated-fill",
+      "fg": "#d8d0bc",
+      "bg": "#2a2720",
+      "ratio": 9.697
+    },
+    {
+      "key": "manuscript/dark panel label@button-elevated-fill",
+      "fg": "#ab9f84",
+      "bg": "#2a2720",
+      "ratio": 5.693
+    },
+    {
+      "key": "manuscript/dark panel label@bg-base",
+      "fg": "#ab9f84",
+      "bg": "#211e18",
+      "ratio": 6.35
+    },
+    {
+      "key": "manuscript/dark panel pill-on",
+      "fg": "#101c33",
+      "bg": "#8fa8e0",
+      "ratio": 7.157
+    },
+    {
+      "key": "manuscript/dark panel danger-armed",
+      "fg": "#d8d0bc",
+      "bg": "#39221b",
+      "ratio": 9.635
+    },
+    {
+      "key": "miami/light panel title@settings-card-fill",
+      "fg": "#3c3244",
+      "bg": "#f2eef1",
+      "ratio": 10.553
+    },
+    {
+      "key": "miami/light panel label@settings-card-fill",
+      "fg": "#6b5f74",
+      "bg": "#f2eef1",
+      "ratio": 5.2
+    },
+    {
+      "key": "miami/light panel title@button-elevated-fill",
+      "fg": "#3c3244",
+      "bg": "#f2eef1",
+      "ratio": 10.553
+    },
+    {
+      "key": "miami/light panel label@button-elevated-fill",
+      "fg": "#6b5f74",
+      "bg": "#f2eef1",
+      "ratio": 5.2
+    },
+    {
+      "key": "miami/light panel label@bg-base",
+      "fg": "#6b5f74",
+      "bg": "#f6f2f5",
+      "ratio": 5.389
+    },
+    {
+      "key": "miami/light panel pill-on",
+      "fg": "#ffffff",
+      "bg": "#b0246f",
+      "ratio": 6.31
+    },
+    {
+      "key": "miami/light panel danger-armed",
+      "fg": "#3c3244",
+      "bg": "#f1dfe4",
+      "ratio": 9.479
+    },
+    {
+      "key": "miami/dark panel title@settings-card-fill",
+      "fg": "#cfc7e8",
+      "bg": "#1a1524",
+      "ratio": 11.038
+    },
+    {
+      "key": "miami/dark panel label@settings-card-fill",
+      "fg": "#968bbd",
+      "bg": "#1a1524",
+      "ratio": 5.715
+    },
+    {
+      "key": "miami/dark panel title@button-elevated-fill",
+      "fg": "#cfc7e8",
+      "bg": "#1d1828",
+      "ratio": 10.702
+    },
+    {
+      "key": "miami/dark panel label@button-elevated-fill",
+      "fg": "#968bbd",
+      "bg": "#1d1828",
+      "ratio": 5.541
+    },
+    {
+      "key": "miami/dark panel label@bg-base",
+      "fg": "#968bbd",
+      "bg": "#140f1e",
+      "ratio": 6.021
+    },
+    {
+      "key": "miami/dark panel pill-on",
+      "fg": "#3c0a24",
+      "bg": "#f472b6",
+      "ratio": 6.288
+    },
+    {
+      "key": "miami/dark panel danger-armed",
+      "fg": "#cfc7e8",
+      "bg": "#331a2b",
+      "ratio": 9.814
+    },
+    {
+      "key": "phosphor/light panel title@settings-card-fill",
+      "fg": "#2a352b",
+      "bg": "#edf0ed",
+      "ratio": 11.134
+    },
+    {
+      "key": "phosphor/light panel label@settings-card-fill",
+      "fg": "#566b58",
+      "bg": "#edf0ed",
+      "ratio": 5.025
+    },
+    {
+      "key": "phosphor/light panel title@button-elevated-fill",
+      "fg": "#2a352b",
+      "bg": "#edf0ed",
+      "ratio": 11.134
+    },
+    {
+      "key": "phosphor/light panel label@button-elevated-fill",
+      "fg": "#566b58",
+      "bg": "#edf0ed",
+      "ratio": 5.025
+    },
+    {
+      "key": "phosphor/light panel label@bg-base",
+      "fg": "#566b58",
+      "bg": "#f1f4f1",
+      "ratio": 5.207
+    },
+    {
+      "key": "phosphor/light panel pill-on",
+      "fg": "#ffffff",
+      "bg": "#10693a",
+      "ratio": 6.766
+    },
+    {
+      "key": "phosphor/light panel danger-armed",
+      "fg": "#2a352b",
+      "bg": "#efdfdd",
+      "ratio": 9.905
+    },
+    {
+      "key": "phosphor/dark panel title@settings-card-fill",
+      "fg": "#cfe0cf",
+      "bg": "#101510",
+      "ratio": 13.385
+    },
+    {
+      "key": "phosphor/dark panel label@settings-card-fill",
+      "fg": "#93ac95",
+      "bg": "#101510",
+      "ratio": 7.544
+    },
+    {
+      "key": "phosphor/dark panel title@button-elevated-fill",
+      "fg": "#cfe0cf",
+      "bg": "#141914",
+      "ratio": 12.907
+    },
+    {
+      "key": "phosphor/dark panel label@button-elevated-fill",
+      "fg": "#93ac95",
+      "bg": "#141914",
+      "ratio": 7.274
+    },
+    {
+      "key": "phosphor/dark panel label@bg-base",
+      "fg": "#93ac95",
+      "bg": "#0a0f0a",
+      "ratio": 7.899
+    },
+    {
+      "key": "phosphor/dark panel pill-on",
+      "fg": "#07120a",
+      "bg": "#4ade80",
+      "ratio": 10.956
+    },
+    {
+      "key": "phosphor/dark panel danger-armed",
+      "fg": "#cfe0cf",
+      "bg": "#26130f",
+      "ratio": 12.868
+    },
+    {
+      "key": "rose/light panel title@settings-card-fill",
+      "fg": "#3e3857",
+      "bg": "#edeae7",
+      "ratio": 9.184
+    },
+    {
+      "key": "rose/light panel label@settings-card-fill",
+      "fg": "#665d87",
+      "bg": "#edeae7",
+      "ratio": 5.035
+    },
+    {
+      "key": "rose/light panel title@button-elevated-fill",
+      "fg": "#3e3857",
+      "bg": "#edeae7",
+      "ratio": 9.184
+    },
+    {
+      "key": "rose/light panel label@button-elevated-fill",
+      "fg": "#665d87",
+      "bg": "#edeae7",
+      "ratio": 5.035
+    },
+    {
+      "key": "rose/light panel label@bg-base",
+      "fg": "#665d87",
+      "bg": "#f1eeea",
+      "ratio": 5.217
+    },
+    {
+      "key": "rose/light panel pill-on",
+      "fg": "#ffffff",
+      "bg": "#9c4f66",
+      "ratio": 5.639
+    },
+    {
+      "key": "rose/light panel danger-armed",
+      "fg": "#3e3857",
+      "bg": "#eadcdb",
+      "ratio": 8.259
+    },
+    {
+      "key": "rose/dark panel title@settings-card-fill",
+      "fg": "#d5d2eb",
+      "bg": "#1f1d2a",
+      "ratio": 11.241
+    },
+    {
+      "key": "rose/dark panel label@settings-card-fill",
+      "fg": "#9b97b4",
+      "bg": "#1f1d2a",
+      "ratio": 5.901
+    },
+    {
+      "key": "rose/dark panel title@button-elevated-fill",
+      "fg": "#d5d2eb",
+      "bg": "#22202e",
+      "ratio": 10.842
+    },
+    {
+      "key": "rose/dark panel label@button-elevated-fill",
+      "fg": "#9b97b4",
+      "bg": "#22202e",
+      "ratio": 5.692
+    },
+    {
+      "key": "rose/dark panel label@bg-base",
+      "fg": "#9b97b4",
+      "bg": "#191724",
+      "ratio": 6.289
+    },
+    {
+      "key": "rose/dark panel pill-on",
+      "fg": "#3f2224",
+      "bg": "#ebbcba",
+      "ratio": 8.484
+    },
+    {
+      "key": "rose/dark panel danger-armed",
+      "fg": "#d5d2eb",
+      "bg": "#362333",
+      "ratio": 9.859
+    },
+    {
+      "key": "tide/light panel title@settings-card-fill",
+      "fg": "#333c45",
+      "bg": "#edeff1",
+      "ratio": 9.726
+    },
+    {
+      "key": "tide/light panel label@settings-card-fill",
+      "fg": "#5f6b76",
+      "bg": "#edeff1",
+      "ratio": 4.73
+    },
+    {
+      "key": "tide/light panel title@button-elevated-fill",
+      "fg": "#333c45",
+      "bg": "#edeff1",
+      "ratio": 9.726
+    },
+    {
+      "key": "tide/light panel label@button-elevated-fill",
+      "fg": "#5f6b76",
+      "bg": "#edeff1",
+      "ratio": 4.73
+    },
+    {
+      "key": "tide/light panel label@bg-base",
+      "fg": "#5f6b76",
+      "bg": "#f1f3f5",
+      "ratio": 4.902
+    },
+    {
+      "key": "tide/light panel pill-on",
+      "fg": "#ffffff",
+      "bg": "#1f6f8f",
+      "ratio": 5.632
+    },
+    {
+      "key": "tide/light panel danger-armed",
+      "fg": "#333c45",
+      "bg": "#efdfe0",
+      "ratio": 8.703
+    },
+    {
+      "key": "tide/dark panel title@settings-card-fill",
+      "fg": "#c9d2da",
+      "bg": "#161b21",
+      "ratio": 11.308
+    },
+    {
+      "key": "tide/dark panel label@settings-card-fill",
+      "fg": "#9dabb9",
+      "bg": "#161b21",
+      "ratio": 7.387
+    },
+    {
+      "key": "tide/dark panel title@button-elevated-fill",
+      "fg": "#c9d2da",
+      "bg": "#191e25",
+      "ratio": 10.939
+    },
+    {
+      "key": "tide/dark panel label@button-elevated-fill",
+      "fg": "#9dabb9",
+      "bg": "#191e25",
+      "ratio": 7.146
+    },
+    {
+      "key": "tide/dark panel label@bg-base",
+      "fg": "#9dabb9",
+      "bg": "#10151b",
+      "ratio": 7.824
+    },
+    {
+      "key": "tide/dark panel pill-on",
+      "fg": "#0b1116",
+      "bg": "#5ab6d8",
+      "ratio": 8.244
+    },
+    {
+      "key": "tide/dark panel danger-armed",
+      "fg": "#c9d2da",
+      "bg": "#2b191e",
+      "ratio": 10.88
+    },
+    {
+      "key": "vintage-paper/light panel title@settings-card-fill",
+      "fg": "#4a3f35",
+      "bg": "#fffcf5",
+      "ratio": 9.98
+    },
+    {
+      "key": "vintage-paper/light panel label@settings-card-fill",
+      "fg": "#7d6b56",
+      "bg": "#fffcf5",
+      "ratio": 4.987
+    },
+    {
+      "key": "vintage-paper/light panel title@button-elevated-fill",
+      "fg": "#4a3f35",
+      "bg": "#fffcf5",
+      "ratio": 9.98
+    },
+    {
+      "key": "vintage-paper/light panel label@button-elevated-fill",
+      "fg": "#7d6b56",
+      "bg": "#fffcf5",
+      "ratio": 4.987
+    },
+    {
+      "key": "vintage-paper/light panel label@bg-base",
+      "fg": "#7d6b56",
+      "bg": "#f5f1e6",
+      "ratio": 4.528
+    },
+    {
+      "key": "vintage-paper/light panel pill-on",
+      "fg": "#ffffff",
+      "bg": "#7e5e3e",
+      "ratio": 5.903
+    },
+    {
+      "key": "vintage-paper/light panel danger-armed",
+      "fg": "#4a3f35",
+      "bg": "#ecdacd",
+      "ratio": 7.536
+    },
+    {
+      "key": "vintage-paper/dark panel title@settings-card-fill",
+      "fg": "#ece5d8",
+      "bg": "#3a322c",
+      "ratio": 10.024
+    },
+    {
+      "key": "vintage-paper/dark panel label@settings-card-fill",
+      "fg": "#c5bcac",
+      "bg": "#3a322c",
+      "ratio": 6.674
+    },
+    {
+      "key": "vintage-paper/dark panel title@button-elevated-fill",
+      "fg": "#ece5d8",
+      "bg": "#3a322c",
+      "ratio": 10.024
+    },
+    {
+      "key": "vintage-paper/dark panel label@button-elevated-fill",
+      "fg": "#c5bcac",
+      "bg": "#3a322c",
+      "ratio": 6.674
+    },
+    {
+      "key": "vintage-paper/dark panel label@bg-base",
+      "fg": "#c5bcac",
+      "bg": "#2d2621",
+      "ratio": 7.913
+    },
+    {
+      "key": "vintage-paper/dark panel pill-on",
+      "fg": "#2d2621",
+      "bg": "#c0a080",
+      "ratio": 6.083
+    },
+    {
+      "key": "vintage-paper/dark panel danger-armed",
+      "fg": "#ece5d8",
+      "bg": "#402b24",
+      "ratio": 10.551
     }
   ]
 }

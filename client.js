@@ -97,7 +97,7 @@ window.__ModuleLoader__.load({
         'panel.header.count': '共 {n} 套配色',
         'panel.header.live': '改动即时生效',
         'panel.theme.title': '配色主题',
-        'panel.theme.note': '选中即应用，深浅模式决定取哪一套 token',
+        'panel.theme.note': '选中即应用；深浅模式决定这组配色的哪一套生效',
         'panel.theme.modeRow': '模式',
         'panel.theme.modeAria': '明暗模式',
         'panel.theme.optLight': '浅色',
@@ -128,7 +128,8 @@ window.__ModuleLoader__.load({
         'panel.bg.styleAria': '底图样式',
         'panel.bg.optFade': '淡化',
         'panel.bg.optFull': '全幅',
-        'panel.bg.opacityRow': '可见度（上限 70%）',
+        'panel.bg.opacityRow': '可见度',
+    'panel.bg.opacityCap': '满格 = 70% 不透明度',
         'panel.bg.opacityAria': '底图可见度（滑块 100% 对应实际不透明度 70%）',
         'panel.bg.showRow': '显示',
         'panel.bg.showEmpty': '新建会话页',
@@ -326,7 +327,7 @@ window.__ModuleLoader__.load({
         'panel.header.count': '{n} palettes',
         'panel.header.live': 'Changes apply instantly',
         'panel.theme.title': 'Color theme',
-        'panel.theme.note': 'Picking applies immediately; light/dark decides which token set is used',
+        'panel.theme.note': 'Picking applies immediately; light/dark decides which of the two palettes applies',
         'panel.theme.modeRow': 'Mode',
         'panel.theme.modeAria': 'Color mode',
         'panel.theme.optLight': 'Light',
@@ -357,7 +358,8 @@ window.__ModuleLoader__.load({
         'panel.bg.styleAria': 'Background style',
         'panel.bg.optFade': 'Faded',
         'panel.bg.optFull': 'Full bleed',
-        'panel.bg.opacityRow': 'Visibility (max 70%)',
+        'panel.bg.opacityRow': 'Visibility',
+    'panel.bg.opacityCap': 'full = 70% opacity',
         'panel.bg.opacityAria': 'Background visibility (100% on the slider equals 70% actual opacity)',
         'panel.bg.showRow': 'Show on',
         'panel.bg.showEmpty': 'New session page',
@@ -3295,81 +3297,108 @@ function applyTokens(theme, pref) {
       return dispose;
     }
 
-    // ---- 设置面板样式（v54 重构）----
-    // 为什么改用样式表而不是继续全内联 style：
-    //   1) hover / focus-visible / 选中态这三样写不进 style 对象，而它们正是
-    //      「面板看起来是一个东西」的关键；
-    //   2) 窄容器（设置页可能被挤到 320px）要靠媒体查询收窄间距，内联做不到。
-    // 颜色一律引用 --dsw-alias-*：这些变量由 overrideTokens + !important 兜底层
-    // 按「当前主题 + 当前明暗」注入，所以 11 套主题、深浅两态这里一个字都不用改。
-    // 类名统一 zp- 前缀：DSH 的 CSS Modules 类名是哈希串，不会撞。
+    // ---- 设置面板样式（v59 重构：层次 / 留白 / 分组 / 控件态）----
+    // 排版规则（改之前先读，否则很容易把节奏改乱）：
+    //   · 区块分隔 = 18px 留白 + 18px 内边距 + 1px 细线：细线上下等距，才不会读成
+    //     上一块内容的「尾巴」（旧版 22/16 不对称，细线总贴着上一个区）。
+    //   · 圆角 8（卡片 10、胶囊 8、输入 8），字号只用 11/12/13/15 四档。
+    //   · 文字三级：primary（标题 / 值）— secondary（标签 / 副行）— tertiary（说明）。
+    //     tertiary 只在 bg-base 上达标（12 套 × 两态实测 4.50），不要放到卡片 / 胶囊 /
+    //     提示底色上（实测最低 4.08）；需要「浅一点」就用 secondary。
     const PANEL_CSS = [
-      '.zp-root{display:flex;flex-direction:column;gap:22px;min-width:0;max-width:100%;',
+      '.zp-root{display:flex;flex-direction:column;gap:0;min-width:0;max-width:100%;',
       'color:var(--dsw-alias-label-primary);font-size:13px;line-height:1.5;}',
       // 给所有子元素压 min-width：flex/grid 子项默认 min-width:auto，
       // 一个长主题名或长字体名就能把面板顶出横向滚动条。
       '.zp-root,.zp-root *{box-sizing:border-box;min-width:0;}',
-      '.zp-hd{display:flex;flex-direction:column;gap:4px;}',
-      '.zp-hd-t{font-size:15px;font-weight:600;}',
-      '.zp-hd-m{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;',
+      '.zp-hd{display:flex;flex-direction:column;gap:6px;}',
+      '.zp-hd-row{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;}',
+      '.zp-hd-t{font-size:15px;font-weight:600;letter-spacing:.01em;}',
+      '.zp-hd-m{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;',
       'font-size:12px;color:var(--dsw-alias-label-tertiary);}',
       '.zp-tag{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:999px;',
-      'background:var(--dsw-alias-interactive-bg-hover-accent);color:var(--dsw-alias-brand-text);',
-      'font-size:12px;font-weight:600;}',
-      '.zp-sec{display:flex;flex-direction:column;gap:12px;padding-top:16px;',
-      'border-top:1px solid var(--dsw-alias-border-l1);}',
-      '.zp-sec:first-of-type{padding-top:0;border-top:0;}',
-      '.zp-sec-hd{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;}',
-      '.zp-sec-t{font-size:13px;font-weight:600;}',
-      '.zp-sec-n{font-size:12px;color:var(--dsw-alias-label-tertiary);}',
+      'background:var(--dsw-alias-interactive-bg-hover-accent);color:var(--dsw-alias-label-primary);',
+      'font-size:12px;font-weight:600;line-height:1.6;}',
+      '.zp-live{display:inline-flex;align-items:center;gap:6px;}',
+      '.zp-live::before{content:"";width:6px;height:6px;border-radius:999px;',
+      'background:var(--dsw-alias-state-success-primary);}',
+      '.zp-sec{display:flex;flex-direction:column;gap:12px;',
+      'padding-top:18px;margin-top:18px;border-top:1px solid var(--dsw-alias-border-l1);}',
+      '.zp-sec-hd{display:flex;flex-direction:column;gap:2px;}',
+      '.zp-sec-t{font-size:13px;font-weight:600;letter-spacing:.01em;}',
+      '.zp-sec-n{font-size:12px;line-height:1.55;color:var(--dsw-alias-label-secondary);max-width:56em;}',
       // 主题卡：132px 起跳，320px 宽能放两列，再宽自动三列/四列，永不横向溢出
       '.zp-ths{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:8px;}',
-      '.zp-th{display:flex;flex-direction:column;gap:8px;padding:8px;border-radius:10px;',
+      '.zp-th{position:relative;display:flex;flex-direction:column;gap:8px;padding:8px;border-radius:10px;',
       'cursor:pointer;font:inherit;text-align:left;color:inherit;',
       'background:var(--dsw-alias-button-elevated-fill);border:1px solid var(--dsw-alias-border-l1);',
-      'transition:background-color .13s ease,border-color .13s ease,box-shadow .13s ease;}',
-      '.zp-th:hover{background:var(--dsw-alias-interactive-bg-hover);',
-      'border-color:var(--dsw-alias-border-l3);}',
+      'transition:border-color .13s ease,box-shadow .13s ease;}',
+      '.zp-th:hover{border-color:var(--dsw-alias-border-l3);box-shadow:0 0 0 1px var(--dsw-alias-border-l3);}',
       // 选中态用当前主题的品牌色（不是卡片自己的色），和界面其它选中态同一语义
       '.zp-th[data-on="1"]{border-color:var(--dsw-alias-brand-primary);',
-      'box-shadow:inset 0 0 0 1px var(--dsw-alias-brand-primary);}',
+      'box-shadow:0 0 0 1px var(--dsw-alias-brand-primary);}',
+      '.zp-th[data-on="1"]::after{content:"";position:absolute;top:6px;right:6px;width:14px;height:14px;',
+      'border-radius:999px;background:var(--dsw-alias-brand-primary);',
+      'box-shadow:0 0 0 2px var(--dsw-alias-bg-base);}',
+      '.zp-th[data-on="1"]::before{content:"";position:absolute;top:9px;right:11px;z-index:1;width:4px;height:8px;',
+      'border-right:1.5px solid var(--dsw-alias-label-primary-foreground);',
+      'border-bottom:1.5px solid var(--dsw-alias-label-primary-foreground);transform:rotate(45deg);}',
       '.zp-th:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;}',
-      '.zp-th-p{display:flex;flex-direction:column;justify-content:center;gap:4px;height:42px;',
-      'border-radius:6px;padding:0 8px;overflow:hidden;position:relative;',
-      'background:var(--dsw-alias-bg-layer-2);}',
-      '.zp-th-c{height:9px;border-radius:3px;}',
-      '.zp-th-b{height:4px;width:54%;border-radius:2px;opacity:.5;}',
-      '.zp-th-d{position:absolute;right:8px;bottom:8px;width:10px;height:10px;border-radius:999px;}',
+      '.zp-th-p{position:relative;display:flex;flex-direction:column;justify-content:center;gap:6px;',
+      'height:46px;border-radius:6px;padding:0 10px 0 14px;overflow:hidden;',
+      'background:var(--zp-th-bg,var(--dsw-alias-bg-layer-2));',
+      'border:1px solid var(--zp-th-line,var(--dsw-alias-border-l2));}',
+      '.zp-th-p::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;',
+      'background:var(--zp-th-accent,var(--dsw-alias-brand-primary));}',
+      '.zp-th-c{height:10px;width:66%;border-radius:3px;',
+      'background:var(--zp-th-surface,var(--dsw-alias-bg-layer-2));',
+      'border:1px solid var(--zp-th-line,var(--dsw-alias-border-l2));}',
+      '.zp-th-b{height:4px;width:42%;border-radius:2px;',
+      'background:var(--zp-th-ink,var(--dsw-alias-label-primary));opacity:.42;}',
       '.zp-th-n{display:flex;flex-direction:column;gap:1px;padding:0 2px;}',
       '.zp-th-nm{font-size:12px;font-weight:600;line-height:1.25;',
       'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
-      '.zp-th-id{font-size:11px;line-height:1.35;color:var(--dsw-alias-label-tertiary);',
+      '.zp-th-id{font-size:11px;line-height:1.3;color:var(--dsw-alias-label-secondary);',
       'font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;',
       'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
       // 胶囊组：flex-wrap 而不是等分分段——5 档字号在窄容器里换行比压扁可读
-      '.zp-seg{display:flex;flex-wrap:wrap;gap:6px;}',
+      '.zp-seg{display:inline-flex;flex-wrap:wrap;gap:2px;padding:2px;border-radius:10px;',
+      'background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l2);}',
       '.zp-pill{appearance:none;display:inline-flex;align-items:center;gap:4px;padding:4px 12px;',
-      'border-radius:999px;font:inherit;font-size:12px;line-height:1.4;cursor:pointer;',
-      'background:var(--dsw-alias-button-elevated-fill);border:1px solid var(--dsw-alias-border-l2);',
+      'border-radius:8px;border:1px solid transparent;background:transparent;',
+      'font:inherit;font-size:12px;line-height:1.4;cursor:pointer;',
       'color:var(--dsw-alias-label-secondary);',
       'transition:background-color .12s ease,border-color .12s ease,color .12s ease;}',
       '.zp-pill:hover{background:var(--dsw-alias-interactive-bg-hover);',
-      'border-color:var(--dsw-alias-border-l3);color:var(--dsw-alias-label-primary);}',
+      'border-color:transparent;color:var(--dsw-alias-label-primary);}',
       '.zp-pill[data-on="1"]{background:var(--dsw-alias-brand-primary);',
       'border-color:var(--dsw-alias-brand-primary);color:var(--dsw-alias-label-primary-foreground);',
       'font-weight:600;}',
-      '.zp-pill:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;}',
-      '.zp-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;}',
-      '.zp-lbl{flex:0 0 auto;width:4.4em;font-size:12px;color:var(--dsw-alias-label-tertiary);}',
+      '.zp-pill:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;}',
+      '.zp-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;}',
+      '.zp-lbl{flex:0 0 auto;width:4.8em;font-size:12px;color:var(--dsw-alias-label-secondary);}',
       '.zp-body{flex:1 1 190px;display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-width:0;}',
-      '.zp-chk{display:inline-flex;align-items:center;gap:8px;padding:3px 2px;border-radius:6px;',
+      '.zp-chk{display:inline-flex;align-items:center;gap:8px;padding:2px;border-radius:6px;',
       'font-size:12px;color:var(--dsw-alias-label-secondary);cursor:pointer;}',
       '.zp-chk:hover{color:var(--dsw-alias-label-primary);}',
       '.zp-chk input{width:14px;height:14px;margin:0;accent-color:var(--dsw-alias-brand-primary);',
       'cursor:pointer;}',
       '.zp-chk:focus-within{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;}',
-      '.zp-range{flex:1 1 120px;min-width:80px;height:16px;',
-      'accent-color:var(--dsw-alias-brand-primary);cursor:pointer;}',
+      '.zp-range{flex:1 1 120px;min-width:80px;height:16px;margin:0;appearance:none;',
+      'background:transparent;cursor:pointer;accent-color:var(--dsw-alias-brand-primary);}',
+      '.zp-range::-webkit-slider-runnable-track{height:4px;border-radius:999px;',
+      'background:linear-gradient(to right,var(--dsw-alias-brand-primary) var(--zp-pct,50%),',
+      'var(--dsw-alias-border-l2) var(--zp-pct,50%));}',
+      '.zp-range::-webkit-slider-thumb{appearance:none;width:12px;height:12px;margin-top:-4px;',
+      'border-radius:999px;background:var(--dsw-alias-brand-primary);',
+      'border:2px solid var(--dsw-alias-bg-base);box-shadow:0 0 0 1px var(--dsw-alias-border-l2);}',
+      '.zp-range::-moz-range-track{height:4px;border-radius:999px;background:var(--dsw-alias-border-l2);}',
+      '.zp-range::-moz-range-progress{height:4px;border-radius:999px;background:var(--dsw-alias-brand-primary);}',
+      '.zp-range::-moz-range-thumb{width:12px;height:12px;border-radius:999px;',
+      'background:var(--dsw-alias-brand-primary);border:2px solid var(--dsw-alias-bg-base);}',
+      '.zp-range:focus{outline:none;}',
+      '.zp-range:focus-visible::-webkit-slider-thumb{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;}',
+      '.zp-range:focus-visible::-moz-range-thumb{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;}',
       '.zp-val{min-width:38px;text-align:right;font-size:12px;',
       'color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums;}',
       '.zp-inp{flex:1 1 180px;padding:6px 8px;border-radius:8px;font:inherit;font-size:12px;',
@@ -3379,18 +3408,22 @@ function applyTokens(theme, pref) {
       '.zp-inp:focus{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;',
       'border-color:var(--dsw-alias-brand-primary);}',
       '.zp-btn{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:8px;',
-      'font:inherit;font-size:12px;cursor:pointer;',
+      'font:inherit;font-size:12px;line-height:1.5;cursor:pointer;',
       'background:var(--dsw-alias-button-elevated-fill);border:1px solid var(--dsw-alias-border-l2);',
       'color:var(--dsw-alias-label-primary);',
-      'transition:background-color .12s ease,border-color .12s ease;}',
+      'transition:background-color .12s ease,border-color .12s ease,box-shadow .12s ease;}',
       '.zp-btn:hover{background:var(--dsw-alias-interactive-bg-hover);',
       'border-color:var(--dsw-alias-border-l3);}',
       '.zp-btn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;}',
-      '.zp-btn[data-tone="danger"]{color:var(--dsw-alias-state-error-primary);',
-      'border-color:var(--dsw-alias-state-error-primary);}',
+      '.zp-btn[data-tone="danger"]{background:var(--dsw-alias-bg-base);',
+      'color:var(--dsw-alias-label-error);border-color:var(--dsw-alias-state-error-primary);}',
+      '.zp-btn[data-tone="danger"]:hover{background:var(--dsw-alias-bg-base);',
+      'border-color:var(--dsw-alias-state-error-primary);',
+      'box-shadow:0 0 0 1px var(--dsw-alias-state-error-primary);}',
       // 待确认态：文案已经变成「再点一次删除」，外观也要跟着变，否则用户会以为第一次点击没生效。
-      '.zp-btn[data-tone="danger"].is-armed{background:var(--dsw-alias-state-error-primary);',
-      'border-color:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-label-primary-inverted);}',
+      '.zp-btn[data-tone="danger"].is-armed{background:var(--dsw-alias-interactive-bg-hover-danger);',
+      'border-color:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-label-primary);',
+      'box-shadow:0 0 0 1px var(--dsw-alias-state-error-primary);font-weight:600;}',
       // 文件选择：input 视觉隐藏但保留可聚焦，靠 :focus-within 给键盘用户焦点环
       '.zp-file{position:relative;}',
       '.zp-file input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;}',
@@ -3409,10 +3442,17 @@ function applyTokens(theme, pref) {
       'border:1px solid var(--dsw-alias-border-l2);background:transparent;}',
       '.zp-thumb{width:56px;height:34px;border-radius:6px;object-fit:cover;',
       'border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);}',
-      '.zp-hint{font-size:12px;color:var(--dsw-alias-label-tertiary);}',
+      '.zp-hint{font-size:12px;line-height:1.55;color:var(--dsw-alias-label-secondary);}',
+      // 报错行不能只靠颜色区分（明暗 × 12 套主题里 label-error 压卡片底色最低 4.36），
+      // 用字重 + 点线更稳，颜色只做非文本的装饰线。
+      '.zp-hint.is-warn{font-weight:600;text-decoration:underline dotted var(--dsw-alias-state-error-primary);',
+      'text-underline-offset:2px;}',
       // ---- 自定义主题：卡片 / 编辑器 ----
       '.zp-th-add{border-style:dashed;align-items:center;justify-content:center;min-height:78px;}',
-      '.zp-th-p-add{display:flex;align-items:center;justify-content:center;height:42px;font-size:20px;line-height:1;color:var(--dsw-alias-label-tertiary);}',
+      '.zp-th-p-add{display:flex;align-items:center;justify-content:center;height:46px;',
+      'border:1px dashed var(--dsw-alias-border-l2);background:transparent;',
+      'font-size:20px;line-height:1;color:var(--dsw-alias-label-tertiary);}',
+      '.zp-th-p-add::before{display:none;}',
       '.zp-cus-acts{display:flex;gap:8px;flex-wrap:wrap;padding-top:2px;}',
       '.zp-txt{padding:4px 8px;border-radius:8px;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font-size:13px;min-width:110px;}',
       '.zp-txt:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;}',
@@ -3468,12 +3508,14 @@ function applyTokens(theme, pref) {
       '.zp-ed-sec{display:flex;flex-direction:column;gap:6px;padding-top:12px;border-top:1px solid var(--dsw-alias-border-l1);}',
       '.zp-ed-sec:first-of-type{padding-top:0;border-top:0;}',
       '.zp-json{width:100%;box-sizing:border-box;padding:8px;border-radius:8px;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.5;resize:vertical;}',
-      '.zp-foot{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;padding-top:16px;',
-      'border-top:1px solid var(--dsw-alias-border-l1);}',
+      '.zp-foot{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;',
+      'padding-top:18px;margin-top:18px;border-top:1px solid var(--dsw-alias-border-l1);}',
       '@media (prefers-reduced-motion: reduce){.zp-root *{transition:none !important;',
       'animation:none !important;}}',
       // 极窄容器：行标签独占一行，避免「标签被压成竖条」
-      '@media (max-width:359px){.zp-lbl{width:auto;flex:1 0 100%;}}',
+      '@media (max-width:359px){.zp-lbl{width:auto;flex:1 0 100%;}',
+      '.zp-sec{padding-top:14px;margin-top:14px;}.zp-hd{gap:4px;}',
+      '.zp-ths{grid-template-columns:repeat(auto-fill,minmax(112px,1fr));}}',
     ].join('');
 
     // 分组容器：统一「标题 + 说明 + 内容」的节奏，间距不再靠逐项手调。
@@ -3613,20 +3655,30 @@ function applyTokens(theme, pref) {
       return raw && raw.charAt(0) === '@' ? t('theme.' + raw.slice(7)) : raw;
     }
 
+    // 主题卡：预览条是这套主题的「缩略图」——左侧竖条用该主题的品牌色，底色 / 表面层 /
+    // 正文色各取该主题自己那套 token。旧版预览只有一条 layer-2 灰杠 + 一枚小圆点，
+    // 12 张卡在浅色主题下几乎一模一样，只能靠读名字分辨。
+    // 颜色一律经 --zp-th-* 内联变量交给 CSS：PANEL_CSS 里保持零色值，明暗两态同一套规则。
     function Swatch(props) {
       const def = props.def || {};
       const tk = def[props.scheme] || def.dark || {};
       const label = themeLabelOf(def.label || props.id);
       const active = props.active;
+      // 自定义主题若缺某个 token（旧版本存下来的草稿），不写空值：让 CSS 的 var() 兜底。
+      const pv = {};
+      [['--zp-th-bg', '--dsw-alias-bg-base'], ['--zp-th-line', '--dsw-alias-border-l2'],
+        ['--zp-th-surface', '--dsw-alias-bg-layer-2'], ['--zp-th-ink', '--dsw-alias-label-primary'],
+        ['--zp-th-accent', '--dsw-alias-brand-primary']].forEach(function (pair) {
+        if (tk[pair[1]]) pv[pair[0]] = tk[pair[1]];
+      });
       return h('button', {
         type: 'button', className: 'zp-th', 'data-on': active ? '1' : '0',
         'aria-pressed': active, title: label + ' (' + props.id + ')',
         onClick: function () { props.onPick(props.id); },
       },
-        h('span', { className: 'zp-th-p', 'aria-hidden': 'true', style: { background: tk['--dsw-alias-bg-base'] } },
-          h('span', { className: 'zp-th-c', style: { background: tk['--dsw-alias-bg-layer-2'] } }),
-          h('span', { className: 'zp-th-b', style: { background: tk['--dsw-alias-label-primary'] } }),
-          h('span', { className: 'zp-th-d', style: { background: tk['--dsw-alias-brand-primary'] } })
+        h('span', { className: 'zp-th-p', 'aria-hidden': 'true', style: pv },
+          h('span', { className: 'zp-th-c' }),
+          h('span', { className: 'zp-th-b' })
         ),
         h('span', { className: 'zp-th-n' },
           h('span', { className: 'zp-th-nm' }, label),
@@ -4093,6 +4145,7 @@ function applyTokens(theme, pref) {
                 h('input', {
                   type: 'range', className: 'zp-range', min: 0, max: 100,
                   value: typeof bg.opacity === 'number' ? bg.opacity : 85,
+                  style: { '--zp-pct': (typeof bg.opacity === 'number' ? bg.opacity : 85) + '%' },
                   'aria-label': t('panel.ed.bgOpacityAria'),
                   onChange: function (ev) { setBg({ opacity: Number(ev.target.value) || 0 }); },
                 }),
@@ -4518,12 +4571,14 @@ function applyTokens(theme, pref) {
             })
           : null,
         h('div', { className: 'zp-hd' },
-          h('div', { className: 'zp-hd-t' }, t('panel.header.title')),
+          h('div', { className: 'zp-hd-row' },
+            h('div', { className: 'zp-hd-t' }, t('panel.header.title')),
+            h('span', { className: 'zp-tag' }, themeName)
+          ),
           h('div', { className: 'zp-hd-m' },
-            h('span', { className: 'zp-tag' }, themeName),
             h('span', null, labelOf(modes(), modeNow)),
             h('span', null, t('panel.header.count', { n: THEME_IDS.length })),
-            h('span', null, t('panel.header.live'))
+            h('span', { className: 'zp-live' }, t('panel.header.live'))
           )
         ),
 
@@ -4615,9 +4670,14 @@ function applyTokens(theme, pref) {
               h('input', {
                 type: 'range', className: 'zp-range', min: 0, max: 100,
                 value: pref.bgOpacity, 'aria-label': t('panel.bg.opacityAria'),
+                // 已选段长度交给 CSS 渐变：读起来是「填到哪了」，不是一根无信息的灰轨
+                style: { '--zp-pct': (Number(pref.bgOpacity) || 0) + '%' },
                 onChange: function (ev) { set({ bgOpacity: Number(ev.target.value) || 0 }); },
               }),
-              h('span', { className: 'zp-val' }, pref.bgOpacity + '%')
+              h('span', { className: 'zp-val' }, pref.bgOpacity + '%'),
+              // 滑块 85% ≠ 实际 85% 不透明度（实现是 可见度 × 0.7）。上限写在旁边而不是塞进
+              // 行标签：塞进 4.8em 的标签列会把这一行撑成三行，整块的行高跟着变形。
+              h('span', { className: 'zp-hint' }, t('panel.bg.opacityCap'))
             ),
             h(Row, { label: t('panel.bg.showRow') },
               h('label', { className: 'zp-chk' },
@@ -4683,7 +4743,7 @@ function applyTokens(theme, pref) {
               onChange: function (v) { set({ fontScale: v }); } }),
             h('span', { className: 'zp-hint' }, t('panel.type.pxHint', { px: scalePx })),
             pref.fontScale !== 100 && HOST_TEXT_STATS && HOST_TEXT_STATS.rules === 0
-              ? h('span', { className: 'zp-hint' }, t('panel.type.scaleMiss'))
+              ? h('span', { className: 'zp-hint is-warn' }, t('panel.type.scaleMiss'))
               : null
           ),
           h(Row, { label: t('panel.type.widthRow') },
@@ -4758,7 +4818,7 @@ function applyTokens(theme, pref) {
             'data-tone': resetArmed ? 'danger' : 'normal',
             onClick: function () { if (resetArmed) { resetAll(); } else { setResetArmed(true); } },
           }, resetArmed ? t('panel.reset.armed') : t('panel.reset.label')),
-          h('div', { className: 'zp-hint' },
+          h('div', { className: 'zp-hint', 'aria-live': 'polite' },
             resetArmed
               ? t('panel.reset.hint')
               : t('panel.foot.build', { ver: PVERSION })

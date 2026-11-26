@@ -189,6 +189,17 @@ https://ghproxy.net/https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme
 
 ## 开发
 
+### 开发预览（不切换安装方式）
+
+profile 里的插件有两种安装形态，互斥：`link:`（符号链接到源码目录，改完重启即生效，但**无法从市场更新**）与 registry 版本（能从市场更新，但改源码不生效）。`dev:sync` 走第三条路——**保持 registry 安装，把构建产物推进已安装目录**：
+
+```sh
+npm run dev:sync              # 构建 + 复制 client.js / index.js / cordis.patch.yml / icon.svg / locale / assets
+npm run dev:sync -- --watch   # 同上，且监听 src/ 与 build.mjs，保存即构建并复制
+```
+
+目标目录默认 `~/.dsh/profiles/desktop/node_modules/dsh-zhuoer-theme`，可用 `--profile` / `--dir` 覆盖。复制完按一次刷新按钮（dsh-unlag）即换掉客户端代码；`index.js` 与 `cordis.patch.yml` 属于服务端一半，需要插件重载或重启 App 才生效。
+
 客户端代码在 `src/` 下分五片，由 `build.mjs` 按文件名顺序拼成单文件 `client.js`：
 
 ```
@@ -241,7 +252,7 @@ npm run coverage      # token 覆盖率与「刻意不跟锚点」的豁免清�
 | `verify:market` | **市场索引门**：按官方 schema 校验 `market/index.json`（LocalizedText 必含 `en`、精确 SemVer、`source.type`、`engines.dsh`），并与本仓 `package.json` 交叉对账 |
 | `verify:locale` | **展示元数据门**：`locale/*.json` 的 `meta.title` 非空、`en` 必存、`exports`/`files` 齐全、`./icon` ≤256 KiB 且与 `icon` 字段指向一致 |
 | `verify:keys` | **词典门**（静态）：源码里 `t('…')` 用到的键必须在 zh/en 都存在，且同名键占位符集合一致；缺键或 `{n}`/`{count}` 不一致即红。审的是「渲染不到」的文案（抽屉、错误、ARIA） |
-| `verify:text` | **文案门**（确定性）：Node 端渲染面板，把 152 条文案与属性（`title`/`aria-label`/`placeholder`/`alt`）与 `contracts/text-snapshot/{zh,en}.json` 逐条比对，版本号归一化。改文案要配 `--update`，否则红 |
+| `verify:text` | **文案门**（确定性）：Node 端渲染面板，把 153 条文案与属性（`title`/`aria-label`/`placeholder`/`alt`）与 `contracts/text-snapshot/{zh,en}.json` 逐条比对，版本号归一化。改文案要配 `--update`，否则红 |
 | `verify:visual` | 面板截图像素比对（**已从 `verify:all` 摘除**）：同状态连续两次截 `.zp-root` 在光态下互差 2.3%，无法复现的像素门等于安全错觉。脚本保留，需要人工看图时再跑 |
 | `verify:csssnap` | 把插件**实际注入**的 CSS 文本与 `contracts/css-snapshot/` 逐字节比对；差异会报出首个偏移与上下文。没有 `visual/css-current/` 时 SKIP，`--strict` 才硬判 |
 | `verify:claims` | **对外口径门**：README / market 索引 / locale / package.json 里的主题数、版本号、底图数、文案条数、裸中文基线必须等于现算真值（加主题后忘记改文档 → 红） |
