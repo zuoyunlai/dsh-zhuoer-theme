@@ -27,6 +27,16 @@
       },
       "versions": [
         {
+          "version": "0.6.23",
+          "publishTimestamp": 1795692725,
+          "source": {
+            "type": "npm"
+          },
+          "engines": {
+            "dsh": ">=0.2.2-0 <0.3.0"
+          }
+        },
+        {
           "version": "0.6.22",
           "publishTimestamp": 1795674655,
           "source": {
@@ -45,18 +55,9 @@
           "engines": {
             "dsh": ">=0.2.2-0 <0.3.0"
           }
-        },
-        {
-          "version": "0.6.20",
-          "publishTimestamp": 1795628401,
-          "source": {
-            "type": "npm"
-          },
-          "engines": {
-            "dsh": ">=0.2.2-0 <0.3.0"
-          }
         }
-      ]
+      ],
+      "version": "0.6.23"
     }
   ]
 }
