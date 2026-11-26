@@ -108,6 +108,24 @@ function toOutput(spec, texture, textureLight) {
   if (textureLight) out.textureLight = textureLight;
   return out;
 }
+// presentationMeta 必须整体可无损序列化：值为 undefined 的键会被宿主判成 non-lossless，
+// 整条工具结果被拒收（0.6.24 就栽在这——没有底纹时 texture 是 undefined，却仍被无条件塞进 meta；
+// 一次不带底纹的生成 100% 失败，而面板里的 AI 生成走 HTTP 不经过这里，所以看起来像是偶发）。
+// 因此可选键只在有值时才加。
+function toMeta(value) {
+  const v = value || {};
+  const meta = {
+    kind: 'dsh-zhuoer-theme',
+    label: String(v.label || 'AI 主题'),
+    light: v.light || {},
+    dark: v.dark || {},
+    font: v.font || {},
+    radiusScale: typeof v.radiusScale === 'number' ? v.radiusScale : 1,
+  };
+  if (v.texture) meta.texture = v.texture;
+  if (v.textureLight) meta.textureLight = v.textureLight;
+  return meta;
+}
 
 // ---- 底纹（可选）----
 // 通用插件不挑宿主：不调任何图片工具或厂商 API，只接收模型产出的本地图片路径。
@@ -197,16 +215,7 @@ export function registerThemeTool(ctx, report, opts) {
             type: 'text',
             text: SPEC_MARKER + JSON.stringify(value),
         }],
-        presentationMeta: (_args, value) => ({
-          kind: 'dsh-zhuoer-theme',
-          label: value.label,
-          light: value.light,
-          dark: value.dark || {},
-          font: value.font || {},
-          radiusScale: value.radiusScale,
-          texture: value.texture,
-          textureLight: value.textureLight,
-        }),
+        presentationMeta: (_args, value) => toMeta(value),
       },
       async execute(args) {
         const style = String((args && args.style) || '').trim();
@@ -252,16 +261,7 @@ export function registerThemeTool(ctx, report, opts) {
               type: 'text',
               text: SPEC_MARKER + JSON.stringify(value),
           }],
-          presentationMeta: (_args, value) => ({
-            kind: 'dsh-zhuoer-theme',
-            label: value.label,
-            light: value.light,
-            dark: value.dark || {},
-            font: value.font || {},
-            radiusScale: value.radiusScale,
-            texture: value.texture,
-            textureLight: value.textureLight,
-          }),
+          presentationMeta: (_args, value) => toMeta(value),
         },
         async execute(args) {
           const style = String((args && args.style) || '').trim();

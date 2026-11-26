@@ -104,11 +104,19 @@
 ### R11（收口）：第二次用户验收
 - 「现在很好了」→ 明暗双底纹 + 可见浅色网格闭环。
 
+### R12（另一个对话反馈）：不带底纹时 100% 生成失败 —— meta 里有 `undefined`
+- **现象**：用户在别的对话里连续三次用不同描述生成主题，三次都是同一句 `output.presentationMeta returned non-lossless JSON`；面板里的「AI 生成」却正常。
+- **根因**：`presentationMeta` 无条件返回 `texture: value.texture` / `textureLight: value.textureLight`，而 `toOutput()` 在没有底纹时不会添加这两个键（双底纹改动后变成两处同样问题）。于是 meta 里存在值为 `undefined` 的键，宿主按「非无损 JSON」拒收**整条工具结果**。面板路径走 HTTP、不经过 `presentationMeta`，所以同一功能只有对话框入口全挂。
+- **为什么没被自己发现**：我这边的每次调用都带了底纹，恰好绕开；而 `verify-schema-output.mjs` 只校验 `toOutput` 与 schema 形态，**从没校验过 `presentationMeta`**，所以门禁一路 PASS。
+- **处置**：抽出 `toMeta(value)` 统一构造 meta，`texture` / `textureLight` 改为**有值才加**；两处注册块都改为调用它。门禁新增两组断言——有底纹时必须保留两键、无底纹时必须不带空键，且整体可无损序列化（含 JSON 往返不丢键）。
+- **自检**：检测器做过反证——对 `{a:1,texture:undefined}` 能判出 1 处异常，确认不是「怎么写都 PASS」的假门。
+- **状态**：已修 + 已补门禁。这类「可选字段写成固定键」的错误应作为通例检查项：凡是 `presentationMeta` / `output` 里的可选字段，都要走门禁的两份数据（有/无）验证。
+
 ## 4. 收口汇总
 
 最终验证（2026-11-26）：
 - `node scripts/test-chat-tool.mjs` → OK 15 / FAIL 0（`ALL_PASS`）
-- `npm run verify:all` → **exit 0**，22 道门（含新增 `verify-schema-output`）
+- `npm run verify:all` → **exit 0**，22 道门（`verify-schema-output` 追加批次后连 `presentationMeta` 一起校验）
 - `node build.mjs` → 7 分片，723257 字节（追加批次后）
 - `/api/texture` 实测：深色 `200 860735 image/png`、浅色 `200 202581 image/jpeg`、无客户端头 `403`
 - `node scripts/dev-sync.mjs --apply` → 已同步到 `%DSH_HOME%/profiles/desktop/node_modules/dsh-zhuoer-theme`

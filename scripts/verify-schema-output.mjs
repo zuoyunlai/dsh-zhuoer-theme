@@ -85,7 +85,33 @@ shape(OUTPUT_SCHEMA, 'schema');
 const out = toOutput(spec);
 walk(OUTPUT_SCHEMA, out, 'value');
 
-const all = [...shapeErrs, ...errs];
+// presentationMeta 也必须可无损序列化。值为 undefined 的键会被宿主判成 non-lossless 并**整条拒收**
+// ——0.6.24 的「不带底纹 100% 生成失败」就是这条：meta 无条件写了 texture: undefined。
+const toMeta = new Function(grab(/function toMeta\(value\) \{/, '\n}') + '; return toMeta;')();
+const lossless = (label, meta) => {
+  const bad = [];
+  for (const k of Object.keys(meta)) {
+    const v = meta[k];
+    if (v === undefined) bad.push(label + '.' + k + ' = undefined');
+    else if (['function', 'symbol', 'bigint'].indexOf(typeof v) !== -1) bad.push(label + '.' + k + ' = ' + typeof v);
+  }
+  let rt = '';
+  try { rt = JSON.stringify(meta); } catch (e) { bad.push(label + ' 无法序列化: ' + e.message); }
+  if (rt) {
+    const back = JSON.parse(rt);
+    for (const k of Object.keys(meta)) if (!(k in back)) bad.push(label + '.' + k + ' 序列化后丢失');
+  }
+  return bad;
+};
+const tex = { name: 'abcdef0123456789.png', mime: 'image/png', bytes: 1024 };
+const texL = { name: 'abcdef0123456789.jpg', mime: 'image/jpeg', bytes: 512 };
+const metaWithTex = toMeta(Object.assign({}, out, { texture: tex, textureLight: texL }));
+const metaNoTex = toMeta(out);
+const metaErrs = lossless('meta(texture)', metaWithTex).concat(lossless('meta(no-texture)', metaNoTex));
+if (!metaWithTex.texture || !metaWithTex.textureLight) metaErrs.push('meta(texture): 有底纹时丢了 texture/textureLight');
+if ('texture' in metaNoTex || 'textureLight' in metaNoTex) metaErrs.push('meta(no-texture): 仍然带着空 texture 键');
+
+const all = [...shapeErrs, ...errs, ...metaErrs];
 if (all.length) {
   console.error('[verify-schema-output] FAIL');
   for (const e of all) console.error('  - ' + e);

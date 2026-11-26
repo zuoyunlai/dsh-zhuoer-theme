@@ -28,6 +28,9 @@
 - **底纹按明暗各一张**（`texturePath` / `texturePathLight`）：内置主题本就两套素材（`BG` / `BG_SOFT`），一张深图铺在浅底上会发闷。服务端 stash 到插件数据目录 → 同源 `/api/texture` 下发 → 客户端 FileReader → IndexedDB，`bg` 分别落 `key` / `keyLight`，渲染按 `scheme` 取图、缺浅色图回落主图。
 - **对比度教训**：内置浅色底图是 4.9 KB 平面矢量线稿；第一版 AI 浅色底纹是 198 KB 摄影噪点、线条仅深约 2%，乘 0.7 铺贴后归零。改成「浅紫底 + 深约 12% 的细网格」才可见。
 
+- **修复：不带底纹时 100% 生成失败**。`presentationMeta` 无条件塞了 `texture: value.texture`，而 `toOutput()` 在没有底纹时根本不会加这个键 → 值为 `undefined` → 宿主判为 non-lossless JSON，**整条工具结果被拒收**（`output.presentationMeta returned non-lossless JSON`）。面板里的 AI 生成走 HTTP、不经过 `presentationMeta`，所以只有对话框这条路全挂，看起来像偶发。改为 `toMeta()` 统一构造，可选键**有值才加**。
+- **门禁补位**：`verify-schema-output.mjs` 原来只校验 `toOutput` 与 schema，不碰 `presentationMeta`，所以这个 bug 一路 `PASS`。现在把 `toMeta` 也抽出来，用「有底纹 / 无底纹」两份数据跑无损序列化断言。
+
 踩坑与取证全过程见 `docs/report-chat-theme-gen-2026-11-26.md`。
 ## 0.6.25（发布汇总：全量审计整改批 A / B / C + 窄屏判定修正）
 
