@@ -1,0 +1,260 @@
+rail.ariaLabel	Right sidebar quick nav
+rail.anchorLabel	Quick nav anchor
+rail.empty	No right-sidebar tabs to jump to
+rail.noService	This host has no right-sidebar service
+rail.openFailed	Could not open that tab
+panel.brand.title	Brand slot
+panel.brand.note	The deepseek HARNESS badge in the top-left; off means the host default
+panel.brand.toggle	Enable
+panel.brand.toggleHint	Replace it with your own image
+panel.brand.builtinHint	Using the built-in logo (pick an image to override)
+panel.brand.imageRow	Image
+panel.brand.pick	Choose image…
+panel.brand.repick	Change image…
+panel.brand.previewAlt	Current brand image preview
+panel.brand.remove	Remove
+panel.brand.autoHint	No image = built-in logo; uploads are downscaled to 512px max edge
+panel.brand.replacedHint	Replaced. If a host upgrade changes the badge structure, this silently falls back to native.
+panel.header.title	Appearance
+panel.header.count	{n} palettes
+panel.header.live	Changes apply instantly
+panel.theme.title	Color theme
+panel.theme.note	Picking applies immediately; light/dark decides which of the two palettes applies
+panel.theme.modeRow	Mode
+panel.theme.modeAria	Color mode
+panel.theme.optLight	Light
+panel.theme.optDark	Dark
+panel.theme.optAuto	Follow system
+panel.theme.addTitle	Create a custom theme (cloned from the current one)
+panel.theme.addLabel	New theme
+panel.theme.edit	Edit colors
+panel.theme.duplicate	Duplicate
+panel.theme.exportJson	Export JSON
+panel.theme.delete	Delete
+panel.theme.importJson	Import JSON
+panel.bg.title	Background image
+panel.bg.note	Only the main column; sidebar and composer keep the theme solid color
+panel.bg.sourceRow	Source
+panel.bg.sourceAria	Background source
+panel.bg.optNone	None
+panel.bg.optTheme	Theme texture
+panel.bg.optImage	Custom image
+panel.bg.imageRow	Image
+panel.bg.pick	Choose image…
+panel.bg.previewAlt	Current background preview
+panel.bg.remove	Remove
+panel.bg.formatHint	JPEG / PNG / WebP · up to 8 MiB
+panel.bg.styleRow	Style
+panel.bg.styleAria	Background style
+panel.bg.optFade	Faded
+panel.bg.optFull	Full bleed
+panel.bg.opacityRow	Visibility
+panel.bg.opacityCap	full = 70% opacity
+panel.bg.opacityAria	Background visibility (100% on the slider equals 70% actual opacity)
+panel.bg.showRow	Show on
+panel.bg.showEmpty	New session page
+panel.bg.showSession	In session
+panel.bg.offHint	Background is off; these styles apply once you pick a source.
+panel.section.title	Zhuoer theme
+panel.sel.follow	Follow theme
+panel.sel.current	{value} (current)
+panel.ed.pickerAria	{label} color picker
+panel.ed.hexAria	{label} hex value
+panel.ed.low	 low
+panel.ed.resetAria	Reset {label} to the cloned theme value
+panel.ed.resetTitleDirty	Reset to the cloned theme value
+panel.ed.resetTitleClean	Already the cloned theme value
+panel.ed.dialogAria	Custom theme editor
+panel.ed.title	Edit colors
+panel.ed.closeAria	Close editor
+panel.ed.closeTitle	Close (unsaved changes are confirmed first)
+panel.ed.secAppearance	Appearance
+panel.ed.clonedFrom	Cloned from {theme}; other tokens are derived by delta
+panel.ed.name	Name
+panel.ed.nameAria	Theme name
+panel.ed.dark	Dark
+panel.ed.autoDark	Derived from the light scheme (background/text/border inverted; brand and semantic colors kept)
+panel.ed.editRow	Edit
+panel.ed.schemeAria	Editing scheme
+panel.ed.light	Light
+panel.ed.anchors	Color anchors
+panel.ed.anchorsNote	Edits preview on the live UI on the right; nothing is persisted until Save
+panel.ed.advanced	Advanced · per token
+panel.ed.advancedNote	All 156 tokens behind the anchors; text below 3:1 reverts automatically
+panel.ed.advShow	Show all tokens
+panel.ed.advHide	Collapse
+panel.ed.confirmDiscard	Unsaved changes — discard them?
+panel.ed.dirtyHint	Unsaved changes
+panel.ed.keepEditing	Keep editing
+panel.ed.cancel	Cancel
+panel.ed.discard	Discard changes
+panel.ed.save	Save
+panel.ai.failed	Generation failed
+panel.ai.badJson	The model did not return parsable theme JSON — try rephrasing
+panel.palette.noColors	No usable colors found in this image
+panel.palette.failed	Color extraction failed
+panel.palette.notEnough	Not enough colors to assign anchors
+panel.ed.presets	Style presets
+panel.ed.presetsNote	Replaces everything: anchors, radii and fonts at once
+panel.ed.presetTitle	{label} · radius {radius} · {body}
+panel.ed.mono	monospace
+panel.ed.aiSection	AI & color picking
+panel.ed.aiNote	Results are previewed first; only Apply touches the draft
+panel.ed.aiRow	AI generation
+panel.ed.aiPromptAria	Style description
+panel.ed.aiPromptPh	Describe the style, e.g. retro terminal, grey background, yellow primary, blue secondary, monospace, square corners
+panel.ed.generating	Generating…
+panel.ed.generate	Generate
+panel.ed.aiPreview	“{label}”
+panel.ed.aiDropped	 ({n} unknown keys dropped)
+panel.ed.applyCurrent	Apply to current theme
+panel.chat.apply	Apply
+panel.chat.modify	Modify
+panel.chat.applied	Applied to DSH
+panel.chat.ovApplied	Applied · overrides {n}
+panel.chat.sampled	Sampled from the reference image
+panel.chat.ovSoft	{s} reverted for contrast
+panel.chat.preview	Preview
+panel.chat.editing	Editing
+panel.chat.cancel	Cancel
+panel.chat.applyEdited	Apply these
+panel.chat.nameAria	Theme name
+panel.chat.fail	Failed to apply
+panel.chat.limitErr	Custom theme limit reached ({n}); delete one first
+panel.ed.drop	Discard
+panel.ed.pickFromImage	Pick colors from image
+panel.ed.picking	Extracting…
+panel.ed.pickImage	Choose image…
+panel.ed.clear	Clear
+panel.ed.bgSection	Background image
+panel.ed.bgNote	One image ≤ 3 MiB, stored in local IndexedDB
+panel.ed.bgSourceAria	Theme background source
+panel.ed.bgFollowGlobal	Follow global
+panel.ed.bgThemeOwn	Theme texture
+panel.ed.bgCustom	My photo
+panel.ed.bgNone	No background
+panel.ed.imageRow	Image
+panel.ed.bgPreviewAlt	Theme background preview
+panel.ed.bgStoredHint	Stored in IndexedDB, ≤ 3 MiB per image
+panel.ed.opacityRow	Visibility
+panel.ed.bgOpacityAria	Theme background visibility
+panel.ed.shapeSection	Shape & fonts
+panel.ed.shapeNote	Affects this theme only
+panel.ed.radiusRow	Corner radius
+panel.ed.sharpRow	Third-party controls
+panel.ed.sharpOn	Flatten hard-coded radii and outlines in plugin UI
+panel.ed.sharpNote	Only affects plugin controls that bring their own radius/borders (for example the sidebar segmented buttons). Turns on automatically when the theme itself is square.
+panel.ed.radiusAria	Corner radius size
+panel.ed.radiusSquare	Square
+panel.ed.radiusSmall	Small
+panel.ed.radiusNormal	Normal
+panel.ed.radiusLarge	Large
+panel.ed.radiusXL	Extra large
+panel.ed.bodyFont	Body font
+panel.ed.chatFont	Chat font
+panel.ed.followBase	Follow {theme}
+panel.type.title	Typography
+panel.type.note	Enlarges text (UI copy and message body) without touching layout geometry — geometric zoom fights the host’s sidebar drag and is banned by the gate
+panel.type.sizeRow	Message text size
+panel.type.sizeAria	Message text size
+panel.a11y.hitRow	Hit target
+panel.type.mdHeadRow	Heading colour
+panel.type.mdHeadAria	Markdown heading colour
+panel.type.mdHeadFollow	Follow body
+panel.type.mdHeadSoft	Brand (soft)
+panel.type.mdHeadBrand	Brand
+panel.type.mdHeadNote	Derived from the theme brand and body colours — follows theme/accent changes
+panel.type.mdRow	Reading rhythm
+panel.type.mdAria	Markdown reading rhythm
+panel.type.mdCompact	Compact
+panel.type.mdNormal	Standard
+panel.type.mdRoomy	Roomy
+panel.type.mdNote	Line height, paragraph spacing and heading scale only — font size stays with the row above
+panel.a11y.hitOn	Enlarge to 44×44
+panel.a11y.hitNote	Icon buttons get a 44px floor for touch; layout widens slightly
+panel.type.pxHint	≈{px}px body text
+panel.type.scaleMiss	UI text scaling did not take effect: no scalable font-size rule was found in the host stylesheets (please report this line)
+panel.type.widthRow	Transcript width
+panel.type.widthAria	Transcript width in pixels
+panel.type.widthPh	920
+panel.type.widthHint	Empty = 920 px by default (narrows automatically on small windows); enter 640–1600 to override. Only the width variable changes, never layout
+panel.type.fontRow	Font
+panel.type.fontPh	Use the theme’s own font
+panel.type.fontAria	UI font family
+panel.type.fontHint	Lists only fonts shipped with the plugin; an unavailable family never silently falls back
+panel.scale.small	Small
+panel.scale.default	Default
+panel.scale.large	Large
+panel.scale.xl	Extra large
+panel.scale.xxl	Huge
+panel.accent.title	Accent color
+panel.accent.note	Replaces the theme brand color on buttons and links
+panel.accent.row	Color
+panel.accent.swatchAria	Accent {hex}
+panel.accent.custom	Custom accent color
+panel.accent.reset	Restore theme color
+panel.qn.title	Right sidebar quick nav
+panel.qn.note	The icon rail under “Open right sidebar”; one click jumps to the matching tab
+panel.qn.row	Show
+panel.qn.aria	Quick nav display mode
+panel.qn.optThree	Three · expand on hover
+panel.qn.optAll	Show all
+panel.qn.optOff	Off
+panel.reset.armed	Click again to confirm
+panel.reset.label	Restore default settings
+panel.reset.hint	Clears all theme, mode, background, font size, accent color and font customizations
+theme.zhuoer	Zhuoer 原版红
+theme.absolutely	Absolutely · 极简
+theme.beacon	灯塔 · Beacon
+theme.crt	CRT · 终端
+theme.dash	Dash · 琥珀
+theme.knot	Knot · 绳结
+theme.manuscript	手稿 · Manuscript
+theme.miami	迈阿密 · Miami
+theme.phosphor	荧光 · Phosphor
+theme.rose	桃红 · Rose
+theme.tide	潮汐 · Tide
+theme.vintagePaper	Vintage Paper
+panel.foot.build	Build {ver} · keeps our stylesheet last so it wins over other plugins · settings stay in local localStorage
+panel.io.jsonAria	Theme JSON
+panel.io.exportTitle	Export theme JSON
+panel.io.importTitle	Import theme JSON
+panel.io.close	Close
+panel.io.exportHint	Select all and copy to share; contains this theme’s anchors only (not the 224 derived tokens). A custom background image is not included.
+panel.io.importHint	Paste JSON exported by someone else; it is added to the theme list.
+panel.io.import	Import
+panel.io.parseErr	JSON could not be parsed or is invalid (needs id/label/base plus --dsw-alias-* colors under dark/light)
+panel.err.title	The theme panel crashed: {msg}
+panel.err.retry	Retry
+panel.err.reload	Reload page
+panel.err.hint	If this keeps happening, send the message above to the author.
+panel.custom.newLabel	Custom {n}
+panel.custom.copySuffix	 copy
+panel.custom.limitErr	At most {n} custom themes; delete one before creating or importing another.
+panel.custom.dropped	{n} custom theme(s) exceed the limit of {max} and were ignored: {ids}
+panel.custom.droppedClose	Got it
+panel.a11y.live	Switched to {label}
+panel.theme.deleteConfirm	Click again to delete
+panel.alert.imgMax	Image must be under 3 MiB
+panel.alert.imgStore	This image is too large for local browser storage; please pick a smaller one.
+anchor.bg	Background
+anchor.text	Text
+anchor.border	Border
+anchor.brand	Brand primary
+anchor.brand2	Brand secondary
+anchor.danger	Danger
+anchor.warn	Warning
+anchor.success	Success
+preset.glass	Glassmorphism
+preset.brutal	Neo-brutalism
+preset.swiss	Swiss International
+preset.editorial	Editorial
+preset.luxe	Luxury minimal
+preset.organic	Organic
+preset.morandi	Morandi
+preset.paper	Paper
+preset.cyber	Cyber terminal
+preset.aurora	Aurora
+preset.devterm	Developer terminal
+preset.deepspace	Deep space
+panel.chat.texOff	Texture: not enabled · say "add a texture" if you want one

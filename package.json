@@ -7,6 +7,8 @@
     "coverage": "node scripts/coverage-report.mjs",
     "surface": "node scripts/token-surface.mjs",
     "verify:themes": "node scripts/verify-themes.mjs",
+    "sync:i18n": "node scripts/sync-i18n.mjs",
+    "check:i18n": "node scripts/sync-i18n.mjs --check",
     "sync:themes": "node scripts/sync-themes.mjs && node build.mjs",
     "check:themes": "node scripts/sync-themes.mjs --check",
     "verify:host": "node scripts/verify-host-contract.mjs",

@@ -78,7 +78,7 @@ The UI shown is the Chinese one (same components in English; see [README.md](REA
 | UI font | Override the UI font family; CJK glyphs fall back to the bundled subsets |
 | Right-sidebar quick nav | Three modes: off / show three with hover expansion / show all |
 | Import & export | Custom themes and all preferences export to JSON and import back; "Restore default settings" requires two clicks |
-| Multilingual | UI copy in Chinese and English, switching live with the host language; non-Chinese locales fall back to English (theme names are intentionally untranslated) |
+| Multilingual | UI copy in **8 languages** (中文 / English / 日本語 / Español / Français / Deutsch / Русский / Português), switching live with the host language; the set matches the host's own list exactly, and the gate fails if one is missing (theme names are intentionally untranslated) |
 
 ## Themes
 

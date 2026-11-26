@@ -16,7 +16,7 @@
  *   node scripts/verify-i18n.mjs           对账
  *   node scripts/verify-i18n.mjs --update  把当前条数写成新基线（只能收紧或不变）
  */
-import { readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { readFileSync, readdirSync, writeFileSync, existsSync } from 'node:fs'
 import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -178,3 +178,41 @@ if (better.length) {
   for (const b of better) console.log('  LESS     ' + b.rel + '：' + b.was + ' → ' + b.now + '（可 --update 收紧基线）')
 }
 console.log('PASS  裸中文没有增加')
+
+// ---- 词条一致性（i18n/*.json）----
+// 真源在 i18n/ 下（npm run sync:i18n 生成内联块）。这里查两件事：
+//   1) 各语言**键集完全相同**、且每个键的占位符集合相同——漏翻会直接显示原始键名；
+//   2) 宿主支持的语言**每一种都有词典**——这是「语言按 DSH 系统支持的语言来」的落点。
+const HOST_LOCALES = ['en', 'zh', 'ja', 'es', 'fr', 'de', 'ru', 'pt']
+const i18nDir = join(root, 'i18n')
+const langFiles = existsSync(i18nDir) ? readdirSync(i18nDir).filter((f) => f.endsWith('.json')).sort() : []
+const dicts = {}
+for (const f of langFiles) dicts[f.replace(/\.json$/, '')] = JSON.parse(readFileSync(join(i18nDir, f), 'utf8'))
+
+const ref = 'zh'
+const refKeys = Object.keys(dicts[ref] || {})
+const parityBad = []
+const ph = (s) => (String(s).match(/\{[A-Za-z0-9_]+\}/g) || []).sort().join(',')
+for (const [lang, dict] of Object.entries(dicts)) {
+  const keys = Object.keys(dict)
+  const missing = refKeys.filter((k) => !(k in dict))
+  const extra = keys.filter((k) => !refKeys.includes(k))
+  if (missing.length) parityBad.push(lang + ' 缺 ' + missing.length + ' 个键：' + missing.slice(0, 5).join(', '))
+  if (extra.length) parityBad.push(lang + ' 多 ' + extra.length + ' 个键：' + extra.slice(0, 5).join(', '))
+  for (const k of refKeys) {
+    if (!(k in dict)) continue
+    if (ph(dict[k]) !== ph(dicts[ref][k])) parityBad.push(lang + ' 占位符不一致：' + k)
+  }
+}
+const missingLangs = HOST_LOCALES.filter((l) => !dicts[l])
+if (missingLangs.length) parityBad.push('宿主支持但没有词典的语言：' + missingLangs.join(', '))
+const extraLangs = Object.keys(dicts).filter((l) => !HOST_LOCALES.includes(l))
+if (extraLangs.length) parityBad.push('词典里有宿主不支持的语言：' + extraLangs.join(', '))
+
+if (parityBad.length) {
+  console.error('')
+  for (const b of parityBad.slice(0, 20)) console.error('  - ' + b)
+  console.error('\nFAIL  词条一致性 ' + parityBad.length + ' 项（各语言键集/占位符必须一致，且覆盖宿主全部语言）')
+  process.exit(1)
+}
+console.log('OK    词条一致：' + Object.keys(dicts).length + ' 种语言 × ' + refKeys.length + ' 键，键集与占位符全对齐；宿主语言全覆盖（' + HOST_LOCALES.join('/') + '）')
