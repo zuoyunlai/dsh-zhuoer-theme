@@ -65,11 +65,6 @@ const STRUCTURAL = [/^--dsw-font/, /^--dsw-radius/, /^--dsw-elevation/]
 
 // 有意不跟锚点走的：每一项都要写清理由，否则下一个人只能猜
 const EXEMPT = {
-  '--dsw-alias-bg-mask-1': '遮罩层：浅色主题里是刻意压暗的灰幕，跟底色平移会失去遮罩感',
-  '--dsw-alias-bg-mask-2': '同上',
-  '--dsw-alias-bg-mask-3': '同上',
-  '--dsw-alias-bg-mask-photo': '同上（图片遮罩）',
-  '--dsw-alias-bg-mask-drop': '同上（拖放遮罩）',
   '--dsw-alias-button-tool-bar-fill-invisible': '隐藏态按钮：刻意透明/反色，跟底色会显形',
   '--dsw-alias-label-primary-foreground': '彩色按钮面上的文字：恒白/恒黑，跟锚点会失去对比',
   '--dsw-alias-label-primary-inverted': '反色文字：跟随方案（明暗）而非锚点',

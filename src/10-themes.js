@@ -782,6 +782,11 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
           ['--dsw-specific-sidebar-tint', 'shift'],
           ['--dsw-specific-sidebar-wash-top', 'shift'], ['--dsw-specific-sidebar-wash-top-clear', 'shift'],
           ['--dsw-specific-sidebar-wash-bottom', 'shift'], ['--dsw-specific-sidebar-wash-bottom-clear', 'shift'],
+          // 遮罩层：不再豁免。明度锁死在 2%–10%，只借底色的色相与低饱和，
+          // 这样弹窗外的幕布与面板同属一个色系，又仍然压得住内容。
+          ['--dsw-alias-bg-mask-1', 'veil'], ['--dsw-alias-bg-mask-2', 'veil'],
+          ['--dsw-alias-bg-mask-3', 'veil'], ['--dsw-alias-bg-mask-photo', 'veil'],
+          ['--dsw-alias-bg-mask-drop', 'veil'],
           // 自带语义色的「浅色块」（diff 增删、危险/强调悬停）：它们必须还是红/绿，
           // 不能被底色染成蓝 —— 所以走 tint（保自己的 H/S，只搬底色的明度差），不走 shift。
           ['--dsw-alias-interactive-bg-hover-accent', 'tint'],
@@ -923,6 +928,17 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
       return hslHex(m[0], m[1], l);
     }
 
+    // 遮罩：功能上必须还是「暗幕」，但色相要跟底色走。
+    // 否则暖色面板会压在一层冷黑幕上——实测「莫兰迪暖灰」深色：面板 #2b2522、幕外 #0b0d11，
+    // 两者对比 1.29，视觉上像弹窗悬在另一个界面里。
+    function veilMember(memberHex, baseAnchorHex, newAnchorHex) {
+      const m = hexHsl(memberHex);
+      const na = hexHsl(newAnchorHex);
+      if (!m || !na) return memberHex;
+      // 明度仍然锁在极暗（遮罩要能压住内容），只把色相/低饱和借过来。
+      const l = Math.max(0.02, Math.min(0.10, m[2]));
+      return hslHex(na[0], Math.min(0.35, na[1]), l);
+    }
     // 一组锚点落到目标表上：锚点直写，成员按各自 mode 派生。
     // 锚点没变（用户没调这一组，或反推值恰好等于原值）时整组跳过 —— 保证
     // 「不调就与 base 逐字节相同」这条身份性质对新增成员也成立，
@@ -936,6 +952,7 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
         if (!cur) return;
         if (pair[1] === 'same') { out[key] = nwHex; return; }
         if (pair[1] === 'tint') { out[key] = tintMember(cur, oldHex, nwHex); return; }
+        if (pair[1] === 'veil') { out[key] = veilMember(cur, oldHex, nwHex); return; }
         out[key] = shiftMember(cur, oldHex, nwHex);
       });
     }
@@ -1009,6 +1026,98 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
       return out;
     }
 
+    // ---- 层次地板 / 文字对比地板 / 少量覆盖 ----
+    // shiftMember 只保证「成员与锚点的明度差不变」。base 深色主题的层间差本来只有 2%，
+    // 把底色提亮成暖灰后，这 2% 在屏幕上就没了（实测 header 块与页面底同为 #211d1b）。
+    // 所以深色方案额外铺一条不含糊的阶梯。
+    const DEPTH_LADDER = [
+      ['--dsw-alias-bg-layer-1', 0.025], ['--dsw-alias-bg-layer-2', 0.05],
+      ['--dsw-alias-bg-layer-3', 0.075], ['--dsw-alias-bg-layer-4', 0.10],
+      ['--dsw-alias-card-fill', 0.035], ['--dsw-alias-settings-card-fill', 0.035],
+      ['--dsw-alias-card-tile-fill', 0.03], ['--dsw-alias-hovercard-bg', 0.06],
+      ['--dsw-specific-menu', 0.05], ['--dsw-menu-surface-fill', 0.05],
+      ['--dsw-alias-markdown-code-block', 0.05],
+    ];
+    function enforceDepth(out, scheme, on) {
+      if (!on || scheme !== 'dark') return out;
+      const bg = hexHsl(out['--dsw-alias-bg-base']);
+      if (!bg) return out;
+      DEPTH_LADDER.forEach(function (pair) {
+        const cur = hexHsl(out[pair[0]]);
+        if (!cur) return;
+        const target = Math.min(0.62, bg[2] + pair[1]);
+        if (cur[2] >= target) return;
+        out[pair[0]] = hslHex(cur[0], cur[1], target);
+      });
+      return out;
+    }
+
+    // 文字对比地板：shiftMember 把「锚点相对 base 的下移量」原样传给 secondary/tertiary，
+    // 用户给的 primary 比 base 暗时整条文字阶梯一起沉到底色附近——
+    // 实测第三方面板正文 2.33:1、标题 3.08:1、KPI 2.53:1，而 ensureReadableOn 只管彩底文字。
+    const TEXT_FLOOR = [
+      ['--dsw-alias-label-primary', 7],
+      ['--dsw-alias-label-secondary', 4.5],
+      ['--dsw-alias-label-tertiary', 3],
+      ['--dsw-alias-label-caption', 3],
+      ['--dsw-alias-label-dimmed', 3],
+      ['--dsw-alias-label-primary-dimmed', 4.5],
+      ['--dsw-alias-hovercard-label-secondary', 4.5],
+      ['--dsw-alias-hovercard-label-tertiary', 3],
+      ['--dsw-alias-toast-label', 4.5],
+      ['--dsw-alias-menu-icon', 3],
+      ['--dsw-alias-chart-tools', 3], ['--dsw-alias-chart-messages', 3],
+    ];
+    function relLumOf(hex) {
+      const rgb = parseHexColor(hex);
+      if (!rgb) return null;
+      const ch = rgb.map(function (v) {
+        const c = v / 255;
+        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+      });
+      return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
+    }
+    function contrastOn(a, b) {
+      const la = relLumOf(a), lb = relLumOf(b);
+      if (la === null || lb === null) return 0;
+      const hi = Math.max(la, lb), lo = Math.min(la, lb);
+      return (hi + 0.05) / (lo + 0.05);
+    }
+    function enforceTextFloor(out, on) {
+      if (!on) return out;
+      const bg = out['--dsw-alias-bg-base'];
+      const bgH = hexHsl(bg);
+      if (!bg || !bgH) return out;
+      const darkBg = bgH[2] < 0.5;
+      TEXT_FLOOR.forEach(function (pair) {
+        const cur = out[pair[0]];
+        if (!cur || contrastOn(cur, bg) >= pair[1]) return;
+        const hsl = hexHsl(cur);
+        if (!hsl) return;
+        for (let step = 1; step <= 100; step++) {
+          const l = darkBg ? Math.min(1, hsl[2] + step / 100) : Math.max(0, hsl[2] - step / 100);
+          const hex = hslHex(hsl[0], hsl[1], l);
+          if (contrastOn(hex, bg) >= pair[1]) { out[pair[0]] = hex; return; }
+        }
+      });
+      return out;
+    }
+
+    // 少量覆盖：允许直接指定**非锚点** alias token（侧栏、卡片面、代码块底等），
+    // 在派生与地板之后写入 —— 显式指定优先于派生。锚点本身不走这里（它们走 applyGroup），
+    // 避免出现「锚点说一套、覆盖说另一套」。
+    function applyOverrides(out, table) {
+      if (!table || typeof table !== 'object') return out;
+      const anchorSet = {};
+      ANCHOR_GROUPS.forEach(function (g) { anchorSet[g.anchor] = true; });
+      Object.keys(table).forEach(function (k) {
+        if (anchorSet[k]) return;
+        if (!/^--dsw-(alias|specific)-[a-z0-9-]+$/.test(k)) return;
+        if (!/^#[0-9a-fA-F]{6}$/.test(String(table[k]))) return;
+        out[k] = String(table[k]);
+      });
+      return out;
+    }
     // 只存锚点，其余从 base 主题克隆后派生
     function buildCustomTokens(spec, scheme) {
       // 只调浅色时，深色由浅色整表反推：底色/文字/边框三组反明度，
@@ -1042,7 +1151,11 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
           const oldHex2 = out[g.anchor];
           applyGroup(out, g, oldHex2, nwHex);
         });
-        return ensureReadableOn(out);
+        // 与浅色分支同样：只在底色/文字锚点被动过时才铺地板，避免改掉没调锚点的主题。
+        const lightT = (spec && spec.light) || {};
+        const touchBg = !!(lightT['--dsw-alias-bg-base'] || darkOver['--dsw-alias-bg-base']);
+        const touchText = !!(lightT['--dsw-alias-label-primary'] || darkOver['--dsw-alias-label-primary']);
+        return applyOverrides(enforceTextFloor(enforceDepth(ensureReadableOn(out), 'dark', touchBg), touchText), darkOver);
       }
       const base = Object.assign({}, tokensFor(spec.base, scheme));
       const anchors = (spec && spec[scheme]) || {};
@@ -1054,7 +1167,9 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
         const oldHex3 = base[g.anchor];
         applyGroup(base, g, oldHex3, nwHex);
       });
-      return ensureReadableOn(base);
+      const touchBg2 = !!anchors['--dsw-alias-bg-base'];
+      const touchText2 = !!anchors['--dsw-alias-label-primary'];
+      return applyOverrides(enforceTextFloor(enforceDepth(ensureReadableOn(base), scheme, touchBg2), touchText2), anchors);
     }
 
     // #endregion derive
@@ -1067,7 +1182,9 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
         const out = {};
         if (o && typeof o === 'object') {
           Object.keys(o).forEach(function (k) {
-            if (/^--dsw-alias-[a-z0-9-]+$/.test(k) && /^#[0-9a-fA-F]{6}$/.test(String(o[k]))) out[k] = String(o[k]);
+            // 允许 alias 与 specific 两类：少量覆盖要靠 --dsw-specific-*（气泡/输入框/侧栏）
+            // 才能真正改到「面」，只认 alias 时这些键会被静默丢弃。
+            if (/^--dsw-(alias|specific)-[a-z0-9-]+$/.test(k) && /^#[0-9a-fA-F]{6}$/.test(String(o[k]))) out[k] = String(o[k]);
           });
         }
         return out;

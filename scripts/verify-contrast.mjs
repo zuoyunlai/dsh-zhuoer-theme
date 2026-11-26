@@ -39,7 +39,7 @@ if (start < 0 || end < start) throw new Error('client.js 里找不到 #region de
 const region = src.slice(start, end);
 const helpers = [grabFn('hexHsl'), grabFn('hslHex'), grabFn('parseHexColor'), grabFn('toHexColor')].join('\n');
 const make = new Function('THEMES', 'THEME_IDS',
-  helpers + '\n' + region + '\nreturn { buildCustomTokens, STYLE_PRESETS, pickOnColor };');
+  helpers + '\n' + region + '\nreturn { buildCustomTokens, STYLE_PRESETS, pickOnColor, hexHsl, contrastOn };');
 const api = make(THEMES, THEME_IDS);
 
 const luminance = (hex) => {
@@ -166,6 +166,59 @@ for (const id of THEME_IDS) {
     }
   }
 }
+
+// 5) 自定义主题的派生地板（遮罩跟随 / 层次阶梯 / 文字地板 / 少量覆盖）
+// 合成一套「暖灰 + 低对比」深色主题：就是实测里出问题的那类组合
+// （面板 #2b2522、正文 #a89b92；幕外曾是冷黑 #0b0d11，正文实测 2.33:1、标题 3.08:1）。
+const customDark = {
+  base: 'dash', autoDark: false, font: {}, radiusScale: 1, light: {},
+  dark: {
+    '--dsw-alias-bg-base': '#2b2522',
+    '--dsw-alias-label-primary': '#a89b92',
+    '--dsw-alias-border-l1': '#4a4038',
+    '--dsw-alias-brand-primary': '#b08968',
+    '--dsw-alias-trajectory-accent': '#8c7b6b',
+    '--dsw-alias-state-error-primary': '#a05a4a',
+    '--dsw-alias-state-warn-primary': '#b08a4a',
+    '--dsw-alias-state-success-primary': '#6f8a63',
+    '--dsw-specific-bubble': '#3a332e',
+  },
+};
+const ct = api.buildCustomTokens(customDark, 'dark');
+const cbg = ct['--dsw-alias-bg-base'];
+check('自定义:暖灰 正文', ct['--dsw-alias-label-primary'], cbg);
+// 主文字地板比门禁的通用 4.5 更严：正文要 7:1，否则长段落读起来发虚。
+const priRatio = ratio(ct['--dsw-alias-label-primary'], cbg);
+if (priRatio === null || priRatio < 7) bad.push('自定义:暖灰 正文只 ' + Number(priRatio || 0).toFixed(2) + ':1（地板 7:1）');
+check('自定义:暖灰 次级', ct['--dsw-alias-label-secondary'], cbg);
+const terRatio = ratio(ct['--dsw-alias-label-tertiary'], cbg);
+if (terRatio === null || terRatio < 3) bad.push('自定义:暖灰 三级文字 ' + Number(terRatio || 0).toFixed(2) + ':1（地板 3:1）');
+// 阈值来自实测（同一套暖灰样本）：有地板 1.089/1.086/1.102/1.111，无地板 1.074/1.046/1.052/1.060。
+// 取 1.08 起跳，正好落在两者之间——把 enforceDepth 摘掉，这四条会一起红。
+const ladder = [
+  ['--dsw-alias-bg-layer-1', 1.08], ['--dsw-alias-bg-layer-2', 1.075],
+  ['--dsw-alias-bg-layer-3', 1.09], ['--dsw-alias-bg-layer-4', 1.10],
+];
+let prevSurface = cbg;
+for (const pair of ladder) {
+  const r2 = ratio(ct[pair[0]], prevSurface);
+  if (r2 === null || r2 < pair[1]) bad.push('自定义:暖灰 层次过平 ' + pair[0].replace('--dsw-alias-bg-', '') + ' vs 上一层 ' + Number(r2 || 0).toFixed(2) + ':1（地板 ' + pair[1] + '）');
+  prevSurface = ct[pair[0]];
+}
+const deepRatio = ratio(ct['--dsw-alias-bg-layer-4'], cbg);
+if (deepRatio === null || deepRatio < 1.35) bad.push('自定义:暖灰 最深层与底色只差 ' + Number(deepRatio || 0).toFixed(2) + ':1（地板 1.35）');
+const bgH = api.hexHsl(cbg), mH = api.hexHsl(ct['--dsw-alias-bg-mask-1']);
+if (!bgH || !mH) bad.push('自定义:暖灰 遮罩无法解析');
+else {
+  const dh = Math.abs(mH[0] - bgH[0]);
+  const dh2 = Math.min(dh, 360 - dh);
+  if (dh2 > 25) bad.push('自定义:暖灰 遮罩未跟随底色色相 Δh=' + dh2.toFixed(1) + '°（上限 25°）');
+  if (mH[2] > 0.14) bad.push('自定义:暖灰 遮罩不够暗 L=' + mH[2].toFixed(2) + '（上限 0.14）');
+}
+if (ct['--dsw-specific-bubble'] !== '#3a332e') bad.push('自定义:暖灰 少量覆盖未生效（--dsw-specific-bubble=' + ct['--dsw-specific-bubble'] + '）');
+// 身份性质：只换品牌色时不得改动底色层级（否则等于悄悄改掉所有老主题的外观）
+const brandOnly = api.buildCustomTokens({ base: 'dash', autoDark: false, font: {}, radiusScale: 1, light: {}, dark: { '--dsw-alias-brand-primary': '#b08968' } }, 'dark');
+if (brandOnly['--dsw-alias-bg-layer-1'] !== THEMES.dash.dark['--dsw-alias-bg-layer-1']) bad.push('只换品牌色却改动了底色层级（应保持 base 值）');
 
 // ---- 余量台账 ----
 // 默认模式：既查「过不过线」，也查「有没有比台账更低」。

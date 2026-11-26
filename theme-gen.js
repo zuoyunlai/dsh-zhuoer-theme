@@ -22,6 +22,7 @@ export const THEME_SYSTEM_PROMPT = [
   'brand-primary 与 trajectory-accent 要来自同一色相族或成互补关系；',
   '复古/终端风格：radiusScale 设 0、font.chat 设 "__mono__"；扁平/极简：radiusScale 设 0；',
   '两套都必须给全 8 个 key；任一不足 4 个即视为无效。',
+  '可选覆盖（每套最多 4 个，通常不需要）：只有当某个「面」必须与派生结果不同时才给额外键，例如 --dsw-specific-bubble（用户气泡）、--dsw-alias-card-fill（卡片面）、--dsw-alias-markdown-code-block（代码块底）、--dsw-alias-bg-mask-1（遮罩）。没把握就别给——派生已经会保证层次与对比度。',
 ].join('\n');
 
 // 模型返回的文本 → 主题 spec。
@@ -57,11 +58,29 @@ export function parseThemeSpec(raw) {
     });
     return out;
   };
+  const EXTRA_RE = /^--dsw-(alias|specific)-[a-z0-9-]+$/;
+  const MAX_EXTRA = 4;
+  // 少量覆盖：锚点之外的 alias/specific 键在派生之后写入（见客户端 applyOverrides）。
+  // 只收 4 个：给多了模型就会开始「手挑颜色」，把派生的层次与对比度保证绕过去。
+  const pickExtras = (o, anchors) => {
+    const out = {};
+    const src = o && typeof o === 'object' ? o : {};
+    Object.keys(src).forEach((k) => {
+      if (Object.keys(out).length >= MAX_EXTRA) return;
+      if (allowed.has(k) || anchors[k]) return;
+      if (!EXTRA_RE.test(k)) return;
+      const v = src[k];
+      if (typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v.trim())) out[k] = v.trim().toLowerCase();
+    });
+    return out;
+  };
   const light = pickAnchors(obj.light);
   if (Object.keys(light).length < 4) return null;
+  Object.assign(light, pickExtras(obj.light, light));
   // 深色是显式的一套锚点；不足 4 个就当作没给，由客户端退回 autoDark 反推。
   const darkSrc = pickAnchors(obj.dark);
   const darkOk = Object.keys(darkSrc).length >= 4;
+  if (darkOk) Object.assign(darkSrc, pickExtras(obj.dark, darkSrc));
   const font = obj.font && typeof obj.font === 'object' ? obj.font : {};
   return {
     label: typeof obj.label === 'string' && obj.label.trim() ? obj.label.trim().slice(0, 24) : 'AI 主题',

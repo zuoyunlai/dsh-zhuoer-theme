@@ -35,6 +35,19 @@
         if (typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v.trim())) light[g.anchor] = v.trim().toLowerCase();
       });
       if (Object.keys(light).length < 4) return null;
+      // 少量覆盖：锚点之外的 alias/specific 键（气泡、卡片面、代码块底、遮罩），最多 4 个。
+      const zrExtras = function (src2, anchors) {
+        const out = {};
+        Object.keys(src2 || {}).forEach(function (k) {
+          if (Object.keys(out).length >= 4) return;
+          if (anchors[k]) return;
+          if (!/^--dsw-(alias|specific)-[a-z0-9-]+$/.test(k)) return;
+          const v = src2[k];
+          if (typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v.trim())) out[k] = v.trim().toLowerCase();
+        });
+        return out;
+      };
+      Object.assign(light, zrExtras(src, light));
       // 显式深色锚点：≥4 个才算给了，否则交给 autoDark 反推。
       const dsrc = zrRec(m.dark) || {};
       const dark = {};
@@ -43,6 +56,7 @@
         if (typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v.trim())) dark[g.anchor] = v.trim().toLowerCase();
       });
       const darkOk = Object.keys(dark).length >= 4;
+      if (darkOk) Object.assign(dark, zrExtras(dsrc, dark));
       const font = zrRec(m.font) || {};
       return {
         label: typeof m.label === 'string' && m.label.trim() ? m.label.trim().slice(0, 24) : 'AI',
