@@ -9,6 +9,14 @@ A skin plugin that recolours the whole DSH UI: **12 built-in themes + 12 style p
 - Light / dark / follow-system is **two-way synced** with the host's Settings → Appearance: changing either side updates the other.
 - Current version **0.6.28**, MIT.
 
+## At a glance
+
+![12 built-in themes · light and dark](https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/docs/images/theme-grid.png)
+
+- **12 built-in themes + 12 style presets**, each with its own light and dark set (dark is authored, not derived from light).
+- **Contrast is measured**: 679 body/hint/semantic pairs clear 4.5:1 on both backgrounds — reproducible via `npm run coverage`.
+- **Theme engineering, not a skin pack**: 8 anchors derive 156 tokens; sample colours from a picture locally, or generate a theme from a chat message.
+
 ## Screenshots
 
 The UI shown is the Chinese one (same components in English; see [README.md](README.md)). Captured from a throwaway profile with an empty config, so no session or workspace data is visible.
