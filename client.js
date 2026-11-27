@@ -9358,6 +9358,9 @@ function applyTokens(theme, pref) {
           chat: typeof font.chat === 'string' ? font.chat : '',
         },
         radiusScale: typeof m.radiusScale === 'number' ? Math.max(0, Math.min(3, m.radiusScale)) : 1,
+        // R-10：底纹强度档位（0/1/2）。宿主只透传数值，压深规则在客户端（上面 zrPressLightBase）。
+        textureWeight: (typeof m.textureWeight === 'number' && isFinite(m.textureWeight))
+          ? Math.min(2, Math.max(0, Math.round(m.textureWeight))) : 0,
         // R-08：宿主只传预设 id（它不持有配方），圆角与字体的真源在客户端 STYLE_PRESETS。
         preset: (function () {
           const p = typeof m.preset === 'string' ? m.preset : '';
@@ -9465,6 +9468,28 @@ function applyTokens(theme, pref) {
         .catch(function () { return ''; });
     }
 
+    // R-10：浅色底色「为底纹让路」的档位。
+    // 为什么需要：底纹合成只保留比底色亮的像素，浅底明度 93~96% 时余量只有 20 级上下，
+    // 归一化会把线差压掉一半（实测 k=0.687、可见差 14.3）；压到明度 87.8% 压缩就解除（可见差 22.5，+57%）。
+    // 模型与取色都不会主动这么做——它们的目标是「亮且可读」，所以只能由参数显式指定。
+    // 只压不减：底色已经够深就原样返回（重复应用幂等，不会越压越黑）。
+    function zrPressLightBase(anchors, weight) {
+      // 档位 → 目标 HSL 明度。0 = 不动；1 = 87.8%（实测压缩解除、可见差 +57%）；2 = 82.4%（底纹自身到上限）。
+      const TIER_L = [1, 0.878, 0.824];
+      const out = Object.assign({}, anchors || {});
+      const w = Number(weight);
+      if (!isFinite(w) || w <= 0) return out;
+      const tier = Math.min(2, Math.round(w));
+      const key = '--dsw-alias-bg-base';
+      const hex = out[key];
+      if (typeof hex !== 'string' || !/^#[0-9a-fA-F]{6}$/.test(hex)) return out;
+      const hsl = hexHsl(hex);
+      if (!hsl) return out;
+      const target = TIER_L[tier];
+      if (!(hsl[2] > target)) return out;
+      out[key] = hslHex(hsl[0], hsl[1], target);
+      return out;
+    }
     // 预设 id → 圆角与字体的缺省值。客户端持有配方，宿主只传 id（见 R-08）。
     function zrPresetDefaults(id) {
       if (!id) return null;
@@ -9517,6 +9542,7 @@ function applyTokens(theme, pref) {
           font: saved.font || {},
           radiusScale: saved.radiusScale,
           preset: (spec && spec.preset) || '',
+          textureWeight: (spec && typeof spec.textureWeight === 'number') ? spec.textureWeight : 0,
           autoDark: !!saved.autoDark,
           bg: saved.bg ? { source: saved.bg.source, key: saved.bg.key, keyLight: saved.bg.keyLight } : null,
           textureDecision: (spec && spec.textureDecision === 'want') ? 'want' : 'no',
@@ -9555,7 +9581,8 @@ function applyTokens(theme, pref) {
         base: base,
         // 模型给了完整深色表就用它（autoDark 关掉），否则退回由浅色反推。
         dark: spec.dark || {},
-        light: spec.light,
+        // R-10：要底纹时才给底色让路；不需要底纹就一个字都不动。
+        light: zrPressLightBase(spec.light, spec.textureDecision === 'want' ? spec.textureWeight : 0),
         font: (function () {
           const f = spec.font || {};
           if (f.body || f.chat) return { body: f.body || '', chat: f.chat || '' };
@@ -9761,7 +9788,7 @@ function applyTokens(theme, pref) {
         try {
           const safe = zrApplyThemeSpec(t2);
           // 应用后重建 spec：除锚点外，来源标记与「另一套配色」也要带过去，否则一次应用就把换回入口丢掉了。
-          const next = { label: safe.label, light: Object.assign({}, target.light), dark: Object.assign({}, target.dark || {}), font: target.font, radiusScale: target.radiusScale, texture: target.texture || null, textureLight: target.textureLight || null, textureDecision: target.textureDecision, sampled: !!target.sampled, sampledHex: target.sampledHex, src: target.src, altLight: target.altLight, altDark: target.altDark };
+          const next = { label: safe.label, light: Object.assign({}, target.light), dark: Object.assign({}, target.dark || {}), font: target.font, radiusScale: target.radiusScale, textureWeight: target.textureWeight, texture: target.texture || null, textureLight: target.textureLight || null, textureDecision: target.textureDecision, sampled: !!target.sampled, sampledHex: target.sampledHex, src: target.src, altLight: target.altLight, altDark: target.altDark };
           setSpec(next);
           setDraft(next);
           setDone(true);

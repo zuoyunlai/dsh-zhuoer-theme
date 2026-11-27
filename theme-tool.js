@@ -77,6 +77,12 @@ export function zrApplyParams(spec, args) {
     if (ZR_PRESET_IDS.indexOf(preset) !== -1) out.preset = preset;
     else notes.push('preset 不在内置 12 套里，已忽略：' + preset);
   }
+  // R-10：底纹强度档位——只在「确实要底纹」时生效。
+  // 语义是「给底纹让出亮度余量」：0 不动 / 1 压到明度 87.8%（实测压缩解除）/ 2 压到 82.4%（到上限）。
+  // 不压深就等于白加一层几乎看不见的线：浅底明度 93~96% 时余量只有 20 上下。
+  if (typeof a.textureWeight === 'number' && isFinite(a.textureWeight) && a.texture === 'want') {
+    out.textureWeight = Math.max(0, Math.min(2, Math.round(a.textureWeight)));
+  }
   const fontRaw = String(a.font || '').trim();
   if (fontRaw) {
     const fam = zrFontFamily(fontRaw);
@@ -121,6 +127,8 @@ const OUTPUT_SCHEMA = {
     radiusScale: { type: 'number' },
     // R-08：显式指定的风格预设 id（圆角/字体的档位由客户端解析）。
     preset: { type: 'string' },
+    // R-10：底纹强度档位（0/1/2），由客户端在写盘前把浅色底色压深。
+    textureWeight: { type: 'number' },
     // R-07：生成路径的对比度体检报告（只有计数与是否通过）。
     // 为什么要进 schema：toOutput 只回声明过的键，不声明就等于把体检结果丢掉。
     contrastGate: {
@@ -184,6 +192,7 @@ function toOutput(spec, texture, textureLight, decision, ref) {
   if (Object.keys(dark).length >= 4) out.dark = dark;
   if (typeof src.radiusScale === 'number' && isFinite(src.radiusScale)) out.radiusScale = src.radiusScale;
   if (typeof src.preset === 'string' && src.preset) out.preset = src.preset;
+  if (typeof src.textureWeight === 'number' && isFinite(src.textureWeight)) out.textureWeight = src.textureWeight;
   // 只有真的跑过体检才下发（缺省不加键：值为 undefined 会被宿主判成 non-lossless）。
   if (src.gate && typeof src.gate === 'object') {
     out.contrastGate = { ok: src.gate.ok === true, fixes: Number(src.gate.fixes) || 0, weak: Number(src.gate.weak) || 0 };
@@ -212,6 +221,7 @@ function toMeta(value) {
   if (v.textureLight) meta.textureLight = v.textureLight;
   if (v.ref) meta.ref = v.ref;
   if (v.preset) meta.preset = v.preset;
+  if (typeof v.textureWeight === 'number') meta.textureWeight = v.textureWeight;
   if (v.contrastGate) meta.contrastGate = v.contrastGate;
   return meta;
 }
@@ -313,6 +323,10 @@ export function registerThemeTool(ctx, report, opts) {
         preset: {
           type: 'string',
           description: 'Built-in style preset id, one of: glass, brutal, swiss, editorial, luxe, organic, morandi, paper, cyber, aurora, devterm, deepspace. Sets radius/font defaults on the client when the model did not. Omit for none.',
+        },
+        textureWeight: {
+          type: 'number',
+          description: 'Texture depth 0-2, only meaningful with texture=want: 0 = leave the light base as chosen, 1 = press it to lightness 87.8% so the texture is not compressed away (+57% visibility), 2 = press to 82.4% (the ceiling). Omit for 0.',
         },
         font: {
           type: 'string',

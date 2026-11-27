@@ -101,5 +101,17 @@ ok('三个参数可以同时给，互不覆盖', () => {
   assert.deepEqual(r.spec.font, { body: 'Fira Code', chat: 'Fira Code' })
 })
 
+
+ok('textureWeight：只在 texture=want 时透传，并夹到 0–2', () => {
+  const w1 = zrApplyParams(spec(), { texture: 'want', textureWeight: 1 })
+  assert.equal(w1.spec.textureWeight, 1)
+  assert.equal(zrApplyParams(spec(), { texture: 'want', textureWeight: 9 }).spec.textureWeight, 2)
+  assert.equal(zrApplyParams(spec(), { texture: 'want', textureWeight: -1 }).spec.textureWeight, 0)
+  assert.equal(zrApplyParams(spec(), { texture: 'want', textureWeight: 1.6 }).spec.textureWeight, 2)
+  assert.equal(zrApplyParams(spec(), { texture: 'want', textureWeight: 'x' }).spec.textureWeight, undefined)
+  // 不要底纹时压深底色只是白白毁掉浅色观感 —— 直接不生效。
+  assert.equal(zrApplyParams(spec(), { texture: 'no', textureWeight: 2 }).spec.textureWeight, undefined)
+})
+
 console.log('')
 console.log('OK    生成参数：' + n + ' 例通过（' + ZR_FONT_FAMILIES.length + ' 族 / ' + ZR_PRESET_IDS.length + ' 预设）')
