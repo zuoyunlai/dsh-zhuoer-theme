@@ -192,6 +192,29 @@ window.__ModuleLoader__.load({
     // 流式输出时正文行数与输入框自增高会各自取整到不同侧，看起来就是底栏/正文轻微抖动。
     // 上游 PTC 的做法（2.5.0 #45）：输入区高度按设备像素对齐、正文行距改为整像素。
     // 这里的实现：把所有注入的 px 值拍到 1/dpr 的栅格上——只动数值精度，不动布局结构。
+    // ---- B1：故障隔离状态机 ----
+    // 为什么不是「失败一次就永久降级」：overrideTokens 的失败大多是临时的（宿主主题服务晚到、
+    // 宿主正在注入样式表、HMR 中途）。一次即弃会让用户看到「主题只生效一半」，而且没有任何原因。
+    // 上游 PTC 的隔离规则：明确不可用立即禁用；临时错误连续 3 次才禁用、成功一次清零；
+    // 参数错误 / 权限拒绝 / 业务失败不算故障。这里是它的纯函数版本（无 DOM，可无头测试）。
+    const ZR_ISOLATION_LIMIT = 3;
+    function isolationReducer(state, event) {
+      const s = state && typeof state === 'object'
+        ? { fails: state.fails | 0, offline: !!state.offline, tries: state.tries | 0 }
+        : { fails: 0, offline: false, tries: 0 };
+      const kind = event && event.kind;
+      if (kind === 'success' || kind === 'reset') return { fails: 0, offline: false, tries: 0 };
+      if (kind === 'fatal') return { fails: ZR_ISOLATION_LIMIT, offline: true, tries: 0 };
+      // 参数错误不算故障：传错了是我们自己的 bug，不该因此把主题关掉。
+      if (kind === 'argError') return { fails: s.fails, offline: s.offline, tries: s.tries };
+      if (kind === 'transient') {
+        const fails = s.fails + 1;
+        return { fails: fails, offline: fails >= ZR_ISOLATION_LIMIT, tries: s.tries };
+      }
+      if (kind === 'tick') return { fails: s.fails, offline: s.offline, tries: s.tries + 1 };
+      return s;
+    }
+
     function zrDpr() {
       try { return window.devicePixelRatio || 1; } catch (e) { return 1; }
     }
@@ -5050,6 +5073,8 @@ function findZrExtraSheet() {
     // apply 之后回读一个代表 token，与自己写进去的值比对，不一致就说明有别的插件在这之后覆盖了
     // 同一批变量。现状是靠高优先级分层硬压 + 为 dsh-theme-palette 专门打补丁，那只会越补越深。
     // （注释里刻意不写那个 CSS 关键字：verify:important 数的是整个 bundle 的文本，写进注释也会算一级。）
+    // B1：overrideTokens 的隔离状态（见 00-core 的 isolationReducer）。
+    let zrIso = { fails: 0, offline: false, tries: 0 };
     let zrConflictState = null;
     let zrConflictRaf = 0;
     // 纯函数（无 DOM，可无头测试）：判定是否被覆盖。
@@ -5598,7 +5623,11 @@ function applyTokens(theme, pref) {
         overrideMap[k] = { light: tokens[k], dark: tokens[k] };
       });
       let overrideApplied = false;
+      // B1：离线态下仍重试，但降频到每 5 次 apply 一次——真的不可用时不必每轮都抛一次错。
+      zrIso = isolationReducer(zrIso, { kind: 'tick' });
+      const isoSkip = zrIso.offline && (zrIso.tries % 5 !== 0);
       try {
+        if (isoSkip) throw Object.assign(new Error('isolated'), { __zrSkip: true });
         if (zrSkinDispose) {
           try { zrSkinDispose(); } catch (e) { /* 旧的已经不在了也无妨 */ }
           zrSkinDispose = null;
@@ -5606,8 +5635,19 @@ function applyTokens(theme, pref) {
         dispose = theme.overrideTokens(SOURCE, overrideMap) || (function () {});
         zrSkinDispose = dispose;
         overrideApplied = true;
+        // B1：成功一次就把计数清零，并退出离线态。
+        zrIso = isolationReducer(zrIso, { kind: 'success' });
       } catch (e) {
-        try { console.warn('[zhuoer-theme] overrideTokens 失败', (e && e.message) || e); } catch (e2) { /* ignore */ }
+        const msg = String((e && e.message) || e || '');
+        if (!(e && e.__zrSkip)) {
+          // 三类：参数错误（我们自己的 bug，不该关主题）/ 明确不可用 / 临时错误。
+          const kind = /bare string|invalid|参数/i.test(msg) ? 'argError'
+            : /is not a function|undefined|null/i.test(msg) ? 'fatal'
+            : 'transient';
+          zrIso = isolationReducer(zrIso, { kind: kind });
+          if (zrIso.offline) { try { report({ phase: 'theme-isolation', kind: kind, fails: zrIso.fails }); } catch (e3) { /* ignore */ } }
+        }
+        try { console.warn('[zhuoer-theme] overrideTokens 失败', msg); } catch (e2) { /* ignore */ }
       }
       // 兜底层：带 !important 的 CSS 变量表。
       // 与 dsh-theme-palette 等同样调用 overrideTokens 的插件共存时，

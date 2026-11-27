@@ -99,6 +99,26 @@ apply 之后读回 `--dsw-alias-label-primary` 的实际值，与自己写入值
 
 **门禁**：31 项检查（29 道门 + 语法 + 2 个测试）全绿。
 
+## 未发布 · 借鉴批 B1（2026-11-27：overrideTokens 故障隔离状态机）
+
+**为什么改**：原来 `overrideTokens` 失败一次就 `console.warn` 然后**永久**退回高优先级 CSS 兜底层，
+没有重试、没有恢复、也没有任何状态上报。而它失败的原因绝大多数是**临时**的：宿主主题服务晚到、
+宿主正在注入样式表、HMR 中途样式表不可读。用户看到的因此是「主题只生效一半」，且不知道为什么。
+
+**做法**（照上游 PTC 的隔离规则落地）：
+
+- `src/00-core.js`：新增纯函数 `isolationReducer(state, event)` 与 `ZR_ISOLATION_LIMIT = 3`。
+  规则：临时错误连续 3 次才离线；成功一次清零并退出离线；明确不可用立即离线；
+  参数错误（`bare string` / `invalid` / 参数 一类）**不计数**——那是我们自己的 bug，不该因此关掉主题。
+- `src/20-tokens-and-panel.js`：apply 时先 tick；离线态下仍重试但降频到每 5 次一次；
+  成功路径清零；失败路径按消息分类后喂给 reducer，离线时 `report({phase:'theme-isolation'})` 落一条记录。
+- 新增 `scripts/test-isolation.mjs`（8 例，已接进 `npm test`）：从 `client.js` 抠真实实现与阈值，
+  测试里不复制常量。
+
+**测试当场抓到一个真 bug**：reducer 里 `const s = state ? { fails: s.fails … } : …` 在自己的初始化式里
+引用了 `s`（TDZ），`client.js` 里这行会让每次 apply 都抛错——这类「一进主题就整片失效」的错误，
+静态门和渲染冒烟都未必抓得到，是无头测试先红的。
+
 ## 0.6.45 发布汇总（2026-11-27：视觉基线口径修正 + 两道新门 + 底图强度单一真值）
 
 这批按「先把已知问题修完」推进，五节：

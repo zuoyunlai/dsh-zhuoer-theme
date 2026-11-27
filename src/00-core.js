@@ -192,6 +192,29 @@ window.__ModuleLoader__.load({
     // 流式输出时正文行数与输入框自增高会各自取整到不同侧，看起来就是底栏/正文轻微抖动。
     // 上游 PTC 的做法（2.5.0 #45）：输入区高度按设备像素对齐、正文行距改为整像素。
     // 这里的实现：把所有注入的 px 值拍到 1/dpr 的栅格上——只动数值精度，不动布局结构。
+    // ---- B1：故障隔离状态机 ----
+    // 为什么不是「失败一次就永久降级」：overrideTokens 的失败大多是临时的（宿主主题服务晚到、
+    // 宿主正在注入样式表、HMR 中途）。一次即弃会让用户看到「主题只生效一半」，而且没有任何原因。
+    // 上游 PTC 的隔离规则：明确不可用立即禁用；临时错误连续 3 次才禁用、成功一次清零；
+    // 参数错误 / 权限拒绝 / 业务失败不算故障。这里是它的纯函数版本（无 DOM，可无头测试）。
+    const ZR_ISOLATION_LIMIT = 3;
+    function isolationReducer(state, event) {
+      const s = state && typeof state === 'object'
+        ? { fails: state.fails | 0, offline: !!state.offline, tries: state.tries | 0 }
+        : { fails: 0, offline: false, tries: 0 };
+      const kind = event && event.kind;
+      if (kind === 'success' || kind === 'reset') return { fails: 0, offline: false, tries: 0 };
+      if (kind === 'fatal') return { fails: ZR_ISOLATION_LIMIT, offline: true, tries: 0 };
+      // 参数错误不算故障：传错了是我们自己的 bug，不该因此把主题关掉。
+      if (kind === 'argError') return { fails: s.fails, offline: s.offline, tries: s.tries };
+      if (kind === 'transient') {
+        const fails = s.fails + 1;
+        return { fails: fails, offline: fails >= ZR_ISOLATION_LIMIT, tries: s.tries };
+      }
+      if (kind === 'tick') return { fails: s.fails, offline: s.offline, tries: s.tries + 1 };
+      return s;
+    }
+
     function zrDpr() {
       try { return window.devicePixelRatio || 1; } catch (e) { return 1; }
     }

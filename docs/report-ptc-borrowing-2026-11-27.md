@@ -268,6 +268,11 @@
 - 门禁：`verify:dpi` 绿（40 组 dpr × 字号 + 3 条硬期望 + 2 条反回归扫描）；`verify:scale` / `verify:important`（83 ≤ 83）/ `verify:build` / `node --check` 全 0；**31 项检查全绿**
 - 又踩一次「门扫的是整个 bundle 文本」：注释里写出旧的像素字面量会让 `verify:dpi` 判红，已改写注释并在门里注明。
 - 未做真机 125%/150% 截图对比（§5 待核实第 4 条仍未销）：本项按「数值可算」落地，观感需真机复核。
+### B1（2026-11-27 21:05）：故障隔离状态机
+
+- 改动面：`src/00-core.js`（`isolationReducer` + `ZR_ISOLATION_LIMIT`）、`src/20-tokens-and-panel.js`（tick/降频重试/成功清零/失败分类 + `theme-isolation` 上报）、新增 `scripts/test-isolation.mjs`、`package.json` 接进 `npm test`
+- 测试：8 例通过（阈值 3）；**首跑就抓到 TDZ 真 bug**（`const s` 在初始化式里引用 `s`），这类错误会让每次 apply 都抛、主题整片失效，静态门抓不到。
+- 未做：失败分类是**按消息正则**判的（bare string / invalid / 参数 → 参数错误；not a function / undefined / null → 明确不可用；其余 → 临时）。宿主换错误文案时分类会退化到 transient，属可接受退化（宁可多试 3 次，不要一次即弃）。
 
 ## 7. 收口汇总（待填）
 

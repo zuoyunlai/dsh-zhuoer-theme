@@ -72,6 +72,8 @@ function findZrExtraSheet() {
     // apply 之后回读一个代表 token，与自己写进去的值比对，不一致就说明有别的插件在这之后覆盖了
     // 同一批变量。现状是靠高优先级分层硬压 + 为 dsh-theme-palette 专门打补丁，那只会越补越深。
     // （注释里刻意不写那个 CSS 关键字：verify:important 数的是整个 bundle 的文本，写进注释也会算一级。）
+    // B1：overrideTokens 的隔离状态（见 00-core 的 isolationReducer）。
+    let zrIso = { fails: 0, offline: false, tries: 0 };
     let zrConflictState = null;
     let zrConflictRaf = 0;
     // 纯函数（无 DOM，可无头测试）：判定是否被覆盖。
@@ -620,7 +622,11 @@ function applyTokens(theme, pref) {
         overrideMap[k] = { light: tokens[k], dark: tokens[k] };
       });
       let overrideApplied = false;
+      // B1：离线态下仍重试，但降频到每 5 次 apply 一次——真的不可用时不必每轮都抛一次错。
+      zrIso = isolationReducer(zrIso, { kind: 'tick' });
+      const isoSkip = zrIso.offline && (zrIso.tries % 5 !== 0);
       try {
+        if (isoSkip) throw Object.assign(new Error('isolated'), { __zrSkip: true });
         if (zrSkinDispose) {
           try { zrSkinDispose(); } catch (e) { /* 旧的已经不在了也无妨 */ }
           zrSkinDispose = null;
@@ -628,8 +634,19 @@ function applyTokens(theme, pref) {
         dispose = theme.overrideTokens(SOURCE, overrideMap) || (function () {});
         zrSkinDispose = dispose;
         overrideApplied = true;
+        // B1：成功一次就把计数清零，并退出离线态。
+        zrIso = isolationReducer(zrIso, { kind: 'success' });
       } catch (e) {
-        try { console.warn('[zhuoer-theme] overrideTokens 失败', (e && e.message) || e); } catch (e2) { /* ignore */ }
+        const msg = String((e && e.message) || e || '');
+        if (!(e && e.__zrSkip)) {
+          // 三类：参数错误（我们自己的 bug，不该关主题）/ 明确不可用 / 临时错误。
+          const kind = /bare string|invalid|参数/i.test(msg) ? 'argError'
+            : /is not a function|undefined|null/i.test(msg) ? 'fatal'
+            : 'transient';
+          zrIso = isolationReducer(zrIso, { kind: kind });
+          if (zrIso.offline) { try { report({ phase: 'theme-isolation', kind: kind, fails: zrIso.fails }); } catch (e3) { /* ignore */ } }
+        }
+        try { console.warn('[zhuoer-theme] overrideTokens 失败', msg); } catch (e2) { /* ignore */ }
       }
       // 兜底层：带 !important 的 CSS 变量表。
       // 与 dsh-theme-palette 等同样调用 overrideTokens 的插件共存时，
