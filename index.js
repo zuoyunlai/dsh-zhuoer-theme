@@ -91,6 +91,27 @@ function writeJson(name, data) {
   } catch (e) { /* 诊断失败不影响插件 */ }
 }
 
+// ---- 诊断上报的 body 收集（导出以便无头测试）----
+// 为什么抽出来：这段逻辑只有「真发一个 >200 KB 的请求」才能观察到，而宿主侧改动
+// 要重启 DSH 才生效——把它做成纯函数后，单元测试可以直接验，不必每次重启宿主。
+// 规则：超过上限即停（不再累加、不再 O(n) 拷贝），只留头部 head 字供排障，并标记 truncated。
+export function zrBodyCollector(limit, head) {
+  const max = Number(limit) > 0 ? Number(limit) : 200000;
+  const keep = Number(head) > 0 ? Number(head) : 2000;
+  let body = '';
+  let truncated = false;
+  return {
+    push(chunk) {
+      if (truncated) return;
+      body += chunk;
+      if (body.length > max) {
+        truncated = true;
+        body = body.slice(0, keep);
+      }
+    },
+    result() { return { body: body, truncated: truncated }; },
+  };
+}
 export function apply(ctx, config) {
   // 对话里的主题生成工具：用户在 DSH 对话框说「给我一套赛博朋克配色」时，
   // 模型调用它生成主题 spec，对话流里出现色卡卡片，用户确认后才应用。
@@ -119,23 +140,19 @@ export function apply(ctx, config) {
         path: '/dsh-zhuoer-theme/api/report',
         handler: (req, res) => {
           if (!isOwnClient(req)) return rejectForeign(res);
-          let body = '';
-          let truncated = false;
+          const collector = zrBodyCollector(200000, 2000);
           try {
             req.on('data', (c) => {
-              // 旧写法是「先拼再截」：超过上限后每个 chunk 都要 slice 一次 200 KB（O(n) 拷贝），
+              // 旧写法是「先拼再截」：超过上限后每个 chunk 都要 slice 一次 200 KB（O(n) 拷贝)，
               // 而且截断落在 JSON 中间，解析必失败，落盘的是半截 JSON，排障时看不到内容。
               // 新写法：超限即停，只留头部 2 KB 供排障，并标记 truncated。
-              if (truncated) return;
-              body += c;
-              if (body.length > 200000) {
-                truncated = true;
-                body = body.slice(0, 2000);
-                // 不 destroy：destroy 掉请求就不会触发 end，响应也发不出去。
-                // 后面的 chunk 直接丢弃即可（不再有 O(n) 拷贝）。
-              }
+              // 收集逻辑在 zrBodyCollector 里（可被 scripts/test-report-body.mjs 无头验证）。
+              collector.push(c);
             });
             req.on('end', () => {
+              const got = collector.result();
+              const body = got.body;
+              const truncated = got.truncated;
               let parsed = null;
               try { parsed = JSON.parse(body); } catch (e) { parsed = { raw: String(body).slice(0, 2000), truncated: truncated }; }
               // 追加 JSONL：保留整条执行链，不被后一条覆盖
