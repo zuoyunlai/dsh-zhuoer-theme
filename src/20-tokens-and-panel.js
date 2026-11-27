@@ -357,7 +357,8 @@ function applyTokens(theme, pref) {
           if (!/^--dsw-font/.test(key)) return;
           const v = String(tokens[key]);
           tokens[key] = v.replace(/(\d+(?:\.\d+)?)px/g, function (m, n) {
-            return (Math.round(parseFloat(n) * fsK * 100) / 100) + 'px';
+            // B3：拍到 1/dpr 栅格，别留两位小数（16.1px 在 125% 下是 20.125 设备像素）。
+            return zrQ(parseFloat(n) * fsK, zrDpr()) + 'px';
           });
         });
       }
@@ -389,7 +390,7 @@ function applyTokens(theme, pref) {
                 const fs = r.style.fontSize;
                 if (!/^\d+(\.\d+)?px$/.test(fs)) continue;
                 if (out.length >= 8000) { stats.capped = true; return; }
-                out.push(r.selectorText + '{font-size:' + (Math.round(parseFloat(fs) * k * 100) / 100) + 'px !important;}');
+                out.push(r.selectorText + '{font-size:' + zrQ(parseFloat(fs) * k, zrDpr()) + 'px !important;}');
               }
             };
             for (let s = 0; s < sheets.length; s++) {
@@ -862,10 +863,15 @@ function applyTokens(theme, pref) {
         if (pref.fontScale && pref.fontScale !== 100) {
           const kk = pref.fontScale / 100;
           fxCss += ':root{'
-            + '--dsh-content-font-size:calc(14px * ' + kk + ');'
-            + '--dsh-content-font-size-secondary:calc(13px * ' + kk + ');'
-            + '--dsh-content-font-delta:calc(14px * ' + (Math.round((kk - 1) * 1000) / 1000) + ');'
-            + '--dsh-content-font-delta-secondary:calc(13px * ' + (Math.round((kk - 1) * 1000) / 1000) + ');'
+            // B3：不再交给 calc 保留小数，直接算成 px 并拍到 1/dpr 栅格。
+            // 原来交给 CSS 去乘（基准 14px × 缩放系数），1.15 时得 16.1px，125% 缩放下是 20.125 设备像素：行盒上下边各带 0.125 的
+            // （注释里刻意不写出那个函数名与像素字面量：本门扫的是整个 bundle 文本，写进注释也会判红。）
+            // 分数，正文行数与输入框自增高会各自取整到不同侧，看起来就是轻微抖动（上游 PTC #45）。
+            // delta 的语义是「与基准字号的像素差」，所以也按 px 落，别再写回乘数。
+            + '--dsh-content-font-size:' + zrQ(14 * kk, zrDpr()) + 'px;'
+            + '--dsh-content-font-size-secondary:' + zrQ(13 * kk, zrDpr()) + 'px;'
+            + '--dsh-content-font-delta:' + (Math.round((zrQ(14 * kk, zrDpr()) - 14) * 100) / 100) + 'px;'
+            + '--dsh-content-font-delta-secondary:' + (Math.round((zrQ(13 * kk, zrDpr()) - 13) * 100) / 100) + 'px;'
             + '}';
         }
         // 对话正文宽度：宿主 CSS 是 var(--dsh-chat-user-width, clamp(...))，所以只要给这个变量赋值，

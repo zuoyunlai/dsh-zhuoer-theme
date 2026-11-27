@@ -186,6 +186,22 @@ window.__ModuleLoader__.load({
     // 热更新时新旧闭包共用同一个键，新闭包会被旧闭包留下的 true 误判成「已探测」而整段跳过。
     let zrIconProbed = false;
 
+    // ---- B3：设备像素栅格 ----
+    // 为什么需要：125% / 150% 系统缩放下 devicePixelRatio 是 1.25 / 1.5，字号算出来的小数 px
+    // （例如 14 × 1.15 = 16.1）落在 20.125 设备像素上，行盒上下边各带 0.125 的分数；
+    // 流式输出时正文行数与输入框自增高会各自取整到不同侧，看起来就是底栏/正文轻微抖动。
+    // 上游 PTC 的做法（2.5.0 #45）：输入区高度按设备像素对齐、正文行距改为整像素。
+    // 这里的实现：把所有注入的 px 值拍到 1/dpr 的栅格上——只动数值精度，不动布局结构。
+    function zrDpr() {
+      try { return window.devicePixelRatio || 1; } catch (e) { return 1; }
+    }
+    function zrQ(v, dpr) {
+      const d = typeof dpr === 'number' && dpr > 0 ? dpr : 1;
+      const n = Number(v);
+      if (!isFinite(n)) return v;
+      return Math.round(n * d) / d;
+    }
+
     // 步骤图标探针：报告图标元素的**实际计算颜色**，用来核对「语义色有没有真的上上去」。
     function zrIconProbe() {
       // 不受 zrDebug 门控：每次会话最多发 6 次，量的是「图标实际计算颜色」这一个事实。
