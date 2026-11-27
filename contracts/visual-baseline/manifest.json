@@ -8,19 +8,19 @@
       "file": "settings-dark.png",
       "w": 559,
       "h": 2757,
-      "sha256": "a8e1c301406c457aaebb000ff4e09b11c475404b97affe8b1c483ef67fa77c64"
+      "sha256": "44886764942fc7e68b126b0eecddc0ae7b6089805bb5d0e90c53b49657c2e0d6"
     },
     {
       "file": "settings-light.png",
       "w": 559,
       "h": 2757,
-      "sha256": "f9c0101f8c83b7cf3de05e8b09b95183fdc8cf5702f4686cc6ab34fd106683e4"
+      "sha256": "f2b9fed74955ddbab2eb05dff689c469ed618bf28561574fa7bc7082a0d66134"
     },
     {
       "file": "settings-narrow.png",
       "w": 323,
       "h": 4116,
-      "sha256": "c0ad9b98c5160721c104f562248e2e312813ec2cdfbb84fd961e15aa97ae36dc"
+      "sha256": "7af80c3c8db4fc8e34bbbb0ccbf21c24981a83aae23fea2ea24052d4d35edb80"
     }
   ]
 }
