@@ -25,9 +25,22 @@ const bad = []
 // 1) 源码侧：Markdown 规则区的容器
 const src = readFileSync(join(root, 'src', '20-tokens-and-panel.js'), 'utf8')
 const fine = src.slice(src.indexOf('var MDC ='), src.indexOf('const nextCss = css + extra'))
+// 表格的精细规则已抽进纯函数 zrTableFineCss（便于无头断言），
+// 所以表格相关的检查必须把这段也纳入，否则会误报「没有 border-collapse」。
+const tableFn = (() => {
+  const a = src.indexOf('function zrTableFineCss')
+  const b = src.indexOf('function applyTokens')
+  return a >= 0 && b > a ? src.slice(a, b) : ''
+})()
+const fineAll = fine + tableFn
 if (fine && !fine.includes('.md-code-block')) bad.push('精细化规则里没有 .md-code-block（宿主代码块的类名是它）')
 if (fine && !fine.includes('blockquote')) bad.push('精细化规则里没有 blockquote')
-if (fine && !fine.includes('border-collapse')) bad.push('精细化规则里没有表格的 border-collapse')
+if (!fineAll.includes('border-collapse')) bad.push('精细化规则里没有表格的 border-collapse')
+// 真机反馈（2026-11-27）：宿主把首列左内边距归零（td:first-child{padding-left:0}，特异性 (0,2,1)），
+// 我们一画边框，首列内容就贴着竖线。补丁必须一直在，否则这个毛病会静默回归。
+if (tableFn && !tableFn.includes(':first-child{padding-left:10px;}')) {
+  bad.push('表格画边框时没有把首列左内边距补回来（首列内容会贴着竖线）')
+}
 const from = src.indexOf('const MD = {')
 const to = src.indexOf('const nextCss = css + extra')
 const block = from >= 0 && to > from ? src.slice(from, to) : ''

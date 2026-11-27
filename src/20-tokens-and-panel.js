@@ -326,6 +326,27 @@ function bgCssFor(o) {
     + 'html[data-zr-state="empty"][data-zr-bg-empty="0"] [class*="_centerCol"]::before,html[data-zr-state="empty"][data-zr-bg-empty="0"] [class*="_mainPanel"]::before,html[data-zr-state="session"][data-zr-bg-session="0"] [class*="_centerCol"]::before,html[data-zr-state="session"][data-zr-bg-session="0"] [class*="_mainPanel"]::before{display:none !important;}';
 }
 
+// 表格精细化的 CSS 片段（抽成纯函数，便于无头断言首末列内边距必须补回来）。
+// 宿主给 th/td 的是 padding:10px 16px，但**首列左、末列右刻意归零**：
+//   ._tableScroll_xxx th:first-child, td:first-child{padding-left:0}   特异性 (0,2,1)
+//   ._tableScroll_xxx td:last-child{padding-right:0}
+// 目的是让表格文字与正文左缘对齐。不画边框时无所谓；一旦画了边框，首列内容就贴着竖线
+// （用户真机截图实测：#f4e8d4 那颗 code 胶囊紧贴左边框）。
+// 所以只在画边框的两档（line / zebra）里，把首末列内边距用 :first-child / :last-child 补回来，
+// 特异性提到 (0,2,2) 压过宿主的 (0,2,1)。
+function zrTableFineCss(prefix, mode) {
+  if (mode !== 'line' && mode !== 'zebra') return '';
+  const p = String(prefix || '');
+  let css = p + ' table{border-collapse:collapse;}'
+    + p + ' :where(th,td){border:1px solid var(--dsw-alias-border-l2);padding:6px 10px;}'
+    + p + ' :where(th,td):first-child{padding-left:10px;}'
+    + p + ' :where(th,td):last-child{padding-right:10px;}';
+  if (mode === 'zebra') {
+    css += p + ' thead th{background:var(--dsw-alias-bg-layer-1);font-weight:600;}'
+      + p + ' tbody tr:nth-child(even){background:var(--dsw-alias-bg-layer-1);}';
+  }
+  return css;
+}
 function applyTokens(theme, pref) {
       theme = theme || themeRef;
       const scheme = resolveScheme(pref.mode, theme);
@@ -1063,14 +1084,8 @@ function applyTokens(theme, pref) {
             mdFine += MDC + ' .md-code-block{background:var(--dsw-alias-bg-layer-1);border-color:var(--dsw-alias-border-l1);}';
           }
         }
-        if (pref.mdTable === 'line' || pref.mdTable === 'zebra') {
-          mdFine += MDC + ' table{border-collapse:collapse;}'
-            + MDC + ' :where(th,td){border:1px solid var(--dsw-alias-border-l2);padding:6px 10px;}';
-          if (pref.mdTable === 'zebra') {
-            mdFine += MDC + ' thead th{background:var(--dsw-alias-bg-layer-1);font-weight:600;}'
-              + MDC + ' tbody tr:nth-child(even){background:var(--dsw-alias-bg-layer-1);}';
-          }
-        }
+        // 规则与理由见 zrTableFineCss（首末列内边距要塞回去，否则内容贴着竖线）。
+        mdFine += zrTableFineCss(MDC, pref.mdTable);
         if (pref.mdQuote === 'strong') {
           mdFine += MDC + ' blockquote{border-left:3px solid var(--dsw-alias-brand-primary);'
             + 'background:var(--dsw-alias-bg-layer-1);padding:8px 12px;'

@@ -12,7 +12,34 @@
 
 
 
-## 未发布 · R-10 底纹强度档位（2026-11-27：给浅色底色让出亮度余量）
+## 未发布 · 表格首列内边距（2026-11-27：真机反馈——首列内容贴着竖线）
+
+**现象**：对话里 markdown 表格选了「边框」档之后，首列内容（比如行内 code 胶囊）紧贴左边框，一点内边距都没有。
+
+**根因**：宿主 CSS **刻意**把首列左、末列右的 padding 归零——
+
+```
+._tableScroll_xxx th:first-child, ._tableScroll_xxx td:first-child { padding-left: 0 }   /* 特异性 (0,2,1) */
+._tableScroll_xxx td:last-child { padding-right: 0 }
+```
+
+目的是让表格文字与正文左缘对齐。我们原来写的是 `[class*="_markdown_"] :where(th,td){padding:6px 10px}`，
+`:where()` 贡献 0 特异性，整条只有 (0,1,2) —— 边框画上了、内边距却被宿主的 `:first-child` 清零。
+听起来像「边框少了 padding」，实际是**两条规则打架，我们输了**。
+
+**做法**：把表格精细化规则抽成纯函数 `zrTableFineCss`，在画边框的两档（line / zebra）里补两条——
+
+- `:where(th,td):first-child{padding-left:10px}`（特异性 (0,2,2)，压过宿主的 (0,2,1)）
+- `:where(th,td):last-child{padding-right:10px}`
+
+plain 档不产出任何规则，继续沿用宿主原本的左缘对齐（不画边框时对齐才是对的）。
+
+**验证**：`scripts/test-md-table.mjs` 6 例（plain 不产出 / 首末列补丁 / 边框仍在 / zebra 叠加 / 每条规则都带前缀 / 空前缀不抛错）；
+`verify:markdown-css` 增一条硬检查「画边框时必须补回首列内边距」——不然这个毛病会静默回归。`verify:all` 与 `npm test` 均 exit 0。
+
+**变更面**：只在 `mdTable=line/zebra` 时生效；plain 档与默认观感零变化。这条是 `client.js` 里的运行时 CSS，按一下刷新即生效，不必重启。
+
+## 未发布 · R-10 底纹强度档位（2026-11-27：给浅色底色留出亮度余量）
 
 **为什么改**：底纹合成只保留「比底色亮」的像素，而浅色主题的底色明度普遍在 93–96%，
 余量只有 20 级上下；归一化为了不撞 255 只能压缩（实测 k=0.687），于是「换一张更浓的底纹」也不见得更明显。
