@@ -53,6 +53,20 @@
 | 索引托管的硬约束 | ⚠️ 两条都踩过 | DSH 要求索引**不经重定向**返回 2xx。raw.githubusercontent.com 在本网络于 **Node 侧** ECONNRESET（curl 通不代表宿主通）；gitee.com/<owner>/<repo>/raw/… 会 302 跳到带签名的 raw.giteeusercontent.com，DSH 直接报 unexpected redirect。可用的公共 URL：https://ghproxy.net/https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/market/index.json（备用 gh-proxy.com 同格式） |
 | 社区清单 | ⏳ | 4 个 awesome-list 的 PR 仍 OPEN（见 `docs/catalog-submissions.md`），与官方市场无关 |
 
+## 2b. 发布前手工清单（无法机械化的那部分）
+
+CI 会跑 `verify:all`，但下面四类**只在你的机器上成立**，别指望 CI 替你发现：
+
+| 触发条件 | 必做 | 忘了会怎样 |
+|---|---|---|
+| 改了面板/抽屉/弹层的视觉 | 采 9 张 → `node scripts/shot-docs.mjs` → `verify-visual --capture` → `npm test` | 基线停在旧渲染，`verify:visual` 继续 0.000% 假绿 |
+| 改了 token 或面板 CSS | `verify-csssnap --capture visual/css-current`（需跑着新 bundle 的宿主） | `verify:csssnap` 红，或基线与实际不符 |
+| 换了底纹图 / 改了底色 | `npm run measure:texture` 重写契约 | `verify:texture` 报「换图未重测」 |
+| 升级过 DSH | `npm run gen:hosttext` + `node scripts/verify-host-drift.mjs` | 字号表过期；宿主改名导致的样式静默消失无人发现 |
+
+> 一次性宿主怎么起、9 张怎么采、六个坑在哪：`docs/live-verify.md`。
+> 症状排障（底纹看不见 / 改了没生效 / 各门红了）：`docs/troubleshooting.md`。
+
 ## 3. 自检工具与两个坑
 
 工具：`dsh-primer`（本机 v0.4.7，官方文档镜像 + `dsh-plugin-dev check` 16 项静态检查）。

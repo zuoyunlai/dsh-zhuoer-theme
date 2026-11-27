@@ -20,15 +20,45 @@ DSH="D:/Programs/DeepSeek Harness/resources/runtime/cli/bin/dsh.cmd"
 #    终端会打印 http://127.0.0.1:<port>/?token=<token> —— 用它打开，插件就活在这个实例里
 ```
 
-## 采集基线
+## 采集基线（9 张截图 + 两态注入 CSS）
 
-1. 视口设成 **1264×771**（`Emulation.setDeviceMetricsOverride`），打开 设置 → Zhuoer 主题；
-2. 浅色态：`截 .zp-root` → `visual/current/settings-light.png`；
-   `document.querySelectorAll('.zp-root style')` + id 以 `dsh-zhuoer-theme` 开头的 `<style>`，
-   按 DOM 序用 `/*===*/` 拼接 → `visual/css-current/plugin-light.css`；
-3. 点面板里的「深色」重复一次 → `settings-dark.png` / `plugin-dark.css`；
-4. 提升为基线：`node scripts/verify-visual.mjs --capture visual/current`、
-   `node scripts/verify-css-snapshot.mjs --capture visual/css-current`。
+### 口径
+
+**基线 = 视口内可见区，不是整块面板。** 面板比视口高（实测 2757px / 771），元素截图会被滚动容器
+拼成「内容 + 大片空白」——2026-11-27 的基线就是这么坏掉的，`verify:visual` 比它自己当然 0.000%（假绿）。
+真实用户看到的也只是一屏，所以基线就该是一屏。
+
+### 9 张各是什么
+
+| 文件 | 触发 | 尺寸 |
+|---|---|---|
+| `settings-light.png` / `settings-dark.png` | 设置 → Zhuoer 主题，面板可见区（`clip` 取 `.zp-root` 与视口的交集） | 559×693 |
+| `settings-narrow.png` | 视口 360×780 下同上 | 323×666 |
+| `editor-light.png` / `editor-dark.png` | 点 `.zp-th-add`（`+新建主题`）→ 抽屉；**裁可见的 392×771**（抽屉自身 scrollHeight 是 1973） | 392×771 |
+| `dialog-light.png` / `dialog-dark.png` | 点「导入 JSON」→ `.zp-json` | 359×270 |
+| `card-light.png` / `card-dark.png` | 第一张 `.zp-th` 元素 | 134×100 |
+
+### 步骤
+
+1. 视口 **1264×771**（`Emulation.setDeviceMetricsOverride`），打开 设置 → Zhuoer 主题；
+2. 三张主图：浅色/深色各截一次 `clip = .zp-root ∩ viewport`；再切 **360×780** 截窄视口；
+3. 特写：`.zp-th` → `.zp-th-add`（抽屉）→ `.zp-json`（弹层），明暗各一轮；
+4. 注入 CSS（两态）：`document.querySelectorAll('style')` 里取文本匹配 `/\\.zp-|dsh-wordmark-badge-clip|--zr-/` 的，
+   按 DOM 序用 `\n` 拼接（**必须用这套过滤，口径与旧基线一致**；换成「按 id 取 style」会多出一段）
+   → `visual/css-current/plugin-{light,dark}.css`；
+5. 校验并裁 docs 图：`node scripts/shot-docs.mjs`（`--check` 只校验不写）；
+6. 提升基线：`node scripts/verify-visual.mjs --capture visual/current`、
+   `node scripts/verify-css-snapshot.mjs --capture visual/css-current`；
+7. 复验 + 整链：`node scripts/verify-visual.mjs && node scripts/verify-css-snapshot.mjs && npm test`。
+
+### 六个必踩的坑（都真踩过）
+
+1. **视口覆盖只在单次自动化会话内有效**（跨调用失效），且必须在弹层**挂载前**设；事后设不重排；
+2. **元素截图会拼接**：面板/抽屉比视口高时，`.zp-root` 元素截图得到「内容 + 空白」，必须用 `clip` 取可见区；
+3. **指针悬停留 tooltip**：点完胶囊先把指针移到 (2,2) 再等 ~1s，否则气泡被裁进图里；
+4. **一次性 profile 会弹「预览版说明」**：先点「继续」，否则设置入口点不到；
+5. **图片 URL 不变**（`bg-dash.webp`）→ 浏览器可能用旧图，重启后按一次 `Ctrl+Shift+R`；
+6. **窄视口那次要是没重排**，三张图会字节相同——`shot-docs` 会直接报「与 xx 字节相同」。
 
 **为什么是面板本体而不是整窗**：整窗截图会把左侧会话列表、时间戳等**场景内容**焊进基线。
 换一个实例重采时，同样的代码也会因为会话历史不同而差异 4% 以上（实测 4.714%），

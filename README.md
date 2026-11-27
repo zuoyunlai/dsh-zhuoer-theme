@@ -444,7 +444,8 @@ llms.txt             给 AI agent 读的摘要（选主题/底图/持久化的�
    产物带 `slsa.dev/provenance/v1` 证明。
 4. **发版前若升级过 DSH**：先跑 `npm run gen:hosttext` 重抽宿主字号表（`src/15-host-text.js`），
    再 `node build.mjs`。不跑不会报错，只会让部分界面字号对不上表里的旧值。
-5. **发布后核对结果时要带缓存穿透**——npm 的 CDN 会缓存上一版，直接读会误判成「发布失败」：
+5. **发布前对照一遍 `docs/official-requirements.md` 的「2b 发布前手工清单」**：改过面板视觉要重采 9 张（`scripts/shot-docs.mjs`）、改过 token 要重采注入 CSS、换过底纹要重测纹理契约、升级过 DSH 要重抽字号表并跑漂移门。这几类 CI 判不了。
+6. **发布后核对结果时要带缓存穿透**——npm 的 CDN 会缓存上一版，直接读会误判成「发布失败」：
 
 ```bash
 curl -s "https://registry.npmjs.org/dsh-zhuoer-theme?t=$(date +%s)" | \

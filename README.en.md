@@ -431,7 +431,8 @@ Releases are tag-triggered in CI; never `npm publish` locally.
 2. Commit with `npm test` green, then run `npm run verify:release` (content hashes against HEAD), then tag `v<version>` and push.
 3. GitHub Actions validates the tag against the version, runs the gates, publishes to npm via OIDC and creates a Release with `slsa.dev/provenance/v1` attestation.
 4. **If DSH itself was upgraded before this release**: run `npm run gen:hosttext` first (re-extracts the host font-size table into `src/15-host-text.js`), then `node build.mjs`. Skipping it does not fail any gate; it only leaves some UI text sizes pointing at the previous host's numbers.
-5. **Verify the publish with a cache-busting read** — the npm CDN caches the previous version, so a plain read can look like a failed publish:
+5. **Walk `docs/official-requirements.md` §2b (pre-release manual checklist)** before releasing: panel visual changes need the 9 screenshots re-captured (`scripts/shot-docs.mjs`), token changes need the injected CSS re-captured, texture swaps need the texture contract re-measured, and a DSH upgrade needs the font table regenerated plus the drift gate run. CI cannot judge any of these.
+6. **Verify the publish with a cache-busting read** — the npm CDN caches the previous version, so a plain read can look like a failed publish:
 
 ```bash
 curl -s "https://registry.npmjs.org/dsh-zhuoer-theme?t=$(date +%s)" | \
