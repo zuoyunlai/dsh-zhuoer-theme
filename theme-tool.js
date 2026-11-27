@@ -184,6 +184,21 @@ function stashTexture(srcPath, getDir) {
 }
 // report 由 index.js 传入（落 plugin-status 同目录的 tool-status.json），
 // 目的是让「工具到底注册上没有」这件事在磁盘上可查，而不是靠猜。
+// 底纹成对校验（纯函数，导出以便无头测试 scripts/test-texture-pair.mjs）。
+// 规则：texture='want' 时深色与浅色两张**缺一不可**。
+// 为什么：客户端浅色路径缺图时会回落成「把深图反相当浅图用」（bgInvert 分支），
+// 实测表现为浅色模式整体偏色 5~10 级——用户看到的是「主题颜色不对」，但没有任何报错。
+// 与 R-13 同一个教训：靠工具描述约束模型等于没约束，要在执行期强制。
+export function zrTexturePairCheck(args) {
+  const decision = String((args && args.texture) || '').trim();
+  if (decision !== 'want') return { ok: true, decision: decision, missing: [] };
+  const hasDark = !!(args && typeof args.texturePath === 'string' && args.texturePath.trim());
+  const hasLight = !!(args && typeof args.texturePathLight === 'string' && args.texturePathLight.trim());
+  const missing = [];
+  if (!hasDark) missing.push('texturePath');
+  if (!hasLight) missing.push('texturePathLight');
+  return { ok: missing.length === 0, decision: decision, missing: missing };
+}
 export function registerThemeTool(ctx, report, opts) {
   const say = (obj) => { try { if (typeof report === 'function') report(obj); } catch (e) { /* ignore */ } };
   let disposer = null;
@@ -215,7 +230,7 @@ export function registerThemeTool(ctx, report, opts) {
         texture: {
           type: 'string',
           required: true,
-          description: 'Whether the user wants a background texture. Ask the user ONE direct question first, then pass \'want\' or \'no\'. \'want\' requires texturePath (plus texturePathLight for light mode).',
+          description: 'Whether the user wants a background texture. Ask the user ONE direct question first, then pass \'want\' or \'no\'. \'want\' requires BOTH texturePath (dark) and texturePathLight (light) - one alone is rejected.',
         },
         name: {
           type: 'string',
@@ -223,7 +238,7 @@ export function registerThemeTool(ctx, report, opts) {
         },
         texturePath: {
           type: 'string',
-          description: 'Optional absolute local path to a background texture image you generated (JPEG/PNG/WebP, <=3 MiB). Omit for a flat theme.',
+          description: 'Absolute local path to the DARK background texture image you generated (JPEG/PNG/WebP, <=3 MiB). Required when texture is want, together with texturePathLight.',
         },
         imagePath: {
           type: 'string',
@@ -231,7 +246,7 @@ export function registerThemeTool(ctx, report, opts) {
         },
         texturePathLight: {
           type: 'string',
-          description: 'Optional absolute local path to a LIGHT-mode variant of that texture (light base, faint strokes). Built-in themes ship two backgrounds because one dark image looks muddy under a light palette.',
+          description: 'Absolute local path to the LIGHT-mode variant of that texture (light base, faint strokes). Required when texture is want, together with texturePath. Built-in themes ship two backgrounds because one dark image looks muddy under a light palette.',
         },
       },
       output: {
@@ -256,8 +271,16 @@ export function registerThemeTool(ctx, report, opts) {
         if (decision !== 'want' && decision !== 'no') {
           throw new Error('texture 必须是 want 或 no：动手前先问用户要不要底纹，再按回答传值。');
         }
-        if (decision === 'want' && !(args && (args.texturePath || args.texturePathLight))) {
-          throw new Error('用户要底纹，但没给 texturePath（浅色模式还需 texturePathLight）。先按风格生成底图，拿到本地路径再重试。');
+        // R-04：底纹两张缺一不可（规则见 zrTexturePairCheck，导出以便无头测试）。
+        const pair = zrTexturePairCheck(args);
+        if (!pair.ok) {
+          if (pair.missing.length === 2) {
+            throw new Error('用户要底纹，但两张路径都没给（texturePath 深色 + texturePathLight 浅色，缺一不可）。先按风格生成两张底图，拿到本地路径再重试。');
+          }
+          if (pair.missing[0] === 'texturePath') {
+            throw new Error('缺深色底纹路径 texturePath（浅色那张不能顶替：反相用会在浅色模式偏色）。先补一张深色底图再重试。');
+          }
+          throw new Error('缺浅色底纹路径 texturePathLight（深色那张不能顶替：深图铺在浅底上会发闷）。先补一张浅色底图再重试。');
         }
         const prompt = args && typeof args.name === 'string' && args.name.trim()
           ? style + '\n主题名：' + args.name.trim()

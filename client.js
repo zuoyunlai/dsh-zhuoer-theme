@@ -3727,9 +3727,18 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
       };
       const bySat = palette.slice().sort(function (a, b) { return sat(b.hex) - sat(a.hex); });
       // 2.5 而不是 3.0：再低白字就真看不清了，再高压暗会让鲜绿（草地的绿）变橄榄灰
-      const brand = bySat.length ? ensureOnWhite(bySat[0].hex, 2.5) : text;
+      let brand = bySat.length ? ensureOnWhite(bySat[0].hex, 2.5) : text;
       // 次色用于图标/点缀/轨迹，会和底色同处一层，所以仍按底色校验
       const brand2 = bySat.length > 1 ? ensureVisible(bySat[1].hex, 2.2) : brand;
+      // R-02：深色方案的品牌色必须**对底色可见**（≥3:1）。
+      // 之前的漏洞：ensureOnWhite 只校验「按钮上的白字」，不管品牌色本身在深底上看不看得见——
+      // 实测深色取色方案 brand #173200 on bg #1c221c = 1.15:1，深色模式下品牌色基本消失，
+      // 而界面不报错、用户只会觉得「这个主题怪怪的」。
+      // 修法：深底时把品牌色推到对底 ≥3:1；同时补一个前景色锚点（深底上的品牌色是亮色，
+      // 白字压在上面会看不清），由调用方一起写进主题。
+      if (!lightPhoto) brand = ensureVisible(brand, 3.0);
+      // 前景色：品牌色变亮后（深底场景），白字压在上面读不清 → 用底色同族的深色做前景。
+      const foreground = !lightPhoto && lum01(brand) > 0.45 ? shadeColor(bg, -0.04) : '';
 
       // 边框直接从底色派生：比底色暗/亮一档，天然可见，
       // 也不会出现"从照片里挑到一个和底色同亮度的色"这种事故。
@@ -3740,7 +3749,14 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
       const danger = ensureVisible('#d92b2b', 3.0);
       const warn = ensureVisible('#b45309', 3.0);
 
-      return {
+      // R-02：补 success 锚点（系统要求 8 组，取色原来只给 7 组，success 回落基础主题，
+      // 可能与品牌色撞车）。来源：照片里最偏绿的次色；照片里没有绿就按底色派生一个中性绿。
+      const greenish = palette.filter(function (p) {
+        const c = parseHexColor(p.hex) || [0, 0, 0];
+        return c[1] - Math.max(c[0], c[2]) > 12;
+      }).sort(function (a, b) { return b.share - a.share; });
+      const success = greenish.length ? ensureVisible(greenish[0].hex, 3.0) : ensureVisible('#2e7d32', 3.0);
+      const out = {
         '--dsw-alias-bg-base': bg,
         '--dsw-alias-label-primary': text,
         '--dsw-alias-border-l1': border,
@@ -3748,7 +3764,12 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
         '--dsw-alias-trajectory-accent': brand2,
         '--dsw-alias-state-error-primary': danger,
         '--dsw-alias-state-warn-primary': warn,
+        '--dsw-alias-state-success-primary': success,
       };
+      // 品牌色被推到「对底 ≥3:1」时，它已经是亮色 → 白字压上去会看不清，
+      // 所以同时下发一个深色前景锚点（宿主用它做品牌色上的文字色）。
+      if (foreground) out['--dsw-alias-label-primary-foreground'] = foreground;
+      return out;
     }
 
     // #endregion palette
