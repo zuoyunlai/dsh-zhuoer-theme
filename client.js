@@ -5250,7 +5250,16 @@ function applyTokens(theme, pref) {
           + 'html[data-zr-a11y-hit="1"] button,html[data-zr-a11y-hit="1"] [role="button"],html[data-zr-a11y-hit="1"] a[href]{min-height:44px;min-width:44px;}'
           + 'html[data-zr-a11y-hit="1"] [class*="_iconBtn"],html[data-zr-a11y-hit="1"] [class*="_btn"]{min-height:44px;min-width:44px;}';
         // Markdown 排版：只动节奏，不动字号体系（字号由 fontScale 那三条通路负责）。
-        // 容器类 *_prose 是宿主给助手正文的稳定片段（15-host-text 的类名表里也在用）。
+        // 容器片段是 **_markdown_**（宿主的助手 Markdown 组件；CSS-module 名带构建哈希，
+        // 稳定片段取到下划线为止）。
+        //
+        // 踩过的坑：之前这里写的是 _prose —— 那是「工具详情 JSON 树」组件的 CSS-module 名
+        //（宿主里是 _1h1PMq_prose），跟助手正文毫无关系；[class*="_prose"] 恰好匹配到它，
+        // 于是「排版节奏」和「标题配色」两条全都打偏，界面上一点变化都没有。
+        // 教训：15-host-text.js 那张表是**按 px 字号**抽的，而 Markdown 规则用的是
+        // var(--dsw-font-markdown-*)（没有 px），所以它根本不会出现在那张表里 ——
+        // 不能拿它当「哪个类名是正文容器」的依据。要判断得看宿主里
+        // 「_markdown_xx h1{font:var(--dsw-font-markdown-h1)}」这样的规则。
         const MD = {
           compact: { lh: 1.5, p: 0.45, h1: 1.32, h2: 1.18, h3: 1.06, gap: 0.2, pad: 10 },
           normal: { lh: 1.7, p: 0.7, h1: 1.5, h2: 1.3, h3: 1.12, gap: 0.4, pad: 12 },
@@ -5258,23 +5267,23 @@ function applyTokens(theme, pref) {
         };
         const md = MD[pref.mdDensity] || MD.normal;
         const mdCss = ''
-          + '[class*="_prose"]{line-height:' + md.lh + ' !important;}'
-          + '[class*="_prose"] p{margin-block:' + md.p + 'em;}'
-          + '[class*="_prose"] h1{font-size:' + md.h1 + 'em;line-height:1.25;margin:1.2em 0 .5em;}'
-          + '[class*="_prose"] h2{font-size:' + md.h2 + 'em;line-height:1.3;margin:1.1em 0 .45em;}'
-          + '[class*="_prose"] h3{font-size:' + md.h3 + 'em;line-height:1.35;margin:1em 0 .4em;}'
-          + '[class*="_prose"] ul,[class*="_prose"] ol{margin-block:' + md.gap + 'em;padding-inline-start:1.4em;}'
-          + '[class*="_prose"] li{margin-block:' + (md.gap / 2) + 'em;}'
-          + '[class*="_prose"] blockquote{margin-block:' + md.gap + 'em;padding:' + (md.pad - 2) + 'px ' + md.pad + 'px;}'
-          + '[class*="_prose"] pre{padding:' + md.pad + 'px;line-height:1.55;}'
-          + '[class*="_prose"] table{margin-block:' + md.gap + 'em;}';
+          + 'html [class*="_markdown_"]{line-height:' + md.lh + ' !important;}'
+          + 'html [class*="_markdown_"] p{margin-block:' + md.p + 'em;}'
+          + 'html [class*="_markdown_"] h1{font-size:' + md.h1 + 'em;line-height:1.25;margin:1.2em 0 .5em;}'
+          + 'html [class*="_markdown_"] h2{font-size:' + md.h2 + 'em;line-height:1.3;margin:1.1em 0 .45em;}'
+          + 'html [class*="_markdown_"] h3{font-size:' + md.h3 + 'em;line-height:1.35;margin:1em 0 .4em;}'
+          + 'html [class*="_markdown_"] ul,html [class*="_markdown_"] ol{margin-block:' + md.gap + 'em;padding-inline-start:1.4em;}'
+          + 'html [class*="_markdown_"] li{margin-block:' + (md.gap / 2) + 'em;}'
+          + 'html [class*="_markdown_"] blockquote{margin-block:' + md.gap + 'em;padding:' + (md.pad - 2) + 'px ' + md.pad + 'px;}'
+          + 'html [class*="_markdown_"] pre{padding:' + md.pad + 'px;line-height:1.55;}'
+          + 'html [class*="_markdown_"] table{margin-block:' + md.gap + 'em;}';
         // 标题配色：宿主只给了 h1/h2/h4 的字体 token，没有颜色 token。
         // 所以这层由我们从「品牌色 + 正文色」推：soft 用 55/45 混，brand 用 80/20 混（混正文能保住对比度）。
         // 用 color-mix 而不是预先算 hex：主题换色、强调色、明暗切换时它自动跟着走，不用重算。
         const headCss = pref.mdHeading === 'follow' ? ''
           : (pref.mdHeading === 'brand'
-            ? 'html[data-zr-mdhead="brand"] [class*="_prose"] h1,html[data-zr-mdhead="brand"] [class*="_prose"] h2,html[data-zr-mdhead="brand"] [class*="_prose"] h3,html[data-zr-mdhead="brand"] [class*="_prose"] h4{color:color-mix(in srgb,var(--dsw-alias-brand-primary) 80%,var(--dsw-alias-label-primary));}'
-            : 'html[data-zr-mdhead="soft"] [class*="_prose"] h1,html[data-zr-mdhead="soft"] [class*="_prose"] h2,html[data-zr-mdhead="soft"] [class*="_prose"] h3,html[data-zr-mdhead="soft"] [class*="_prose"] h4{color:color-mix(in srgb,var(--dsw-alias-brand-primary) 55%,var(--dsw-alias-label-primary));}');
+            ? 'html[data-zr-mdhead="brand"] [class*="_markdown_"] h1,html[data-zr-mdhead="brand"] [class*="_markdown_"] h2,html[data-zr-mdhead="brand"] [class*="_markdown_"] h3,html[data-zr-mdhead="brand"] [class*="_markdown_"] h4,html[data-zr-mdhead="brand"] [class*="_markdown_"] h5,html[data-zr-mdhead="brand"] [class*="_markdown_"] h6{color:color-mix(in srgb,var(--dsw-alias-brand-primary) 80%,var(--dsw-alias-label-primary));}'
+            : 'html[data-zr-mdhead="soft"] [class*="_markdown_"] h1,html[data-zr-mdhead="soft"] [class*="_markdown_"] h2,html[data-zr-mdhead="soft"] [class*="_markdown_"] h3,html[data-zr-mdhead="soft"] [class*="_markdown_"] h4,html[data-zr-mdhead="soft"] [class*="_markdown_"] h5,html[data-zr-mdhead="soft"] [class*="_markdown_"] h6{color:color-mix(in srgb,var(--dsw-alias-brand-primary) 55%,var(--dsw-alias-label-primary));}');
         const nextCss = css + extra + bgCss + fxCss + brandCss + a11yCss + mdCss + headCss;
         const styleEl = ensureStyle();
         if (styleEl.__zrCss !== nextCss) {

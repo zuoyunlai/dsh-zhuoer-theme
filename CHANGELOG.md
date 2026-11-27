@@ -12,6 +12,24 @@
 
 
 
+## 0.6.37（未发布：修 Markdown 规则打偏）
+
+**用户实测：「标题配色设置后无变化」。根因不是规则写错，是**目标容器找错了**。
+
+- 宿主真正的助手 Markdown 容器是 **`_markdown_13jw0_5`**（CSS-module 名，稳定片段 `_markdown_`），
+  规则形如 `._markdown_13jw0_5 h1{font:var(--dsw-font-markdown-h1)}`；标题颜色是从容器
+  `color:var(--dsw-alias-label-primary)` **继承**下来的。
+- 而 `_prose` 是宿主「工具详情 JSON 树」组件的类名（`_1h1PMq_prose`），与助手正文毫无关系；
+  `[class*="_prose"]` 恰好匹配到它。
+- 因此 **0.6.31 的「排版节奏」与 0.6.32 的「标题配色」两条设置全都打偏**，界面上一点变化都没有。
+- 教训记在代码注释里：`src/15-host-text.js` 那张表是**按 px 字号**抽的，而 Markdown 规则用的是
+  `var(--dsw-font-markdown-*)`（没有 px），所以它根本不会出现在那张表里——
+  不能拿它当「哪个类名是正文容器」的依据。
+- **新门禁** `verify:markdown`：查我们的 Markdown 规则区必须用 `_markdown_`、不得出现 `_prose`，
+  并（在能读到宿主 app.asar 时）断言宿主里确实存在
+  「`_markdown_xx h1{font:var(--dsw-font-markdown-h1)}`」这条规则——同名片段可能属于别的组件，
+  光有片段名不算证据。
+- 顺带把标题配色的选择器补到 h5/h6（宿主用 `:where(h5,h6)` 给字体，之前只覆盖 h1–h4）。
 ## 0.6.36（未发布：界面 8 语言）
 
 语言集改为**跟宿主完全一致**——宿主 app.asar 里的清单是 `[en, zh, ja, es, fr, de, ru, pt]`（8 种；之前扫到的 34 个语言标记里有 26 个宿主并未翻译）。
