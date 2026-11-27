@@ -502,8 +502,10 @@ export function apply(ctx, config) {
         } catch (e) { /* 资源路由失败不影响主题 */ }
       }
 
+      // 这一份会**覆盖** apply() 里那份：容易忘记同步字段。lastTheme 是读取方的唯一入口，必须两边都有。
       writeJson('plugin-status.json', {
         version: VERSION, phase: 'endpoint-mounted', at: new Date().toISOString(),
+        lastTheme: path.join(dir(), 'last-theme.json'),
       });
     } catch (e) {
       writeJson('plugin-status.json', {
