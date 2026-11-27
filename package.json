@@ -1,6 +1,6 @@
 {
   "name": "dsh-zhuoer-theme",
-  "version": "0.6.34",
+  "version": "0.6.41",
   "type": "module",
   "scripts": {
     "gen:hosttext": "node scripts/gen-host-text.mjs",
