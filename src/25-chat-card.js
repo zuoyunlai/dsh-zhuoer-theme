@@ -139,10 +139,27 @@
         .catch(function () { return ''; });
     }
 
+    // 这套 spec 会克隆哪个 base 主题。zrApplyThemeSpec 与 zrResolveBg 共用这一处判据，
+    // 否则会出现「底纹按 A 主题的底色对齐、主题却克隆了 B」的静默漂移。
+    function zrBaseThemeId() {
+      const pref = readPref();
+      const cur = customSpec(pref);
+      return THEME_IDS.indexOf(pref.theme) !== -1 ? pref.theme : (cur ? cur.base : 'zhuoer');
+    }
+
     // 深色、浅色各取一张：与内置主题一致（BG / BG_SOFT），一张深图铺在浅底上会发闷。
+    // R-01：取回后先按该方案的 bg-base 归一化（对齐底色 + 极性翻转）。
+    // 不做这一步，「浅底 + 暗线」的图在浅色模式里会被 lighten 合成整片吃掉，且没有任何报错。
     function zrResolveBg(spec) {
+      const baseId = zrBaseThemeId();
       return Promise.all([zrFetchTexture(spec && spec.texture), zrFetchTexture(spec && spec.textureLight)])
-        .then(function (r) { return { dark: r[0] || '', light: r[1] || '' }; });
+        .then(function (r) {
+          return Promise.all([
+            zrTexNormalizeUrl(r[0], zrTexTargetBg(spec, 'dark', baseId)),
+            zrTexNormalizeUrl(r[1], zrTexTargetBg(spec, 'light', baseId)),
+          ]);
+        })
+        .then(function (n) { return { dark: n[0] || '', light: n[1] || '' }; });
     }
 
     // 写盘 + 立即应用。必须复用 sanitizeCustomSpec，否则这条路会绕过主题规格校验。
@@ -154,8 +171,8 @@
         const e = new Error('custom-theme-limit'); e.code = 'limit'; throw e;
       }
       // 自定义主题的 base 只能取内置主题：当前若停在自定义主题上，就退回它的 base。
-      const cur = customSpec(pref);
-      const base = THEME_IDS.indexOf(pref.theme) !== -1 ? pref.theme : (cur ? cur.base : 'zhuoer');
+      // 判据与 zrResolveBg 共用 zrBaseThemeId，避免底纹与主题克隆到不同的 base。
+      const base = zrBaseThemeId();
       let id = '';
       do {
         id = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);

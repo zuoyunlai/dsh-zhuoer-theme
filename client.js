@@ -302,6 +302,8 @@ window.__ModuleLoader__.load({
     // 缓存上限：用户换十几次底图就会在内存里留十几次大字符串（每张 data URL 可到几 MB）。
     // Map 保持插入序，满了丢最旧的（LRU）。
     const ZR_CACHE_MAX = 12;
+  // 底纹归一化的画布上限（R-01）：只影响内存与重编码耗时，不改可见尺寸。
+  const ZR_TEX_NORM_EDGE = 1000;
     function zrCachePut(map, key, value, protectedKeys) {
       if (map.has(key)) { map.delete(key); map.set(key, value); return value; }
       map.set(key, value);
@@ -3773,6 +3775,163 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
     }
 
     // #endregion palette
+    // #region texture-normalize
+    // 底纹归一化（R-01 / F-01 F-02）：把「模型画的图」变成「能按 lighten 合成的线稿」。
+    // 为什么必须落在客户端：判定极性与对齐底色都要读像素，服务端没有 canvas。
+    // 两个动作：
+    //   ① 把图的底色平移到目标 bg-base（原来图底 #16101C 铺在 #0b0518 上，整页偏色 5~10 级）；
+    //   ② 极性翻转——线稿比底色暗时，lighten 合成（只留比底色亮的像素）会把线条整片吃掉，
+    //      表现为「浅色模式看不见底纹」，而且没有任何报错。
+    // 只改内存像素、不碰原图；任何一步失败都回原值（fail-open：归一化是增强，不该让底纹消失）。
+
+    // 底色采样：底纹是满幅图，底色一定出现在四条边上；用 16 级分桶取众数，
+    // 而不是均值——线稿的线会把均值从底色上拉偏。
+    function zrTexBaseRgb(data, w, h) {
+      if (!data || !w || !h || data.length < w * h * 4) return null;
+      const band = Math.max(1, Math.min(6, Math.round(Math.min(w, h) * 0.03)));
+      const buckets = new Map();
+      const add = function (x, y) {
+        const i = (y * w + x) * 4;
+        if (data[i + 3] < 16) return;
+        const key = (data[i] >> 4) + ',' + (data[i + 1] >> 4) + ',' + (data[i + 2] >> 4);
+        const cur = buckets.get(key);
+        if (cur) { cur.n++; cur.r += data[i]; cur.g += data[i + 1]; cur.b += data[i + 2]; }
+        else buckets.set(key, { n: 1, r: data[i], g: data[i + 1], b: data[i + 2] });
+      };
+      for (let y = 0; y < h; y++) {
+        const edgeY = y < band || y >= h - band;
+        for (let x = 0; x < w; x++) {
+          if (edgeY || x < band || x >= w - band) add(x, y);
+        }
+      }
+      let best = null;
+      buckets.forEach(function (b) { if (!best || b.n > best.n) best = b; });
+      if (!best) return null;
+      return [Math.round(best.r / best.n), Math.round(best.g / best.n), Math.round(best.b / best.n)];
+    }
+
+    function zrTexHex(rgb) {
+      return '#' + [rgb[0], rgb[1], rgb[2]].map(function (v) {
+        return Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0');
+      }).join('');
+    }
+
+    // 平移 + 极性 + 余量压缩。返回统计，供 scripts/test-texture-normalize.mjs 断言。
+    function zrTexNormalizePixels(data, w, h, targetHex) {
+      const tgt = parseHexColor(targetHex);
+      if (!tgt || !data || !w || !h || data.length < w * h * 4) return { ok: false, reason: 'bad-input' };
+      const base = zrTexBaseRgb(data, w, h);
+      if (!base) return { ok: false, reason: 'no-base' };
+      const delta = [tgt[0] - base[0], tgt[1] - base[1], tgt[2] - base[2]];
+      const lum = function (r, g, b) { return 0.299 * r + 0.587 * g + 0.114 * b; };
+      const clamp = function (v) { return v < 0 ? 0 : (v > 255 ? 255 : v); };
+      const tgtLum = lum(tgt[0], tgt[1], tgt[2]);
+      const step = Math.max(1, Math.floor(Math.sqrt((w * h) / 12000)));
+      // 第一遍（抽样）：平移之后，线条相对目标是偏亮还是偏暗
+      let inkN = 0, inkSum = 0;
+      for (let y = 0; y < h; y += step) {
+        for (let x = 0; x < w; x += step) {
+          const i = (y * w + x) * 4;
+          if (data[i + 3] < 16) continue;
+          const off = lum(clamp(data[i] + delta[0]), clamp(data[i + 1] + delta[1]), clamp(data[i + 2] + delta[2])) - tgtLum;
+          if (off > 6 || off < -6) { inkN++; inkSum += off; }
+        }
+      }
+      // 线条比底色暗 → 翻转。lighten 只留比底色亮的像素，不翻就等于没有底纹。
+      const flipped = inkN > 0 && (inkSum / inkN) < 0;
+      // 第二遍（抽样）：墨差分布。合成走 lighten，线条最终只会朝 255 那一侧走，
+      // 而浅底（目标亮度 245）只剩 10 级余量：不压缩，翻转后的暗线会被 255 截成一片平白。
+      // 取 p98 而不是最大值——水印、边角反光这类离群像素不该把整张底纹压到看不见。
+      const offs = [];
+      for (let y = 0; y < h; y += step) {
+        for (let x = 0; x < w; x += step) {
+          const i = (y * w + x) * 4;
+          if (data[i + 3] < 16) continue;
+          const off = Math.abs(lum(clamp(data[i] + delta[0]), clamp(data[i + 1] + delta[1]), clamp(data[i + 2] + delta[2])) - tgtLum);
+          if (off > 6) offs.push(off);
+        }
+      }
+      let p98 = 0;
+      if (offs.length) {
+        offs.sort(function (a, b) { return a - b; });
+        p98 = offs[Math.floor(0.98 * (offs.length - 1))] || 0;
+      }
+      const lumMargin = Math.max(4, 255 - tgtLum);
+      let k = p98 > 0 ? Math.min(1, (lumMargin * 0.92) / p98) : 1;
+      // 下限 0.02：只有亮度余量被压到近乎为零（目标色已贴 255）才会触到，
+      // 那时底纹本来就只能极淡，压成更淡没有意义。
+      if (!(k > 0.02)) k = 0.02;
+      const sign = flipped ? -1 : 1;
+      let changed = false, inkMax = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        const r = Math.round(clamp(tgt[0] + sign * k * (clamp(data[i] + delta[0]) - tgt[0])));
+        const g = Math.round(clamp(tgt[1] + sign * k * (clamp(data[i + 1] + delta[1]) - tgt[1])));
+        const b = Math.round(clamp(tgt[2] + sign * k * (clamp(data[i + 2] + delta[2]) - tgt[2])));
+        if (r !== data[i] || g !== data[i + 1] || b !== data[i + 2]) changed = true;
+        if (data[i + 3] >= 16) {
+          const d = Math.abs(lum(r, g, b) - tgtLum);
+          if (d > inkMax) inkMax = d;
+        }
+        data[i] = r; data[i + 1] = g; data[i + 2] = b;
+      }
+      return {
+        ok: true,
+        base: zrTexHex(base),
+        target: String(targetHex).toLowerCase(),
+        delta: delta,
+        flipped: flipped,
+        k: Math.round(k * 1000) / 1000,
+        inkDelta: Math.round(inkMax * 10) / 10,
+        changed: changed,
+      };
+    }
+
+    // 把归一化套到一张 data URL 上；失败一律回原 URL。
+    function zrTexNormalizeUrl(url, targetHex) {
+      return new Promise(function (resolve) {
+        if (!url || typeof url !== 'string') { resolve(''); return; }
+        if (!targetHex) { resolve(url); return; }
+        try {
+          if (typeof document === 'undefined' || typeof Image === 'undefined') { resolve(url); return; }
+          const img = new Image();
+          img.onerror = function () { resolve(url); };
+          img.onload = function () {
+            try {
+              const scale = Math.min(1, ZR_TEX_NORM_EDGE / Math.max(img.width, img.height));
+              const w = Math.max(1, Math.round(img.width * scale));
+              const h = Math.max(1, Math.round(img.height * scale));
+              const cv = document.createElement('canvas');
+              cv.width = w; cv.height = h;
+              const ctx = cv.getContext('2d');
+              if (!ctx) { resolve(url); return; }
+              ctx.drawImage(img, 0, 0, w, h);
+              const id = ctx.getImageData(0, 0, w, h);
+              const rep = zrTexNormalizePixels(id.data, w, h, targetHex);
+              if (!rep.ok || !rep.changed) { resolve(url); return; }
+              ctx.putImageData(id, 0, 0);
+              // 必须 PNG：底纹可能是透明线稿，转 JPEG 会把 alpha 压成黑底。
+              resolve(cv.toDataURL('image/png') || url);
+            } catch (e) { resolve(url); }
+          };
+          img.src = url;
+        } catch (e) { resolve(url); }
+      });
+    }
+
+    // 目标底色：spec 自己给的锚点优先，否则退回它要克隆的 base 主题。
+    function zrTexTargetBg(spec, scheme, baseId) {
+      const a = (spec && spec[scheme]) || {};
+      const v = a['--dsw-alias-bg-base'];
+      if (typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v)) return v.toLowerCase();
+      try {
+        const toks = tokensFor(baseId, scheme);
+        const b = toks && toks['--dsw-alias-bg-base'];
+        if (typeof b === 'string' && /^#[0-9a-fA-F]{6}$/.test(b)) return b.toLowerCase();
+      } catch (e) { /* ignore */ }
+      return '';
+    }
+    // #endregion texture-normalize
+
     // ---------- 风格预设 ----------
     // 每套 = 7 个浅色锚点 + 圆角档 + 字体，有的再带一套深色锚点。
     // 为什么不是"只有颜色"：风格差异主要靠圆角与字体撑起来（直角+等宽=终端感，
@@ -9068,10 +9227,27 @@ function applyTokens(theme, pref) {
         .catch(function () { return ''; });
     }
 
+    // 这套 spec 会克隆哪个 base 主题。zrApplyThemeSpec 与 zrResolveBg 共用这一处判据，
+    // 否则会出现「底纹按 A 主题的底色对齐、主题却克隆了 B」的静默漂移。
+    function zrBaseThemeId() {
+      const pref = readPref();
+      const cur = customSpec(pref);
+      return THEME_IDS.indexOf(pref.theme) !== -1 ? pref.theme : (cur ? cur.base : 'zhuoer');
+    }
+
     // 深色、浅色各取一张：与内置主题一致（BG / BG_SOFT），一张深图铺在浅底上会发闷。
+    // R-01：取回后先按该方案的 bg-base 归一化（对齐底色 + 极性翻转）。
+    // 不做这一步，「浅底 + 暗线」的图在浅色模式里会被 lighten 合成整片吃掉，且没有任何报错。
     function zrResolveBg(spec) {
+      const baseId = zrBaseThemeId();
       return Promise.all([zrFetchTexture(spec && spec.texture), zrFetchTexture(spec && spec.textureLight)])
-        .then(function (r) { return { dark: r[0] || '', light: r[1] || '' }; });
+        .then(function (r) {
+          return Promise.all([
+            zrTexNormalizeUrl(r[0], zrTexTargetBg(spec, 'dark', baseId)),
+            zrTexNormalizeUrl(r[1], zrTexTargetBg(spec, 'light', baseId)),
+          ]);
+        })
+        .then(function (n) { return { dark: n[0] || '', light: n[1] || '' }; });
     }
 
     // 写盘 + 立即应用。必须复用 sanitizeCustomSpec，否则这条路会绕过主题规格校验。
@@ -9083,8 +9259,8 @@ function applyTokens(theme, pref) {
         const e = new Error('custom-theme-limit'); e.code = 'limit'; throw e;
       }
       // 自定义主题的 base 只能取内置主题：当前若停在自定义主题上，就退回它的 base。
-      const cur = customSpec(pref);
-      const base = THEME_IDS.indexOf(pref.theme) !== -1 ? pref.theme : (cur ? cur.base : 'zhuoer');
+      // 判据与 zrResolveBg 共用 zrBaseThemeId，避免底纹与主题克隆到不同的 base。
+      const base = zrBaseThemeId();
       let id = '';
       do {
         id = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);

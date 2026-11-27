@@ -302,6 +302,8 @@ window.__ModuleLoader__.load({
     // 缓存上限：用户换十几次底图就会在内存里留十几次大字符串（每张 data URL 可到几 MB）。
     // Map 保持插入序，满了丢最旧的（LRU）。
     const ZR_CACHE_MAX = 12;
+  // 底纹归一化的画布上限（R-01）：只影响内存与重编码耗时，不改可见尺寸。
+  const ZR_TEX_NORM_EDGE = 1000;
     function zrCachePut(map, key, value, protectedKeys) {
       if (map.has(key)) { map.delete(key); map.set(key, value); return value; }
       map.set(key, value);
