@@ -278,6 +278,19 @@
 - 改动面：`src/00-core.js`（`ZR_TEXT_COVER_MIN` + `zrTextCoverage`）、`src/20-tokens-and-panel.js`（两处判据改覆盖率 + `host-text` 上报）、新增 `scripts/test-textmode.mjs`、`package.json`
 - 测试：5 例通过（全读到 / 只读到 30 条 / 恰好踩阈值 / 读空 / 无静态表可对）
 - 面板行未做：留到 C 批，避免一轮里改两次 UI 让快照反复重采（已在 CHANGELOG 写明）。
+### C1（2026-11-27 22:40）：编辑器抽屉可拖宽
+
+- 改动面：`src/00-core.js`（`zrClampEdW` + 三常量）、`src/10-themes.js`（`editorWidth` 偏好）、`src/20-tokens-and-panel.js`（CSS 变量宽度 + 6px 热区 + 拖动/键盘/双击 + 首帧读偏好）、新增 `scripts/test-drawer.mjs`、`package.json`
+- 测试：5 例通过（320–640，默认 392）
+- 门禁：`npm run verify:all` **exit 0**（本轮环境已能跑完整 29 项，`verify:syntax` 的 EPERM 尾巴消失了）
+- 未做：真实浏览器里的拖动手感（`smoke-panel` 不渲染抽屉打开态）；C2/C4/C5 未开工。
+
+### 纠错（2026-11-27 22:40）：C3 原本就不缺
+
+- 报告 §2 写「主题只有 `anchor.danger` 语义色，没有危险按钮」——**错的**。代码里已有 `.zp-btn[data-tone="danger"]`、
+  `.is-armed` 两段式确认，并且在三处用着（编辑器恢复克隆值、删除自定义主题、面板恢复默认设置）。
+- 说明这与 B2 是同一类错误：**先看报告、后看代码**。本轮把 C 批逐条对回代码后，C3 撤销，
+  C1 是真缺口，C2（等待态最短停留）/ C4（说明行）/ C5（卡只留最新）仍待办。
 ### B2（2026-11-27 22:05）：宿主指纹进契约（**原判断有误，已收窄**）
 
 - **纠错**：报告原写「34 处未进契约」是错的。`verify-host-contract` 本来就在做双向对账，实测 23 个类名片段 + 11 个属性 + 1 个 id 片段**全部已登记**。我把「用法处数」当成了「未登记数」。

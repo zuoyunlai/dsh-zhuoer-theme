@@ -209,6 +209,8 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
           // 形状版本随每次写入落盘：writePref 走 Object.assign(readPref(), patch)，
           // 所以任何一次设置写入都会把 specV 一起写回，不需要单独的迁移步骤。
           specV: SPEC_V,
+          // C1：编辑器抽屉宽度（可拖、可键盘调、双击回默认）。越界值在这里一次收敛。
+          editorWidth: zrClampEdW(p.editorWidth),
           droppedCustomIds: dropped,
           mode: p.mode === 'light' || p.mode === 'dark' ? p.mode : 'auto',
           bgSource: ['none', 'theme', 'image'].indexOf(p.bgSource) !== -1 ? p.bgSource : 'none',

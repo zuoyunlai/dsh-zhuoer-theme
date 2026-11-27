@@ -234,6 +234,18 @@ window.__ModuleLoader__.load({
       };
     }
 
+    // ---- C1：编辑器抽屉宽度 ----
+    // 392px 是设计值，但调色时经常想更宽（8 组锚点 + 十六进制 + 对比比值要并排看）。
+    // 范围 320–640：低于 320 六列网格会挤断，高于 640 会把主界面压没（CSS 的 max-width:94vw 再兜一层）。
+    const ZR_ED_W_DEFAULT = 392;
+    const ZR_ED_W_MIN = 320;
+    const ZR_ED_W_MAX = 640;
+    function zrClampEdW(v) {
+      const n = Number(v);
+      if (!isFinite(n) || n <= 0) return ZR_ED_W_DEFAULT;
+      return Math.min(ZR_ED_W_MAX, Math.max(ZR_ED_W_MIN, Math.round(n)));
+    }
+
     function zrDpr() {
       try { return window.devicePixelRatio || 1; } catch (e) { return 1; }
     }

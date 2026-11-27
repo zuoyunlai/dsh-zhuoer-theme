@@ -1554,10 +1554,17 @@ function applyTokens(theme, pref) {
       // ---- 编辑器 ----
       '.zp-ed{position:fixed;inset:0;z-index:2147483000;pointer-events:none;}',
       'html[data-windows-titlebar] .zp-ed-panel{top:var(--dsh-windows-titlebar-height,34px);}',
-      '.zp-ed-panel{pointer-events:auto;position:absolute;left:0;top:0;bottom:0;width:392px;max-width:94vw;',
+      '.zp-ed-panel{pointer-events:auto;position:absolute;left:0;top:0;bottom:0;width:var(--zp-ed-w,392px);max-width:94vw;',
       'display:flex;flex-direction:column;gap:12px;padding:16px;overflow:auto;background:var(--dsw-alias-bg-base);',
       'border-right:1px solid var(--dsw-alias-border-l2);',
       'box-shadow:var(--dsw-elevation-panel);}',
+      // C1：左边缘 6px 拖拽热区。视觉上是 2px 竖线，热区放大到 6px 才拖得着（与宿主分隔条同一手法）。
+      '.zp-ed-rz{position:absolute;left:0;top:0;bottom:0;width:6px;cursor:col-resize;',
+      'background:transparent;border:0;padding:0;touch-action:none;}',
+      '.zp-ed-rz::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;',
+      'background:var(--dsw-alias-border-l2);opacity:0;transition:opacity .12s ease;}',
+      '.zp-ed-rz:hover::before,.zp-ed-rz:focus-visible::before{opacity:1;}',
+      '.zp-ed-rz:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:-2px;}',
       '.zp-ed-hd{position:sticky;top:-16px;z-index:2;display:flex;align-items:center;justify-content:space-between;',
       'gap:8px;margin:-16px -16px 0;padding:14px 16px 10px;background:var(--dsw-alias-bg-base);',
       'border-bottom:1px solid var(--dsw-alias-border-l1);}',
@@ -2232,8 +2239,54 @@ function applyTokens(theme, pref) {
         setPalette(null);
       };
 
+      // C1：拖宽 / 方向键微调 / 双击复位。
+      // 拖动期间只改 CSS 变量（不写 localStorage），松手才落盘——否则每移动一像素就序列化一次 JSON。
+      const setEdW = function (w, persist) {
+        const v = zrClampEdW(w);
+        try { if (panelRef.current) panelRef.current.style.setProperty('--zp-ed-w', v + 'px'); } catch (e) { /* ignore */ }
+        if (persist) { try { writePref({ editorWidth: v }); } catch (e) { /* ignore */ } }
+        return v;
+      };
+      const edWnow = function () {
+        try { return panelRef.current ? panelRef.current.getBoundingClientRect().width : 0; } catch (e) { return 0; }
+      };
+      const onRzDown = function (ev) {
+        try {
+          const startX = ev.clientX;
+          const base = edWnow() || zrClampEdW(readPref().editorWidth);
+          const move = function (e2) { setEdW(base + (e2.clientX - startX), false); };
+          const up = function () {
+            document.removeEventListener('pointermove', move, true);
+            document.removeEventListener('pointerup', up, true);
+            setEdW(edWnow(), true);
+          };
+          document.addEventListener('pointermove', move, true);
+          document.addEventListener('pointerup', up, true);
+          if (ev.preventDefault) ev.preventDefault();
+        } catch (e) { /* ignore */ }
+      };
+      const onRzKey = function (ev) {
+        const cur = edWnow() || zrClampEdW(readPref().editorWidth);
+        const step = ev.shiftKey ? 32 : 8;
+        if (ev.key === 'ArrowLeft') { setEdW(cur - step, true); if (ev.preventDefault) ev.preventDefault(); }
+        else if (ev.key === 'ArrowRight') { setEdW(cur + step, true); if (ev.preventDefault) ev.preventDefault(); }
+        else if (ev.key === 'Home') { setEdW(ZR_ED_W_MIN, true); if (ev.preventDefault) ev.preventDefault(); }
+        else if (ev.key === 'End') { setEdW(ZR_ED_W_MAX, true); if (ev.preventDefault) ev.preventDefault(); }
+      };
+
       return h('div', { className: 'zp-ed', role: 'dialog', 'aria-modal': 'true', 'aria-label': t('panel.ed.dialogAria') },
-        h('div', { className: 'zp-ed-panel', ref: panelRef },
+        h('div', {
+          className: 'zp-ed-panel',
+          ref: panelRef,
+          // C1：宽度从偏好读，首帧就是上次的宽度（不靠 effect，避免 392 → 500 跳一帧）。
+          style: { '--zp-ed-w': zrClampEdW(readPref().editorWidth) + 'px' },
+        },
+          h('button', {
+            type: 'button', className: 'zp-ed-rz', tabIndex: 0,
+            'aria-label': t('panel.ed.dialogAria'),
+            onPointerDown: onRzDown, onKeyDown: onRzKey,
+            onDoubleClick: function () { setEdW(ZR_ED_W_DEFAULT, true); },
+          }),
           h('div', { className: 'zp-ed-hd' },
             h('div', { className: 'zp-ed-ttl' }, t('panel.ed.title')),
             h('button', {
