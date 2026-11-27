@@ -131,24 +131,16 @@
       },
       {
         "fragment": "-menu",
-        "usedFor": "TODO 补语义：用在哪",
-        "breaksIfMissing": "TODO 补语义：失效后果"
+        "usedFor": "宿主下拉菜单的类名形态之一（另有 _menu 与 [role=menu]）。extraCssFor 用它把菜单底色改成 --dsw-specific-menu",
+        "breaksIfMissing": "宿主菜单保持自己的默认底色，与主题面板不同色，在深色主题下会出现一块突兀的浅色浮层"
       },
       {
         "fragment": "_menu",
-        "usedFor": "TODO 补语义：用在哪",
-        "breaksIfMissing": "TODO 补语义：失效后果"
+        "usedFor": "宿主下拉菜单的另一种类名形态（CSS Modules 各组件命名不一致，故 _menu / -menu / [role=menu] 三种都覆盖）",
+        "breaksIfMissing": "同 -menu：这一类菜单漏改底色，主题下出现不协调浮层"
       },
-      {
-        "fragment": "dsh-pet",
-        "usedFor": "TODO 补语义：用在哪",
-        "breaksIfMissing": "TODO 补语义：失效后果"
-      },
-      {
-        "fragment": "zp-",
-        "usedFor": "TODO 补语义：用在哪",
-        "breaksIfMissing": "TODO 补语义：失效后果"
-      },
+
+
       {
         "fragment": "_btn",
         "usedFor": "可访问性「放大点击区」开关打开时，给按钮/图标按钮一个 44×44 的尺寸下限",
@@ -224,7 +216,19 @@
     ]
   },
   "own": {
-    "$comment": "本插件自己写在 html 上的属性，用于状态切换；不受宿主升级影响，但删除前要确认没有 CSS 依赖。",
+    "$comment": "本插件自己写的属性与类名前缀：不受宿主升级影响（不进宿主漂移检查），但删除前要确认没有选择器/CSS 依赖。",
+    "classFragments": [
+      {
+        "fragment": "zp-",
+        "usedFor": "本插件面板的类名前缀（.zp-*）。拦截宿主菜单时用 :not([class*=\"zp-\"]) 把自家弹层排除，否则会把自己的面板当宿主菜单改色",
+        "note": "2026-11-27 从 host.classFragments 移出：它从来不是宿主片段，是 verify:host 自动补的 TODO 占位"
+      },
+      {
+        "fragment": "dsh-pet",
+        "usedFor": "同族插件 dsh-pet 的容器前缀。同样用 :not([class*=\"dsh-pet\"]) 把它的菜单排除在宿主菜单拦截之外",
+        "note": "2026-11-27 同上移出"
+      }
+    ],
     "attributes": [
       "data-dsh-zhuoer",
       "data-zr-base",

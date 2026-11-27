@@ -328,6 +328,7 @@ npm run coverage      # token 覆盖率与「刻意不跟锚点」的豁免清�
 | `verify:important` | **优先级棘轮门**：client.js 里的 `!important` 数量不得高于基线（`contracts/important-baseline.json`，当前 78）。宿主加一条、插件就得加两条——这条门让军备竞赛不再升级 |
 | `verify:themes` | 内联副本与真源逐 token 相等、两档 token 集合齐全、对比度达标 |
 | `verify:host` | 宿主选择器与契约对账，另查两类「静默失效」：契约登记的 id 片段是否还在代码里、`package.json` 的插件图标三件套（`icon` / `files` / `exports`）是否齐全 |
+| `verify:drift` | **宿主漂移门**：把契约里 23 个类名片段 + 1 个 id 片段对**本机 `app.asar`** 做子串匹配（DSH 用 `class*=`，必须子串）。基线外缺失即红——DSH 给类名改名时，那一片样式会**静默消失**（不报错、界面只是少一块），`verify:host` 两边名字都在、查不出这个。没有本机宿主时 SKIP（CI 正常），`--asar <path>` 指定其他安装 |
 | `verify:market` | **市场索引门**：按官方 schema 校验 `market/index.json`（LocalizedText 必含 `en`、精确 SemVer、`source.type`、`engines.dsh`），并与本仓 `package.json` 交叉对账 |
 | `verify:locale` | **展示元数据门**：`locale/*.json` 的 `meta.title` 非空、`en` 必存、`exports`/`files` 齐全、`./icon` ≤256 KiB 且与 `icon` 字段指向一致 |
 | `verify:keys` | **词典门**（静态）：源码里 `t('…')` 用到的键必须在 zh/en 都存在，且同名键占位符集合一致；缺键或 `{n}`/`{count}` 不一致即红。审的是「渲染不到」的文案（抽屉、错误、ARIA） |
@@ -462,7 +463,7 @@ gh release view v<version> -R zuoyunlai/dsh-zhuoer-theme --json isDraft --jq .is
 - **像素读数依赖截图状态**：`analyze-pixels` 的输入是某一次真机渲染，换 DSH 版本、换主题、
   换缩放都会变；它报的是「那一刻实测」，不能被当成恒定契约。
 - **主题名与预设名不译**（决策 A1）：12 套内置主题、12 套风格预设的 `label` 保持中文，因为它们是品牌标识的一部分；编辑器里的分组名、按钮、说明、错误提示全部译。英文界面里剩下的中文只应是这些名字。
-- **DSH 升级可能打破契约**：类名子串与属性名不是公开 API，`verify:host` 只能告诉你「代码用了什么」，命不命中要真机验。
+- **DSH 升级可能打破契约**：类名子串与属性名不是公开 API。`verify:host` 只对账「代码用了什么 ↔ 契约登记了什么」；`verify:drift` 补上了「这个名字在**本机宿主里还存不存在**」（对本机 `app.asar` 做子串匹配）。仍然判不了的是**语义**——名字还在、但那块 DOM 已经不做原来那件事，这条只能真机验。
 - **设置页分区图标走槽、不走字段**：在 `settings.section` 注册对象上写 `icon` 字段无效（0.6.2 实测被丢弃，显示内置齿轮）；正确做法是往 `settings.section.icon` 槽注册，且注册 `id` 必须等于分区 `id`，宿主按 `{ size, active }` 调用它（0.6.6 起自带红 Z）。三件事——`package.json` 的 `icon`、槽贡献、注册字段——互不通用，证据都在 `contracts/host-contract.json` 的 `positives` / `negatives` 里。
 
 ## 隐私

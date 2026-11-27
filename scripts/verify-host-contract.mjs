@@ -72,7 +72,11 @@ scanSrc = stripComments(scanSrc)
 const uniq = (arr) => [...new Set(arr)].sort()
 const ownAttrs = new Set(contract.own?.attributes ?? [])
 
-const foundFragments = uniq([...scanSrc.matchAll(/class\*="([^"]+)"/g)].map((m) => m[1]))
+// 本插件自己的类名前缀（own.classFragments）不算宿主片段：它们只出现在 :not([class*="zp-"]) 这类
+// 负选择器里，用来把「自己的弹层」排除掉。以前 verify:host 把它们当宿主依赖自动塞进契约，
+// 留下两条 TODO 占位；漂移检查一上线就把这两条判成「宿主缺失」——它们本来就不在宿主里。
+const ownFragments = new Set((contract.own?.classFragments ?? []).map((e) => e.fragment))
+const foundFragments = uniq([...scanSrc.matchAll(/class\*="([^"]+)"/g)].map((m) => m[1])).filter((f) => !ownFragments.has(f))
 const attrPool = [
   ...[...scanSrc.matchAll(/\[(data-[a-z0-9-]+)[\]=]/g)].map((m) => m[1]),
   ...[...scanSrc.matchAll(/['"](data-[a-z0-9-]+)['"]/g)].map((m) => m[1]),
@@ -101,7 +105,7 @@ if (iconRel && !(pkg.files ?? []).includes(iconRel)) manifestProblems.push('"fil
 if (iconRel && pkg.exports?.['./icon'] !== './' + iconRel) manifestProblems.push('exports 缺少 "./icon": "./' + iconRel + '"')
 
 
-const knownFragments = new Set(contract.host.classFragments.map((e) => e.fragment))
+const knownFragments = new Set(contract.host.classFragments.map((e) => e.fragment).filter((f) => !ownFragments.has(f)))
 const knownAttrs = new Set(contract.host.attributes.map((e) => e.attribute))
 
 const addedFragments = foundFragments.filter((f) => !knownFragments.has(f))
