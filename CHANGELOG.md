@@ -12,6 +12,29 @@
 
 
 
+## 未发布 · 生成链路可诊断化（2026-11-27：解析失败带原始输出 + 一次自动重试）
+
+**为什么改**：真机使用中连续三次 `theme-parse-failed:bad-json`，而插件把三种完全不同的失败
+（模型返回散文 / JSON 被 `maxTokens` 截断 / `body` 根本为空）压成同一个字符串，且不落原始输出。
+当时只能靠「换短提示词二分」才定位到原因，排障成本远高于问题本身。
+
+**做法**
+
+- `theme-gen.js`：新增 `zrGenParseFailure(code, body, fin)`——错误对象带 `reason` / `empty` / `bytes` /
+  `raw`（截断到 2048 字符）/ `finish`；空响应的 message 从 `:bad-json` 变成 `:empty`，一眼能分。
+- 新增 `zrGenShouldRetry(body, fin)`：能解析出主题就不重试；`finish` 明确报错也不重试（额度/鉴权/abort，重试只是多烧额度）；
+  其余情况（空响应、散文、坏 JSON）自动**重试一次**。
+- `theme-tool.js`：生成失败时 `say({phase:'gen-parse-failed', reason, bytes, empty, finish, raw})`，
+  落进插件自己的 `tool-status.json`；成功但用过重试则记 `gen-retried`。
+
+**验证**：`scripts/test-gen-retry.mjs` 8 例（三种失败可区分 / 能解析不重试 / finish 报错不重试 / raw 截断但 bytes 记全长 /
+finish 透传 / 宿主给的坏 finish 不抛错）。
+
+**诚实边界**
+
+- `raw` 里可能含模型自己起的主题名，落盘位置是插件数据目录的诊断文件（`tool-status.json`），不进对话、不发网络。
+- 这两条都是**宿主侧**改动，要重启 DSH 才生效；`client.js` 才是热替换的。
+
 ## 未发布 · 对话主题批 C（2026-11-27：参数化与生命周期）
 
 ### R-08 形状与字体从「说服模型」改成参数

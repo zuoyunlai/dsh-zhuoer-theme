@@ -222,8 +222,12 @@
 **已做的定位**：拿 `/api/gen-theme` 用同一句短提示词请求 → 返回合法 JSON（该端点把 `text` 原样回传，所以看得见）；
 再把同一条短提示词交给工具 → 成功。**结论：失败与 style 提示词的长度/指令化程度相关，与 LLM 路由无关。**
 
-**修法（建议，未实施）**：① 解析失败时把 `body` 前 2 KB 写进 `tool-status.json`（或独立的 `gen-raw.txt`），
-排障不必再靠二分；② `body` 为空或解析失败时自动重试一次（模型侧抖动很常见，重试成本远低于用户重说一遍）。
+**修法（已实施，见下）**：① 解析失败时把 `body` 前 2 KB 挂到错误对象上，由 `theme-tool.js` 写进 `tool-status.json`；
+② `body` 为空或解析失败时自动重试一次。
+
+**已落地（同日晚）**：`theme-gen.js` 新增 `zrGenParseFailure` / `zrGenShouldRetry`，错误 message 现在区分
+`:empty` 与 `:bad-json`，并带 `bytes` / `finish` 便于再分「空响应」与「被截断」；夹具 `scripts/test-gen-retry.mjs` 8 例。
+宿主侧改动，需重启 DSH 生效。
 
 ### 9.2 长 style 提示词会显著提高解析失败率
 

@@ -180,6 +180,34 @@ export function parseThemeSpec(raw) {
   return spec;
 }
 
+// ---- 解析失败的可诊断化 + 一次自动重试（§9.1）----
+// 为什么：parseThemeSpec 返回 null 时，原来统一抛 'theme-parse-failed:bad-json'，
+// 而「模型返回散文 / JSON 被 maxTokens 截断 / body 根本为空」三种完全不同的失败被压成同一个字符串。
+// 2026-11-27 实测连败三次，最后只能靠换短提示词二分才定位——排障不该是这个成本。
+// 现在：原始输出截断到 ZR_GEN_RAW_MAX 挂在错误对象上，由调用方写进 tool-status.json（不进对话）。
+export const ZR_GEN_RAW_MAX = 2048;
+export function zrGenParseFailure(code, body, fin) {
+  const text = typeof body === 'string' ? body : '';
+  const empty = !text.trim();
+  const err = new Error('theme-parse-failed:' + (empty ? 'empty' : (code || 'bad-json')));
+  err.code = 'theme-parse-failed';
+  err.reason = empty ? 'empty' : (code || 'bad-json');
+  err.empty = empty;
+  err.bytes = text.length;
+  err.raw = text.slice(0, ZR_GEN_RAW_MAX);
+  try {
+    err.finish = fin && fin.failure
+      ? { kind: fin.kind, code: fin.failure.code }
+      : (fin && fin.kind ? { kind: fin.kind } : null);
+  } catch (e) { err.finish = null; }
+  return err;
+}
+// 值得自动重试一次的条件：模型侧抖了（body 空 / 解析不出来），且 finish 没明确报错。
+// finish 是 error（额度、鉴权、abort）时不重试——再试一次只是多烧一次额度。
+export function zrGenShouldRetry(body, fin) {
+  if (fin && fin.kind === 'error') return false;
+  return !parseThemeSpec(body);
+}
 // 走宿主 llm.stream 生成主题。
 // 调用方式照抄 dsh-pet（已生产验证）：高层入口 llm.stream()，chunk 取 text-delta。
 // 注意不要用 prepareCall：那是 adapter 层的接缝，dispatch 校验会拒绝插件直接调用。
@@ -225,12 +253,23 @@ export async function generateThemeSpec(ctx, prompt, opts) {
       body = ran.out;
       fin = ran.fin;
     }
-    const spec = parseThemeSpec(body);
+    let spec = parseThemeSpec(body);
+    let retried = false;
+    if (!spec && zrGenShouldRetry(body, fin)) {
+      // 一次自动重试：模型侧抖动很常见，重试成本远低于让用户把同一句话说第二遍。
+      retried = true;
+      try {
+        ran = await consume(route);
+        body = ran.out;
+        fin = ran.fin;
+        spec = parseThemeSpec(body);
+      } catch (e) { /* 重试本身失败就保留第一次的结果，走同一条失败分支 */ }
+    }
     if (!spec) {
       const code = fin && fin.kind === 'error' && fin.failure ? fin.failure.code : 'bad-json';
-      throw new Error('theme-parse-failed:' + code);
+      throw zrGenParseFailure(code, body, fin);
     }
-    return { spec, finish: fin };
+    return { spec, finish: fin, retried: retried };
   } finally {
     clearTimeout(timer);
   }

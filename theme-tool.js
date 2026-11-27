@@ -374,7 +374,23 @@ export function registerThemeTool(ctx, report, opts) {
         const prompt = args && typeof args.name === 'string' && args.name.trim()
           ? style + '\n主题名：' + args.name.trim()
           : style;
-        const gen = await generateThemeSpec(ctx, prompt, {});
+        // §9.1：解析失败时把模型的原始输出留下来（只进工具自己的 tool-status.json，不进对话）。
+        // 不这么做的话，「散文 / 被 maxTokens 截断 / body 为空」三种情况在排障时长得一模一样。
+        let gen = null;
+        try {
+          gen = await generateThemeSpec(ctx, prompt, {});
+        } catch (e) {
+          say({
+            phase: 'gen-parse-failed',
+            reason: e && e.reason,
+            bytes: e && e.bytes,
+            empty: !!(e && e.empty),
+            finish: (e && e.finish) || null,
+            raw: typeof (e && e.raw) === 'string' ? e.raw : '',
+          });
+          throw e;
+        }
+        if (gen.retried) say({ phase: 'gen-retried' });
         // R-08：显式参数盖在模型结果之上（缺省时 zrApplyParams 不动任何键）。
         const applied = zrApplyParams(gen.spec, args);
         const spec = applied.spec;
