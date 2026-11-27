@@ -43,7 +43,21 @@ _真机截图：左侧抽屉只放 8 组锚点，右侧是宿主真实界面在�
 
 > 两列含义不同：**内置主题是「实测」**（设计师定的，各不相同，次级最差 4.53）；**派生地板**只约束自定义主题（改锚点时由 `enforceTextFloor` 兜住，正文 7:1、次级 6:1）。上一版这里把两列混写了，已更正。
 
-`npm run verify:contrast` 还会额外量预设主题与按钮前景色，合计 679 组，只升不降（台账在 `contracts/` 里）。
+`npm run verify:contrast` 还会额外量预设主题与按钮前景色，合计 **681 组**，只升不降（台账在 `contracts/` 里）。
+
+### 三层判据：声明式 / 合成 / 像素
+
+同一段文字在不同位置的实际对比度并不相同，所以这件事分三层做，**别混成一层**：
+
+| 层 | 判什么 | 谁在做 | 阈值 |
+|---|---|---|---|
+| 声明式 | token 之间算出来的比值与 Lc | `verify:contrast` | 硬门，只升不降 |
+| 合成 | 底纹按真实规则（可见度 × 0.7、线稿 `lighten`）逐像素叠到底色上之后的最不利分位 | `verify:texture` | 硬门：侵蚀超预算即红 |
+| 像素 | 真机截图里**文字像素与它脚下背景**的实际比值 | `scripts/analyze-pixels.mjs` | 只报告，不下判 |
+
+前两层是纯计算，能进 `verify:all`；第三层读截图，进不了（原因见下）。三者互补的实例：
+0.6.43 之前，三级文字在 `bg-base` 上是 4.60/4.62（声明式刚好过线），但真机像素量到它实际坐在
+**layer-2 卡片填充**上，只有 4.25/4.42——这条差只有第三层能看见，现已把三级文字抬到 4.68/4.61。
 ## 截图
 
 界面默认中文（英文界面同一套组件，见 [README.en.md](README.en.md)）。图片取自空配置的一次性 profile，没有会话、工作区等个人信息。
@@ -69,6 +83,7 @@ _真机截图：左侧抽屉只放 8 组锚点，右侧是宿主真实界面在�
 | 图片取色 | 选一张图本地提 6 个主色填入锚点，图片不上传 |
 | 编辑配色页 | 左侧 352px 抽屉 + 右侧真实界面实时预览；分六段，头尾吸顶吸底；未保存改动关闭会先确认 |
 | 主题底图 | 可给每个自定义主题绑一张图，存 IndexedDB（单张上限 3 MiB）；深色/浅色可各绑一张，图像以混合模式叠加（只留线条，不替换底色） |
+| 照片不透明度限幅 | **自定义照片**（不是内置线稿）会先按 64×64 采样估算「这张图叠上去后文字还能不能读」，自动把不透明度压到满足 4.5:1 的上限（最高 0.7）；滑到满格时提示行会写「满格 = 25% 不透明度（已按对比度限制）」。内置线稿是透明线条、实测不构成缺陷源，所以不触发限幅 |
 | 插件页图标 | 根目录 `icon.svg` + `package.json` 的 `"icon"`；设置 → 插件 列表里显示深灰底红 Z（与市场卡片同源） |
 | 设置页图标 | 向 `settings.section.icon` 槽注册贡献，设置页左侧「Zhuoer 主题」那一行显示同一枚红 Z（`register()` 上的 `icon` 字段无效，别用错机制） |
 | 市场图标 | `assets/icon-180.png`（180×180，由 `assets/logo/zhuoer.svg` 栅格化），用于插件市场卡片 |
@@ -304,7 +319,7 @@ npm run coverage      # token 覆盖率与「刻意不跟锚点」的豁免清�
 |---|---|
 | `verify:build` | `client.js` 与 `src/` 分片重新拼接的结果逐字节相等 |
 | `verify:version` | `PVERSION`、`package.json`、带引号的三段式版本字符串一致（先剥块注释，避免把 SVG path 里的 `s5.4.7` 当版本号） |
-| `verify:contrast` | 内置 12 套 × 两态的正文/提示/success/错误色 × 两档底与按钮前景色 ≥ 4.5:1，另含设置面板文字面；12 套预设走真实 `buildCustomTokens` 复算；台账 679 组只升不降 |
+| `verify:contrast` | 内置 12 套 × 两态的正文/提示/success/错误色 × 两档底与按钮前景色 ≥ 4.5:1，另含设置面板文字面；12 套预设走真实 `buildCustomTokens` 复算；台账 681 组只升不降 |
 | `verify:texture` | **纹理对比度门**：底纹按真实规则（可见度 × 0.7、线稿 `lighten`）叠到每套主题底色上逐像素合成，取最不利分位，判「底色本已达标却被纹理压破 4.5:1」与「侵蚀超预算 0.75」；换图或改底色未重测（sha256 / 底色不符）即红。合成在 `scripts/measure-texture.mjs`（浏览器 canvas，仓库零依赖解不了 WebP），门禁只读 `contracts/texture-luminance.json` 复算 |
 | `gen:hosttext` | 从 `app.asar` 重抽宿主类名 → 字号表（`src/15-host-text.js`）。宿主升级后跑一次；不跑只是部分字号对不上，不会坏交互 |
 | `verify:scale` | 字号缩放只许动文字尺寸：**禁止 `body{zoom}`**（会让宿主侧栏拖拽命中错位），要求 `--dsw-font-*` 的 px 缩放与 `--dsh-content-font-*` 赋值同时存在 |
@@ -315,7 +330,7 @@ npm run coverage      # token 覆盖率与「刻意不跟锚点」的豁免清�
 | `verify:locale` | **展示元数据门**：`locale/*.json` 的 `meta.title` 非空、`en` 必存、`exports`/`files` 齐全、`./icon` ≤256 KiB 且与 `icon` 字段指向一致 |
 | `verify:keys` | **词典门**（静态）：源码里 `t('…')` 用到的键必须在 zh/en 都存在，且同名键占位符集合一致；缺键或 `{n}`/`{count}` 不一致即红。审的是「渲染不到」的文案（抽屉、错误、ARIA） |
 | `verify:text` | **文案门**（确定性）：Node 端渲染面板，把 220 条文案与属性（`title`/`aria-label`/`placeholder`/`alt`）与 `contracts/text-snapshot/{zh,en}.json` 逐条比对，版本号归一化。改文案要配 `--update`，否则红 |
-| `verify:visual` | 面板截图像素比对（**已从 `verify:all` 摘除**）：同状态连续两次截 `.zp-root` 在光态下互差 2.3%，无法复现的像素门等于安全错觉。脚本保留，需要人工看图时再跑 |
+| `verify:visual` | 面板截图像素比对（**仍不在 `verify:all`**）：同状态连续两次截 `.zp-root` 在光态下互差 2.3%，无法复现的像素门等于安全错觉。0.6.43 起改成**真机基线**（`contracts/visual-baseline/`，深/浅 559×2757、窄 323×666），用途是「改版前后对照」与裁 docs 图，不是自动门 |
 | `verify:csssnap` | 把插件**实际注入**的 CSS 文本与 `contracts/css-snapshot/` 逐字节比对；差异会报出首个偏移与上下文。没有 `visual/css-current/` 时 SKIP，`--strict` 才硬判 |
 | `verify:claims` | **对外口径门**：README / market 索引 / locale / package.json 里的主题数、版本号、底图数、文案条数、裸中文基线必须等于现算真值（加主题后忘记改文档 → 红） |
 | `verify:i18n` | 裸中文字面量**棘轮**：按文件记基线，只许减少；多一条就红（文案要写进 `src/05-i18n.js` 的 `I18N` 再 `t()` 取）。当前合计 46 条 |
@@ -329,15 +344,26 @@ npm run coverage      # token 覆盖率与「刻意不跟锚点」的豁免清�
 
 主题卡预览、AI 与取色逻辑都在真实界面里验；门禁只保证「可机械判定」的那部分。**改完配色请自己切一圈主题**，见「已知边界」。
 
-### 为什么没有像素基线了
+### 像素：比对不做门，度量要做
 
-0.6.15 起，「面板截图逐像素比对」被**撤出 `verify:all`**。原因不是懒得维护，而是它无法自我复现：
-在同一个实例、同一个状态、零代码改动的前提下连续截两次 `.zp-root`，**光态互差 2.301%**
-（61,624 vs 61,130 字节），暗态却逐字节相同；冻结动画（`transition:none;animation:none`）、
-把祖先滚动条归零之后依旧不复现。一个红了说明不了代码坏、绿了也说明不了代码好的门，
-给的是安全错觉。脚本保留（`scripts/verify-visual.mjs`），需要人眼看图时再手动跑。
+**像素比对**（`verify:visual`）不进门。0.6.15 起它被撤出 `verify:all`：同一个实例、同一个状态、
+零代码改动，连续截两次 `.zp-root`，**光态互差 2.301%**（61,624 vs 61,130 字节），暗态却逐字节相同；
+冻结动画（`transition:none;animation:none`）、把祖先滚动条归零之后依旧不复现。一个红了说明不了代码坏、
+绿了也说明不了代码好的门，给的是安全错觉。它现在只做**真机基线对照**：基线在
+`contracts/visual-baseline/`，改版前后人工跑一次看差值，`--capture` 显式提升。
 
-替代它的是两条**确定性**的机器判据：
+**像素度量**（`scripts/analyze-pixels.mjs`）是另一回事，它是「读数」而不是「比对」，所以能跑：
+
+- 输入是真机截图，输出每个文字带的 WCAG 比值与 p5/p50 分位；
+- 只认**落在 `label-*` token 与底色混色线上**的像素（文字只可能是这些颜色的抗锯齿混合），
+  品牌红书脊、分隔线、图标都落不到这条线上——初版没做这一步，量出来的是 3.59:1 的书脊和 1.15:1 的边框；
+- 两条守卫：带内众数必须占该带 ≥40% 像素（12px 密集提示行里众数其实是文字色），混色系数 t ≥ 0.55（排除抗锯齿边缘）；
+- 局限：主题试样卡里是**各主题自己的迷你界面**（装饰），会被守卫跳过；渐变/图片背景同样跳。
+
+它**不进 `verify:all`**：阈值还在人判阶段，且需要真机截图作输入。当前读数（0.6.43，深浅窄三态）
+p5 = 4.53 / 4.57 / 4.68，p50 = 4.62–4.68。
+
+替代像素比对的仍是两条**确定性**的机器判据：
 
 - `verify:text` —— 面板渲染出的文案与属性存成 zh/en 快照，逐条比对（版本号归一化）；
 - `verify:keys` —— 静态校验 `t('…')` 的键两侧齐全、占位符集合一致；
@@ -378,8 +404,11 @@ index.js             服务端一半：/api/report、/api/gen-theme、静态资�
 themes.mjs           主题色 + 阴影的唯一真源
 src/                 客户端源码五分片（00-core / 05-i18n / 10-themes / 20-panel / 30-quicknav）
 build.mjs            src → client.js 拼接
-scripts/             verify-* 门禁、sync-themes、coverage、token-surface
-contracts/           宿主契约清单（含 positives / negatives：哪些契约成立、哪些实测不成立）
+scripts/             verify-* 门禁、sync-themes、coverage、token-surface、
+                     analyze-pixels（像素级对比度读数）、contrast-chart（生成 README 的对比度图）
+contracts/           宿主契约清单（含 positives / negatives：哪些契约成立、哪些实测不成立）、
+                     texture-luminance.json（底纹合成实测）、visual-baseline/（真机截图基线 + labels.json）
+visual/              本机采集区：current/ 截图、css-current/ 注入 CSS（提交与否见 .gitignore）
 docs/                设计与权衡记录与操作规程：i18n-plan.md（多语言规划与进度）、
                      live-verify.md（起一次性 profile 做真机验证）、official-requirements.md（官方硬要求与合规对照）、
                      git-integrity.md（.git 事故与修复约定）
@@ -388,7 +417,7 @@ assets/bg/           24 张主题底图（webp）
 assets/logo/         zhuoer.svg（品牌位自带 logo，走 /assets/logo/ 路由）
 assets/icon-180.png  市场卡片图标（180×180，由 zhuoer.svg 栅格化）
 icon.svg             插件页图标（package.json 的 "icon" 指向它）
-docs/images/         README 用的三张截图（插件自身界面，2x）
+docs/images/         README 用的截图（面板深浅两张 + 12 套主题网格 + 编辑器抽屉 + 对比度图）
 locale/{zh,en}.json  展示元数据（meta.title / meta.description，宿主与市场读这里）
 ```
 
@@ -424,6 +453,12 @@ gh release view v<version> -R zuoyunlai/dsh-zhuoer-theme --json isDraft --jq .is
 - **CJK 字体不做 unicode-range 拆包**。三支中文字体本就是约 4400 字的子集，按常用字表再拆只能省 11–12%，却要为不连续码位内联约 2.2 万字符的 range，并把「按需下载一次」变成「可能两次」。楷体拆出去只剩 3 个字。真正影响首屏的是「默认链路不放衬线中文字体」——它已经只在用户选 serif 时触发。
 - **阴影刻度**：`themes.mjs` 的 `--dsw-elevation-*` 与插件自己的 `shadow` 是两套刻度（后者按明暗强度缩放）。合并需要重定一套视觉刻度，属数据设计而非清理，留待单独一轮。
 - **主题色与形状需要人眼确认**：门禁能保证对比度与完整性，保证不了「这套圆角在你的显示器上好不好看」。
+- **底纹门只判「侵蚀超预算」**：内置线稿实测 p50 = 0（透明线条、比底色略亮），不是缺陷源；门判的是
+  「底色本已达标、却被纹理压破 4.5:1」与「侵蚀超 10%」，不替既有主题的设计取舍背书。
+- **照片限幅是估算不是保证**：64×64 采样 + α 扫描能挡住「白底照片配深色底」这类明显不可读，
+  但照片有人脸、天空这类大面积低频区，采样点可能偏乐观；它保证的是下限，不是每像素最优。
+- **像素读数依赖截图状态**：`analyze-pixels` 的输入是某一次真机渲染，换 DSH 版本、换主题、
+  换缩放都会变；它报的是「那一刻实测」，不能被当成恒定契约。
 - **主题名与预设名不译**（决策 A1）：12 套内置主题、12 套风格预设的 `label` 保持中文，因为它们是品牌标识的一部分；编辑器里的分组名、按钮、说明、错误提示全部译。英文界面里剩下的中文只应是这些名字。
 - **DSH 升级可能打破契约**：类名子串与属性名不是公开 API，`verify:host` 只能告诉你「代码用了什么」，命不命中要真机验。
 - **设置页分区图标走槽、不走字段**：在 `settings.section` 注册对象上写 `icon` 字段无效（0.6.2 实测被丢弃，显示内置齿轮）；正确做法是往 `settings.section.icon` 槽注册，且注册 `id` 必须等于分区 `id`，宿主按 `{ size, active }` 调用它（0.6.6 起自带红 Z）。三件事——`package.json` 的 `icon`、槽贡献、注册字段——互不通用，证据都在 `contracts/host-contract.json` 的 `positives` / `negatives` 里。

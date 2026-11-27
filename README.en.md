@@ -43,7 +43,22 @@ Body text is held to the widely used **Lc ≥ 60** line by the gate; the other r
 
 > The two columns mean different things: built-in themes are **measured** (hand-tuned, worst secondary 4.53), while the floor only constrains **custom** themes derived from anchors (`enforceTextFloor`: body 7:1, secondary 6:1). The previous version conflated them; corrected.
 
-`npm run verify:contrast` additionally measures preset themes and button foregrounds — 679 pairs in total, ratchet-only (ledger lives in `contracts/`).
+`npm run verify:contrast` additionally measures preset themes and button foregrounds — **681 pairs** in total, ratchet-only (ledger lives in `contracts/`).
+
+### Three layers: declared / composited / measured
+
+The same text does not have the same real contrast everywhere, so this is done in three layers — **do not merge them**:
+
+| Layer | What it judges | Who does it | Threshold |
+|---|---|---|---|
+| Declared | the ratio and Lc computed between tokens | `verify:contrast` | hard gate, ratchet-only |
+| Composited | worst percentile after the texture is composited onto the base at the real rules (visibility × 0.7, line art via `lighten`) | `verify:texture` | hard gate: erosion over budget is red |
+| Measured | the actual ratio between **text pixels and the background under them** in a real screenshot | `scripts/analyze-pixels.mjs` | report only |
+
+The first two are pure computation and live in `verify:all`; the third reads screenshots and cannot (see below).
+A concrete case: before 0.6.43 tertiary text sat at 4.60/4.62 against `bg-base` (declared: just passing),
+but the real pixels showed it actually rests on the **layer-2 card fill** at 4.25/4.42 — a gap only the third
+layer can see. Tertiary is now 4.68/4.61.
 ## Screenshots
 
 The UI shown is the Chinese one (same components in English; see [README.md](README.md)). Captured from a throwaway profile with an empty config, so no session or workspace data is visible.
@@ -69,6 +84,7 @@ The UI shown is the Chinese one (same components in English; see [README.md](REA
 | Image palette | Picks 6 dominant colours locally and maps them onto anchors; the image is never uploaded |
 | Editor drawer | 352px drawer on the left, live UI preview on the right; six sections, sticky header and footer; closing with unsaved edits asks first |
 | Theme background | Bind an image to a custom theme, stored in IndexedDB (3 MiB per image); dark and light can each have one, and the image is composited in blend mode (lines only, no base replacement) |
+| Photo opacity cap | **Custom photos** (not the built-in line art) are sampled at 64×64 to estimate whether text stays readable underneath, and opacity is automatically capped at the level that keeps 4.5:1 (0.7 at most). At full slider the hint reads "full = 25% opacity (capped for contrast)". Built-in line art is transparent strokes and does not trigger the cap |
 | Plugin-page icon | Root `icon.svg` + the `"icon"` field in `package.json`; the Plugins list shows the red Z on a dark tile |
 | Settings-section icon | Registered into the `settings.section.icon` slot, so the "Zhuoer 主题" row shows the same red Z (an `icon` field on the registration is ignored — do not use that mechanism) |
 | Market icon | `assets/icon-180.png` (180×180, rasterised from `assets/logo/zhuoer.svg`) |
@@ -303,7 +319,7 @@ npm run coverage      # token coverage and the "deliberately not derived" allowl
 |---|---|
 | `verify:build` | `client.js` is byte-identical to re-concatenating `src/` |
 | `verify:version` | `PVERSION`, `package.json` and the quoted three-part version string agree (block comments stripped first, so `s5.4.7` inside an SVG path is not mistaken for a version) |
-| `verify:contrast` | 11 themes × 2 schemes: body/hint/success and button foregrounds ≥ 4.5:1; the 12 presets are recomputed through the real `buildCustomTokens` |
+| `verify:contrast` | 12 built-in themes × 2 schemes: body/hint/success and button foregrounds ≥ 4.5:1; the 12 presets are recomputed through the real `buildCustomTokens`; 681-pair ledger, ratchet-only |
 | `verify:texture` | **Texture contrast gate**: composites each theme’s texture onto its base at the real rules (visibility × 0.7, line art via `lighten`) pixel by pixel, takes the worst percentile, and flags “passed at base but pushed under 4.5:1 by the texture” plus “erosion over the 0.75 budget”. Swapping a texture or changing a base without re-measuring (sha256 / base mismatch) is red. Compositing lives in `scripts/measure-texture.mjs` (browser canvas — the repo is zero-dep and cannot decode WebP); the gate only re-does the maths from `contracts/texture-luminance.json` |
 | `gen:hosttext` | Re-extract the host class → font-size table from `app.asar` (`src/15-host-text.js`). Run once after a host upgrade; skipping it only mismatches some sizes, never breaks interaction |
 | `verify:scale` | Font scaling may touch text size only: **`body{zoom}` is banned** (it breaks the host's sidebar-drag hit testing); `--dsw-font-*` px scaling and `--dsh-content-font-*` assignments must both be present |
@@ -314,7 +330,7 @@ npm run coverage      # token coverage and the "deliberately not derived" allowl
 | `verify:locale` | **Display metadata gate**: every `locale/*.json` has a non-empty `meta.title`, `en` exists, `exports`/`files` are complete, `./icon` is ≤256 KiB and matches the `icon` field |
 | `verify:keys` | **Dictionary gate** (static): every key used by `t('…')` exists in both zh and en, with identical placeholder sets; a missing key or `{n}` vs `{count}` mismatch is red. Covers copy that never renders (drawer, errors, ARIA) |
 | `verify:text` | **Copy gate** (deterministic): renders the panel in Node and compares 220 strings and attributes (`title`/`aria-label`/`placeholder`/`alt`) against `contracts/text-snapshot/{zh,en}.json`, versions normalised. Change copy ⇒ run `--update` |
-| `verify:visual` | Pixel comparison of the panel (**removed from `verify:all`**): two consecutive captures of the same state differ by 2.3% in light mode, and a gate that cannot reproduce itself is a false sense of safety. Script kept for manual eyeballing |
+| `verify:visual` | Pixel comparison of the panel (**still out of `verify:all`**): two consecutive captures of the same state differ by 2.3% in light mode, and a gate that cannot reproduce itself is a false sense of safety. Since 0.6.43 it carries **real-device baselines** (`contracts/visual-baseline/`: dark/light 559×2757, narrow 323×666) used for before/after review and for cropping docs images — not an automatic gate |
 | `verify:csssnap` | Compares the **injected** CSS text byte for byte against `contracts/css-snapshot/`, reporting the first offset and context. SKIPs when `visual/css-current/` is absent; `--strict` makes it hard-fail |
 | `verify:claims` | **Public-claim gate**: theme count, version, background count, string count and the bare-Chinese baseline in README / market index / locale / package.json must equal the freshly computed truth (add a theme, forget the docs → red) |
 | `verify:i18n` | Bare-Chinese **ratchet**: per-file baseline that may only go down; new strings must go through the dictionary. Currently 46 |
@@ -327,11 +343,26 @@ npm run coverage      # token coverage and the "deliberately not derived" allowl
 
 Theme card previews, AI and palette behaviour are verified in the real UI; gates only cover what is mechanically decidable. **Switch through every theme after changing colours** — see "Known limits".
 
-### Why there is no pixel baseline any more
+### Pixels: no comparison gate, but a real measurement
 
-Since 0.6.15 the pixel comparison is **out of `verify:all`** — not out of laziness, but because it cannot reproduce itself: in the same instance, same state, zero code changes, two consecutive captures of `.zp-root` differ by **2.301%** in light mode (61,624 vs 61,130 bytes) while dark is byte-identical; freezing animations, zeroing ancestor scroll offsets and disabling transitions does not help. A gate that goes red without meaning "broken" and green without meaning "fine" is a false sense of safety. The script stays (`scripts/verify-visual.mjs`) for manual inspection.
+**Pixel comparison** (`verify:visual`) stays out. It was removed from `verify:all` in 0.6.15: same instance,
+same state, zero code changes, and two consecutive captures of `.zp-root` differ by **2.301%** in light mode
+(61,624 vs 61,130 bytes) while dark is byte-identical; freezing animations, zeroing ancestor scroll offsets and
+disabling transitions does not help. A gate that goes red without meaning "broken" and green without meaning
+"fine" is a false sense of safety. It is now a **real-device baseline** only: baselines live in
+`contracts/visual-baseline/`, you run it by hand before/after a redesign, and `--capture` promotes explicitly.
 
-What replaced it are deterministic machine checks:
+**Pixel measurement** (`scripts/analyze-pixels.mjs`) is a different thing — a *reading*, not a comparison, so it can run:
+
+- input is a real screenshot; output is the WCAG ratio of every text band plus p5/p50 percentiles;
+- it only accepts pixels **lying on the blend line between a `label-*` token and the background** (text can only be an antialiased mix of those); the brand spine, dividers and icons never fall on that line — the first version skipped that step and measured a 3.59:1 spine and a 1.15:1 divider;
+- two guards: the band's mode colour must cover ≥40% of the band (in a dense 12px hint line the mode *is* the text colour), and the blend factor t ≥ 0.55 (excludes antialiased edges);
+- limits: the theme specimen cards contain **each theme's own miniature UI** (decoration) and are skipped by the guard; gradients/images under text are skipped too.
+
+It is **not in `verify:all`**: thresholds are still human judgement and it needs a real screenshot as input.
+Current reading (0.6.43, dark/light/narrow): p5 = 4.53 / 4.57 / 4.68, p50 = 4.62–4.68.
+
+What replaced the pixel comparison remains these deterministic machine checks:
 
 - `verify:text` — rendered panel copy and attributes as zh/en snapshots, item by item;
 - `verify:keys` — static key and placeholder parity;
@@ -369,15 +400,18 @@ index.js             server half: /api/report, /api/gen-theme, static asset rout
 themes.mjs           single source of truth for colours and shadows
 src/                 five client shards (incl. 05-i18n.js dictionary)
 build.mjs            src → client.js concatenation
-scripts/             verify-* gates, sync-themes, coverage, token-surface
-contracts/           host contract lists (positives / negatives: what holds and what does not)
+scripts/             verify-* gates, sync-themes, coverage, token-surface,
+                     analyze-pixels (pixel-level contrast reading), contrast-chart (README chart)
+contracts/           host contract lists (positives / negatives), texture-luminance.json,
+                     visual-baseline/ (real-device screenshots + labels.json)
+visual/              local capture area: current/ screenshots, css-current/ injected CSS
 docs/                design notes and runbooks: i18n-plan.md, live-verify.md, official-requirements.md, git-integrity.md
 assets/fonts/        23 woff2 files (14 Latin families + 3 CJK subsets) plus provenance
 assets/bg/           24 theme backgrounds (webp)
 assets/logo/         zhuoer.svg (brand-slot logo, served under /assets/logo/)
 assets/icon-180.png  market card icon (180×180, rasterised from zhuoer.svg)
 icon.svg             plugin page icon (referenced by package.json "icon")
-docs/images/         the three README screenshots (plugin UI only, 2x)
+docs/images/         README screenshots (panel light/dark, 12-theme grid, editor drawer, contrast chart)
 locale/{zh,en}.json  display metadata (meta.title / meta.description, read by the host and market)
 ```
 
@@ -407,6 +441,9 @@ gh release view v<version> -R zuoyunlai/dsh-zhuoer-theme --json isDraft --jq .is
 - **No unicode-range splitting for CJK fonts.** The three CJK faces are already ~4,400-glyph subsets; splitting by frequency saves only 11–12% while inlining ~22k characters of disjoint ranges and turning "download once" into "maybe twice". The real first-paint cost is not putting a serif CJK face on the default path — already the case.
 - **Shadow scales**: `themes.mjs` `--dsw-elevation-*` and the plugin's own `shadow` are two different scales (the latter scales with light/dark). Merging them needs a new visual scale, which is data design rather than cleanup.
 - **Colours and shapes need human eyes**: gates prove contrast and completeness, not that a radius looks good on your display.
+- **The texture gate only judges erosion**: built-in line art measures p50 = 0 (transparent strokes, slightly lighter than the base), so it is not a defect source; the gate flags "passing at base but pushed under 4.5:1" and "erosion over 10%", and does not endorse a theme's design choices.
+- **The photo cap is an estimate, not a guarantee**: 64×64 sampling plus an alpha sweep reliably stops obviously unreadable cases (a white photo on a dark base), but large low-frequency areas (faces, sky) can sample optimistically; it guarantees a floor, not per-pixel optimality.
+- **The pixel reading depends on the capture**: `analyze-pixels` reads one real render; a different DSH version, theme or zoom changes it. It reports "measured at that moment", never a permanent contract.
 - **DSH upgrades can break the contract**: class substrings and attribute names are not public API; `verify:host` tells you what the code uses, not whether it still matches.
 - **Settings-section icon goes through a slot**: an `icon` field on the `settings.section` registration is ignored (dropped since 0.6.2, falls back to a gear). Register into `settings.section.icon` with `id` equal to the section id; the host calls it with `{ size, active }` (red Z shipped in 0.6.6). The three mechanisms — `package.json` `icon`, slot contribution, registration field — are unrelated; evidence lives in `contracts/host-contract.json` `positives` / `negatives`.
 - **Theme and preset names are not translated** (decision A1): they are part of each theme's identity. Group labels, buttons, notes and error messages all are.
