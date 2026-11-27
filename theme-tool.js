@@ -47,6 +47,55 @@ const DESCRIPTION = [
 // 卡片只能把规格从渲染文本里读回来（image-gen 的 PTC_SUMMARY_PATTERN 是同一思路）。
 const SPEC_MARKER = 'DSH_THEME_SPEC:';
 
+
+// ---- 生成参数的白名单（R-08 / F-04 F-12）----
+// 为什么要有白名单：模型可以随口给一个「Archivo Black」，而随包分发的只有 14 个西文族，
+// 没打包的族会被浏览器静默回落成系统默认——风格落空，而且没有任何提示（实测过一次）。
+// 字体名的唯一真源是 assets/fonts/README.md；scripts/test-gen-params.mjs 会拿它跟这张表对账。
+export const ZR_FONT_FAMILIES = [
+  'Geist', 'Space Grotesk', 'DM Sans', 'IBM Plex Sans', 'Atkinson Hyperlegible Next',
+  'Instrument Sans', 'Inter', 'Manrope', 'JetBrains Mono', 'Geist Mono',
+  'Fira Code', 'Lora', 'Fraunces', 'Source Serif 4',
+];
+// 风格预设 id：与客户端 STYLE_PRESETS 一一对应。圆角与字体档位的真源在客户端，
+// 这里只做「这 id 存不存在」的校验，避免宿主侧再抄一份配方。
+export const ZR_PRESET_IDS = ['glass', 'brutal', 'swiss', 'editorial', 'luxe', 'organic', 'morandi', 'paper', 'cyber', 'aurora', 'devterm', 'deepspace'];
+const ZR_MONO_ALIAS = '__mono__';
+const zrFontFamily = (v) => (v === ZR_MONO_ALIAS ? 'JetBrains Mono' : String(v || '').trim());
+
+// 把工具的显式参数盖到模型给的 spec 上。纯函数，导出以便 scripts/test-gen-params.mjs 直接跑。
+// 规则：显式参数优先；不合法不抛错（参数是选择题，不是命令），记一条 note 并给可用的兜底。
+export function zrApplyParams(spec, args) {
+  const out = Object.assign({}, spec || {});
+  const a = args || {};
+  const notes = [];
+  if (typeof a.radiusScale === 'number' && isFinite(a.radiusScale)) {
+    out.radiusScale = Math.max(0, Math.min(3, a.radiusScale));
+  }
+  const preset = String(a.preset || '').trim();
+  if (preset) {
+    if (ZR_PRESET_IDS.indexOf(preset) !== -1) out.preset = preset;
+    else notes.push('preset 不在内置 12 套里，已忽略：' + preset);
+  }
+  const fontRaw = String(a.font || '').trim();
+  if (fontRaw) {
+    const fam = zrFontFamily(fontRaw);
+    const font = Object.assign({ body: '', chat: '' }, out.font || {});
+    if (ZR_FONT_FAMILIES.indexOf(fam) !== -1) {
+      font.body = fam;
+      // 只给了 body 没给 chat：聊天正文跟着走，否则中英正文会不同族。
+      if (!font.chat) font.chat = fam;
+    } else {
+      // 兜底替换：换成随包分发的通用 UI 族，而不是让浏览器静默回落系统默认。
+      notes.push('font 未随包分发，已替换为 Inter：' + fontRaw);
+      font.body = 'Inter';
+      if (!font.chat) font.chat = 'Inter';
+    }
+    out.font = font;
+  }
+  return { spec: out, notes: notes };
+}
+
 const OUTPUT_SCHEMA = {
   type: 'object',
   additionalProperties: false,
@@ -70,6 +119,8 @@ const OUTPUT_SCHEMA = {
       },
     },
     radiusScale: { type: 'number' },
+    // R-08：显式指定的风格预设 id（圆角/字体的档位由客户端解析）。
+    preset: { type: 'string' },
     // R-07：生成路径的对比度体检报告（只有计数与是否通过）。
     // 为什么要进 schema：toOutput 只回声明过的键，不声明就等于把体检结果丢掉。
     contrastGate: {
@@ -132,6 +183,7 @@ function toOutput(spec, texture, textureLight, decision, ref) {
   // 深色只有凑够 4 个锚点才下发，否则让它走反推，避免给出半套深色。
   if (Object.keys(dark).length >= 4) out.dark = dark;
   if (typeof src.radiusScale === 'number' && isFinite(src.radiusScale)) out.radiusScale = src.radiusScale;
+  if (typeof src.preset === 'string' && src.preset) out.preset = src.preset;
   // 只有真的跑过体检才下发（缺省不加键：值为 undefined 会被宿主判成 non-lossless）。
   if (src.gate && typeof src.gate === 'object') {
     out.contrastGate = { ok: src.gate.ok === true, fixes: Number(src.gate.fixes) || 0, weak: Number(src.gate.weak) || 0 };
@@ -159,6 +211,7 @@ function toMeta(value) {
   if (v.texture) meta.texture = v.texture;
   if (v.textureLight) meta.textureLight = v.textureLight;
   if (v.ref) meta.ref = v.ref;
+  if (v.preset) meta.preset = v.preset;
   if (v.contrastGate) meta.contrastGate = v.contrastGate;
   return meta;
 }
@@ -252,6 +305,19 @@ export function registerThemeTool(ctx, report, opts) {
           type: 'string',
           description: 'Short theme name (4-10 characters) summarizing the style. Omit to let the model choose one.',
         },
+        // R-08：形状与字体不该只靠提示词说服模型。三个参数缺省时行为与以前完全一致。
+        radiusScale: {
+          type: 'number',
+          description: 'Corner radius scale 0-3 (0 = square/terminal, 1 = default, 2 = soft/glassy). Overrides whatever the model picked. Omit to keep the model value.',
+        },
+        preset: {
+          type: 'string',
+          description: 'Built-in style preset id, one of: glass, brutal, swiss, editorial, luxe, organic, morandi, paper, cyber, aurora, devterm, deepspace. Sets radius/font defaults on the client when the model did not. Omit for none.',
+        },
+        font: {
+          type: 'string',
+          description: 'Body font family, must be one the plugin ships: Geist, Space Grotesk, DM Sans, IBM Plex Sans, Atkinson Hyperlegible Next, Instrument Sans, Inter, Manrope, JetBrains Mono, Geist Mono, Fira Code, Lora, Fraunces, Source Serif 4 (or __mono__). Unlisted names are rejected and replaced with Inter. Omit to keep the model value.',
+        },
         texturePath: {
           type: 'string',
           description: 'Absolute local path to the DARK background texture image you generated (JPEG/PNG/WebP, <=3 MiB). Required when texture is want, together with texturePathLight.',
@@ -308,7 +374,11 @@ export function registerThemeTool(ctx, report, opts) {
         const prompt = args && typeof args.name === 'string' && args.name.trim()
           ? style + '\n主题名：' + args.name.trim()
           : style;
-        const { spec } = await generateThemeSpec(ctx, prompt, {});
+        const gen = await generateThemeSpec(ctx, prompt, {});
+        // R-08：显式参数盖在模型结果之上（缺省时 zrApplyParams 不动任何键）。
+        const applied = zrApplyParams(gen.spec, args);
+        const spec = applied.spec;
+        if (applied.notes.length) say({ phase: 'params-ignored', notes: applied.notes });
         // 参考图：只落到插件目录，由 /api/texture 回传客户端做真实取色。
         const refPath = String((args && args.imagePath) || '').trim();
         const ref = refPath ? stashTexture(refPath, textureDir) : null;

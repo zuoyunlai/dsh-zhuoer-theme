@@ -588,6 +588,8 @@ window.__ModuleLoader__.load({
 'panel.chat.srcModel': '配色来源：模型配色',
 'panel.chat.useSampled': '用取色',
 'panel.chat.useModel': '用模型配色',
+'panel.chat.superseded': '这张已被后面的新主题取代',
+'panel.chat.texMissing': '底纹没取到，已按纯配色应用',
         'panel.ed.drop': '丢弃',
         'panel.ed.pickFromImage': '从图片取色',
         'panel.ed.picking': '取色中…',
@@ -1041,6 +1043,8 @@ window.__ModuleLoader__.load({
 'panel.chat.srcModel': 'Colors: model palette',
 'panel.chat.useSampled': 'Use sampled',
 'panel.chat.useModel': 'Use model palette',
+'panel.chat.superseded': 'Superseded by a newer theme below',
+'panel.chat.texMissing': 'Texture not available - applied colors only',
         'panel.mdfine.title': 'Markdown refinement',
         'panel.mdfine.note': 'Element looks only: heading size, code block, table, quote',
         'panel.mdfine.headRow': 'Heading size',
@@ -1355,6 +1359,8 @@ window.__ModuleLoader__.load({
 'panel.chat.srcModel': 'Farben: Modellpalette',
 'panel.chat.useSampled': 'Entnommene nutzen',
 'panel.chat.useModel': 'Modellpalette nutzen',
+'panel.chat.superseded': 'Durch ein neueres Theme ersetzt',
+'panel.chat.texMissing': 'Textur nicht verfügbar – nur Farben angewendet',
         'panel.mdfine.title': 'Markdown-Verfeinerung',
         'panel.mdfine.note': 'Nur das Aussehen: Überschriftengröße, Codeblock, Tabelle, Zitat',
         'panel.mdfine.headRow': 'Überschriftengröße',
@@ -1669,6 +1675,8 @@ window.__ModuleLoader__.load({
 'panel.chat.srcModel': 'Colores: paleta del modelo',
 'panel.chat.useSampled': 'Usar extraídos',
 'panel.chat.useModel': 'Usar paleta del modelo',
+'panel.chat.superseded': 'Reemplazado por un tema más reciente',
+'panel.chat.texMissing': 'Textura no disponible: solo se aplicaron los colores',
         'panel.mdfine.title': 'Refinado de Markdown',
         'panel.mdfine.note': 'Solo el aspecto: tamaño de títulos, bloque de código, tabla y cita',
         'panel.mdfine.headRow': 'Tamaño de títulos',
@@ -1983,6 +1991,8 @@ window.__ModuleLoader__.load({
 'panel.chat.srcModel': 'Couleurs : palette du modèle',
 'panel.chat.useSampled': 'Utiliser les prélevées',
 'panel.chat.useModel': 'Utiliser la palette du modèle',
+'panel.chat.superseded': 'Remplacé par un thème plus récent',
+'panel.chat.texMissing': 'Texture indisponible — seules les couleurs ont été appliquées',
         'panel.mdfine.title': 'Finitions Markdown',
         'panel.mdfine.note': 'L\'apparence seule : taille des titres, bloc de code, tableau, citation',
         'panel.mdfine.headRow': 'Taille des titres',
@@ -2297,6 +2307,8 @@ window.__ModuleLoader__.load({
 'panel.chat.srcModel': '配色：モデル',
 'panel.chat.useSampled': '取得色を使う',
 'panel.chat.useModel': 'モデル配色を使う',
+'panel.chat.superseded': '新しいテーマに置き換えられました',
+'panel.chat.texMissing': 'テクスチャを取得できず、配色のみ適用しました',
         'panel.mdfine.title': 'Markdown の微調整',
         'panel.mdfine.note': '見た目だけ：見出しサイズ、コードブロック、表、引用',
         'panel.mdfine.headRow': '見出しサイズ',
@@ -2611,6 +2623,8 @@ window.__ModuleLoader__.load({
 'panel.chat.srcModel': 'Cores: paleta do modelo',
 'panel.chat.useSampled': 'Usar extraídas',
 'panel.chat.useModel': 'Usar paleta do modelo',
+'panel.chat.superseded': 'Substituído por um tema mais recente',
+'panel.chat.texMissing': 'Textura indisponível — aplicadas apenas as cores',
         'panel.mdfine.title': 'Refinamento de Markdown',
         'panel.mdfine.note': 'Apenas a aparência: tamanho dos títulos, bloco de código, tabela e citação',
         'panel.mdfine.headRow': 'Tamanho dos títulos',
@@ -2925,6 +2939,8 @@ window.__ModuleLoader__.load({
 'panel.chat.srcModel': 'Цвета: палитра модели',
 'panel.chat.useSampled': 'Взять с изображения',
 'panel.chat.useModel': 'Взять палитру модели',
+'panel.chat.superseded': 'Заменено более новым оформлением',
+'panel.chat.texMissing': 'Текстура недоступна — применены только цвета',
         'panel.mdfine.title': 'Тонкая настройка Markdown',
         'panel.mdfine.note': 'Только внешний вид: размер заголовков, блок кода, таблица, цитата',
         'panel.mdfine.headRow': 'Размер заголовков',
@@ -9342,6 +9358,12 @@ function applyTokens(theme, pref) {
           chat: typeof font.chat === 'string' ? font.chat : '',
         },
         radiusScale: typeof m.radiusScale === 'number' ? Math.max(0, Math.min(3, m.radiusScale)) : 1,
+        // R-08：宿主只传预设 id（它不持有配方），圆角与字体的真源在客户端 STYLE_PRESETS。
+        preset: (function () {
+          const p = typeof m.preset === 'string' ? m.preset : '';
+          if (!p) return '';
+          return STYLE_PRESETS.some(function (x) { return x.id === p; }) ? p : '';
+        })(),
         textureDecision: m.textureDecision === 'want' ? 'want' : 'no',
         refName: m.ref && typeof m.ref.name === 'string' ? m.ref.name : '',
         texture: (function () {
@@ -9443,6 +9465,18 @@ function applyTokens(theme, pref) {
         .catch(function () { return ''; });
     }
 
+    // 预设 id → 圆角与字体的缺省值。客户端持有配方，宿主只传 id（见 R-08）。
+    function zrPresetDefaults(id) {
+      if (!id) return null;
+      const p = STYLE_PRESETS.filter(function (x) { return x.id === id; })[0];
+      if (!p) return null;
+      const fam = function (v) { return v === '__mono__' ? 'JetBrains Mono' : (v || ''); };
+      return {
+        radiusScale: typeof p.radius === 'number' ? p.radius : 1,
+        font: { body: fam(p.body), chat: fam(p.chat) },
+      };
+    }
+
     // 这套 spec 会克隆哪个 base 主题。zrApplyThemeSpec 与 zrResolveBg 共用这一处判据，
     // 否则会出现「底纹按 A 主题的底色对齐、主题却克隆了 B」的静默漂移。
     function zrBaseThemeId() {
@@ -9482,6 +9516,7 @@ function applyTokens(theme, pref) {
           dark: saved.dark || {},
           font: saved.font || {},
           radiusScale: saved.radiusScale,
+          preset: (spec && spec.preset) || '',
           autoDark: !!saved.autoDark,
           bg: saved.bg ? { source: saved.bg.source, key: saved.bg.key, keyLight: saved.bg.keyLight } : null,
           textureDecision: (spec && spec.textureDecision === 'want') ? 'want' : 'no',
@@ -9512,6 +9547,8 @@ function applyTokens(theme, pref) {
       do {
         id = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
       } while (THEME_IDS.indexOf(id) !== -1 || list.some(function (c) { return c.id === id; }));
+      // 预设只补「模型没给」的那部分：显式给了字体/圆角就以模型为准。
+      const pd = zrPresetDefaults(spec.preset);
       const candidate = {
         id: id,
         label: spec.label,
@@ -9519,8 +9556,12 @@ function applyTokens(theme, pref) {
         // 模型给了完整深色表就用它（autoDark 关掉），否则退回由浅色反推。
         dark: spec.dark || {},
         light: spec.light,
-        font: spec.font || { body: '', chat: '' },
-        radiusScale: typeof spec.radiusScale === 'number' ? spec.radiusScale : 1,
+        font: (function () {
+          const f = spec.font || {};
+          if (f.body || f.chat) return { body: f.body || '', chat: f.chat || '' };
+          return pd ? { body: pd.font.body, chat: pd.font.chat } : { body: '', chat: '' };
+        })(),
+        radiusScale: typeof spec.radiusScale === 'number' ? spec.radiusScale : (pd ? pd.radiusScale : 1),
         autoDark: !(spec.dark && Object.keys(spec.dark).length >= 4),
         // 有 AI 底纹就绑上：先塞内存 Map（applyTokens 同步读它），IDB 落库异步补。
         bg: (function () {
@@ -9581,6 +9622,9 @@ function applyTokens(theme, pref) {
       '.zrc-ok{color:var(--dsw-alias-state-success-primary);}',
         '.zrc-texnote{margin-top:6px;font-size:11px;line-height:1.5;color:var(--dsw-alias-label-tertiary);}',
       '.zrc-err{color:var(--dsw-alias-state-error-primary);}',
+      // R-09：底纹缺失、被后一张卡取代这类「不是错误但必须说」的提示走警示色，不抢错误红。
+      '.zrc-warn{margin-top:6px;font-size:11px;line-height:1.5;color:var(--dsw-alias-state-warn-primary);}',
+      '.zrc-stale{opacity:.6;}',
       '.zrc-inp{width:100%;padding:3px 6px;border-radius:6px;font:inherit;font-size:11px;',
       'background:var(--dsw-alias-bg-base);border:1px solid var(--dsw-alias-border-l2);',
       'color:var(--dsw-alias-label-primary);}',
@@ -9632,6 +9676,23 @@ function applyTokens(theme, pref) {
       };
     }
 
+    // R-09：同一会话只留一张「活」卡。历史卡不消失（消息还在），但被取代的要标出来，
+    // 否则用户在一串三色卡里点「应用」，很可能是照着上一张的色板点的。
+    let zrCardSeq = 0;
+    const zrCardLive = { id: 0, subs: new Set() };
+    // 「用户要了底纹，但两张都没取回来」的判据（纯函数，便于无头验证）。
+    // 一张取到就算成功：另一张缺了会由客户端反相兜底，不需要在这里报。
+    function zrTexMissing(wanted, darkUrl, lightUrl) {
+      return !!wanted && !darkUrl && !lightUrl;
+    }
+
+    function zrClaimCard() {
+      const id = ++zrCardSeq;
+      zrCardLive.id = id;
+      zrCardLive.subs.forEach(function (fn) { try { fn(id); } catch (e) { /* ignore */ } });
+      return id;
+    }
+
     function ThemeCardNode(props) {
       const node = props && props.node;
       const data = node && node.data;
@@ -9677,13 +9738,25 @@ function applyTokens(theme, pref) {
       const [mode, setMode] = useState('view');
       const [done, setDone] = useState(false);
       const [err, setErr] = useState('');
+      // R-09：底纹取不到要说话；被后面新生成的卡取代也要说话。
+      const [texNote, setTexNote] = useState('');
+      const [superseded, setSuperseded] = useState(false);
       useEffect(function () { zrEnsureCardCss(); }, []);
+      // 挂载即登记为「当前活卡」，并订阅后续登记：别人成为活卡时，我标记自己被取代。
+      useEffect(function () {
+        const myId = zrClaimCard();
+        const fn = function (liveId) { setSuperseded(liveId !== myId); };
+        zrCardLive.subs.add(fn);
+        return function () { zrCardLive.subs.delete(fn); };
+      }, []);
       if (!spec) return null;
 
       const applied = function (target) {
         setErr('');
         // 底纹要先取回字节再写盘，所以这一步是异步的；取不到就退化成纯配色，不影响应用。
         zrResolveBg(target).then(function (bgs) {
+        // R-09：用户要了底纹却一张都没取回来时明说，别静默退化成纯配色（原来是无声的）。
+        setTexNote(zrTexMissing(target.texture || target.textureLight, bgs.dark, bgs.light) ? t('panel.chat.texMissing') : '');
         const t2 = Object.assign({}, target, { textureDataUrl: bgs.dark, textureLightDataUrl: bgs.light });
         try {
           const safe = zrApplyThemeSpec(t2);
@@ -9717,7 +9790,8 @@ function applyTokens(theme, pref) {
       };
       const view = mode === 'edit' ? draft : spec;
 
-      return h('div', { className: 'zrc', 'data-zhuoer-card': 'theme' },
+      // 被取代的卡整体降透明：既看得出「它已经不是当前那张」，也不至于读不了。
+      return h('div', { className: 'zrc' + (superseded ? ' zrc-stale' : ''), 'data-zhuoer-card': 'theme' },
         h('style', null, THEME_CARD_CSS),
         h('div', { className: 'zrc-hd' },
           h('span', { className: 'zrc-name' }, view.label || spec.label),
@@ -9774,7 +9848,7 @@ function applyTokens(theme, pref) {
               draft.altLight
                 ? h('button', { type: 'button', className: 'zrc-btn', onClick: swapSource }, draft.src === 'sampled' ? t('panel.chat.useModel') : t('panel.chat.useSampled'))
                 : null,
-              h('button', { type: 'button', className: 'zrc-btn', 'data-pri': '1', onClick: function () { applied(draft); } }, t('panel.chat.applyEdited')),
+              h('button', { type: 'button', className: 'zrc-btn', 'data-pri': '1', disabled: superseded, onClick: function () { applied(draft); } }, t('panel.chat.applyEdited')),
               h('button', { type: 'button', className: 'zrc-btn', onClick: function () { setMode('view'); } }, t('panel.chat.cancel')),
             )
           : h('div', { className: 'zrc-acts' },
@@ -9785,7 +9859,7 @@ function applyTokens(theme, pref) {
                     const soft = rep.softened && rep.softened.length ? ' · ' + t('panel.chat.ovSoft').replace('{s}', String(rep.softened.length)) : '';
                     return h('span', { className: 'zrc-ok' }, t('panel.chat.ovApplied').replace('{n}', String(rep.applied.length)) + soft);
                   })()
-                : h('button', { type: 'button', className: 'zrc-btn', 'data-pri': '1', onClick: function () { applied(spec); } }, t('panel.chat.apply')),
+                : h('button', { type: 'button', className: 'zrc-btn', 'data-pri': '1', disabled: superseded, onClick: function () { applied(spec); } }, t('panel.chat.apply')),
               h('button', { type: 'button', className: 'zrc-btn', onClick: startEdit }, t('panel.chat.modify')),
               spec.altLight
                 ? h('button', { type: 'button', className: 'zrc-btn', onClick: swapInView }, spec.src === 'sampled' ? t('panel.chat.useModel') : t('panel.chat.useSampled'))
@@ -9797,6 +9871,8 @@ function applyTokens(theme, pref) {
         spec.sampledHex && spec.sampledHex.length
           ? h('div', { className: 'zrc-texnote' }, t('panel.chat.sampled') + '：' + spec.sampledHex.join(' · '))
           : null,
+        superseded ? h('div', { className: 'zrc-warn' }, t('panel.chat.superseded')) : null,
+        texNote ? h('div', { className: 'zrc-warn', role: 'alert' }, texNote) : null,
         err ? h('div', { className: 'zrc-err', role: 'alert' }, err) : null,
       );
     }
