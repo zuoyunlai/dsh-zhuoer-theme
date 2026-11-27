@@ -321,6 +321,7 @@
         'panel.ed.resetAllTitle': '清空当前明暗的锚点覆盖',
         'panel.ed.toolsShow': '展开 AI 与取色',
         'panel.ed.toolsHide': '收起 AI 与取色',
+        'panel.bg.opacityCapCapped': '满格 = {p}% 不透明度（已按对比度限制）',
       },
       en: {
         'rail.ariaLabel': 'Right sidebar quick nav',
@@ -633,6 +634,7 @@
         'panel.ed.resetAllTitle': 'Clear anchor overrides for this mode',
         'panel.ed.toolsShow': 'Show AI & image tools',
         'panel.ed.toolsHide': 'Hide AI & image tools',
+        'panel.bg.opacityCapCapped': 'full = {p}% opacity (capped for contrast)',
       },
       de: {
         'rail.ariaLabel': 'Schnellnavigation in der rechten Seitenleiste',
@@ -945,6 +947,7 @@
         'panel.ed.resetAllTitle': 'Anker-Überschreibungen dieses Modus löschen',
         'panel.ed.toolsShow': 'KI- und Bildwerkzeuge einblenden',
         'panel.ed.toolsHide': 'KI- und Bildwerkzeuge ausblenden',
+        'panel.bg.opacityCapCapped': 'randlos = {p} % Deckkraft (kontrastbedingt begrenzt)',
       },
       es: {
         'rail.ariaLabel': 'Navegación rápida de la barra lateral derecha',
@@ -1257,6 +1260,7 @@
         'panel.ed.resetAllTitle': 'Borrar los cambios de anclaje de este modo',
         'panel.ed.toolsShow': 'Mostrar herramientas de IA e imagen',
         'panel.ed.toolsHide': 'Ocultar herramientas de IA e imagen',
+        'panel.bg.opacityCapCapped': 'a sangre = {p} % de opacidad (limitado por contraste)',
       },
       fr: {
         'rail.ariaLabel': 'Navigation rapide de la barre latérale droite',
@@ -1569,6 +1573,7 @@
         'panel.ed.resetAllTitle': 'Effacer les ancres modifiées dans ce mode',
         'panel.ed.toolsShow': 'Afficher les outils IA et image',
         'panel.ed.toolsHide': 'Masquer les outils IA et image',
+        'panel.bg.opacityCapCapped': 'plein écran = {p} % d\'opacité (limité pour le contraste)',
       },
       ja: {
         'rail.ariaLabel': '右サイドバーのクイックナビ',
@@ -1881,6 +1886,7 @@
         'panel.ed.resetAllTitle': 'この表示モードのアンカー上書きを消去',
         'panel.ed.toolsShow': 'AI と画像ツールを開く',
         'panel.ed.toolsHide': 'AI と画像ツールを閉じる',
+        'panel.bg.opacityCapCapped': '全画面＝不透明度 {p}%（コントラストのため制限）',
       },
       pt: {
         'rail.ariaLabel': 'Navegação rápida da barra lateral direita',
@@ -2193,6 +2199,7 @@
         'panel.ed.resetAllTitle': 'Limpar as âncoras alteradas neste modo',
         'panel.ed.toolsShow': 'Mostrar ferramentas de IA e imagem',
         'panel.ed.toolsHide': 'Ocultar ferramentas de IA e imagem',
+        'panel.bg.opacityCapCapped': 'sem margens = {p} % de opacidade (limitado por contraste)',
       },
       ru: {
         'rail.ariaLabel': 'Быстрая навигация по правой боковой панели',
@@ -2505,6 +2512,7 @@
         'panel.ed.resetAllTitle': 'Очистить переопределения якорей для этого режима',
         'panel.ed.toolsShow': 'Показать инструменты ИИ и изображений',
         'panel.ed.toolsHide': 'Скрыть инструменты ИИ и изображений',
+        'panel.bg.opacityCapCapped': 'во всю площадь = {p} % непрозрачности (ограничено ради контраста)',
       },
     }
     // <<< i18n:end <<<

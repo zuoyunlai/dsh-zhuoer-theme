@@ -308,5 +308,6 @@
   "panel.ed.resetAll": "Restaurar valor base",
   "panel.ed.resetAllTitle": "Borrar los cambios de anclaje de este modo",
   "panel.ed.toolsShow": "Mostrar herramientas de IA e imagen",
-  "panel.ed.toolsHide": "Ocultar herramientas de IA e imagen"
+  "panel.ed.toolsHide": "Ocultar herramientas de IA e imagen",
+  "panel.bg.opacityCapCapped": "a sangre = {p} % de opacidad (limitado por contraste)"
 }

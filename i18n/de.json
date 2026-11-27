@@ -308,5 +308,6 @@
   "panel.ed.resetAll": "Auf Basis zurücksetzen",
   "panel.ed.resetAllTitle": "Anker-Überschreibungen dieses Modus löschen",
   "panel.ed.toolsShow": "KI- und Bildwerkzeuge einblenden",
-  "panel.ed.toolsHide": "KI- und Bildwerkzeuge ausblenden"
+  "panel.ed.toolsHide": "KI- und Bildwerkzeuge ausblenden",
+  "panel.bg.opacityCapCapped": "randlos = {p} % Deckkraft (kontrastbedingt begrenzt)"
 }

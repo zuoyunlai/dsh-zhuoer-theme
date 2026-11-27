@@ -308,5 +308,6 @@
   "panel.ed.resetAll": "Repor valor base",
   "panel.ed.resetAllTitle": "Limpar as âncoras alteradas neste modo",
   "panel.ed.toolsShow": "Mostrar ferramentas de IA e imagem",
-  "panel.ed.toolsHide": "Ocultar ferramentas de IA e imagem"
+  "panel.ed.toolsHide": "Ocultar ferramentas de IA e imagem",
+  "panel.bg.opacityCapCapped": "sem margens = {p} % de opacidade (limitado por contraste)"
 }

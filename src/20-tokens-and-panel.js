@@ -147,6 +147,80 @@ function brandCssFor(pref) {
 
 // 主题底图：蒙层色跟随明暗（之前写死深色，浅色模式一片灰），
 // 图片挂在 _mainPanel 的 ::before 上，会话内层 _root 必须透明，否则图被整片盖住。
+// ---- 自定义照片的对比度限幅（L1b）----
+// 为什么只对照片做：底纹（kind=texture）走 lighten，只让比底色亮的线条透出，实测侵蚀 ≤ 1.08；
+// 而照片路径不加任何混合模式，0.7 不透明度是整幅图盖上去的，图由用户决定，离线给不出边界。
+// 做法：载入后按 64×64 采样，解出「正文仍达 4.5:1 还能保留的最大不透明度」，再乘到可见度上。
+// 为什么是 4.5 而不是正文地板 7:1：7:1 会把大多数照片压到几乎不可见，失去「用自己照片」的意义。
+const PHOTO_CONTRAST_TARGET = 4.5;
+const PHOTO_CAP_MAX = 0.7;
+const photoCapCache = Object.create(null);
+// 面板用它显示「已按对比度限制」；非照片路径恒为 0.7（即原口径「满格 = 70%」）。
+let currentPhotoCap = PHOTO_CAP_MAX;
+let zrReapply = null;   // 采样是异步的，回来后触发一次重算
+
+function zrLin(v) { v = v / 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }
+function zrHexRgb(hex) {
+  const m = String(hex || '').replace('#', '');
+  const full = m.length === 3 ? m.split('').map((c) => c + c).join('') : m;
+  if (!/^[0-9a-fA-F]{6}$/.test(full)) return null;
+  return [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16));
+}
+function zrHexLum(hex) {
+  const c = zrHexRgb(hex);
+  return c ? 0.2126 * zrLin(c[0]) + 0.7152 * zrLin(c[1]) + 0.0722 * zrLin(c[2]) : null;
+}
+function zrRatio(a, b) { return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05); }
+
+// 逐档扫 α（0.70 → 0.05，步长 0.01，取第一个达标的），每个档位都对所有采样像素算最不利值。
+// 为什么扫而不是解方程：合成发生在 sRGB 通道空间、对比度发生在亮度空间，两者非线性；
+// 闭式解要么近似，要么漏掉「最不利像素不是均值像素」这种情况。
+function zrSolvePhotoCap(pixels, textHex, baseHex) {
+  const textLum = zrHexLum(textHex);
+  const b = zrHexRgb(baseHex);
+  if (textLum === null || !b) return PHOTO_CAP_MAX;
+  for (let a = PHOTO_CAP_MAX; a >= 0.049; a -= 0.01) {
+    let worst = Infinity;
+    for (let i = 0; i < pixels.length; i += 4) {
+      const l = 0.2126 * zrLin(a * pixels[i] + (1 - a) * b[0])
+        + 0.7152 * zrLin(a * pixels[i + 1] + (1 - a) * b[1])
+        + 0.0722 * zrLin(a * pixels[i + 2] + (1 - a) * b[2]);
+      const c = zrRatio(textLum, l);
+      if (c < worst) worst = c;
+      if (worst < PHOTO_CONTRAST_TARGET) break;
+    }
+    if (worst >= PHOTO_CONTRAST_TARGET) return +a.toFixed(2);
+  }
+  return 0.05;
+}
+
+function zrPhotoCapFor(url, textHex, baseHex, kind) {
+  if (!url || kind === 'texture') return PHOTO_CAP_MAX;
+  const key = String(url).length + ':' + String(url).slice(-96);
+  if (photoCapCache[key] != null) return photoCapCache[key];
+  photoCapCache[key] = PHOTO_CAP_MAX;   // 采样未完成前先按原值，避免「先压到 0 再跳回来」
+  try {
+    const img = new Image();
+    img.onload = function () {
+      let cap = PHOTO_CAP_MAX;
+      try {
+        const S = 64;
+        const cv = document.createElement('canvas');
+        cv.width = S; cv.height = S;
+        const cx = cv.getContext('2d', { willReadFrequently: true });
+        cx.drawImage(img, 0, 0, S, S);
+        cap = zrSolvePhotoCap(cx.getImageData(0, 0, S, S).data, textHex, baseHex);
+      } catch (e) { cap = PHOTO_CAP_MAX; }
+      const changed = Math.abs(cap - photoCapCache[key]) >= 0.01;
+      photoCapCache[key] = cap;
+      if (changed && typeof zrReapply === 'function') { try { zrReapply(); } catch (e) { /* ignore */ } }
+    };
+    img.onerror = function () { photoCapCache[key] = PHOTO_CAP_MAX; };
+    img.src = url;
+  } catch (e) { /* ignore */ }
+  return PHOTO_CAP_MAX;
+}
+
 function bgCssFor(o) {
   var bgUrl = o.bgUrl;
   if (!bgUrl) return '';
@@ -176,7 +250,9 @@ function bgCssFor(o) {
   var isTexture = o.bgKind === 'texture';
   var blendCss = (isImageBg && isTexture) ? ('mix-blend-mode:' + (o.bgInvert ? 'multiply' : 'lighten') + ' !important;') : '';
   var invertCss = (o.bgInvert && isTexture) ? 'filter:invert(1);' : '';
-  var imgOpacity = +(vis * 0.7).toFixed(3);
+  // 照片路径可能被限幅（L1b）：滑块 100% 时实际不透明度 = min(0.7, 解出的上限)。
+  var capMax = (typeof o.photoCap === 'number') ? Math.min(PHOTO_CAP_MAX, o.photoCap) : PHOTO_CAP_MAX;
+  var imgOpacity = +(vis * capMax).toFixed(3);
   // 淡化：另加一层垂直渐隐遮罩做出「边缘化开」；Zhuoer 的 faded 靠面板层不透明压暗，
   // 我们的内容层是透明的，直接照抄会更浓，所以用 mask 达到同样效果。
   // 底部对齐宿主：composer 自己有一条 36px 的「透明 → bg-base 实心」渐变（宿主 CSS 注释写明
@@ -520,7 +596,10 @@ function applyTokens(theme, pref) {
         // 盒子尺寸由宿主的 width/height 决定，用 contain + 贴左居中：比例不匹配时留白，不会裁切。
         // 来源优先级：用户上传的图 > 主题自带 logo。开但没选图 = 用自带的，不是「不生效」。
         const brandCss = brandCssFor(pref);
-        const bgCss = bgCssFor({ bgUrl: bgUrl, bgOpacity: bgOpacity, bgStyle: bgStyle, bgIsImage: !!(specBg && specBg.source === 'image') || pref.bgSource === 'image', bgInvert: bgInvert, bgKind: bgKind, tokens: tokens, scheme: scheme });
+        // 照片：按采样解出对比度上限；底纹：恒 0.7（lighten 只留亮线，实测侵蚀极小）。
+        const photoCap = zrPhotoCapFor(bgUrl, tokens['--dsw-alias-label-primary'], tokens['--dsw-alias-bg-base'], bgKind);
+        currentPhotoCap = photoCap;
+        const bgCss = bgCssFor({ photoCap: photoCap, bgUrl: bgUrl, bgOpacity: bgOpacity, bgStyle: bgStyle, bgIsImage: !!(specBg && specBg.source === 'image') || pref.bgSource === 'image', bgInvert: bgInvert, bgKind: bgKind, tokens: tokens, scheme: scheme });
         // 每次应用都报一次底图解析事实（仅 debug 开关下），用于定位方案级不可见。
         try {
           const cc0 = document.querySelector('[class*="_centerCol"]');
@@ -907,6 +986,8 @@ function applyTokens(theme, pref) {
         const styleEl = ensureStyle();
         if (styleEl.__zrCss !== nextCss) {
           styleEl.textContent = nextCss;
+      // 照片采样是异步的：记住重算入口，采样回来后再算一遍（值稳定后不再触发）。
+      zrReapply = function () { try { applyTokens(theme, pref); } catch (e) { /* ignore */ } };
         // 样式表写完后再量图标颜色：否则量到的是注入前的继承色。
         try { zrIconProbe(); } catch (e) { /* ignore */ }
           styleEl.__zrCss = nextCss;
@@ -2978,7 +3059,9 @@ function applyTokens(theme, pref) {
                 h('span', { className: 'zp-val' }, pref.bgOpacity + '%'),
                 // 滑块 85% ≠ 实际 85% 不透明度（实现是 可见度 × 0.7）。上限写在旁边而不是塞进
                 // 行标签：塞进 4.8em 的标签列会把这一行撑成三行，整块的行高跟着变形。
-                h('span', { className: 'zp-hint' }, t('panel.bg.opacityCap'))
+                h('span', { className: 'zp-hint' }, currentPhotoCap < 0.699
+                  ? t('panel.bg.opacityCapCapped', { p: Math.round(currentPhotoCap * 100) })
+                  : t('panel.bg.opacityCap'))
               ),
               h(Row, { label: t('panel.bg.showRow') },
                 h('label', { className: 'zp-chk' },

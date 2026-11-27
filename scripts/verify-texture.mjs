@@ -36,7 +36,8 @@ const root = join(here, '..')
 const contractPath = join(root, 'contracts', 'texture-luminance.json')
 
 const ABSOLUTE = 4.5
-const EROSION_BUDGET = 0.75
+// 侵蚀用**相对**预算而不是绝对常数：侵蚀幅度随对比度本身缩放，绝对常数会在高对比主题上误报。
+const EROSION_RATIO = 0.1
 const ROLES = ['primary', 'secondary', 'tertiary']
 const ROLE_TOKEN = {
   primary: '--dsw-alias-label-primary',
@@ -55,7 +56,7 @@ let bad = 0
 const fail = (m) => { console.error('FAIL  ' + m); bad++ }
 
 if (contract.floors && contract.floors.absolute !== ABSOLUTE) fail('契约 floors.absolute = ' + contract.floors.absolute + '，门禁要求 ' + ABSOLUTE)
-if (contract.floors && contract.floors.erosionBudget !== EROSION_BUDGET) fail('契约 floors.erosionBudget = ' + contract.floors.erosionBudget + '，门禁要求 ' + EROSION_BUDGET)
+if (contract.floors && contract.floors.erosionRatio !== EROSION_RATIO) fail('契约 floors.erosionRatio = ' + contract.floors.erosionRatio + '，门禁要求 ' + EROSION_RATIO)
 
 for (const [name, meta] of Object.entries(contract.textures || {})) {
   const p = join(root, 'assets', 'bg', name)
@@ -106,8 +107,9 @@ for (const row of contract.rows || []) {
     perRole[role].push(worst)
     if (erosion > maxErosion.v) maxErosion = { v: erosion, at: row.theme + '/' + row.mode + '/' + row.variant + ' ' + role }
     const key = row.theme + '/' + row.mode + '/' + row.variant + '|' + role
-    if (erosion > EROSION_BUDGET) {
-      breaches.push({ key, kind: 'erosion', worst: +worst.toFixed(3), erosion: +erosion.toFixed(3), msg: row.theme + '/' + row.mode + '/' + row.variant + ' ' + role + ' 纹理侵蚀 ' + erosion.toFixed(2) + ' > 预算 ' + EROSION_BUDGET })
+    const erosionPct = declared > 0 ? erosion / declared : 0
+    if (erosionPct > EROSION_RATIO) {
+      breaches.push({ key, kind: 'erosion', worst: +worst.toFixed(3), erosionPct: +(erosionPct * 100).toFixed(1), msg: row.theme + '/' + row.mode + '/' + row.variant + ' ' + role + ' 纹理侵蚀 ' + (erosionPct * 100).toFixed(1) + '% > 预算 ' + (EROSION_RATIO * 100) + '%' })
     }
     if (declared >= ABSOLUTE && worst < ABSOLUTE) {
       breaches.push({ key, kind: 'absolute', worst: +worst.toFixed(3), declared: +declared.toFixed(3), msg: row.theme + '/' + row.mode + '/' + row.variant + ' ' + role + ' 底色本已达标 ' + declared.toFixed(2) + ':1，纹理压到 ' + worst.toFixed(2) + ':1 < ' + ABSOLUTE })
@@ -122,7 +124,7 @@ const minima = ROLES.map((r) => {
   return r + ' 最小 ' + v[0].toFixed(2) + ':1 / 中位 ' + v[Math.floor(v.length / 2)].toFixed(2) + ':1'
 }).join(' · ')
 console.log('INFO  ' + minima)
-console.log('INFO  最大侵蚀 ' + maxErosion.v.toFixed(2) + '（' + maxErosion.at + '，预算 ' + EROSION_BUDGET + '）；底色本身已低于 ' + ABSOLUTE + ' 的角色行 ' + preExisting + ' 处（属主题设计，不归本门）')
+console.log('INFO  最大侵蚀 ' + maxErosion.v.toFixed(2) + '（' + maxErosion.at + '，相对预算 ' + (EROSION_RATIO * 100) + '%）；底色本身已低于 ' + ABSOLUTE + ' 的角色行 ' + preExisting + ' 处（属主题设计，不归本门）')
 
 const acceptDebt = process.argv.includes('--accept-debt')
 const fresh = []

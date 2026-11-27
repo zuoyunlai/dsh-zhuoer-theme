@@ -308,5 +308,6 @@
   "panel.ed.resetAll": "恢复克隆值",
   "panel.ed.resetAllTitle": "清空当前明暗的锚点覆盖",
   "panel.ed.toolsShow": "展开 AI 与取色",
-  "panel.ed.toolsHide": "收起 AI 与取色"
+  "panel.ed.toolsHide": "收起 AI 与取色",
+  "panel.bg.opacityCapCapped": "满格 = {p}% 不透明度（已按对比度限制）"
 }

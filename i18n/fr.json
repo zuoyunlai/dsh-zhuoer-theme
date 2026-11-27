@@ -308,5 +308,6 @@
   "panel.ed.resetAll": "Rétablir la base",
   "panel.ed.resetAllTitle": "Effacer les ancres modifiées dans ce mode",
   "panel.ed.toolsShow": "Afficher les outils IA et image",
-  "panel.ed.toolsHide": "Masquer les outils IA et image"
+  "panel.ed.toolsHide": "Masquer les outils IA et image",
+  "panel.bg.opacityCapCapped": "plein écran = {p} % d'opacité (limité pour le contraste)"
 }

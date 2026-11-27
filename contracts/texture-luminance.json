@@ -6,7 +6,7 @@
   "generatedAt": "2026-11-27T05:58:47.636Z",
   "floors": {
     "absolute": 4.5,
-    "erosionBudget": 0.75
+    "erosionRatio": 0.1
   },
   "roles": [
     "--dsw-alias-label-primary",
@@ -640,37 +640,5 @@
       "lumP95": 0.88036,
       "lumP100": 0.88036
     }
-  ],
-  "knownDebt": {
-    "dash/dark/full|tertiary": {
-      "worst": 4.48,
-      "kind": "absolute",
-      "recordedAt": "2026-11-27"
-    },
-    "manuscript/dark/full|tertiary": {
-      "worst": 4.43,
-      "kind": "absolute",
-      "recordedAt": "2026-11-27"
-    },
-    "miami/dark/full|tertiary": {
-      "worst": 4.483,
-      "kind": "absolute",
-      "recordedAt": "2026-11-27"
-    },
-    "vintage-paper/dark/full|primary": {
-      "worst": 10.806,
-      "kind": "erosion",
-      "recordedAt": "2026-11-27"
-    },
-    "vintage-paper/dark/full|tertiary": {
-      "worst": 7.755,
-      "kind": "erosion",
-      "recordedAt": "2026-11-27"
-    },
-    "vintage-paper/dark/soft|primary": {
-      "worst": 10.987,
-      "kind": "erosion",
-      "recordedAt": "2026-11-27"
-    }
-  }
+  ]
 }

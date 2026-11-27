@@ -308,5 +308,6 @@
   "panel.ed.resetAll": "ベース値に戻す",
   "panel.ed.resetAllTitle": "この表示モードのアンカー上書きを消去",
   "panel.ed.toolsShow": "AI と画像ツールを開く",
-  "panel.ed.toolsHide": "AI と画像ツールを閉じる"
+  "panel.ed.toolsHide": "AI と画像ツールを閉じる",
+  "panel.bg.opacityCapCapped": "全画面＝不透明度 {p}%（コントラストのため制限）"
 }

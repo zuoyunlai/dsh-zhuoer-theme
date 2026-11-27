@@ -308,5 +308,6 @@
   "panel.ed.resetAll": "Reset to base",
   "panel.ed.resetAllTitle": "Clear anchor overrides for this mode",
   "panel.ed.toolsShow": "Show AI & image tools",
-  "panel.ed.toolsHide": "Hide AI & image tools"
+  "panel.ed.toolsHide": "Hide AI & image tools",
+  "panel.bg.opacityCapCapped": "full = {p}% opacity (capped for contrast)"
 }

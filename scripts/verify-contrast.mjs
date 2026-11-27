@@ -298,8 +298,11 @@ if (baseline && baseline.pairs) {
     if (prev[m.key] === undefined) continue;
     if (m.ratio < prev[m.key] - 0.01) drops.push(m.key + ' ' + prev[m.key] + ':1 → ' + m.ratio + ':1');
     // Lc 同样只升不降：它是「看得清」的副指标，退步了要说出来。
-    if (typeof prevLc[m.key] === 'number' && typeof m.lc === 'number' && m.lc < prevLc[m.key] - 0.5) {
-      drops.push(m.key + ' Lc ' + prevLc[m.key] + ' → ' + m.lc + '（APCA 副指标退步）');
+    // 必须比 |Lc|：暗底浅字的 Lc 是负数，「更易读」= 更负；直接比带符号的值会把改善误报成退步。
+    const prevAbs = typeof prevLc[m.key] === 'number' ? Math.abs(prevLc[m.key]) : null;
+    const curAbs = typeof m.lc === 'number' ? Math.abs(m.lc) : null;
+    if (prevAbs !== null && curAbs !== null && curAbs < prevAbs - 0.5) {
+      drops.push(m.key + ' |Lc| ' + prevAbs + ' → ' + curAbs + '（APCA 副指标退步）');
     }
   }
 }
