@@ -215,6 +215,25 @@ window.__ModuleLoader__.load({
       return s;
     }
 
+    // ---- B4：字号覆盖的完整性判据 ----
+    // 原来判「扫出来 ≥ 20 条就算完整」。宿主 CSS 里有 1700+ 条 px 字号，所以「读到 30 条」
+    // 其实丢了 98%，但旧判据仍标成 cssom，把这次失败记成了一次成功。
+    // 上游 PTC 的规矩是「只有快照完整才刷新缓存」，这里用覆盖率近似它：≥ 70% 才算读到。
+    const ZR_TEXT_COVER_MIN = 0.7;
+    function zrTextCoverage(have, total) {
+      const t = total | 0;
+      const h = have | 0;
+      if (!t) return { have: h, total: t, ratio: 0, mode: 'unknown', pct: 0 };
+      const ratio = h / t;
+      return {
+        have: h,
+        total: t,
+        ratio: ratio,
+        mode: ratio >= ZR_TEXT_COVER_MIN ? 'cssom' : 'table-fallback',
+        pct: Math.round(ratio * 100),
+      };
+    }
+
     function zrDpr() {
       try { return window.devicePixelRatio || 1; } catch (e) { return 1; }
     }

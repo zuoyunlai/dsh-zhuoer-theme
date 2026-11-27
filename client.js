@@ -215,6 +215,25 @@ window.__ModuleLoader__.load({
       return s;
     }
 
+    // ---- B4：字号覆盖的完整性判据 ----
+    // 原来判「扫出来 ≥ 20 条就算完整」。宿主 CSS 里有 1700+ 条 px 字号，所以「读到 30 条」
+    // 其实丢了 98%，但旧判据仍标成 cssom，把这次失败记成了一次成功。
+    // 上游 PTC 的规矩是「只有快照完整才刷新缓存」，这里用覆盖率近似它：≥ 70% 才算读到。
+    const ZR_TEXT_COVER_MIN = 0.7;
+    function zrTextCoverage(have, total) {
+      const t = total | 0;
+      const h = have | 0;
+      if (!t) return { have: h, total: t, ratio: 0, mode: 'unknown', pct: 0 };
+      const ratio = h / t;
+      return {
+        have: h,
+        total: t,
+        ratio: ratio,
+        mode: ratio >= ZR_TEXT_COVER_MIN ? 'cssom' : 'table-fallback',
+        pct: Math.round(ratio * 100),
+      };
+    }
+
     function zrDpr() {
       try { return window.devicePixelRatio || 1; } catch (e) { return 1; }
     }
@@ -5423,14 +5442,20 @@ function applyTokens(theme, pref) {
             return out;
           };
           let main = build(docSheets.concat(docAdopted));
-          stats.mode = 'cssom';
-          if (main.length < 20) {
+          // B4：覆盖率判据（见 00-core 的 zrTextCoverage）。绝对条数 20 在 1700+ 条的宿主上等于没判。
+          const textTotal = (typeof HOST_TEXT_RULES === 'undefined' || !HOST_TEXT_RULES) ? 0 : HOST_TEXT_RULES.length;
+          let cov = zrTextCoverage(main.length, textTotal);
+          stats.mode = cov.mode;
+          stats.coverage = cov.pct;
+          if (cov.mode !== 'cssom') {
             const tbl = fromTable();
-            if (tbl) { main = tbl; stats.mode = 'table'; }
+            if (tbl) { main = tbl; stats.mode = 'table-fallback'; stats.coverage = 100; }
           }
           el.textContent = main.join('');
           el.__zrK = k;
           stats.rules = main.length;
+          // B4：把降级事实写进自检口（面板那一行留到 C 批一起做，避免一轮里改两次 UI）。
+          try { report({ phase: 'host-text', mode: stats.mode, coverage: stats.coverage, rules: stats.rules, total: textTotal }); } catch (e) { /* ignore */ }
           // Shadow DOM：document 的样式表管不到 shadow root，必须往每个 root 里插一份
           try {
             const hosts = document.querySelectorAll('*');
@@ -5444,7 +5469,8 @@ function applyTokens(theme, pref) {
                 const ad = root.adoptedStyleSheets || [];
                 for (let s = 0; s < ad.length; s++) sheets.push(ad[s]);
                 let rules = build(sheets);
-                if (rules.length < 20) { const tbl = fromTable(); if (tbl) rules = tbl; }
+                // B4：同一套覆盖率判据，shadow root 漏判会让「界面文字不缩放」看起来像随机故障。
+                if (zrTextCoverage(rules.length, textTotal).mode !== 'cssom') { const tbl = fromTable(); if (tbl) rules = tbl; }
                 stats.shadowRules += rules.length;
                 const prev = root.querySelector ? root.querySelector('style[data-zr-hosttext]') : null;
                 if (!rules.length) { if (prev && prev.parentNode) prev.parentNode.removeChild(prev); continue; }

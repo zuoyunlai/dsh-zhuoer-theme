@@ -422,14 +422,20 @@ function applyTokens(theme, pref) {
             return out;
           };
           let main = build(docSheets.concat(docAdopted));
-          stats.mode = 'cssom';
-          if (main.length < 20) {
+          // B4：覆盖率判据（见 00-core 的 zrTextCoverage）。绝对条数 20 在 1700+ 条的宿主上等于没判。
+          const textTotal = (typeof HOST_TEXT_RULES === 'undefined' || !HOST_TEXT_RULES) ? 0 : HOST_TEXT_RULES.length;
+          let cov = zrTextCoverage(main.length, textTotal);
+          stats.mode = cov.mode;
+          stats.coverage = cov.pct;
+          if (cov.mode !== 'cssom') {
             const tbl = fromTable();
-            if (tbl) { main = tbl; stats.mode = 'table'; }
+            if (tbl) { main = tbl; stats.mode = 'table-fallback'; stats.coverage = 100; }
           }
           el.textContent = main.join('');
           el.__zrK = k;
           stats.rules = main.length;
+          // B4：把降级事实写进自检口（面板那一行留到 C 批一起做，避免一轮里改两次 UI）。
+          try { report({ phase: 'host-text', mode: stats.mode, coverage: stats.coverage, rules: stats.rules, total: textTotal }); } catch (e) { /* ignore */ }
           // Shadow DOM：document 的样式表管不到 shadow root，必须往每个 root 里插一份
           try {
             const hosts = document.querySelectorAll('*');
@@ -443,7 +449,8 @@ function applyTokens(theme, pref) {
                 const ad = root.adoptedStyleSheets || [];
                 for (let s = 0; s < ad.length; s++) sheets.push(ad[s]);
                 let rules = build(sheets);
-                if (rules.length < 20) { const tbl = fromTable(); if (tbl) rules = tbl; }
+                // B4：同一套覆盖率判据，shadow root 漏判会让「界面文字不缩放」看起来像随机故障。
+                if (zrTextCoverage(rules.length, textTotal).mode !== 'cssom') { const tbl = fromTable(); if (tbl) rules = tbl; }
                 stats.shadowRules += rules.length;
                 const prev = root.querySelector ? root.querySelector('style[data-zr-hosttext]') : null;
                 if (!rules.length) { if (prev && prev.parentNode) prev.parentNode.removeChild(prev); continue; }

@@ -273,6 +273,11 @@
 - 改动面：`src/00-core.js`（`isolationReducer` + `ZR_ISOLATION_LIMIT`）、`src/20-tokens-and-panel.js`（tick/降频重试/成功清零/失败分类 + `theme-isolation` 上报）、新增 `scripts/test-isolation.mjs`、`package.json` 接进 `npm test`
 - 测试：8 例通过（阈值 3）；**首跑就抓到 TDZ 真 bug**（`const s` 在初始化式里引用 `s`），这类错误会让每次 apply 都抛、主题整片失效，静态门抓不到。
 - 未做：失败分类是**按消息正则**判的（bare string / invalid / 参数 → 参数错误；not a function / undefined / null → 明确不可用；其余 → 临时）。宿主换错误文案时分类会退化到 transient，属可接受退化（宁可多试 3 次，不要一次即弃）。
+### B4（2026-11-27 21:22）：字号覆盖完整性判据
+
+- 改动面：`src/00-core.js`（`ZR_TEXT_COVER_MIN` + `zrTextCoverage`）、`src/20-tokens-and-panel.js`（两处判据改覆盖率 + `host-text` 上报）、新增 `scripts/test-textmode.mjs`、`package.json`
+- 测试：5 例通过（全读到 / 只读到 30 条 / 恰好踩阈值 / 读空 / 无静态表可对）
+- 面板行未做：留到 C 批，避免一轮里改两次 UI 让快照反复重采（已在 CHANGELOG 写明）。
 
 ## 7. 收口汇总（待填）
 
