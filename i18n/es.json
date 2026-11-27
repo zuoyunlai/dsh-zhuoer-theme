@@ -161,7 +161,7 @@
   "panel.a11y.hitRow": "Área táctil",
   "panel.a11y.procRow": "Iconos de paso",
   "panel.a11y.procOn": "Colores semánticos",
-  "panel.a11y.procNote": "Leer = azul / escribir o preguntar = ámbar / pensar y ejecutar = color de marca",
+  "panel.a11y.procNote": "pensar = violeta / ejecutar = azul / leer = verde / escribir y preguntar = ámbar",
   "panel.type.mdHeadRow": "Color de los títulos",
   "panel.type.mdHeadAria": "Color de los títulos Markdown",
   "panel.type.mdHeadFollow": "Seguir al texto",

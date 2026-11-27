@@ -405,7 +405,7 @@ window.__ModuleLoader__.load({
         'panel.a11y.hitRow': '点击区',
         'panel.a11y.procRow': '步骤图标',
         'panel.a11y.procOn': '用语义色',
-        'panel.a11y.procNote': '读=蓝 / 改或问=琥珀 / 思考与执行=品牌色',
+        'panel.a11y.procNote': '想=紫 / 跑=蓝 / 看=绿 / 改与问=琥珀',
         'panel.type.mdHeadRow': '标题配色',
         'panel.type.mdHeadAria': 'Markdown 标题配色',
         'panel.type.mdHeadFollow': '跟随正文',
@@ -669,7 +669,7 @@ window.__ModuleLoader__.load({
         'panel.a11y.hitRow': 'Hit target',
         'panel.a11y.procRow': 'Step icons',
         'panel.a11y.procOn': 'Semantic colours',
-        'panel.a11y.procNote': 'Read = blue / write or ask = amber / think and run = brand',
+        'panel.a11y.procNote': 'Think = violet / run = blue / read = green / write & ask = amber',
         'panel.type.mdHeadRow': 'Heading colour',
         'panel.type.mdHeadAria': 'Markdown heading colour',
         'panel.type.mdHeadFollow': 'Follow body',
@@ -934,7 +934,7 @@ window.__ModuleLoader__.load({
         'panel.a11y.hitRow': 'Trefferfläche',
         'panel.a11y.procRow': 'Schritt-Symbole',
         'panel.a11y.procOn': 'Semantische Farben',
-        'panel.a11y.procNote': 'Lesen = Blau / Schreiben oder Fragen = Bernstein / Denken und Ausführen = Markenfarbe',
+        'panel.a11y.procNote': 'Denken = Violett / Ausführen = Blau / Lesen = Grün / Schreiben und Fragen = Bernstein',
         'panel.type.mdHeadRow': 'Farbe der Überschriften',
         'panel.type.mdHeadAria': 'Farbe der Markdown-Überschriften',
         'panel.type.mdHeadFollow': 'Wie der Text',
@@ -1199,7 +1199,7 @@ window.__ModuleLoader__.load({
         'panel.a11y.hitRow': 'Área táctil',
         'panel.a11y.procRow': 'Iconos de paso',
         'panel.a11y.procOn': 'Colores semánticos',
-        'panel.a11y.procNote': 'Leer = azul / escribir o preguntar = ámbar / pensar y ejecutar = color de marca',
+        'panel.a11y.procNote': 'pensar = violeta / ejecutar = azul / leer = verde / escribir y preguntar = ámbar',
         'panel.type.mdHeadRow': 'Color de los títulos',
         'panel.type.mdHeadAria': 'Color de los títulos Markdown',
         'panel.type.mdHeadFollow': 'Seguir al texto',
@@ -1464,7 +1464,7 @@ window.__ModuleLoader__.load({
         'panel.a11y.hitRow': 'Zone tactile',
         'panel.a11y.procRow': 'Icônes d\'étape',
         'panel.a11y.procOn': 'Couleurs sémantiques',
-        'panel.a11y.procNote': 'Lecture = bleu / écriture ou question = ambre / réflexion et exécution = couleur de marque',
+        'panel.a11y.procNote': 'réfléchir = violet / exécuter = bleu / lire = vert / écrire et demander = ambre',
         'panel.type.mdHeadRow': 'Couleur des titres',
         'panel.type.mdHeadAria': 'Couleur des titres Markdown',
         'panel.type.mdHeadFollow': 'Suivre le texte',
@@ -1729,7 +1729,7 @@ window.__ModuleLoader__.load({
         'panel.a11y.hitRow': 'クリック領域',
         'panel.a11y.procRow': 'ステップアイコン',
         'panel.a11y.procOn': '意味の色を使う',
-        'panel.a11y.procNote': '閲覧=青 / 編集・質問=琥珀 / 思考・実行=ブランド色',
+        'panel.a11y.procNote': '思考=紫 / 実行=青 / 閲覧=緑 / 変更と質問=琥珀',
         'panel.type.mdHeadRow': '見出しの色',
         'panel.type.mdHeadAria': 'Markdown の見出し色',
         'panel.type.mdHeadFollow': '本文に合わせる',
@@ -1994,7 +1994,7 @@ window.__ModuleLoader__.load({
         'panel.a11y.hitRow': 'Área de toque',
         'panel.a11y.procRow': 'Ícones de passo',
         'panel.a11y.procOn': 'Cores semânticas',
-        'panel.a11y.procNote': 'Ler = azul / escrever ou perguntar = âmbar / pensar e executar = cor da marca',
+        'panel.a11y.procNote': 'pensar = violeta / executar = azul / ler = verde / escrever e perguntar = âmbar',
         'panel.type.mdHeadRow': 'Cor dos títulos',
         'panel.type.mdHeadAria': 'Cor dos títulos Markdown',
         'panel.type.mdHeadFollow': 'Seguir o texto',
@@ -2259,7 +2259,7 @@ window.__ModuleLoader__.load({
         'panel.a11y.hitRow': 'Область нажатия',
         'panel.a11y.procRow': 'Иконки шагов',
         'panel.a11y.procOn': 'Семантические цвета',
-        'panel.a11y.procNote': 'Чтение = синий / запись или вопрос = янтарный / размышление и выполнение = цвет марки',
+        'panel.a11y.procNote': 'размышление = фиолетовый / выполнение = синий / чтение = зелёный / запись и вопрос = янтарный',
         'panel.type.mdHeadRow': 'Цвет заголовков',
         'panel.type.mdHeadAria': 'Цвет заголовков Markdown',
         'panel.type.mdHeadFollow': 'Как основной текст',
@@ -5324,23 +5324,43 @@ function applyTokens(theme, pref) {
         //   品牌色＝在想或在跑（思考/工具/命令/代码/子代理）。
         // 宿主**没有**信息蓝语义 token（link 等于品牌色），所以蓝取自原始调色板
         // --dsw-static-blue-*，并按明暗选档保证对底色 ≥3:1（图标属 UI 图形，走 1.4.11）。
-        var infoBlue = scheme === 'light' ? 'var(--dsw-static-blue-600)' : 'var(--dsw-static-blue-400)';
+        // 步骤过程组头的活动图标：宿主把它画成 color:inherit（跟着文字色走），
+        // 所以想上语义色必须**给图标元素单独设 color**——它自己没有颜色规则。
+        // 宿主在图标 span 上留了稳定属性 data-step-process-icon，按钮上有 data-process-activity。
+        //
+        // 配色方案（0.6.38 第一版失败的教训）：
+        //   第一版用「品牌色 / 琥珀 / 蓝」，实测截图里 6 个图标全是同一个 #b5342a——
+        //   因为卓尔的品牌色**本身就是红**，而最常见的 5 类活动全被分到品牌色，
+        //   于是「语义色」退化成「一种颜色」。所以这一版**不再用品牌色**。
+        //
+        // 第二版：色相固定（紫=思考 / 蓝=执行 / 绿=查看 / 琥珀=改动与提问），
+        // 亮度由 color-mix 混**主题正文色**决定：
+        //   浅色主题正文是深色 → 混出的色变深（琥珀 500 实测在浅底只有 1.72:1，混完就有 4:1+）；
+        //   深色主题正文是浅色 → 混出的色变亮。
+        // 于是任何主题、任何明暗都读得清，同时保留色相；正文色是主题派生的，结果仍带主题气质。
+        // 每条先写一次裸色值：浏览器不认 color-mix 时会回退到它（不会变成没颜色）。
+        var TEXTMIX = 'var(--dsw-alias-label-primary)';
+        var hueMix = function (token) {
+          // 色相占 55%：实测 65% 时琥珀在浅底只有 2.87:1（门禁报红），
+          // 55% 时最差 3.37:1，四个色相在明暗两档都 ≥3:1。
+          return 'color:var(' + token + ');color:color-mix(in srgb,var(' + token + ') 55%,' + TEXTMIX + ');';
+        };
         var procCss = pref.procIconColor ? (
-          'html[data-zr-proc="1"] [data-step-process-icon]{color:' + infoBlue + ';}'
+          'html[data-zr-proc="1"] [data-step-process-icon]{' + hueMix('--dsw-static-violet-400') + '}'
+          + 'html[data-zr-proc="1"] [data-process-activity="thinking"] [data-step-process-icon]{' + hueMix('--dsw-static-violet-400') + '}'
+          + 'html[data-zr-proc="1"] [data-process-activity="tools"] [data-step-process-icon],'
+          + 'html[data-zr-proc="1"] [data-process-activity="commands"] [data-step-process-icon],'
+          + 'html[data-zr-proc="1"] [data-process-activity="code"] [data-step-process-icon],'
+          + 'html[data-zr-proc="1"] [data-process-activity="subagents"] [data-step-process-icon]{' + hueMix('--dsw-static-blue-500') + '}'
           + 'html[data-zr-proc="1"] [data-process-activity="read"] [data-step-process-icon],'
           + 'html[data-zr-proc="1"] [data-process-activity="readImage"] [data-step-process-icon],'
           + 'html[data-zr-proc="1"] [data-process-activity="search"] [data-step-process-icon],'
           + 'html[data-zr-proc="1"] [data-process-activity="webSearch"] [data-step-process-icon],'
-          + 'html[data-zr-proc="1"] [data-process-activity="webFetch"] [data-step-process-icon]{color:' + infoBlue + ';}'
+          + 'html[data-zr-proc="1"] [data-process-activity="webFetch"] [data-step-process-icon]{' + hueMix('--dsw-static-green-500') + '}'
           + 'html[data-zr-proc="1"] [data-process-activity="edit"] [data-step-process-icon],'
           + 'html[data-zr-proc="1"] [data-process-activity="write"] [data-step-process-icon],'
           + 'html[data-zr-proc="1"] [data-process-activity="plan"] [data-step-process-icon],'
-          + 'html[data-zr-proc="1"] [data-process-activity="questions"] [data-step-process-icon]{color:var(--dsw-alias-state-warn-primary);}'
-          + 'html[data-zr-proc="1"] [data-process-activity="thinking"] [data-step-process-icon],'
-          + 'html[data-zr-proc="1"] [data-process-activity="tools"] [data-step-process-icon],'
-          + 'html[data-zr-proc="1"] [data-process-activity="commands"] [data-step-process-icon],'
-          + 'html[data-zr-proc="1"] [data-process-activity="code"] [data-step-process-icon],'
-          + 'html[data-zr-proc="1"] [data-process-activity="subagents"] [data-step-process-icon]{color:var(--dsw-alias-brand-primary);}'
+          + 'html[data-zr-proc="1"] [data-process-activity="questions"] [data-step-process-icon]{' + hueMix('--dsw-static-amber-500') + '}'
         ) : '';
         const nextCss = css + extra + bgCss + fxCss + brandCss + a11yCss + mdCss + headCss + procCss;
         const styleEl = ensureStyle();

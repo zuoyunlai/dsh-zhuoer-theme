@@ -161,7 +161,7 @@
   "panel.a11y.hitRow": "Trefferfläche",
   "panel.a11y.procRow": "Schritt-Symbole",
   "panel.a11y.procOn": "Semantische Farben",
-  "panel.a11y.procNote": "Lesen = Blau / Schreiben oder Fragen = Bernstein / Denken und Ausführen = Markenfarbe",
+  "panel.a11y.procNote": "Denken = Violett / Ausführen = Blau / Lesen = Grün / Schreiben und Fragen = Bernstein",
   "panel.type.mdHeadRow": "Farbe der Überschriften",
   "panel.type.mdHeadAria": "Farbe der Markdown-Überschriften",
   "panel.type.mdHeadFollow": "Wie der Text",

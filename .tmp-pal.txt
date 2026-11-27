@@ -1,0 +1,26 @@
+families: neutral-bluish(22), neutral(16), blue(12), deepseek(11), red(6), amber(5), green(4), violet(2)
+
+amber-400                #f7ad31
+amber-500                #f59e0b
+amber-600                #dd8629
+blue-400                 #60a5fa
+blue-450                 #4d93f8
+blue-500                 #3b82f6
+blue-600                 #2563eb
+deepseek-400             #7aaaff
+deepseek-450             #5686fe
+deepseek-500             #4176e6
+deepseek-600             #4868b2
+green-400                #4ed17e
+green-500                #22c55e
+neutral-400              #a2a4a6
+neutral-500              #7f8287
+neutral-600              #545557
+neutral-bluish-400       #adb2b8
+neutral-bluish-500       #979da6
+neutral-bluish-600       #81858c
+red-400                  #f25a5a
+red-500                  #ef4444
+red-600                  #ec1313
+violet-400               #a78bfa
+violet-600               #7c3aed

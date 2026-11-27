@@ -161,7 +161,7 @@
   "panel.a11y.hitRow": "Zone tactile",
   "panel.a11y.procRow": "Icônes d'étape",
   "panel.a11y.procOn": "Couleurs sémantiques",
-  "panel.a11y.procNote": "Lecture = bleu / écriture ou question = ambre / réflexion et exécution = couleur de marque",
+  "panel.a11y.procNote": "réfléchir = violet / exécuter = bleu / lire = vert / écrire et demander = ambre",
   "panel.type.mdHeadRow": "Couleur des titres",
   "panel.type.mdHeadAria": "Couleur des titres Markdown",
   "panel.type.mdHeadFollow": "Suivre le texte",

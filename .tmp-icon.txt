@@ -1,0 +1,5 @@
+=== IconThinkOutlineRegular (7) ===
+=== ui-primitives icon wrapper ===
+---
+untime.jsxs)(`svg`,{width:`14`,height:`14`,viewBox:`0 0 14 14`,fill:`none`,children:[(0,react_jsx_runtime.jsx)(`path`,{d:`M3.6355 6.93969C3.6355 4.8398 5.33779 3.1375 7.43768 3.1375C9.53757 3.1375 11.23987 4.8398 11.23987 6.93968V11.363H3.6355V6.93969Z`,fill:`currentColor`,fillOpacity:`0.2`,stroke:`currentColor`,strokeWidth:`0.875`}),(0,react_jsx_runtime.jsx)(`path`,{d:`M1.641 11.3645H12.36M5.053 13.3095H8.9479M7.437
+

@@ -161,7 +161,7 @@
   "panel.a11y.hitRow": "クリック領域",
   "panel.a11y.procRow": "ステップアイコン",
   "panel.a11y.procOn": "意味の色を使う",
-  "panel.a11y.procNote": "閲覧=青 / 編集・質問=琥珀 / 思考・実行=ブランド色",
+  "panel.a11y.procNote": "思考=紫 / 実行=青 / 閲覧=緑 / 変更と質問=琥珀",
   "panel.type.mdHeadRow": "見出しの色",
   "panel.type.mdHeadAria": "Markdown の見出し色",
   "panel.type.mdHeadFollow": "本文に合わせる",

@@ -161,7 +161,7 @@
   "panel.a11y.hitRow": "Hit target",
   "panel.a11y.procRow": "Step icons",
   "panel.a11y.procOn": "Semantic colours",
-  "panel.a11y.procNote": "Read = blue / write or ask = amber / think and run = brand",
+  "panel.a11y.procNote": "Think = violet / run = blue / read = green / write & ask = amber",
   "panel.type.mdHeadRow": "Heading colour",
   "panel.type.mdHeadAria": "Markdown heading colour",
   "panel.type.mdHeadFollow": "Follow body",
