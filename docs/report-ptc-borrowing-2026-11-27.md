@@ -278,6 +278,13 @@
 - 改动面：`src/00-core.js`（`ZR_TEXT_COVER_MIN` + `zrTextCoverage`）、`src/20-tokens-and-panel.js`（两处判据改覆盖率 + `host-text` 上报）、新增 `scripts/test-textmode.mjs`、`package.json`
 - 测试：5 例通过（全读到 / 只读到 30 条 / 恰好踩阈值 / 读空 / 无静态表可对）
 - 面板行未做：留到 C 批，避免一轮里改两次 UI 让快照反复重采（已在 CHANGELOG 写明）。
+### B2（2026-11-27 22:05）：宿主指纹进契约（**原判断有误，已收窄**）
+
+- **纠错**：报告原写「34 处未进契约」是错的。`verify-host-contract` 本来就在做双向对账，实测 23 个类名片段 + 11 个属性 + 1 个 id 片段**全部已登记**。我把「用法处数」当成了「未登记数」。
+- 剩余真缺口：契约没有「针对哪个宿主核过」的指纹，宿主升级后旧契约会安静地继续 PASS。
+- 改动面：`contracts/host-contract.json`（`host.verifiedAgainst = {asarBytes, date}`）、`scripts/verify-host-contract.mjs`（比对 + `--mark` + `--strict`）
+- 门禁：默认 PASS（本机 asar 与契约一致，209083008）；`--strict` 可用作硬门。
+- 顺带修掉一个我自己引入的缺陷：那段代码用了未定义的 `argv`（该文件用的是 `process.argv`），默认路径下直接被判红才发现——**又一次证明「管道后取 $?」是错的**（前一次它把崩溃读成了 0）。
 
 ## 7. 收口汇总（待填）
 

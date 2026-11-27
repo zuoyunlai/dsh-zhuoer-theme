@@ -134,6 +134,21 @@ apply 之后读回 `--dsw-alias-label-primary` 的实际值，与自己写入值
 **没做**：面板上那一行状态（「字号覆盖：cssom 98% / 表回退」）留到 C 批一起做——
 同一轮里改两次 UI 会让 CSS 快照与文案快照反复重采。
 
+## 未发布 · 借鉴批 B2（2026-11-27：宿主指纹进契约，收窄版）
+
+**先纠正一处判断**：报告原来写「34 处宿主类名片段散在 client.js、未进契约」，这条是错的——
+`verify-host-contract` 早就在做对账：它从 `client.js` 抽出全部 `[class*="…"]` 与 `[data-…]`，
+与 `contracts/host-contract.json` 双向比（ADDED / REMOVED / MISSING），实测**23 个类名片段 + 11 个属性 +
+1 个 id 片段**全部已登记。我把「用法处数」当成了「未登记数」，报错了。
+
+**所以 B2 收窄成它唯一还缺的那件事**：清单能对上，不代表清单仍适用于**当前这台宿主**。
+宿主升级时类名子串可能还在、语义已经变了，旧契约会安静地继续「PASS」。
+
+**做法**：`contracts/host-contract.json` 增加 `host.verifiedAgainst = { asarBytes, date }`；
+`scripts/verify-host-contract.mjs` 比对本机 `app.asar` 体积——不一致就 `WARN` 提示重抽
+（`gen:hosttext` + `verify:host --mark`），要当门用加 `--strict` 即 exit 1；
+`--mark` 把当前体积与日期写回契约。默认不红是刻意的：宿主一升级就红会把 CI 变成噪音。
+
 ## 0.6.45 发布汇总（2026-11-27：视觉基线口径修正 + 两道新门 + 底图强度单一真值）
 
 这批按「先把已知问题修完」推进，五节：

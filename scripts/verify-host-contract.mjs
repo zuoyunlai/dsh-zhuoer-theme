@@ -15,7 +15,7 @@
  *
  * 这只覆盖「静态依赖清单」。DSH 升级后某个选择器是否真能命中，仍需在真实页面上跑一次。
  */
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 
@@ -144,3 +144,23 @@ if (lines.length && !update) {
   process.exit(1)
 }
 console.log('PASS  宿主依赖与契约一致')
+
+// ---- B2：宿主指纹 ----
+// 片段清单能对上，不代表清单仍适用于**当前这台宿主**：宿主升级时类名子串可能还在、语义已经变了。
+// 所以把核验当时的 asar 字节数记进契约，本机对不上就明确提示重抽，而不是无声沿用旧结论。
+// 默认 WARN（宿主一升级就红会把 CI 变成噪音）；需要当门用就加 --strict。
+const stamp = contract.host && contract.host.verifiedAgainst ? contract.host.verifiedAgainst : null
+const asarPath = process.env.DSH_ASAR || 'D:/Programs/DeepSeek Harness/resources/app.asar'
+let asarBytes = ''
+try { asarBytes = String(statSync(asarPath).size) } catch (e) { asarBytes = '' }
+if (process.argv.includes('--mark')) {
+  contract.host.verifiedAgainst = { asarBytes: asarBytes || 'unknown', date: new Date().toISOString().slice(0, 10) }
+  writeFileSync(contractPath, JSON.stringify(contract, null, 2) + '\n')
+  console.log('WROTE 已记下宿主指纹 ' + contract.host.verifiedAgainst.asarBytes)
+} else if (stamp && asarBytes && String(stamp.asarBytes) !== asarBytes) {
+  const msg = 'WARN  宿主已换（asar ' + stamp.asarBytes + ' → ' + asarBytes + '，契约核于 ' + (stamp.date || '?') + '）：片段清单与字号表都该重抽（gen:hosttext + verify:host --mark）'
+  if (process.argv.includes('--strict')) { console.error(msg); process.exit(1) }
+  console.log(msg)
+} else if (!stamp) {
+  console.log('WARN  契约里没有 verifiedAgainst，无法判断是否针对当前宿主核过（跑一次 --mark）')
+}

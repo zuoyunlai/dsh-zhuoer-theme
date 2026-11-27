@@ -31,6 +31,10 @@
     }
   ],
   "host": {
+    "verifiedAgainst": {
+      "asarBytes": "209083008",
+      "date": "2026-11-27"
+    },
     "idFragments": [
       {
         "fragment": "dsh-wordmark-badge-clip",
