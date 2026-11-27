@@ -1,2 +1,0 @@
-===== group header classes =====
-groupTitle, groupTitleRow

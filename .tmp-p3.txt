@@ -1,7 +1,0 @@
-dirs: 2
-
-=== DEFAULT Local Storage/leveldb ===
-  001881.log     procIconColor      x1
-  001881.log     a11yHit            x1
-  001881.log     mdHeading          x1
-=== PARTITION Partitions\dsh-platform-2c97b1a374acf4e596331612584d3a69e131f39b1535cd99af10050462fd28d4\Local Storage\leveldb ===
