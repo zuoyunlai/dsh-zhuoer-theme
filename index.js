@@ -112,6 +112,69 @@ export function zrBodyCollector(limit, head) {
     result() { return { body: body, truncated: truncated }; },
   };
 }
+
+// ---- 生效配色（last-theme.json）（R-03 / F-09）----
+// 为什么要落盘：对话里生成的主题，**最终生效**的色板只活在卡片的 DOM 里
+// （按图取色跑在 useEffect 的 canvas 回调里，而工具结果里的 SPEC_MARKER 是服务端先写的）。
+// 于是对话之外的导出 / 审计 / 另一个 agent 读到的都是「模型原色」，不是用户眼前这套。
+// 形状校验做成纯函数，导出给 scripts/test-last-theme.mjs 无头验证。
+const LAST_THEME_MAX_BYTES = 65536;
+export function zrLastThemeShape(input, opts) {
+  const limit = (opts && Number(opts.maxBytes) > 0) ? Number(opts.maxBytes) : LAST_THEME_MAX_BYTES;
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return { ok: false, reason: 'not-object' };
+  const str = (v, n) => (typeof v === 'string' ? v.slice(0, n) : '');
+  const hexOk = (v) => typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v);
+  const tokenOk = (k) => /^--dsw-(alias|specific)-[a-z0-9-]+$/.test(k);
+  // 锚点 + 少量覆盖都收，但只认 6 位 hex：写出去的是一份「能读的结论」，不是任意 JSON 垃圾场。
+  const pickTokens = (src, cap) => {
+    const out = {};
+    if (!src || typeof src !== 'object') return out;
+    Object.keys(src).forEach((k) => {
+      if (Object.keys(out).length >= cap) return;
+      if (!tokenOk(k) || !hexOk(src[k])) return;
+      out[k] = String(src[k]).toLowerCase();
+    });
+    return out;
+  };
+  const light = pickTokens(input.light, 96);
+  const dark = pickTokens(input.dark, 96);
+  // 浅色表是底线：没有它就等于没有主题，宁可 400 也不要写一份空结论。
+  if (!Object.keys(light).length) return { ok: false, reason: 'no-light' };
+  const font = (input.font && typeof input.font === 'object') ? input.font : {};
+  const bg = (input.bg && typeof input.bg === 'object') ? input.bg : {};
+  const idOk = (v) => /^[a-z][a-z0-9-]{0,31}$/.test(String(v || ''));
+  const spec = {
+    id: idOk(input.id) ? String(input.id) : '',
+    label: str(input.label, 24) || 'AI',
+    base: idOk(input.base) ? String(input.base) : '',
+    light: light,
+    dark: dark,
+    font: { body: str(font.body, 64), chat: str(font.chat, 64) },
+    radiusScale: (typeof input.radiusScale === 'number' && isFinite(input.radiusScale))
+      ? Math.max(0, Math.min(3, input.radiusScale)) : 1,
+    autoDark: input.autoDark === true,
+    bg: { source: str(bg.source, 16), key: str(bg.key, 40), keyLight: str(bg.keyLight, 40) },
+    textureDecision: input.textureDecision === 'want' ? 'want' : 'no',
+    sampled: input.sampled === true,
+    scheme: (input.scheme === 'dark' || input.scheme === 'light') ? input.scheme : '',
+    at: str(input.at, 40) || new Date().toISOString(),
+  };
+  const bytes = Buffer.byteLength(JSON.stringify(spec), 'utf8');
+  if (bytes > limit) return { ok: false, reason: 'too-big', bytes: bytes };
+  return { ok: true, spec: spec, bytes: bytes, anchors: Object.keys(light).length, darkAnchors: Object.keys(dark).length };
+}
+
+// 原子写：先写 .tmp 再 rename。客户端会 GET 回来核对，读到半截 JSON 等于没写。
+function writeJsonAtomic(name, data) {
+  try {
+    fs.mkdirSync(dir(), { recursive: true });
+    const full = path.join(dir(), name);
+    const tmp = full + '.tmp';
+    fs.writeFileSync(tmp, JSON.stringify(data, null, 2) + '\n', 'utf8');
+    fs.renameSync(tmp, full);
+    return true;
+  } catch (e) { return false; }
+}
 export function apply(ctx, config) {
   // 对话里的主题生成工具：用户在 DSH 对话框说「给我一套赛博朋克配色」时，
   // 模型调用它生成主题 spec，对话流里出现色卡卡片，用户确认后才应用。
@@ -126,6 +189,8 @@ export function apply(ctx, config) {
     node: process.version,
     at: new Date().toISOString(),
     configKeys: config && typeof config === 'object' ? Object.keys(config) : [],
+    // 生效色板的落盘位置（客户端「应用」成功后回传）：对话之外的读取方按这个路径找。
+    lastTheme: path.join(dir(), 'last-theme.json'),
   });
 
   // 客户端自检回传：client.js 在同源页面里 POST 过来，落盘供事后核对。
@@ -207,6 +272,50 @@ export function apply(ctx, config) {
               res.end(buf);
             } catch (e) {
               try { res.writeHead(404); res.end(); } catch (e2) { /* ignore */ }
+            }
+          },
+        });
+      } catch (e) { /* ignore */ }
+
+      // ---- 生效配色回传 / 读回（R-03）----
+      // POST：客户端在「应用」成功后回传**最终生效**的色板（已含按图取色与底纹键）。
+      // GET ：对话之外（脚本 / 审计 / 另一个 agent）读回同一份，两边的数字对得上。
+      try {
+        ws.register({
+          kind: 'exact',
+          path: '/dsh-zhuoer-theme/api/last-theme',
+          handler: (req, res) => {
+            if (!isOwnClient(req)) return rejectForeign(res);
+            try {
+              if (String(req.method || 'GET').toUpperCase() === 'GET') {
+                const buf = fs.readFileSync(path.join(dir(), 'last-theme.json'));
+                res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+                res.end(buf);
+                return;
+              }
+              const collector = zrBodyCollector(LAST_THEME_MAX_BYTES, 2000);
+              req.on('data', (c) => { collector.push(c); });
+              req.on('end', () => {
+                const got = collector.result();
+                let parsed = null;
+                try { parsed = JSON.parse(got.body); } catch (e) { parsed = null; }
+                if (got.truncated || !parsed) {
+                  res.writeHead(400, { 'content-type': 'application/json; charset=utf-8' });
+                  res.end('{"error":"bad-body"}');
+                  return;
+                }
+                const shaped = zrLastThemeShape(parsed);
+                if (!shaped.ok) {
+                  res.writeHead(400, { 'content-type': 'application/json; charset=utf-8' });
+                  res.end(JSON.stringify({ error: shaped.reason }));
+                  return;
+                }
+                const wrote = writeJsonAtomic('last-theme.json', shaped.spec);
+                res.writeHead(wrote ? 200 : 500, { 'content-type': 'application/json; charset=utf-8' });
+                res.end(JSON.stringify({ ok: wrote, bytes: shaped.bytes, anchors: shaped.anchors }));
+              });
+            } catch (e) {
+              try { res.writeHead(404, { 'content-type': 'application/json; charset=utf-8' }); res.end('{"error":"none"}'); } catch (e2) { /* ignore */ }
             }
           },
         });

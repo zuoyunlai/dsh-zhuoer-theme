@@ -9250,6 +9250,37 @@ function applyTokens(theme, pref) {
         .then(function (n) { return { dark: n[0] || '', light: n[1] || '' }; });
     }
 
+
+    // R-03：把「最终生效」的这份色板回传插件数据目录（POST → last-theme.json）。
+    // 为什么必须由客户端回传：按图取色与底纹归一化都发生在客户端，服务端先写的
+    // SPEC_MARKER 只是模型原色；这一份才是用户眼前这套，对话之外要读的就是它。
+    // 失败静默：落盘是「可审」，不该影响主题生效。
+    function zrReportEffective(saved, spec) {
+      try {
+        if (!saved || typeof saved !== 'object') return;
+        const body = JSON.stringify({
+          id: saved.id,
+          label: saved.label,
+          base: saved.base,
+          light: saved.light || {},
+          dark: saved.dark || {},
+          font: saved.font || {},
+          radiusScale: saved.radiusScale,
+          autoDark: !!saved.autoDark,
+          bg: saved.bg ? { source: saved.bg.source, key: saved.bg.key, keyLight: saved.bg.keyLight } : null,
+          textureDecision: (spec && spec.textureDecision === 'want') ? 'want' : 'no',
+          sampled: !!(spec && spec.sampled),
+          scheme: (typeof liveScheme === 'string' ? liveScheme : ''),
+          at: new Date().toISOString(),
+        });
+        fetch('/dsh-zhuoer-theme/api/last-theme', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-zhuoer-client': '1' },
+          body: body,
+        }).catch(function () { /* ignore */ });
+      } catch (e) { /* ignore */ }
+    }
+
     // 写盘 + 立即应用。必须复用 sanitizeCustomSpec，否则这条路会绕过主题规格校验。
     // 写入顺序与面板一致：先落 localStorage → 再重算 token → 再通知监听者。
     function zrApplyThemeSpec(spec) {
@@ -9303,6 +9334,8 @@ function applyTokens(theme, pref) {
       writePref({ customThemes: list.concat([safe]), theme: safe.id });
       applyTokens(themeRef, readPref());
       emitChange();
+      // 生效之后才回传：这份色板就是「用户点应用之后界面上的那套」。
+      zrReportEffective(safe, spec);
       return safe;
     }
 
