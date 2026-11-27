@@ -17,8 +17,13 @@
  *
  * 用法：node scripts/analyze-pixels.mjs [--dir visual/current] [--strict 4.5]
  *   默认只报告（退出 0）；--strict N 时 p5 < N 退出 1。
- *   局限：仍不处理文字下的**渐变/图片**（那要看真实像素，本脚本已是在看真实像素，
- *   但背景估计用「带内众数」，大面积渐变会让众数不准）；也不识别图标字形。
+ *   两条"别把非背景当背景"的守卫（都是实测踩出来的）：
+ *     a) 带内众数必须**占该带 ≥40% 像素**——12px 密集提示行里众数其实是文字色
+ *        （rgb(122,123,125) 对 #83838b 只差 20 级），不加这条会量出 1.13:1 的假值；
+ *     b) 混色系数 t ≥ 0.55——低于此值多半是抗锯齿边缘，不是字形核心。
+ *   局限：主题试样卡里是**各主题自己的迷你界面**（底色各不相同、属装饰而非本面板文字），
+ *   会因守卫 a 被跳过——这是有意为之，但覆盖率因此只统计"本面板自己的文字"；
+ *   也不处理文字下的渐变/图片，同样因为该带的众数不再可信。
  */
 import { readFileSync, readdirSync, existsSync } from 'node:fs'
 import { inflateSync } from 'node:zlib'
@@ -132,6 +137,11 @@ function analyze(img, labels) {
         }
       }
     }
+    // 带内众数本身就落在某条 label 混色线上 → 这一带大部分像素是字（12px 密集提示行），
+    // 「众数 = 背景」的前提不成立；不加守卫会量出 1.13:1 这种假值。
+    // 背景必须**占该带 ≥ 40% 像素**才算真背景。密集的 12px 提示行里众数其实是文字色（实测
+    // rgb(122,123,125) 对 #83838b 只差 20 级），「众数 = 背景」的前提不成立，会量出 1.13:1 的假值。
+    if (best.n / (w * BAND) < 0.4) continue
     if (ink < MIN_INK || !corePx || coreT < 0.55) continue   // 太淡的多半是抗锯齿边缘
     const coreL = lum(corePx[0], corePx[1], corePx[2])
     bands.push({ y: y0, c: ratio(coreL, bgL), ink, label: which, bg: bg.map(Math.round), t: +coreT.toFixed(2) })
