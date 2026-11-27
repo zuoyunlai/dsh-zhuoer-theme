@@ -70,6 +70,17 @@ const OUTPUT_SCHEMA = {
       },
     },
     radiusScale: { type: 'number' },
+    // R-07：生成路径的对比度体检报告（只有计数与是否通过）。
+    // 为什么要进 schema：toOutput 只回声明过的键，不声明就等于把体检结果丢掉。
+    contrastGate: {
+      type: 'object',
+      additionalProperties: false,
+      properties: {
+        ok: { type: 'boolean' },
+        fixes: { type: 'number' },
+        weak: { type: 'number' },
+      },
+    },
     texture: {
       type: 'object',
       additionalProperties: false,
@@ -121,6 +132,10 @@ function toOutput(spec, texture, textureLight, decision, ref) {
   // 深色只有凑够 4 个锚点才下发，否则让它走反推，避免给出半套深色。
   if (Object.keys(dark).length >= 4) out.dark = dark;
   if (typeof src.radiusScale === 'number' && isFinite(src.radiusScale)) out.radiusScale = src.radiusScale;
+  // 只有真的跑过体检才下发（缺省不加键：值为 undefined 会被宿主判成 non-lossless）。
+  if (src.gate && typeof src.gate === 'object') {
+    out.contrastGate = { ok: src.gate.ok === true, fixes: Number(src.gate.fixes) || 0, weak: Number(src.gate.weak) || 0 };
+  }
   if (texture) out.texture = texture;
   if (textureLight) out.textureLight = textureLight;
   if (ref) out.ref = ref;
@@ -144,6 +159,7 @@ function toMeta(value) {
   if (v.texture) meta.texture = v.texture;
   if (v.textureLight) meta.textureLight = v.textureLight;
   if (v.ref) meta.ref = v.ref;
+  if (v.contrastGate) meta.contrastGate = v.contrastGate;
   return meta;
 }
 
@@ -257,7 +273,14 @@ export function registerThemeTool(ctx, report, opts) {
             + 'tell the user it is ready and ask them to confirm there. Do not list the colors yourself. '
             + (value.textureDecision === 'want'
               ? 'A background texture is attached (dark + light).'
-              : 'No background texture was added - tell the user they can reply "add a texture" if they want one.'),
+              : 'No background texture was added - tell the user they can reply "add a texture" if they want one.')
+            // R-07：把体检结论说出来。修过了要说，压不到 4.5 也要说——不能悄悄改用户的颜色。
+            + (value.contrastGate && value.contrastGate.fixes > 0
+              ? ' Contrast check adjusted ' + value.contrastGate.fixes + ' anchor(s) that the model returned too low to read.'
+              : '')
+            + (value.contrastGate && value.contrastGate.weak > 0
+              ? ' Warning: ' + value.contrastGate.weak + ' anchor(s) still fall short of 4.5:1 even at full black/white - tell the user the base color is too mid-gray.'
+              : ''),
           }, {
             type: 'text',
             text: SPEC_MARKER + JSON.stringify(value),

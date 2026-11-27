@@ -85,6 +85,13 @@ shape(OUTPUT_SCHEMA, 'schema');
 const out = toOutput(spec);
 walk(OUTPUT_SCHEMA, out, 'value');
 
+// R-07：带体检报告的输出也必须过契约。新加的键最容易在这里漏（宿主 additionalProperties:false），
+// 所以不靠「读代码看不出问题」，而是真的走一遍 walk。
+const outGate = toOutput(Object.assign({}, spec, { gate: { ok: true, fixes: 2, weak: 0 } }));
+walk(OUTPUT_SCHEMA, outGate, 'value(gate)');
+if (!outGate.contrastGate || outGate.contrastGate.fixes !== 2) errs.push('value(gate): contrastGate 没下发或计数不对');
+if (!('contrastGate' in OUTPUT_SCHEMA.properties)) errs.push('schema: contrastGate 未声明');
+
 // presentationMeta 也必须可无损序列化。值为 undefined 的键会被宿主判成 non-lossless 并**整条拒收**
 // ——0.6.24 的「不带底纹 100% 生成失败」就是这条：meta 无条件写了 texture: undefined。
 const toMeta = new Function(grab(/function toMeta\(value\) \{/, '\n}') + '; return toMeta;')();
@@ -107,7 +114,9 @@ const tex = { name: 'abcdef0123456789.png', mime: 'image/png', bytes: 1024 };
 const texL = { name: 'abcdef0123456789.jpg', mime: 'image/jpeg', bytes: 512 };
 const metaWithTex = toMeta(Object.assign({}, out, { texture: tex, textureLight: texL }));
 const metaNoTex = toMeta(out);
-const metaErrs = lossless('meta(texture)', metaWithTex).concat(lossless('meta(no-texture)', metaNoTex));
+const metaGate = toMeta(outGate);
+const metaErrs = lossless('meta(texture)', metaWithTex).concat(lossless('meta(no-texture)', metaNoTex)).concat(lossless('meta(gate)', metaGate));
+if (!metaGate.contrastGate) metaErrs.push('meta(gate): contrastGate 没带过去，卡片读不到体检结论');
 if (!metaWithTex.texture || !metaWithTex.textureLight) metaErrs.push('meta(texture): 有底纹时丢了 texture/textureLight');
 if ('texture' in metaNoTex || 'textureLight' in metaNoTex) metaErrs.push('meta(no-texture): 仍然带着空 texture 键');
 
