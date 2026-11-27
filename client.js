@@ -8370,7 +8370,11 @@ function applyTokens(theme, pref) {
               h(Pills, { label: t('panel.type.sizeAria'), opts: scales(), value: pref.fontScale,
                 onChange: function (v) { set({ fontScale: v }); } }),
               h('span', { className: 'zp-hint' }, t('panel.type.pxHint', { px: scalePx })),
-              pref.fontScale !== 100 && HOST_TEXT_STATS && HOST_TEXT_STATS.rules === 0
+              // C4：告警接到 B4 的覆盖率判据上。以前只在「一条规则都没读到」时告警，
+              // 而表回退（读到一部分、不足 70%）恰恰是最难自己发现的情形：字号滑块有反应，
+              // 但界面文字（字面量 px 那些）只跟上了一小半。这种「半生效」必须说出来。
+              pref.fontScale !== 100 && HOST_TEXT_STATS
+                && (HOST_TEXT_STATS.rules === 0 || HOST_TEXT_STATS.mode !== 'cssom')
                 ? h('span', { className: 'zp-hint is-warn' }, t('panel.type.scaleMiss'))
                 : null
             ),
