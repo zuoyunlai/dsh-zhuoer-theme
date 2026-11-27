@@ -12,6 +12,71 @@
 
 
 
+## 未发布 · 借鉴批 A（2026-11-27：形状版本 / 全局键收口 / 共存探测）
+
+三件都是**零行为变化**的内部工程项，来源见 `docs/report-ptc-borrowing-2026-11-27.md` 的 A 批。
+
+### A1 持久化形状版本 + 删掉一条猜旧形状的分支
+
+**为什么改**：底图规格里 `kind` 的推断规则改过三次，每改一次就在读取侧多一条「猜旧形状」的分支
+（0.6.x 那条 `旧数据没有 kind` 就是其一），而这类分支删不掉——你无法证明用户库里没有更旧的形状。
+现在给 localStorage 里那份 pref 加形状版本 `specV`：合法性仍归 `sanitizeCustomSpec`，
+确定字段的补齐改由新增的 `normalizeSpec` 一次性做（幂等、每次读取都跑），读取侧只认当前形状。
+
+**做法**
+
+- `src/10-themes.js`：新增 `SPEC_V = 1` 与 `normalizeSpec()`；`readPref()` 在 sanitize 之后统一归一，
+  返回值带 `specV`，因此 `writePref()` 的 `Object.assign(readPref(), patch)` 会自动把版本写回，
+  不需要单独的迁移步骤。
+- `src/20-tokens-and-panel.js`：`specBg.kind` 的兜底推断删除，改为二值收敛（texture / photo）。
+
+**行为**：无变化。归一的规则与原推断逐字等价（source=theme ⇒ texture，其余 ⇒ photo），
+`verify:themes / verify:contrast / verify:texture / verify:text / verify:keys / verify:locale` 等逐道复核全绿。
+
+**没做**：没有丢弃任何旧存档。报告里原本写「版本不符即丢弃」，实施时改掉了——上游那条规则
+（PTC 投影缓存丢弃重建）成立的前提是有事件日志可重建，而这份 pref 是用户手写数据、没有日志，
+丢弃等于删用户的主题。所以是「归一」不是「丢弃」，版本号改为给下一次形状变更标确定起点。
+
+### A2 全局键收口 + extra 样式表的缓存键加宿主戳
+
+**为什么改**：插件状态原来有 4 个键挂在 `window` 上（`__zrIconProbed` / `__zrSemiHooked` /
+`__zrExtraSheet` / `__zrExtraText`）。两个具体后果：同页任何脚本都能读能改；更要命的是热更新——
+新旧闭包共用同一个键，旧闭包写一次「已成文」，新闭包就认为内容没变而跳过 `replaceSync`，
+样式停在上一份且**没有任何提示**（上游 PTC 2.5.1 踩的是同一类坑，它的结论是「新增的接口改放新文件」）。
+
+**做法**：
+
+- `src/00-core.js`：两个探针守卫改模块作用域变量。
+- `src/20-tokens-and-panel.js`：extra 样式表改模块作用域；跨闭包接力靠 sheet 对象上的
+  `__zrMark` 标记（同一文档里新闭包认出旧表并接管，不会重复注入第二张）。
+- 缓存键从「文本相等」改成**两键**：`extra + '|' + HOST_ASAR_STAMP`。只比文本会漏掉
+  「文本没变但宿主换了」的情形（宿主升级、切明暗都可能让同一段 extra 落到不同语境）。
+- `src/15-host-text.js` + `scripts/gen-host-text.mjs`：新增 `HOST_ASAR_STAMP` 常量（原来是注释里的一行），
+  注释与常量由生成器一起产出，不手改。
+- 新增门 `scripts/verify-globals.mjs`（`npm run verify:globals`，已接进 `verify:all`）：
+  去注释后扫 `client.js` 与 `src/*.js`，出现 `window.__zr` 即红。
+
+### A3 外观插件共存：不点名探测，冲突先上报
+
+**为什么改**：现在的共存是**按名打补丁**——为 `dsh-theme-palette` 专门写规则、专门避开它的变量名，
+再叠一层高优先级硬压。上游 PTC 的做法相反：探测到外观插件在场就**默认关掉自己的特效**，
+不点名、自己退让。主题不能退让（那正是它的职责），但可以先把事实说出来，而不是沉默地互相压。
+
+**做法**：`src/20-tokens-and-panel.js` 新增纯函数 `zrConflictOf(key, wrote, read)` 与隔两帧的回读探针：
+apply 之后读回 `--dsw-alias-label-primary` 的实际值，与自己写入值比对，不一致即判定被覆盖，
+并通过既有的 report 端点写一条 `theme-conflict` 记录（不改任何渲染行为）。
+两帧取样是为了不把「对方还没注入」误报成冲突；读不到值一律判 `unknown`，不下结论。
+
+**测试**：`scripts/test-conflict.mjs` 从 `client.js` 抠出真实实现跑 5 例（同值 / 被覆盖 /
+大小写与空白归一 / 读不到 / 写入为空），已接进 `npm test`。
+
+**门禁**：29 项里 28 项可跑且全绿（新增 `verify:globals`）；`verify:syntax` 在本会话沙箱内
+因 `spawnSync` 被拒跑不了（实测 EPERM），用等价的逐文件 `node --check` 顶替——换到无沙箱环境
+复跑 `npm run verify:all` 才算全额绿。
+
+**一条副产品**：`verify:important` 的棘轮把我写进注释里的那个 CSS 关键字也数进去了（83 → 84 直接判红）。
+说明这道门量的是**整个 bundle 的文本**而不是 CSS 字符串；已在注释里注明，后来者别再踩。
+
 ## 0.6.45 发布汇总（2026-11-27：视觉基线口径修正 + 两道新门 + 底图强度单一真值）
 
 这批按「先把已知问题修完」推进，五节：

@@ -182,12 +182,17 @@ window.__ModuleLoader__.load({
       } catch (e) { /* ignore */ }
     }
 
+    // A2：探针的一次性守卫改模块作用域。挂 window 的两个问题：同页其它脚本可读可改；
+    // 热更新时新旧闭包共用同一个键，新闭包会被旧闭包留下的 true 误判成「已探测」而整段跳过。
+    let zrIconProbed = false;
+
     // 步骤图标探针：报告图标元素的**实际计算颜色**，用来核对「语义色有没有真的上上去」。
     function zrIconProbe() {
       // 不受 zrDebug 门控：每次会话最多发 6 次，量的是「图标实际计算颜色」这一个事实。
       // 用 MutationObserver 采样（与 zrHookSemiProbe 同一手法）：插件初始化时聊天区还没渲染，
       // 一次性取样只会得到 0 个图标；等 DOM 稳定后再取，才能覆盖历史上出现过的各类活动。
-      try { if (window.__zrIconProbed) return; window.__zrIconProbed = true; } catch (e2) { /* ignore */ }
+      if (zrIconProbed) return;
+      zrIconProbed = true;
       try {
         let sent = 0;
         const seen = {};
@@ -223,11 +228,12 @@ window.__ModuleLoader__.load({
     }
 
     // 面板切换后再取样：页面加载时看到的是聊天页，抓不到插件面板。
+    let zrSemiHooked = false;
     function zrHookSemiProbe(scheme) {
       if (!zrDebug()) return;
       try {
-        if (window.__zrSemiHooked) return;
-        window.__zrSemiHooked = true;
+        if (zrSemiHooked) return;
+        zrSemiHooked = true;
         let sent = 0;
         let timer = 0;
         const fire = function () {

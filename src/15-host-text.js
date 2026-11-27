@@ -1,5 +1,8 @@
 // 由 scripts/gen-host-text.mjs 生成，勿手改。宿主升级后重跑该脚本。
 // HOST_ASAR_BYTES=209083008
+// A2：上面那行是给人看的注释，下面这个常量是给代码用的同一份事实（extra 样式表的缓存键要用它）。
+// 两者由 gen-host-text.mjs 一起生成，别手改。
+const HOST_ASAR_STAMP = '209083008';
 // 形如 ["[class*="_title"]", 14]：选择器（CSS Modules local 名）+ 原始 px 字号。
 const HOST_TEXT_RULES = [
   ["[class*=\"_accountInfo\"]", 13],

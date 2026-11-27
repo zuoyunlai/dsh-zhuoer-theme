@@ -43,6 +43,22 @@ let lateProbeTimer = 0;
 let zrSkinDispose = null;
 let zrSkinObs = null;
 let zrSkinT = 0;
+// A2：插件自己那张 extra 样式表 + 它的缓存键。原来挂在 window.__zrExtraSheet /
+// window.__zrExtraText 上，热更新时新旧闭包会互相踩（旧闭包写一次文本键，新闭包就跳过
+// replaceSync，样式停在上一份且无任何提示）。改为模块作用域 + sheet 对象上的标记：
+// 同一文档里新闭包靠标记认出旧表并接管，不会重复注入第二张。
+let zrExtraSheet = null;
+let zrExtraCached = '';
+const ZR_SHEET_MARK = 'zhuoer-extra-v1';
+function findZrExtraSheet() {
+  try {
+    const list = document.adoptedStyleSheets || [];
+    for (let i = 0; i < list.length; i++) {
+      if (list[i] && list[i].__zrMark === ZR_SHEET_MARK) return list[i];
+    }
+  } catch (e) { /* ignore */ }
+  return null;
+}
 
     // 预览路径（编辑器 / 取色器 / 滑块）此前传 null，导致 overrideTokens 拿不到服务、抛错被吞，
     // 编辑期间只剩 CSS 兜底层。这里留一个模块级引用，任何调用点都能拿到宿主主题服务。
@@ -50,6 +66,43 @@ let zrSkinT = 0;
 
     // 预览路径（取色器拖动、滑块、颜色输入）每个事件都会触发一次完整 apply，
     // 用 rAF 合并成「每帧至多一次」，拖动时不再重建几十次样式表。
+    // ---- A3：外观插件共存探测（不点名）----
+    // 上游 PTC 的做法是「检测到 dsh-claude-style / dsh-refined-ui 这类外观插件就默认关掉自己的
+    // 特效」——不点名、先探测、自己退让。主题不能退让（那正是它的职责），但可以**把事实说出来**：
+    // apply 之后回读一个代表 token，与自己写进去的值比对，不一致就说明有别的插件在这之后覆盖了
+    // 同一批变量。现状是靠高优先级分层硬压 + 为 dsh-theme-palette 专门打补丁，那只会越补越深。
+    // （注释里刻意不写那个 CSS 关键字：verify:important 数的是整个 bundle 的文本，写进注释也会算一级。）
+    let zrConflictState = null;
+    let zrConflictRaf = 0;
+    // 纯函数（无 DOM，可无头测试）：判定是否被覆盖。
+    // 空值不算冲突（读不到就别下判断，宁可说不知道）。
+    function zrConflictOf(key, wrote, read) {
+      const w = String(wrote == null ? '' : wrote).trim().toLowerCase();
+      const r = String(read == null ? '' : read).trim().toLowerCase();
+      if (!w || !r) return { key: key, wrote: w, read: r, conflict: false, reason: 'unknown' };
+      return { key: key, wrote: w, read: r, conflict: w !== r, reason: w === r ? 'ok' : 'overridden' };
+    }
+    function zrReadVar(name) {
+      try { return String(getComputedStyle(document.documentElement).getPropertyValue(name) || '').trim(); } catch (e) { return ''; }
+    }
+    // 隔两帧取样：对方插件常在 rAF/微任务里注入，单帧会把「还没注入」误报成冲突。
+    function scheduleConflictProbe(tokens) {
+      const key = '--dsw-alias-label-primary';
+      const wrote = tokens && tokens[key];
+      if (!wrote || zrConflictRaf) return;
+      zrConflictRaf = window.requestAnimationFrame(function () {
+        const a = zrReadVar(key);
+        window.requestAnimationFrame(function () {
+          const b = zrReadVar(key);
+          zrConflictRaf = 0;
+          if (a !== b) return;                 // 还在变，本轮不判
+          const st = zrConflictOf(key, wrote, b);
+          st.at = Date.now();
+          zrConflictState = st;
+          if (st.conflict) { try { report({ phase: 'theme-conflict', key: st.key, wrote: st.wrote, read: st.read }); } catch (e) { /* ignore */ } }
+        });
+      });
+    }
     let previewPending = null;
     let previewRaf = 0;
     function schedulePreview(spec) {
@@ -491,9 +544,9 @@ function applyTokens(theme, pref) {
           // 旧数据没有 kind：只有「主题自带底图」能确定是线稿；其余（含历史上传的图片，
           // 哪怕带 keyLight）一律按照片处理。之前按「有浅色版 = 线稿」推断，
           // 把用户上传的**照片**判成线稿，浅色模式被 lighten 吃到一片空白。
-          const kind = specBg.kind === 'photo' || specBg.kind === 'texture'
-            ? specBg.kind
-            : (specBg.source === 'theme' ? 'texture' : 'photo');
+          // A1：kind 由 readPref 的 normalizeSpec 保证（见 10-themes.js 的 SPEC_V 段），
+          // 读取侧不再猜旧形状，这里只做二值收敛。
+          const kind = specBg.kind === 'texture' ? 'texture' : 'photo';
           bgKind = kind;
           // 自愈：主题写着「自定义图片」，但引用被切没了（旧版切 source 会清 key 造成）。
           // 内存缓存里已经装了 IDB 的全部图，这里挑「没被任何主题引用」的孤儿；
@@ -1005,13 +1058,20 @@ function applyTokens(theme, pref) {
         // adoptedStyleSheets 排在文档样式表之后，同优先级稳定胜出；不支持的环境退回 <style>。
         try {
           if (document.adoptedStyleSheets && typeof CSSStyleSheet === 'function') {
-            if (!window.__zrExtraSheet) {
-              window.__zrExtraSheet = new CSSStyleSheet();
-              document.adoptedStyleSheets = document.adoptedStyleSheets.concat([window.__zrExtraSheet]);
+            // A2：这张表不再挂 window（理由见文件头 zrExtraSheet 的声明处）。
+            // 认领上一任闭包留下的表：同一文档里它还在，直接接管，避免重复注入。
+            if (!zrExtraSheet || zrExtraSheet.__zrMark !== ZR_SHEET_MARK) zrExtraSheet = findZrExtraSheet();
+            if (!zrExtraSheet) {
+              zrExtraSheet = new CSSStyleSheet();
+              try { zrExtraSheet.__zrMark = ZR_SHEET_MARK; } catch (e2) { /* ignore */ }
+              document.adoptedStyleSheets = document.adoptedStyleSheets.concat([zrExtraSheet]);
             }
-            if (window.__zrExtraText !== extra) {
-              window.__zrExtraSheet.replaceSync(extra);
-              window.__zrExtraText = extra;
+            // 缓存键 = 文本 + 宿主戳。只比文本会漏掉「文本没变但宿主换了」的情形
+            // （宿主升级、切明暗都可能让同一段 extra 落到不同语境）。
+            const zrExtraKey = extra + '|' + HOST_ASAR_STAMP;
+            if (zrExtraKey !== zrExtraCached) {
+              zrExtraSheet.replaceSync(extra);
+              zrExtraCached = zrExtraKey;
             }
           }
         } catch (e) { /* 老 Chromium 没有 adoptedStyleSheets */ }
@@ -1020,6 +1080,8 @@ function applyTokens(theme, pref) {
           const rootEl = document.documentElement;
           rootEl.setAttribute('data-zr-bg-empty', pref.bgOnEmpty === false ? '0' : '1');
           rootEl.setAttribute('data-zr-bg-session', pref.bgOnSession === false ? '0' : '1');
+          // A3：变量已经写完了，隔帧回读看有没有被别的插件盖掉（冲突只上报，不改行为）。
+          try { scheduleConflictProbe(tokens); } catch (e) { /* ignore */ }
           const markState = function () {
             const empty = Boolean(document.querySelector('[class*="composerHero"], [class*="_empty_"]'));
             rootEl.setAttribute('data-zr-state', empty ? 'empty' : 'session');

@@ -165,6 +165,30 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
     const CUSTOM_MAX = 24;
     const SHADOWS = {"zhuoer":{"sm":"0 1px 2px #00000040","lg":"0 12px 32px #0006","xl":"0 24px 48px #00000080"},"absolutely":{"sm":"0 1px 2px rgba(0, 0, 0, 0.35)","lg":"0 12px 32px rgba(0, 0, 0, 0.55)","xl":"0 24px 48px rgba(0, 0, 0, 0.65)"},"beacon":{"sm":"0 1px 2px rgba(0, 0, 0, 0.9)","lg":"0 12px 32px rgba(0, 0, 0, 0.95)","xl":"0 24px 48px rgba(0, 0, 0, 0.98)"},"crt":{"sm":"0 1px 2px rgba(0, 0, 0, 0.45)","lg":"0 12px 32px rgba(0, 0, 0, 0.65)","xl":"0 24px 48px rgba(0, 0, 0, 0.75)"},"dash":{"sm":"0 1px 2px rgba(10, 6, 4, 0.35)","lg":"0 12px 32px rgba(10, 6, 4, 0.55)","xl":"0 24px 48px rgba(10, 6, 4, 0.65)"},"knot":{"sm":"0 1px 2px rgba(0, 0, 0, 0.4)","lg":"0 12px 32px rgba(0, 0, 0, 0.6)","xl":"0 24px 48px rgba(0, 0, 0, 0.7)"},"manuscript":{"sm":"0 1px 2px rgba(60, 45, 20, 0.06)","lg":"0 12px 28px rgba(60, 45, 20, 0.1)","xl":"0 24px 48px rgba(60, 45, 20, 0.14)"},"miami":{"sm":"0 1px 2px rgba(4, 0, 14, 0.45)","lg":"0 12px 32px rgba(4, 0, 14, 0.65)","xl":"0 24px 48px rgba(4, 0, 14, 0.75)"},"phosphor":{"sm":"0 1px 2px rgba(0, 6, 2, 0.4)","lg":"0 12px 32px rgba(0, 6, 2, 0.6)","xl":"0 24px 48px rgba(0, 6, 2, 0.7)"},"rose":{"sm":"0 1px 2px rgba(6, 4, 12, 0.4)","lg":"0 12px 32px rgba(6, 4, 12, 0.6)","xl":"0 24px 48px rgba(6, 4, 12, 0.7)"},"tide":{"sm":"0 1px 2px rgba(2, 6, 12, 0.4)","lg":"0 12px 32px rgba(2, 6, 12, 0.6)","xl":"0 24px 48px rgba(2, 6, 12, 0.7)"},"vintage-paper":{"sm":"2px 3px 5px 0px hsl(28 13% 20% / 0.12), 2px 1px 2px -1px hsl(28 13% 20% / 0.12)","lg":"2px 3px 5px 0px hsl(28 13% 20% / 0.12), 2px 4px 6px -1px hsl(28 13% 20% / 0.12)","xl":"2px 3px 5px 0px hsl(28 13% 20% / 0.12), 2px 8px 10px -1px hsl(28 13% 20% / 0.12)"}};
 
+    // ---- 持久化形状版本（A1）----
+    // localStorage 里那份 pref 的形状从此带版本号。
+    // 为什么必须有：底图规格里 kind 的推断规则改过三次（0.6.x「旧数据没有 kind」那次就是其一），
+    // 每改一次就在读取侧多一条「猜旧形状」的分支，而且删不掉——你无法证明用户库里没有更旧的形状。
+    // 现在的分工：sanitizeCustomSpec 负责合法性，normalizeSpec 负责一次性补齐确定字段，
+    // 读取侧（20-tokens 的 specBg）只认当前形状，不再自带兜底推断。
+    // 与上游 PTC「投影版本升级就丢弃重建」的差别：那边有事件日志可重建，我们这份 pref 是
+    // 用户手写的数据，没有日志，所以只能归一、不能丢弃。
+    const SPEC_V = 1;
+    // 一次性归一（幂等、纯内存、每次读取都跑）。只补有确定答案的字段，不猜：
+    // bg.kind：source=theme ⇒ texture（主题自带的是线稿），其余 ⇒ photo。
+    // 这条规则与原读取侧那条推断逐字等价，所以归一接上之后那条推断可以删掉而行为不变。
+    // 每次读取都跑而不是按版本触发一次：编辑器新建主题时仍可能写出缺 kind 的 spec，
+    // 逐条判缺比整库判版本更不容易漏；版本号的作用是给下一次形状变更标一个确定起点。
+    function normalizeSpec(customs) {
+      for (let i = 0; i < customs.length; i++) {
+        const bg = customs[i] && customs[i].bg;
+        if (!bg) continue;
+        if (bg.kind !== 'photo' && bg.kind !== 'texture') {
+          bg.kind = bg.source === 'theme' ? 'texture' : 'photo';
+        }
+      }
+      return customs;
+    }
     function readPref() {
       try {
         const raw = window.localStorage.getItem(STORE);
@@ -173,12 +197,18 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
         const rawCustoms = Array.isArray(p.customThemes) ? p.customThemes : [];
         // 读取侧截断不能再静默：超过上限的部分丢掉时，把被丢的 id 记下来给面板提示。
         const customs = rawCustoms.slice(0, CUSTOM_MAX).map(sanitizeCustomSpec).filter(Boolean);
+        // A1：读取侧不再猜旧形状，归一一次做完（幂等）。前提是 sanitizeCustomSpec 已把每条的
+        // bg.kind 收敛成空 / photo / texture 三态之一（见它的 bg 段），这里只补最后那一步。
+        normalizeSpec(customs);
         const dropped = rawCustoms.slice(CUSTOM_MAX).map(function (c) { return c && typeof c.id === 'string' ? c.id : ''; }).filter(Boolean);
         const themeKnown = THEME_IDS.indexOf(p.theme) !== -1
           || customs.some(function (c) { return c.id === p.theme; });
         return {
           theme: themeKnown ? p.theme : 'zhuoer',
           customThemes: customs,
+          // 形状版本随每次写入落盘：writePref 走 Object.assign(readPref(), patch)，
+          // 所以任何一次设置写入都会把 specV 一起写回，不需要单独的迁移步骤。
+          specV: SPEC_V,
           droppedCustomIds: dropped,
           mode: p.mode === 'light' || p.mode === 'dark' ? p.mode : 'auto',
           bgSource: ['none', 'theme', 'image'].indexOf(p.bgSource) !== -1 ? p.bgSource : 'none',

@@ -97,6 +97,8 @@ lines.push('// 由 scripts/gen-host-text.mjs 生成，勿手改。宿主升级�
 // 宿主版本戳：字号表是「针对某个宿主版本抽的事实」，宿主升级后选择器与 px 都会变。
 // 记下抽取时的宿主版本，verify:hosttext 能据此提示「该重抽了」。
 lines.push('// HOST_ASAR_BYTES=' + hostVersion)
+// 同一份事实的代码形态：客户端拿它当样式表缓存键的一部分（宿主变了就要重建）。
+lines.push("const HOST_ASAR_STAMP = '" + hostVersion + "';")
 lines.push('// 形如 ["[class*=\"_title\"]", 14]：选择器（CSS Modules local 名）+ 原始 px 字号。')
 lines.push('const HOST_TEXT_RULES = [')
 for (const [sel, px] of rules) lines.push('  [' + JSON.stringify(sel) + ', ' + px + '],')
