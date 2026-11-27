@@ -545,6 +545,31 @@ window.__ModuleLoader__.load({
         'preset.aurora': '极光界面',
         'preset.devterm': '开发者终端',
         'preset.deepspace': '深空黑',
+        'panel.mdfine.title': 'Markdown 精细化',
+        'panel.mdfine.note': '只改元素长相：标题字号、代码块、表格、引用块',
+        'panel.mdfine.headRow': '标题字号',
+        'panel.mdfine.headAria': 'Markdown 标题字号',
+        'panel.mdfine.headTheme': '跟随主题',
+        'panel.mdfine.headCompact': '紧凑',
+        'panel.mdfine.headClear': '分级明显',
+        'panel.mdfine.headNote': '跟随主题＝用宿主定义的标题字号；分级明显＝标题之间拉得更开',
+        'panel.mdfine.codeRow': '代码块',
+        'panel.mdfine.codeAria': 'Markdown 代码块样式',
+        'panel.mdfine.codeNone': '无边框',
+        'panel.mdfine.codeLine': '细边框',
+        'panel.mdfine.codeCard': '卡片',
+        'panel.mdfine.codeNote': '卡片＝加底色与圆角，代码块从正文里浮出来',
+        'panel.mdfine.tableRow': '表格',
+        'panel.mdfine.tableAria': 'Markdown 表格样式',
+        'panel.mdfine.tablePlain': '默认',
+        'panel.mdfine.tableLine': '带线',
+        'panel.mdfine.tableZebra': '斑马纹',
+        'panel.mdfine.tableNote': '带线＝单元格加边框；斑马纹＝再加隔行底色与表头底色',
+        'panel.mdfine.quoteRow': '引用块',
+        'panel.mdfine.quoteAria': 'Markdown 引用块样式',
+        'panel.mdfine.quotePlain': '默认',
+        'panel.mdfine.quoteStrong': '加重',
+        'panel.mdfine.quoteNote': '加重＝左边框加粗并加淡底色',
       },
       en: {
         'rail.ariaLabel': 'Right sidebar quick nav',
@@ -810,6 +835,31 @@ window.__ModuleLoader__.load({
         'preset.devterm': 'Developer terminal',
         'preset.deepspace': 'Deep space',
         'panel.chat.texOff': 'Texture: not enabled · say "add a texture" if you want one',
+        'panel.mdfine.title': 'Markdown refinement',
+        'panel.mdfine.note': 'Element looks only: heading size, code block, table, quote',
+        'panel.mdfine.headRow': 'Heading size',
+        'panel.mdfine.headAria': 'Markdown heading size',
+        'panel.mdfine.headTheme': 'Follow theme',
+        'panel.mdfine.headCompact': 'Compact',
+        'panel.mdfine.headClear': 'Clear levels',
+        'panel.mdfine.headNote': 'Follow theme uses the host heading sizes; Clear levels spaces them out further',
+        'panel.mdfine.codeRow': 'Code block',
+        'panel.mdfine.codeAria': 'Markdown code block style',
+        'panel.mdfine.codeNone': 'No border',
+        'panel.mdfine.codeLine': 'Thin border',
+        'panel.mdfine.codeCard': 'Card',
+        'panel.mdfine.codeNote': 'Card adds a background and radius so the block lifts off the text',
+        'panel.mdfine.tableRow': 'Table',
+        'panel.mdfine.tableAria': 'Markdown table style',
+        'panel.mdfine.tablePlain': 'Default',
+        'panel.mdfine.tableLine': 'Bordered',
+        'panel.mdfine.tableZebra': 'Zebra',
+        'panel.mdfine.tableNote': 'Bordered adds cell borders; Zebra adds row shading and a header background',
+        'panel.mdfine.quoteRow': 'Quote',
+        'panel.mdfine.quoteAria': 'Markdown quote style',
+        'panel.mdfine.quotePlain': 'Default',
+        'panel.mdfine.quoteStrong': 'Strong',
+        'panel.mdfine.quoteNote': 'Strong thickens the left rule and adds a tinted background',
       },
       de: {
         'rail.ariaLabel': 'Schnellnavigation in der rechten Seitenleiste',
@@ -1075,6 +1125,31 @@ window.__ModuleLoader__.load({
         'preset.devterm': 'Entwicklerterminal',
         'preset.deepspace': 'Tiefenraum',
         'panel.chat.texOff': 'Textur: nicht aktiviert · sag „Textur hinzufügen“, wenn du eine möchtest',
+        'panel.mdfine.title': 'Markdown-Verfeinerung',
+        'panel.mdfine.note': 'Nur das Aussehen: Überschriftengröße, Codeblock, Tabelle, Zitat',
+        'panel.mdfine.headRow': 'Überschriftengröße',
+        'panel.mdfine.headAria': 'Größe der Markdown-Überschriften',
+        'panel.mdfine.headTheme': 'Wie das Thema',
+        'panel.mdfine.headCompact': 'Kompakt',
+        'panel.mdfine.headClear': 'Klare Stufen',
+        'panel.mdfine.headNote': 'Wie das Thema nutzt die Größen des Hosts; Klare Stufen spreizt die Überschriften weiter auseinander',
+        'panel.mdfine.codeRow': 'Codeblock',
+        'panel.mdfine.codeAria': 'Stil des Markdown-Codeblocks',
+        'panel.mdfine.codeNone': 'Ohne Rahmen',
+        'panel.mdfine.codeLine': 'Dünner Rahmen',
+        'panel.mdfine.codeCard': 'Karte',
+        'panel.mdfine.codeNote': 'Karte ergänzt Fläche und Radius – der Block hebt sich vom Text ab',
+        'panel.mdfine.tableRow': 'Tabelle',
+        'panel.mdfine.tableAria': 'Stil der Markdown-Tabelle',
+        'panel.mdfine.tablePlain': 'Standard',
+        'panel.mdfine.tableLine': 'Mit Linien',
+        'panel.mdfine.tableZebra': 'Zebra',
+        'panel.mdfine.tableNote': 'Mit Linien setzt Zellrahmen; Zebra ergänzt Zeilenschattierung und Kopfzeile',
+        'panel.mdfine.quoteRow': 'Zitat',
+        'panel.mdfine.quoteAria': 'Stil des Markdown-Zitats',
+        'panel.mdfine.quotePlain': 'Standard',
+        'panel.mdfine.quoteStrong': 'Deutlich',
+        'panel.mdfine.quoteNote': 'Deutlich verdickt den linken Strich und legt einen zarten Hintergrund dazu',
       },
       es: {
         'rail.ariaLabel': 'Navegación rápida de la barra lateral derecha',
@@ -1340,6 +1415,31 @@ window.__ModuleLoader__.load({
         'preset.devterm': 'Terminal de desarrollo',
         'preset.deepspace': 'Espacio profundo',
         'panel.chat.texOff': 'Textura: no activada · di «añade una textura» si la quieres',
+        'panel.mdfine.title': 'Refinado de Markdown',
+        'panel.mdfine.note': 'Solo el aspecto: tamaño de títulos, bloque de código, tabla y cita',
+        'panel.mdfine.headRow': 'Tamaño de títulos',
+        'panel.mdfine.headAria': 'Tamaño de títulos Markdown',
+        'panel.mdfine.headTheme': 'Según el tema',
+        'panel.mdfine.headCompact': 'Compacto',
+        'panel.mdfine.headClear': 'Niveles marcados',
+        'panel.mdfine.headNote': 'Según el tema usa los tamaños del host; Niveles marcados separa más los títulos',
+        'panel.mdfine.codeRow': 'Bloque de código',
+        'panel.mdfine.codeAria': 'Estilo del bloque de código Markdown',
+        'panel.mdfine.codeNone': 'Sin borde',
+        'panel.mdfine.codeLine': 'Borde fino',
+        'panel.mdfine.codeCard': 'Tarjeta',
+        'panel.mdfine.codeNote': 'Tarjeta añade fondo y radio, y el bloque se despega del texto',
+        'panel.mdfine.tableRow': 'Tabla',
+        'panel.mdfine.tableAria': 'Estilo de tabla Markdown',
+        'panel.mdfine.tablePlain': 'Normal',
+        'panel.mdfine.tableLine': 'Con bordes',
+        'panel.mdfine.tableZebra': 'Cebra',
+        'panel.mdfine.tableNote': 'Con bordes añade bordes a las celdas; Zebra suma filas alternas y fondo de cabecera',
+        'panel.mdfine.quoteRow': 'Cita',
+        'panel.mdfine.quoteAria': 'Estilo de cita Markdown',
+        'panel.mdfine.quotePlain': 'Normal',
+        'panel.mdfine.quoteStrong': 'Marcada',
+        'panel.mdfine.quoteNote': 'Marcada engrosa la línea izquierda y añade un fondo tenue',
       },
       fr: {
         'rail.ariaLabel': 'Navigation rapide de la barre latérale droite',
@@ -1605,6 +1705,31 @@ window.__ModuleLoader__.load({
         'preset.devterm': 'Terminal développeur',
         'preset.deepspace': 'Espace profond',
         'panel.chat.texOff': 'Texture : désactivée · dites « ajoute une texture » si vous en voulez une',
+        'panel.mdfine.title': 'Finitions Markdown',
+        'panel.mdfine.note': 'L\'apparence seule : taille des titres, bloc de code, tableau, citation',
+        'panel.mdfine.headRow': 'Taille des titres',
+        'panel.mdfine.headAria': 'Taille des titres Markdown',
+        'panel.mdfine.headTheme': 'Selon le thème',
+        'panel.mdfine.headCompact': 'Compact',
+        'panel.mdfine.headClear': 'Niveaux nets',
+        'panel.mdfine.headNote': 'Selon le thème utilise les tailles du host ; Niveaux nets espace davantage les titres',
+        'panel.mdfine.codeRow': 'Bloc de code',
+        'panel.mdfine.codeAria': 'Style du bloc de code Markdown',
+        'panel.mdfine.codeNone': 'Sans bordure',
+        'panel.mdfine.codeLine': 'Bordure fine',
+        'panel.mdfine.codeCard': 'Carte',
+        'panel.mdfine.codeNote': 'Carte ajoute un fond et des angles arrondis : le bloc se détache du texte',
+        'panel.mdfine.tableRow': 'Tableau',
+        'panel.mdfine.tableAria': 'Style de tableau Markdown',
+        'panel.mdfine.tablePlain': 'Normal',
+        'panel.mdfine.tableLine': 'Bordé',
+        'panel.mdfine.tableZebra': 'Zébré',
+        'panel.mdfine.tableNote': 'Bordé ajoute des bordures aux cellules ; Zébré ajoute des lignes alternées et un en-tête',
+        'panel.mdfine.quoteRow': 'Citation',
+        'panel.mdfine.quoteAria': 'Style de citation Markdown',
+        'panel.mdfine.quotePlain': 'Normal',
+        'panel.mdfine.quoteStrong': 'Marquée',
+        'panel.mdfine.quoteNote': 'Marquée épaissit le trait de gauche et ajoute un fond teinté',
       },
       ja: {
         'rail.ariaLabel': '右サイドバーのクイックナビ',
@@ -1870,6 +1995,31 @@ window.__ModuleLoader__.load({
         'preset.devterm': '開発者ターミナル',
         'preset.deepspace': 'ディープスペース',
         'panel.chat.texOff': 'テクスチャ：未使用 · 必要なら「テクスチャを追加」と伝えてください',
+        'panel.mdfine.title': 'Markdown の微調整',
+        'panel.mdfine.note': '見た目だけ：見出しサイズ、コードブロック、表、引用',
+        'panel.mdfine.headRow': '見出しサイズ',
+        'panel.mdfine.headAria': 'Markdown の見出しサイズ',
+        'panel.mdfine.headTheme': 'テーマに合わせる',
+        'panel.mdfine.headCompact': 'コンパクト',
+        'panel.mdfine.headClear': '段階を明確化',
+        'panel.mdfine.headNote': 'テーマに合わせる＝ホストの見出しサイズを使う／段階を明確化＝見出し間の差を広く',
+        'panel.mdfine.codeRow': 'コードブロック',
+        'panel.mdfine.codeAria': 'Markdown のコードブロックスタイル',
+        'panel.mdfine.codeNone': '枠なし',
+        'panel.mdfine.codeLine': '細い枠',
+        'panel.mdfine.codeCard': 'カード',
+        'panel.mdfine.codeNote': 'カードは背景と角丸を足し、本文から浮かせる',
+        'panel.mdfine.tableRow': '表',
+        'panel.mdfine.tableAria': 'Markdown の表スタイル',
+        'panel.mdfine.tablePlain': '標準',
+        'panel.mdfine.tableLine': '罫線',
+        'panel.mdfine.tableZebra': '斑馬',
+        'panel.mdfine.tableNote': '罫線＝セルに境界線／斑馬はさらに交互の背景とヘッダ背景',
+        'panel.mdfine.quoteRow': '引用',
+        'panel.mdfine.quoteAria': 'Markdown の引用スタイル',
+        'panel.mdfine.quotePlain': '標準',
+        'panel.mdfine.quoteStrong': '強調',
+        'panel.mdfine.quoteNote': '強調は左罫を太くし淡い背景を足す',
       },
       pt: {
         'rail.ariaLabel': 'Navegação rápida da barra lateral direita',
@@ -2135,6 +2285,31 @@ window.__ModuleLoader__.load({
         'preset.devterm': 'Terminal de programador',
         'preset.deepspace': 'Espaço profundo',
         'panel.chat.texOff': 'Textura: desativada · diga «adiciona uma textura» se quiser uma',
+        'panel.mdfine.title': 'Refinamento de Markdown',
+        'panel.mdfine.note': 'Apenas a aparência: tamanho dos títulos, bloco de código, tabela e citação',
+        'panel.mdfine.headRow': 'Tamanho dos títulos',
+        'panel.mdfine.headAria': 'Tamanho dos títulos Markdown',
+        'panel.mdfine.headTheme': 'Según o tema',
+        'panel.mdfine.headCompact': 'Compacto',
+        'panel.mdfine.headClear': 'Níveis marcados',
+        'panel.mdfine.headNote': 'Según o tema usa os tamanhos do host; Níveis marcados afasta mais os títulos',
+        'panel.mdfine.codeRow': 'Bloco de código',
+        'panel.mdfine.codeAria': 'Estilo do bloco de código Markdown',
+        'panel.mdfine.codeNone': 'Sem borda',
+        'panel.mdfine.codeLine': 'Borda fina',
+        'panel.mdfine.codeCard': 'Cartão',
+        'panel.mdfine.codeNote': 'Cartão adiciona fundo e cantos arredondados, separando o bloco do texto',
+        'panel.mdfine.tableRow': 'Tabela',
+        'panel.mdfine.tableAria': 'Estilo da tabela Markdown',
+        'panel.mdfine.tablePlain': 'Normal',
+        'panel.mdfine.tableLine': 'Com linhas',
+        'panel.mdfine.tableZebra': 'Zebra',
+        'panel.mdfine.tableNote': 'Com linhas acrescenta bordas às células; Zebra soma linhas alternadas e fundo do cabeçalho',
+        'panel.mdfine.quoteRow': 'Citação',
+        'panel.mdfine.quoteAria': 'Estilo da citação Markdown',
+        'panel.mdfine.quotePlain': 'Normal',
+        'panel.mdfine.quoteStrong': 'Destacada',
+        'panel.mdfine.quoteNote': 'Destacada engrossa a barra esquerda e adiciona fundo suave',
       },
       ru: {
         'rail.ariaLabel': 'Быстрая навигация по правой боковой панели',
@@ -2400,6 +2575,31 @@ window.__ModuleLoader__.load({
         'preset.devterm': 'Терминал разработчика',
         'preset.deepspace': 'Глубокий космос',
         'panel.chat.texOff': 'Текстура: не включена · скажите «добавь текстуру», если она нужна',
+        'panel.mdfine.title': 'Тонкая настройка Markdown',
+        'panel.mdfine.note': 'Только внешний вид: размер заголовков, блок кода, таблица, цитата',
+        'panel.mdfine.headRow': 'Размер заголовков',
+        'panel.mdfine.headAria': 'Размер заголовков Markdown',
+        'panel.mdfine.headTheme': 'Как в теме',
+        'panel.mdfine.headCompact': 'Компактно',
+        'panel.mdfine.headClear': 'Чёткие уровни',
+        'panel.mdfine.headNote': 'Как в теме — размеры заголовков хоста; Чёткие уровни разводит заголовки сильнее',
+        'panel.mdfine.codeRow': 'Блок кода',
+        'panel.mdfine.codeAria': 'Стиль блока кода Markdown',
+        'panel.mdfine.codeNone': 'Без рамки',
+        'panel.mdfine.codeLine': 'Тонкая рамка',
+        'panel.mdfine.codeCard': 'Карточка',
+        'panel.mdfine.codeNote': 'Карточка добавляет фон и скругление — блок отделяется от текста',
+        'panel.mdfine.tableRow': 'Таблица',
+        'panel.mdfine.tableAria': 'Стиль таблицы Markdown',
+        'panel.mdfine.tablePlain': 'Обычная',
+        'panel.mdfine.tableLine': 'С границами',
+        'panel.mdfine.tableZebra': 'Зебра',
+        'panel.mdfine.tableNote': 'С границами — рамки у ячеек; Зебра добавляет чередование строк и фон заголовка',
+        'panel.mdfine.quoteRow': 'Цитата',
+        'panel.mdfine.quoteAria': 'Стиль цитаты Markdown',
+        'panel.mdfine.quotePlain': 'Обычная',
+        'panel.mdfine.quoteStrong': 'Выделенная',
+        'panel.mdfine.quoteNote': 'Выделенная утолщает левую линию и добавляет лёгкий фон',
       },
     }
     // <<< i18n:end <<<
@@ -2702,7 +2902,11 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
           // 可访问性：放大点击区（44×44）。默认关——会撑动布局，属于显式选择。
           a11yHit: p.a11yHit === true,
           // Markdown 排版密度：只调节奏（行高/段距/标题尺度），不动字号体系。
-          mdDensity: p.mdDensity === 'compact' || p.mdDensity === 'roomy' ? p.mdDensity : 'normal',
+          mdDensity: p.mdDensity === 'compact' || p.mdDensity === 'roomy' ? p.mdDensity : 'normal',          // Markdown 精细化（0.6.41）：标题字号策略 / 代码块 / 表格 / 引用块。
+          mdHeadSize: p.mdHeadSize === 'compact' || p.mdHeadSize === 'clear' ? p.mdHeadSize : 'theme',
+          mdCode: p.mdCode === 'line' || p.mdCode === 'card' ? p.mdCode : 'none',
+          mdTable: p.mdTable === 'line' || p.mdTable === 'zebra' ? p.mdTable : 'plain',
+          mdQuote: p.mdQuote === 'strong' ? 'strong' : 'plain',
           // 步骤过程组头的活动图标是否用语义色（读=信息蓝 / 写=行动橙 / 执行=紫 / 提问=黄 / 思考=品牌）。
           procIconColor: p.procIconColor === true,
           // 标题配色：follow=跟随正文 / soft=品牌色淡化 / brand=品牌色。
@@ -2723,7 +2927,7 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
           brandImage: typeof p.brandImage === 'string' && p.brandImage.indexOf('data:image/') === 0 ? p.brandImage : '',
         };
       } catch (e) {
-        return { customThemes: [], theme: 'zhuoer', mode: 'auto', bgSource: 'none', bgStyle: 'fade', bgOpacity: 85, bgImage: '', bgOnEmpty: true, bgOnSession: true, fontScale: 100, a11yHit: false, mdDensity: 'normal', accent: '', uiFont: '', quicknav: 'three' };
+        return { customThemes: [], theme: 'zhuoer', mode: 'auto', bgSource: 'none', bgStyle: 'fade', bgOpacity: 85, bgImage: '', bgOnEmpty: true, bgOnSession: true, fontScale: 100, a11yHit: false, mdDensity: 'normal', mdHeadSize: 'theme', mdCode: 'none', mdTable: 'plain', mdQuote: 'plain', accent: '', uiFont: '', quicknav: 'three' };
       }
     }
     function writePref(patch) {
@@ -5404,7 +5608,46 @@ function applyTokens(theme, pref) {
           + 'html[data-zr-proc="1"] [data-process-activity="plan"] [data-step-process-icon],'
           + 'html[data-zr-proc="1"] [data-process-activity="questions"] [data-step-process-icon]{' + hueMix('--dsw-static-amber-500') + '}'
         ) : '';
-        const nextCss = css + extra + bgCss + fxCss + brandCss + a11yCss + mdCss + headCss + procCss;
+        // ---- Markdown 精细化（0.6.41）----
+        // 宿主对助手正文（_markdown_ 容器）的规则实测：
+        //   标题 h1-h3 margin 32px 0 16px；代码块**只有底色**（无边框无圆角）；
+        //   表格**只有字体**（无边框无斑马纹）；引用块 2px 左边框 + 14px 内缩。
+        // 这四处正是「看起来糙」的主要来源，而它们都可以只用**主题 token** 覆盖——
+        // 颜色全部取自主题（border-l1/l2、bg-layer-1、brand-primary），
+        // 所以明暗两档天然正确，不需要像上一版那样按明暗挑静态色档位。
+        var MDC = 'html body [class*="_markdown_"]';
+        var mdFine = '';
+        if (pref.mdHeadSize === 'compact' || pref.mdHeadSize === 'clear') {
+          // 标题字号策略。特异性 html body [class*="_markdown_"] hN = (0,1,3)，
+          // 压过「排版节奏」的 (0,1,2) 与宿主的 (0,1,1) —— 后者用 font 简写，
+          // 简写只重置 font-* 与 line-height，不涉及 color，所以颜色我们另管。
+          var hsz = pref.mdHeadSize === 'compact'
+            ? [['h1', 1.24, 1.32], ['h2', 1.12, 1.34], ['h3', 1.04, 1.38], ['h4', 1, 1.4]]
+            : [['h1', 1.62, 1.24], ['h2', 1.4, 1.28], ['h3', 1.2, 1.34], ['h4', 1.06, 1.38]];
+          hsz.forEach(function (t) {
+            mdFine += MDC + ' ' + t[0] + '{font-size:' + t[1] + 'em;line-height:' + t[2] + ';}';
+          });
+        }
+        if (pref.mdCode === 'line' || pref.mdCode === 'card') {
+          mdFine += MDC + ' .md-code-block{border:1px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-sm);}';
+          if (pref.mdCode === 'card') {
+            mdFine += MDC + ' .md-code-block{background:var(--dsw-alias-bg-layer-1);border-color:var(--dsw-alias-border-l1);}';
+          }
+        }
+        if (pref.mdTable === 'line' || pref.mdTable === 'zebra') {
+          mdFine += MDC + ' table{border-collapse:collapse;}'
+            + MDC + ' :where(th,td){border:1px solid var(--dsw-alias-border-l2);padding:6px 10px;}';
+          if (pref.mdTable === 'zebra') {
+            mdFine += MDC + ' thead th{background:var(--dsw-alias-bg-layer-1);font-weight:600;}'
+              + MDC + ' tbody tr:nth-child(even){background:var(--dsw-alias-bg-layer-1);}';
+          }
+        }
+        if (pref.mdQuote === 'strong') {
+          mdFine += MDC + ' blockquote{border-left:3px solid var(--dsw-alias-brand-primary);'
+            + 'background:var(--dsw-alias-bg-layer-1);padding:8px 12px;'
+            + 'border-radius:0 var(--dsw-radius-sm) var(--dsw-radius-sm) 0;}';
+        }
+        const nextCss = css + extra + bgCss + fxCss + brandCss + a11yCss + mdCss + headCss + procCss + mdFine;
         const styleEl = ensureStyle();
         if (styleEl.__zrCss !== nextCss) {
           styleEl.textContent = nextCss;
@@ -7320,6 +7563,46 @@ function applyTokens(theme, pref) {
           )
         ),
 
+        // Markdown 精细化：标题字号 / 代码块 / 表格 / 引用块。
+        // 与上面的「排版节奏」分工：节奏管行距与间距（整体松紧），这里管**元素长相**。
+        h(Section, { title: t('panel.mdfine.title'), note: t('panel.mdfine.note') },
+          h(Row, { label: t('panel.mdfine.headRow') },
+            h(Pills, {
+              label: t('panel.mdfine.headAria'),
+              opts: [['theme', t('panel.mdfine.headTheme')], ['compact', t('panel.mdfine.headCompact')], ['clear', t('panel.mdfine.headClear')]],
+              value: pref.mdHeadSize || 'theme',
+              onChange: function (v) { set({ mdHeadSize: v }); },
+            }),
+            h('span', { className: 'zp-hint' }, t('panel.mdfine.headNote'))
+          ),
+          h(Row, { label: t('panel.mdfine.codeRow') },
+            h(Pills, {
+              label: t('panel.mdfine.codeAria'),
+              opts: [['none', t('panel.mdfine.codeNone')], ['line', t('panel.mdfine.codeLine')], ['card', t('panel.mdfine.codeCard')]],
+              value: pref.mdCode || 'none',
+              onChange: function (v) { set({ mdCode: v }); },
+            }),
+            h('span', { className: 'zp-hint' }, t('panel.mdfine.codeNote'))
+          ),
+          h(Row, { label: t('panel.mdfine.tableRow') },
+            h(Pills, {
+              label: t('panel.mdfine.tableAria'),
+              opts: [['plain', t('panel.mdfine.tablePlain')], ['line', t('panel.mdfine.tableLine')], ['zebra', t('panel.mdfine.tableZebra')]],
+              value: pref.mdTable || 'plain',
+              onChange: function (v) { set({ mdTable: v }); },
+            }),
+            h('span', { className: 'zp-hint' }, t('panel.mdfine.tableNote'))
+          ),
+          h(Row, { label: t('panel.mdfine.quoteRow') },
+            h(Pills, {
+              label: t('panel.mdfine.quoteAria'),
+              opts: [['plain', t('panel.mdfine.quotePlain')], ['strong', t('panel.mdfine.quoteStrong')]],
+              value: pref.mdQuote || 'plain',
+              onChange: function (v) { set({ mdQuote: v }); },
+            }),
+            h('span', { className: 'zp-hint' }, t('panel.mdfine.quoteNote'))
+          )
+        ),
         h(Section, { title: t('panel.accent.title'), note: t('panel.accent.note') },
           h(Row, { label: t('panel.accent.row') },
             h('div', { className: 'zp-sws' },

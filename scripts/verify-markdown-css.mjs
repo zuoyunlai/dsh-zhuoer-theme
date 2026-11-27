@@ -24,6 +24,10 @@ const bad = []
 
 // 1) 源码侧：Markdown 规则区的容器
 const src = readFileSync(join(root, 'src', '20-tokens-and-panel.js'), 'utf8')
+const fine = src.slice(src.indexOf('var MDC ='), src.indexOf('const nextCss = css + extra'))
+if (fine && !fine.includes('.md-code-block')) bad.push('精细化规则里没有 .md-code-block（宿主代码块的类名是它）')
+if (fine && !fine.includes('blockquote')) bad.push('精细化规则里没有 blockquote')
+if (fine && !fine.includes('border-collapse')) bad.push('精细化规则里没有表格的 border-collapse')
 const from = src.indexOf('const MD = {')
 const to = src.indexOf('const nextCss = css + extra')
 const block = from >= 0 && to > from ? src.slice(from, to) : ''
@@ -36,6 +40,9 @@ const asar = process.argv[2] || 'D:/Programs/DeepSeek Harness/resources/app.asar
 if (existsSync(asar)) {
   const s = readFileSync(asar, 'latin1')
   if (!s.includes('_markdown_')) bad.push('宿主 app.asar 里找不到 _markdown_（片段变了？）')
+  // 精细化要挂的宿主结构：代码块类名、表格、引用块
+  if (!s.includes('md-code-block')) bad.push('宿主 app.asar 里找不到 md-code-block（代码块类名变了？）')
+  if (!/blockquote\{[^}]*border-left/.test(s)) bad.push('宿主 app.asar 里找不到 blockquote 的 border-left 规则（引用块结构变了？）')
   if (!/_markdown_[A-Za-z0-9_]*\s*h1\{font:var\(--dsw-font-markdown-h1\)/.test(s)) {
     bad.push('宿主 app.asar 里找不到「_markdown_xx h1{font:var(--dsw-font-markdown-h1)}」——这个片段可能不是助手 Markdown 容器')
   }

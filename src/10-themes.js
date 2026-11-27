@@ -192,7 +192,11 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
           // 可访问性：放大点击区（44×44）。默认关——会撑动布局，属于显式选择。
           a11yHit: p.a11yHit === true,
           // Markdown 排版密度：只调节奏（行高/段距/标题尺度），不动字号体系。
-          mdDensity: p.mdDensity === 'compact' || p.mdDensity === 'roomy' ? p.mdDensity : 'normal',
+          mdDensity: p.mdDensity === 'compact' || p.mdDensity === 'roomy' ? p.mdDensity : 'normal',          // Markdown 精细化（0.6.41）：标题字号策略 / 代码块 / 表格 / 引用块。
+          mdHeadSize: p.mdHeadSize === 'compact' || p.mdHeadSize === 'clear' ? p.mdHeadSize : 'theme',
+          mdCode: p.mdCode === 'line' || p.mdCode === 'card' ? p.mdCode : 'none',
+          mdTable: p.mdTable === 'line' || p.mdTable === 'zebra' ? p.mdTable : 'plain',
+          mdQuote: p.mdQuote === 'strong' ? 'strong' : 'plain',
           // 步骤过程组头的活动图标是否用语义色（读=信息蓝 / 写=行动橙 / 执行=紫 / 提问=黄 / 思考=品牌）。
           procIconColor: p.procIconColor === true,
           // 标题配色：follow=跟随正文 / soft=品牌色淡化 / brand=品牌色。
@@ -213,7 +217,7 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
           brandImage: typeof p.brandImage === 'string' && p.brandImage.indexOf('data:image/') === 0 ? p.brandImage : '',
         };
       } catch (e) {
-        return { customThemes: [], theme: 'zhuoer', mode: 'auto', bgSource: 'none', bgStyle: 'fade', bgOpacity: 85, bgImage: '', bgOnEmpty: true, bgOnSession: true, fontScale: 100, a11yHit: false, mdDensity: 'normal', accent: '', uiFont: '', quicknav: 'three' };
+        return { customThemes: [], theme: 'zhuoer', mode: 'auto', bgSource: 'none', bgStyle: 'fade', bgOpacity: 85, bgImage: '', bgOnEmpty: true, bgOnSession: true, fontScale: 100, a11yHit: false, mdDensity: 'normal', mdHeadSize: 'theme', mdCode: 'none', mdTable: 'plain', mdQuote: 'plain', accent: '', uiFont: '', quicknav: 'three' };
       }
     }
     function writePref(patch) {

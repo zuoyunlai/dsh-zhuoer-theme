@@ -864,7 +864,46 @@ function applyTokens(theme, pref) {
           + 'html[data-zr-proc="1"] [data-process-activity="plan"] [data-step-process-icon],'
           + 'html[data-zr-proc="1"] [data-process-activity="questions"] [data-step-process-icon]{' + hueMix('--dsw-static-amber-500') + '}'
         ) : '';
-        const nextCss = css + extra + bgCss + fxCss + brandCss + a11yCss + mdCss + headCss + procCss;
+        // ---- Markdown 精细化（0.6.41）----
+        // 宿主对助手正文（_markdown_ 容器）的规则实测：
+        //   标题 h1-h3 margin 32px 0 16px；代码块**只有底色**（无边框无圆角）；
+        //   表格**只有字体**（无边框无斑马纹）；引用块 2px 左边框 + 14px 内缩。
+        // 这四处正是「看起来糙」的主要来源，而它们都可以只用**主题 token** 覆盖——
+        // 颜色全部取自主题（border-l1/l2、bg-layer-1、brand-primary），
+        // 所以明暗两档天然正确，不需要像上一版那样按明暗挑静态色档位。
+        var MDC = 'html body [class*="_markdown_"]';
+        var mdFine = '';
+        if (pref.mdHeadSize === 'compact' || pref.mdHeadSize === 'clear') {
+          // 标题字号策略。特异性 html body [class*="_markdown_"] hN = (0,1,3)，
+          // 压过「排版节奏」的 (0,1,2) 与宿主的 (0,1,1) —— 后者用 font 简写，
+          // 简写只重置 font-* 与 line-height，不涉及 color，所以颜色我们另管。
+          var hsz = pref.mdHeadSize === 'compact'
+            ? [['h1', 1.24, 1.32], ['h2', 1.12, 1.34], ['h3', 1.04, 1.38], ['h4', 1, 1.4]]
+            : [['h1', 1.62, 1.24], ['h2', 1.4, 1.28], ['h3', 1.2, 1.34], ['h4', 1.06, 1.38]];
+          hsz.forEach(function (t) {
+            mdFine += MDC + ' ' + t[0] + '{font-size:' + t[1] + 'em;line-height:' + t[2] + ';}';
+          });
+        }
+        if (pref.mdCode === 'line' || pref.mdCode === 'card') {
+          mdFine += MDC + ' .md-code-block{border:1px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-sm);}';
+          if (pref.mdCode === 'card') {
+            mdFine += MDC + ' .md-code-block{background:var(--dsw-alias-bg-layer-1);border-color:var(--dsw-alias-border-l1);}';
+          }
+        }
+        if (pref.mdTable === 'line' || pref.mdTable === 'zebra') {
+          mdFine += MDC + ' table{border-collapse:collapse;}'
+            + MDC + ' :where(th,td){border:1px solid var(--dsw-alias-border-l2);padding:6px 10px;}';
+          if (pref.mdTable === 'zebra') {
+            mdFine += MDC + ' thead th{background:var(--dsw-alias-bg-layer-1);font-weight:600;}'
+              + MDC + ' tbody tr:nth-child(even){background:var(--dsw-alias-bg-layer-1);}';
+          }
+        }
+        if (pref.mdQuote === 'strong') {
+          mdFine += MDC + ' blockquote{border-left:3px solid var(--dsw-alias-brand-primary);'
+            + 'background:var(--dsw-alias-bg-layer-1);padding:8px 12px;'
+            + 'border-radius:0 var(--dsw-radius-sm) var(--dsw-radius-sm) 0;}';
+        }
+        const nextCss = css + extra + bgCss + fxCss + brandCss + a11yCss + mdCss + headCss + procCss + mdFine;
         const styleEl = ensureStyle();
         if (styleEl.__zrCss !== nextCss) {
           styleEl.textContent = nextCss;
@@ -2780,6 +2819,46 @@ function applyTokens(theme, pref) {
           )
         ),
 
+        // Markdown 精细化：标题字号 / 代码块 / 表格 / 引用块。
+        // 与上面的「排版节奏」分工：节奏管行距与间距（整体松紧），这里管**元素长相**。
+        h(Section, { title: t('panel.mdfine.title'), note: t('panel.mdfine.note') },
+          h(Row, { label: t('panel.mdfine.headRow') },
+            h(Pills, {
+              label: t('panel.mdfine.headAria'),
+              opts: [['theme', t('panel.mdfine.headTheme')], ['compact', t('panel.mdfine.headCompact')], ['clear', t('panel.mdfine.headClear')]],
+              value: pref.mdHeadSize || 'theme',
+              onChange: function (v) { set({ mdHeadSize: v }); },
+            }),
+            h('span', { className: 'zp-hint' }, t('panel.mdfine.headNote'))
+          ),
+          h(Row, { label: t('panel.mdfine.codeRow') },
+            h(Pills, {
+              label: t('panel.mdfine.codeAria'),
+              opts: [['none', t('panel.mdfine.codeNone')], ['line', t('panel.mdfine.codeLine')], ['card', t('panel.mdfine.codeCard')]],
+              value: pref.mdCode || 'none',
+              onChange: function (v) { set({ mdCode: v }); },
+            }),
+            h('span', { className: 'zp-hint' }, t('panel.mdfine.codeNote'))
+          ),
+          h(Row, { label: t('panel.mdfine.tableRow') },
+            h(Pills, {
+              label: t('panel.mdfine.tableAria'),
+              opts: [['plain', t('panel.mdfine.tablePlain')], ['line', t('panel.mdfine.tableLine')], ['zebra', t('panel.mdfine.tableZebra')]],
+              value: pref.mdTable || 'plain',
+              onChange: function (v) { set({ mdTable: v }); },
+            }),
+            h('span', { className: 'zp-hint' }, t('panel.mdfine.tableNote'))
+          ),
+          h(Row, { label: t('panel.mdfine.quoteRow') },
+            h(Pills, {
+              label: t('panel.mdfine.quoteAria'),
+              opts: [['plain', t('panel.mdfine.quotePlain')], ['strong', t('panel.mdfine.quoteStrong')]],
+              value: pref.mdQuote || 'plain',
+              onChange: function (v) { set({ mdQuote: v }); },
+            }),
+            h('span', { className: 'zp-hint' }, t('panel.mdfine.quoteNote'))
+          )
+        ),
         h(Section, { title: t('panel.accent.title'), note: t('panel.accent.note') },
           h(Row, { label: t('panel.accent.row') },
             h('div', { className: 'zp-sws' },
