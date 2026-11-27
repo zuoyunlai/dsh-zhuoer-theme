@@ -305,6 +305,7 @@ npm run coverage      # token 覆盖率与「刻意不跟锚点」的豁免清�
 | `verify:build` | `client.js` 与 `src/` 分片重新拼接的结果逐字节相等 |
 | `verify:version` | `PVERSION`、`package.json`、带引号的三段式版本字符串一致（先剥块注释，避免把 SVG path 里的 `s5.4.7` 当版本号） |
 | `verify:contrast` | 内置 12 套 × 两态的正文/提示/success/错误色 × 两档底与按钮前景色 ≥ 4.5:1，另含设置面板文字面；12 套预设走真实 `buildCustomTokens` 复算；台账 679 组只升不降 |
+| `verify:texture` | **纹理对比度门**：底纹按真实规则（可见度 × 0.7、线稿 `lighten`）叠到每套主题底色上逐像素合成，取最不利分位，判「底色本已达标却被纹理压破 4.5:1」与「侵蚀超预算 0.75」；换图或改底色未重测（sha256 / 底色不符）即红。合成在 `scripts/measure-texture.mjs`（浏览器 canvas，仓库零依赖解不了 WebP），门禁只读 `contracts/texture-luminance.json` 复算 |
 | `gen:hosttext` | 从 `app.asar` 重抽宿主类名 → 字号表（`src/15-host-text.js`）。宿主升级后跑一次；不跑只是部分字号对不上，不会坏交互 |
 | `verify:scale` | 字号缩放只许动文字尺寸：**禁止 `body{zoom}`**（会让宿主侧栏拖拽命中错位），要求 `--dsw-font-*` 的 px 缩放与 `--dsh-content-font-*` 赋值同时存在 |
 | `verify:important` | **优先级棘轮门**：client.js 里的 `!important` 数量不得高于基线（`contracts/important-baseline.json`，当前 78）。宿主加一条、插件就得加两条——这条门让军备竞赛不再升级 |

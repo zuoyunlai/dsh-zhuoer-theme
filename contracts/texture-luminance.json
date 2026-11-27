@@ -1,0 +1,676 @@
+{
+  "$comment": "纹理对比度契约：由 scripts/measure-texture.mjs 在浏览器里逐像素合成生成，门禁 scripts/verify-texture.mjs 只读本文件。为什么存「合成后背景亮度的分位」而不是存纹理本身的均值：局部对比度由最不利的那个像素决定，而线稿纹理绝大多数像素 alpha=0（p50 就是底色），均值会把线条那一小撮完全平均掉。换了纹理文件必须重跑测量——门禁会比对 sha256，没重测就红。",
+  "alpha": 0.7,
+  "blend": "lighten",
+  "canvas": "320x200",
+  "generatedAt": "2026-11-27T05:58:47.636Z",
+  "floors": {
+    "absolute": 4.5,
+    "erosionBudget": 0.75
+  },
+  "roles": [
+    "--dsw-alias-label-primary",
+    "--dsw-alias-label-secondary",
+    "--dsw-alias-label-tertiary"
+  ],
+  "textures": {
+    "bg-zhuoer.webp": {
+      "bytes": 34368,
+      "sha256": "0d255c900941f6f9ef3b50de95d2cc9ebe1e769c887e34b4ba9968957d701162"
+    },
+    "bg-soft-zhuoer.webp": {
+      "bytes": 27582,
+      "sha256": "d17829f1c0319e39788096bec24ecc2412732c1f71b8e143fd8ee15daa32db80"
+    },
+    "bg-absolutely.webp": {
+      "bytes": 7202,
+      "sha256": "ad23e2a73b810ac4f69526688ced726b9e3cfce56be8521ba674428a3409a88a"
+    },
+    "bg-soft-absolutely.webp": {
+      "bytes": 4936,
+      "sha256": "81d5b6f0b242c2a0e973bf0aa9dfb6cf06b627fe4dbd6ba754cc53285af55bf1"
+    },
+    "bg-beacon.webp": {
+      "bytes": 22766,
+      "sha256": "e23be342b4f6d07417dc6ca418a4667f1bd95fec6b9f63081a5d331d61688a1d"
+    },
+    "bg-soft-beacon.webp": {
+      "bytes": 14840,
+      "sha256": "f43986c362bf2016ae4a051133dc74ae5c4855a541663210106c7313169135d0"
+    },
+    "bg-crt.webp": {
+      "bytes": 3266,
+      "sha256": "ab7e3777d92588ac772c3d660cbb3c1bbc098f07bcaa6e645fe34d70a13dcd0d"
+    },
+    "bg-soft-crt.webp": {
+      "bytes": 1644,
+      "sha256": "aa3652c6b1826ab9a93af0970db960aa5622736c9d5b740cd03328a46ab86335"
+    },
+    "bg-dash.webp": {
+      "bytes": 29152,
+      "sha256": "3fb5dd4f12953deb5054a5c34b955601a98097cc06300c2d93532e0c2773b3af"
+    },
+    "bg-soft-dash.webp": {
+      "bytes": 24842,
+      "sha256": "366e57fe6b96e456a36d771168e644dc694137a0125c7e0f5d978f193f054cfc"
+    },
+    "bg-knot.webp": {
+      "bytes": 17418,
+      "sha256": "84be16aaf93c2040c1256c8386845ad017020796f73cf137f28121f461bed498"
+    },
+    "bg-soft-knot.webp": {
+      "bytes": 18754,
+      "sha256": "d86e44ab98554c67de15f8e3b1c552afe9e200c46726858af16cd46cd815b7d2"
+    },
+    "bg-manuscript.webp": {
+      "bytes": 12258,
+      "sha256": "c603c8be5140123430b775e68271c7afcc6bb4c24a3be62c583e564afd7287d1"
+    },
+    "bg-soft-manuscript.webp": {
+      "bytes": 7584,
+      "sha256": "c7691d0cbe21a9dd07e4d71684f2bb79ed34d684bd06f5082303fd1edfaaddc2"
+    },
+    "bg-miami.webp": {
+      "bytes": 21182,
+      "sha256": "8cb55585c1ebe1faae28468670522a9e94e8932b42ad34e542bd897d43686917"
+    },
+    "bg-soft-miami.webp": {
+      "bytes": 12914,
+      "sha256": "90300036c211cfd7633164405c23258a73b2276503f5343392016e41d5296716"
+    },
+    "bg-phosphor.webp": {
+      "bytes": 3124,
+      "sha256": "cf58ce6336cb49e76282f5593171da5bbb21d89e35e52bf166a9209cd8125e20"
+    },
+    "bg-soft-phosphor.webp": {
+      "bytes": 1830,
+      "sha256": "9386716acb4308c5f61c03eb3518107b4177f96b8e93efc9055c8ff0cb19b2c2"
+    },
+    "bg-rose.webp": {
+      "bytes": 26664,
+      "sha256": "3daef0b308f89e47b8e1bd7a69c2060522a740f2b985b62027925406a4d0a192"
+    },
+    "bg-soft-rose.webp": {
+      "bytes": 20096,
+      "sha256": "548c2a13e88407e487e287877b5a2e2e1368c081db5a15369ef4f4b77a87f5f2"
+    },
+    "bg-tide.webp": {
+      "bytes": 22012,
+      "sha256": "dd79d9064fc5613d81ae491a9837acc6069a2789198719adbe5ebb30ced0d794"
+    },
+    "bg-soft-tide.webp": {
+      "bytes": 13496,
+      "sha256": "f1954e8250fe99df1da1562b7152de69f99d321f3603c6679ce33e6c62117bf4"
+    },
+    "bg-vintage-paper.webp": {
+      "bytes": 47470,
+      "sha256": "1944bfc150d8292fa0d6f7f42c85bfa95a115b655102b281595ca54b8714f3b3"
+    },
+    "bg-soft-vintage-paper.webp": {
+      "bytes": 52742,
+      "sha256": "7233aa755e405015d3c1541e90b3251d638f262940519aa4cd0a2ad18b5f2d93"
+    }
+  },
+  "rows": [
+    {
+      "theme": "zhuoer",
+      "mode": "dark",
+      "variant": "full",
+      "texture": "bg-zhuoer.webp",
+      "base": "#0e1015",
+      "lumP5": 0.00518,
+      "lumP50": 0.00518,
+      "lumP95": 0.00518,
+      "lumP100": 0.00634
+    },
+    {
+      "theme": "zhuoer",
+      "mode": "dark",
+      "variant": "soft",
+      "texture": "bg-soft-zhuoer.webp",
+      "base": "#0e1015",
+      "lumP5": 0.00518,
+      "lumP50": 0.00518,
+      "lumP95": 0.00518,
+      "lumP100": 0.00546
+    },
+    {
+      "theme": "zhuoer",
+      "mode": "light",
+      "variant": "full",
+      "texture": "bg-zhuoer.webp",
+      "base": "#f4f1ec",
+      "lumP5": 0.882,
+      "lumP50": 0.882,
+      "lumP95": 0.882,
+      "lumP100": 0.88251
+    },
+    {
+      "theme": "zhuoer",
+      "mode": "light",
+      "variant": "soft",
+      "texture": "bg-soft-zhuoer.webp",
+      "base": "#f4f1ec",
+      "lumP5": 0.882,
+      "lumP50": 0.882,
+      "lumP95": 0.882,
+      "lumP100": 0.88211
+    },
+    {
+      "theme": "absolutely",
+      "mode": "dark",
+      "variant": "full",
+      "texture": "bg-absolutely.webp",
+      "base": "#1b1b1a",
+      "lumP5": 0.01091,
+      "lumP50": 0.01091,
+      "lumP95": 0.01091,
+      "lumP100": 0.01223
+    },
+    {
+      "theme": "absolutely",
+      "mode": "dark",
+      "variant": "soft",
+      "texture": "bg-soft-absolutely.webp",
+      "base": "#1b1b1a",
+      "lumP5": 0.01091,
+      "lumP50": 0.01091,
+      "lumP95": 0.01091,
+      "lumP100": 0.011
+    },
+    {
+      "theme": "absolutely",
+      "mode": "light",
+      "variant": "full",
+      "texture": "bg-absolutely.webp",
+      "base": "#f7f6f5",
+      "lumP5": 0.92278,
+      "lumP50": 0.92278,
+      "lumP95": 0.92278,
+      "lumP100": 0.92297
+    },
+    {
+      "theme": "absolutely",
+      "mode": "light",
+      "variant": "soft",
+      "texture": "bg-soft-absolutely.webp",
+      "base": "#f7f6f5",
+      "lumP5": 0.92278,
+      "lumP50": 0.92278,
+      "lumP95": 0.92278,
+      "lumP100": 0.92282
+    },
+    {
+      "theme": "beacon",
+      "mode": "dark",
+      "variant": "full",
+      "texture": "bg-beacon.webp",
+      "base": "#000000",
+      "lumP5": 0,
+      "lumP50": 0,
+      "lumP95": 0,
+      "lumP100": 0.00121
+    },
+    {
+      "theme": "beacon",
+      "mode": "dark",
+      "variant": "soft",
+      "texture": "bg-soft-beacon.webp",
+      "base": "#000000",
+      "lumP5": 0,
+      "lumP50": 0,
+      "lumP95": 0,
+      "lumP100": 0
+    },
+    {
+      "theme": "beacon",
+      "mode": "light",
+      "variant": "full",
+      "texture": "bg-beacon.webp",
+      "base": "#f8f8f8",
+      "lumP5": 0.93869,
+      "lumP50": 0.93869,
+      "lumP95": 0.93869,
+      "lumP100": 0.93915
+    },
+    {
+      "theme": "beacon",
+      "mode": "light",
+      "variant": "soft",
+      "texture": "bg-soft-beacon.webp",
+      "base": "#f8f8f8",
+      "lumP5": 0.93869,
+      "lumP50": 0.93869,
+      "lumP95": 0.93869,
+      "lumP100": 0.93869
+    },
+    {
+      "theme": "crt",
+      "mode": "dark",
+      "variant": "full",
+      "texture": "bg-crt.webp",
+      "base": "#090a09",
+      "lumP5": 0.00295,
+      "lumP50": 0.00295,
+      "lumP95": 0.00295,
+      "lumP100": 0.0043
+    },
+    {
+      "theme": "crt",
+      "mode": "dark",
+      "variant": "soft",
+      "texture": "bg-soft-crt.webp",
+      "base": "#090a09",
+      "lumP5": 0.00295,
+      "lumP50": 0.00295,
+      "lumP95": 0.00295,
+      "lumP100": 0.00295
+    },
+    {
+      "theme": "crt",
+      "mode": "light",
+      "variant": "full",
+      "texture": "bg-crt.webp",
+      "base": "#f4f4f4",
+      "lumP5": 0.90466,
+      "lumP50": 0.90466,
+      "lumP95": 0.90466,
+      "lumP100": 0.90584
+    },
+    {
+      "theme": "crt",
+      "mode": "light",
+      "variant": "soft",
+      "texture": "bg-soft-crt.webp",
+      "base": "#f4f4f4",
+      "lumP5": 0.90466,
+      "lumP50": 0.90466,
+      "lumP95": 0.90466,
+      "lumP100": 0.90466
+    },
+    {
+      "theme": "dash",
+      "mode": "dark",
+      "variant": "full",
+      "texture": "bg-dash.webp",
+      "base": "#1a1210",
+      "lumP5": 0.0069,
+      "lumP50": 0.0069,
+      "lumP95": 0.00723,
+      "lumP100": 0.0093
+    },
+    {
+      "theme": "dash",
+      "mode": "dark",
+      "variant": "soft",
+      "texture": "bg-soft-dash.webp",
+      "base": "#1a1210",
+      "lumP5": 0.0069,
+      "lumP50": 0.0069,
+      "lumP95": 0.0069,
+      "lumP100": 0.00812
+    },
+    {
+      "theme": "dash",
+      "mode": "light",
+      "variant": "full",
+      "texture": "bg-dash.webp",
+      "base": "#ebe5e0",
+      "lumP5": 0.79083,
+      "lumP50": 0.79083,
+      "lumP95": 0.79083,
+      "lumP100": 0.79131
+    },
+    {
+      "theme": "dash",
+      "mode": "light",
+      "variant": "soft",
+      "texture": "bg-soft-dash.webp",
+      "base": "#ebe5e0",
+      "lumP5": 0.79083,
+      "lumP50": 0.79083,
+      "lumP95": 0.79083,
+      "lumP100": 0.79092
+    },
+    {
+      "theme": "knot",
+      "mode": "dark",
+      "variant": "full",
+      "texture": "bg-knot.webp",
+      "base": "#080808",
+      "lumP5": 0.00243,
+      "lumP50": 0.00243,
+      "lumP95": 0.00243,
+      "lumP100": 0.00419
+    },
+    {
+      "theme": "knot",
+      "mode": "dark",
+      "variant": "soft",
+      "texture": "bg-soft-knot.webp",
+      "base": "#080808",
+      "lumP5": 0.00243,
+      "lumP50": 0.00243,
+      "lumP95": 0.00243,
+      "lumP100": 0.00434
+    },
+    {
+      "theme": "knot",
+      "mode": "light",
+      "variant": "full",
+      "texture": "bg-knot.webp",
+      "base": "#f4f4f7",
+      "lumP5": 0.9065,
+      "lumP50": 0.9065,
+      "lumP95": 0.9065,
+      "lumP100": 0.90675
+    },
+    {
+      "theme": "knot",
+      "mode": "light",
+      "variant": "soft",
+      "texture": "bg-soft-knot.webp",
+      "base": "#f4f4f7",
+      "lumP5": 0.9065,
+      "lumP50": 0.9065,
+      "lumP95": 0.9065,
+      "lumP100": 0.9065
+    },
+    {
+      "theme": "manuscript",
+      "mode": "dark",
+      "variant": "full",
+      "texture": "bg-manuscript.webp",
+      "base": "#211e18",
+      "lumP5": 0.01318,
+      "lumP50": 0.01318,
+      "lumP95": 0.01318,
+      "lumP100": 0.01488
+    },
+    {
+      "theme": "manuscript",
+      "mode": "dark",
+      "variant": "soft",
+      "texture": "bg-soft-manuscript.webp",
+      "base": "#211e18",
+      "lumP5": 0.01318,
+      "lumP50": 0.01318,
+      "lumP95": 0.01318,
+      "lumP100": 0.01318
+    },
+    {
+      "theme": "manuscript",
+      "mode": "light",
+      "variant": "full",
+      "texture": "bg-manuscript.webp",
+      "base": "#f1f0ea",
+      "lumP5": 0.86961,
+      "lumP50": 0.86961,
+      "lumP95": 0.86961,
+      "lumP100": 0.86996
+    },
+    {
+      "theme": "manuscript",
+      "mode": "light",
+      "variant": "soft",
+      "texture": "bg-soft-manuscript.webp",
+      "base": "#f1f0ea",
+      "lumP5": 0.86961,
+      "lumP50": 0.86961,
+      "lumP95": 0.86961,
+      "lumP100": 0.86961
+    },
+    {
+      "theme": "miami",
+      "mode": "dark",
+      "variant": "full",
+      "texture": "bg-miami.webp",
+      "base": "#140f1e",
+      "lumP5": 0.00584,
+      "lumP50": 0.00584,
+      "lumP95": 0.00584,
+      "lumP100": 0.00745
+    },
+    {
+      "theme": "miami",
+      "mode": "dark",
+      "variant": "soft",
+      "texture": "bg-soft-miami.webp",
+      "base": "#140f1e",
+      "lumP5": 0.00584,
+      "lumP50": 0.00584,
+      "lumP95": 0.00584,
+      "lumP100": 0.00591
+    },
+    {
+      "theme": "miami",
+      "mode": "light",
+      "variant": "full",
+      "texture": "bg-miami.webp",
+      "base": "#f6f2f5",
+      "lumP5": 0.8969,
+      "lumP50": 0.8969,
+      "lumP95": 0.8969,
+      "lumP100": 0.89758
+    },
+    {
+      "theme": "miami",
+      "mode": "light",
+      "variant": "soft",
+      "texture": "bg-soft-miami.webp",
+      "base": "#f6f2f5",
+      "lumP5": 0.8969,
+      "lumP50": 0.8969,
+      "lumP95": 0.8969,
+      "lumP100": 0.89694
+    },
+    {
+      "theme": "phosphor",
+      "mode": "dark",
+      "variant": "full",
+      "texture": "bg-phosphor.webp",
+      "base": "#0a0f0a",
+      "lumP5": 0.00428,
+      "lumP50": 0.00428,
+      "lumP95": 0.00428,
+      "lumP100": 0.00562
+    },
+    {
+      "theme": "phosphor",
+      "mode": "dark",
+      "variant": "soft",
+      "texture": "bg-soft-phosphor.webp",
+      "base": "#0a0f0a",
+      "lumP5": 0.00428,
+      "lumP50": 0.00428,
+      "lumP95": 0.00428,
+      "lumP100": 0.00428
+    },
+    {
+      "theme": "phosphor",
+      "mode": "light",
+      "variant": "full",
+      "texture": "bg-phosphor.webp",
+      "base": "#f1f4f1",
+      "lumP5": 0.89753,
+      "lumP50": 0.89753,
+      "lumP95": 0.89753,
+      "lumP100": 0.89844
+    },
+    {
+      "theme": "phosphor",
+      "mode": "light",
+      "variant": "soft",
+      "texture": "bg-soft-phosphor.webp",
+      "base": "#f1f4f1",
+      "lumP5": 0.89753,
+      "lumP50": 0.89753,
+      "lumP95": 0.89753,
+      "lumP100": 0.89753
+    },
+    {
+      "theme": "rose",
+      "mode": "dark",
+      "variant": "full",
+      "texture": "bg-rose.webp",
+      "base": "#191724",
+      "lumP5": 0.00947,
+      "lumP50": 0.00947,
+      "lumP95": 0.00947,
+      "lumP100": 0.01224
+    },
+    {
+      "theme": "rose",
+      "mode": "dark",
+      "variant": "soft",
+      "texture": "bg-soft-rose.webp",
+      "base": "#191724",
+      "lumP5": 0.00947,
+      "lumP50": 0.00947,
+      "lumP95": 0.00947,
+      "lumP100": 0.00954
+    },
+    {
+      "theme": "rose",
+      "mode": "light",
+      "variant": "full",
+      "texture": "bg-rose.webp",
+      "base": "#f1eeea",
+      "lumP5": 0.8579,
+      "lumP50": 0.8579,
+      "lumP95": 0.8579,
+      "lumP100": 0.85892
+    },
+    {
+      "theme": "rose",
+      "mode": "light",
+      "variant": "soft",
+      "texture": "bg-soft-rose.webp",
+      "base": "#f1eeea",
+      "lumP5": 0.8579,
+      "lumP50": 0.8579,
+      "lumP95": 0.8579,
+      "lumP100": 0.8579
+    },
+    {
+      "theme": "tide",
+      "mode": "dark",
+      "variant": "full",
+      "texture": "bg-tide.webp",
+      "base": "#10151b",
+      "lumP5": 0.00726,
+      "lumP50": 0.00726,
+      "lumP95": 0.00726,
+      "lumP100": 0.00874
+    },
+    {
+      "theme": "tide",
+      "mode": "dark",
+      "variant": "soft",
+      "texture": "bg-soft-tide.webp",
+      "base": "#10151b",
+      "lumP5": 0.00726,
+      "lumP50": 0.00726,
+      "lumP95": 0.00726,
+      "lumP100": 0.00726
+    },
+    {
+      "theme": "tide",
+      "mode": "light",
+      "variant": "full",
+      "texture": "bg-tide.webp",
+      "base": "#f1f3f5",
+      "lumP5": 0.89395,
+      "lumP50": 0.89395,
+      "lumP95": 0.89395,
+      "lumP100": 0.89437
+    },
+    {
+      "theme": "tide",
+      "mode": "light",
+      "variant": "soft",
+      "texture": "bg-soft-tide.webp",
+      "base": "#f1f3f5",
+      "lumP5": 0.89395,
+      "lumP50": 0.89395,
+      "lumP95": 0.89395,
+      "lumP100": 0.89395
+    },
+    {
+      "theme": "vintage-paper",
+      "mode": "dark",
+      "variant": "full",
+      "texture": "bg-vintage-paper.webp",
+      "base": "#2d2621",
+      "lumP5": 0.02054,
+      "lumP50": 0.02054,
+      "lumP95": 0.02382,
+      "lumP100": 0.02758
+    },
+    {
+      "theme": "vintage-paper",
+      "mode": "dark",
+      "variant": "soft",
+      "texture": "bg-soft-vintage-paper.webp",
+      "base": "#2d2621",
+      "lumP5": 0.02054,
+      "lumP50": 0.02054,
+      "lumP95": 0.0233,
+      "lumP100": 0.0263
+    },
+    {
+      "theme": "vintage-paper",
+      "mode": "light",
+      "variant": "full",
+      "texture": "bg-vintage-paper.webp",
+      "base": "#f5f1e6",
+      "lumP5": 0.88036,
+      "lumP50": 0.88036,
+      "lumP95": 0.88064,
+      "lumP100": 0.88202
+    },
+    {
+      "theme": "vintage-paper",
+      "mode": "light",
+      "variant": "soft",
+      "texture": "bg-soft-vintage-paper.webp",
+      "base": "#f5f1e6",
+      "lumP5": 0.88036,
+      "lumP50": 0.88036,
+      "lumP95": 0.88036,
+      "lumP100": 0.88036
+    }
+  ],
+  "knownDebt": {
+    "dash/dark/full|tertiary": {
+      "worst": 4.48,
+      "kind": "absolute",
+      "recordedAt": "2026-11-27"
+    },
+    "manuscript/dark/full|tertiary": {
+      "worst": 4.43,
+      "kind": "absolute",
+      "recordedAt": "2026-11-27"
+    },
+    "miami/dark/full|tertiary": {
+      "worst": 4.483,
+      "kind": "absolute",
+      "recordedAt": "2026-11-27"
+    },
+    "vintage-paper/dark/full|primary": {
+      "worst": 10.806,
+      "kind": "erosion",
+      "recordedAt": "2026-11-27"
+    },
+    "vintage-paper/dark/full|tertiary": {
+      "worst": 7.755,
+      "kind": "erosion",
+      "recordedAt": "2026-11-27"
+    },
+    "vintage-paper/dark/soft|primary": {
+      "worst": 10.987,
+      "kind": "erosion",
+      "recordedAt": "2026-11-27"
+    }
+  }
+}
