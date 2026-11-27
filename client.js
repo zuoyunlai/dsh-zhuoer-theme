@@ -5458,8 +5458,17 @@ function applyTokens(theme, pref) {
           }
         }
         // source === 'none' → 该主题明确不要底图
-      } else if (pref.bgSource === 'theme') bgUrl = themeBgFor();
-      else if (pref.bgSource === 'image' && pref.bgImage) bgUrl = pref.bgImage;
+      } else if (pref.bgSource === 'theme') {
+        bgUrl = themeBgFor();
+        // 关键：主题自带底图是**线稿**，必须打上 texture 标记。
+        // 漏了这一步，zrPhotoCapFor 会把它当照片去解「正文仍达 4.5:1 的最大不透明度」，
+        // 于是内置线稿被自己的照片限幅压到 0.25 —— 滑块拉到 100% 也只有 25%，
+        // 而且 alpha 越高这个上限越紧（实测 0.29 → 0.25），看起来就像「滑块失效」。
+        bgKind = 'texture';
+      } else if (pref.bgSource === 'image' && pref.bgImage) {
+        bgUrl = pref.bgImage;
+        bgKind = 'photo';
+      }
       if (bgUrl) {
         // 主栏内层（_root）用 bg-base 填空，若它不透明就会把容器上的底图完全盖住。
         // 所以 bg-base 必须保持半透明；左栏用 bg-layer 系列，仍是实色，对比不受影响。
