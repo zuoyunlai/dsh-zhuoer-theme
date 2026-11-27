@@ -246,6 +246,18 @@ window.__ModuleLoader__.load({
       return Math.min(ZR_ED_W_MAX, Math.max(ZR_ED_W_MIN, Math.round(n)));
     }
 
+    // ---- C2：等待态的最小可见时长 ----
+    // 一次生成本来要 1–3 秒，但缓存命中、本地校验先失败、宿主立刻 401 这类情形可能 80ms 就返回，
+    // 按钮上的「生成中…」闪一下等于没有反馈——用户只会再点一次。上游 PTC 的做法是「最短可见 +
+    // 结果原位停留」，这里先取最小可见时长这一半。
+    const ZR_DWELL_MS = 600;
+    function zrDwellDelay(elapsed, min) {
+      const e = Number(elapsed) || 0;
+      const m = Number(min) || 0;
+      if (e >= m) return 0;
+      return Math.max(0, Math.round(m - e));
+    }
+
     function zrDpr() {
       try { return window.devicePixelRatio || 1; } catch (e) { return 1; }
     }

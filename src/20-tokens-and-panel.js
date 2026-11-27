@@ -2195,6 +2195,8 @@ function applyTokens(theme, pref) {
         const prompt = String(aiPrompt || '').trim();
         if (!prompt) return;
         setAiBusy(true); setAiErr(''); setAiResult(null);
+        // C2：记下起点，收尾时按最小可见时长补齐（见 00-core 的 zrDwellDelay）。
+        const aiStartedAt = Date.now();
         // query string 传参：宿主会在 handler 之前截走 POST body。
         fetchAiNonce()
           .then(function (nonce) {
@@ -2210,7 +2212,11 @@ function applyTokens(theme, pref) {
             setAiResult(parsed);
           })
           .catch(function (e) { setAiErr((e && e.message) || t('panel.ai.failed')); })
-          .then(function () { setAiBusy(false); });
+          .then(function () {
+            const wait = zrDwellDelay(Date.now() - aiStartedAt, ZR_DWELL_MS);
+            if (wait > 0) setTimeout(function () { setAiBusy(false); }, wait);
+            else setAiBusy(false);
+          });
       };
       const pickPalette = function (ev) {
         const file = ev.target.files && ev.target.files[0];
