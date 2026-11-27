@@ -1843,7 +1843,7 @@ export const THEMES = {
       "--dsw-alias-label-primary-foreground": "#1a1210",
       "--dsw-alias-label-primary-inverted": "#ece0d8",
       "--dsw-alias-label-secondary": "#a39182",
-      "--dsw-alias-label-tertiary": "#908072",
+      "--dsw-alias-label-tertiary": "#9b8d80",
       "--dsw-alias-label-caption": "#958477",
       "--dsw-alias-label-dimmed": "#907f72",
       "--dsw-alias-label-error": "#dc5b5b",

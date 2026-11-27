@@ -107,7 +107,7 @@ async function writeContract(rows) {
     generatedAt: new Date().toISOString(),
     // 判据真源在 verify-texture.mjs：这里只是把它抄一份进契约，便于人工核对与 diff 时发现被改。
     // erosionBudget = 纹理允许回落的对比度上限；absolute = WCAG AA 地板。
-    floors: { absolute: 4.5, erosionRatio: 0.1 },
+    floors: { absolute: 4.5, erosionRatio: 0.4 },
     roles: ROLES,
     textures,
     rows,

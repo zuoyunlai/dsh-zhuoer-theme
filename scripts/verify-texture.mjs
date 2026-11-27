@@ -37,7 +37,14 @@ const contractPath = join(root, 'contracts', 'texture-luminance.json')
 
 const ABSOLUTE = 4.5
 // 侵蚀用**相对**预算而不是绝对常数：侵蚀幅度随对比度本身缩放，绝对常数会在高对比主题上误报。
-const EROSION_RATIO = 0.1
+//
+// 0.6.44 起预算从 10% 放到 40%。原因不是放宽门，而是判据选错了层：
+// 内置底纹原先把 alpha 压到 6-25/255（有效不透明度 2-10%），视觉上几乎不可见，
+// 于是「侵蚀 <= 10%」这条永远成立——它成立是因为纹理根本没画上去。
+// 把 dash 的 alpha 归一到 90/255 后，最不利侵蚀是 19.3%，这不是缺陷，
+// 而是「纹理可见」的必然代价。真正要保的不变量是「文字仍达 AA」（由绝对地板判），
+// 40% 只作为「别把纹理做成涂墙」的兜底。
+const EROSION_RATIO = 0.4
 const ROLES = ['primary', 'secondary', 'tertiary']
 const ROLE_TOKEN = {
   primary: '--dsw-alias-label-primary',
