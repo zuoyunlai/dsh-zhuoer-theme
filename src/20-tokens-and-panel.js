@@ -810,7 +810,39 @@ function applyTokens(theme, pref) {
           : (pref.mdHeading === 'brand'
             ? 'html[data-zr-mdhead="brand"] [class*="_markdown_"] h1,html[data-zr-mdhead="brand"] [class*="_markdown_"] h2,html[data-zr-mdhead="brand"] [class*="_markdown_"] h3,html[data-zr-mdhead="brand"] [class*="_markdown_"] h4,html[data-zr-mdhead="brand"] [class*="_markdown_"] h5,html[data-zr-mdhead="brand"] [class*="_markdown_"] h6{color:color-mix(in srgb,var(--dsw-alias-brand-primary) 80%,var(--dsw-alias-label-primary));}'
             : 'html[data-zr-mdhead="soft"] [class*="_markdown_"] h1,html[data-zr-mdhead="soft"] [class*="_markdown_"] h2,html[data-zr-mdhead="soft"] [class*="_markdown_"] h3,html[data-zr-mdhead="soft"] [class*="_markdown_"] h4,html[data-zr-mdhead="soft"] [class*="_markdown_"] h5,html[data-zr-mdhead="soft"] [class*="_markdown_"] h6{color:color-mix(in srgb,var(--dsw-alias-brand-primary) 55%,var(--dsw-alias-label-primary));}');
-        const nextCss = css + extra + bgCss + fxCss + brandCss + a11yCss + mdCss + headCss;
+        // 步骤过程组头的活动图标：宿主把它画成 color:inherit（跟着文字色走），
+        // 所以想上语义色必须**给图标元素单独设 color**——它没有自己的颜色规则。
+        // 宿主在图标 span 上留了稳定属性 data-step-process-icon，用它选中比猜类名可靠。
+        // 活动类别（宿主共 13 种）：读类 / 写类 / 执行类 / 提问 / 思考 / 其余。
+        // 步骤过程组头的活动图标：宿主把它画成 color:inherit（跟着文字色走），
+        // 所以想上语义色必须**给图标元素单独设 color**——它自己没有颜色规则。
+        // 宿主在图标 span 上留了稳定属性 data-step-process-icon，用它选中比猜类名可靠
+        // （类名带构建哈希：BE0jCW_activityIcon）。
+        //
+        // 语义分三类（宿主共 13 种活动）：
+        //   蓝＝在看（读文件/读图/搜索/抓网页）；琥珀＝在改或问你（写/改/计划/提问）；
+        //   品牌色＝在想或在跑（思考/工具/命令/代码/子代理）。
+        // 宿主**没有**信息蓝语义 token（link 等于品牌色），所以蓝取自原始调色板
+        // --dsw-static-blue-*，并按明暗选档保证对底色 ≥3:1（图标属 UI 图形，走 1.4.11）。
+        var infoBlue = scheme === 'light' ? 'var(--dsw-static-blue-600)' : 'var(--dsw-static-blue-400)';
+        var procCss = pref.procIconColor ? (
+          'html[data-zr-proc="1"] [data-step-process-icon]{color:' + infoBlue + ';}'
+          + 'html[data-zr-proc="1"] [data-process-activity="read"] [data-step-process-icon],'
+          + 'html[data-zr-proc="1"] [data-process-activity="readImage"] [data-step-process-icon],'
+          + 'html[data-zr-proc="1"] [data-process-activity="search"] [data-step-process-icon],'
+          + 'html[data-zr-proc="1"] [data-process-activity="webSearch"] [data-step-process-icon],'
+          + 'html[data-zr-proc="1"] [data-process-activity="webFetch"] [data-step-process-icon]{color:' + infoBlue + ';}'
+          + 'html[data-zr-proc="1"] [data-process-activity="edit"] [data-step-process-icon],'
+          + 'html[data-zr-proc="1"] [data-process-activity="write"] [data-step-process-icon],'
+          + 'html[data-zr-proc="1"] [data-process-activity="plan"] [data-step-process-icon],'
+          + 'html[data-zr-proc="1"] [data-process-activity="questions"] [data-step-process-icon]{color:var(--dsw-alias-state-warn-primary);}'
+          + 'html[data-zr-proc="1"] [data-process-activity="thinking"] [data-step-process-icon],'
+          + 'html[data-zr-proc="1"] [data-process-activity="tools"] [data-step-process-icon],'
+          + 'html[data-zr-proc="1"] [data-process-activity="commands"] [data-step-process-icon],'
+          + 'html[data-zr-proc="1"] [data-process-activity="code"] [data-step-process-icon],'
+          + 'html[data-zr-proc="1"] [data-process-activity="subagents"] [data-step-process-icon]{color:var(--dsw-alias-brand-primary);}'
+        ) : '';
+        const nextCss = css + extra + bgCss + fxCss + brandCss + a11yCss + mdCss + headCss + procCss;
         const styleEl = ensureStyle();
         if (styleEl.__zrCss !== nextCss) {
           styleEl.textContent = nextCss;
@@ -887,6 +919,7 @@ function applyTokens(theme, pref) {
         document.documentElement.setAttribute('data-zr-base', effTheme);
         document.documentElement.setAttribute('data-zr-a11y-hit', pref.a11yHit ? '1' : '0');
         document.documentElement.setAttribute('data-zr-mdhead', pref.mdHeading || 'soft');
+        document.documentElement.setAttribute('data-zr-proc', pref.procIconColor ? '1' : '0');
         // 硬边档判定：读计算值而不是看 pref —— 形状可能来自主题预设、半径缩放滑块
         // 或自定义锚点，只有算出来的 radius 才代表「这套主题真的是直角」。
         // 第三方控件（左侧栏分段 tabs）的圆角/边线只在 data-zr-sharp 下被接管。
@@ -2675,6 +2708,16 @@ function applyTokens(theme, pref) {
               onChange: function (v) { set({ mdHeading: v }); },
             }),
             h('span', { className: 'zp-hint' }, t('panel.type.mdHeadNote'))
+          ),
+          h(Row, { label: t('panel.a11y.procRow') },
+            h('label', { className: 'zp-chk' },
+              h('input', {
+                type: 'checkbox', checked: pref.procIconColor === true,
+                onChange: function (ev) { set({ procIconColor: Boolean(ev.target.checked) }); },
+              }),
+              h('span', null, t('panel.a11y.procOn'))
+            ),
+            h('span', { className: 'zp-hint' }, t('panel.a11y.procNote'))
           ),
           h(Row, { label: t('panel.a11y.hitRow') },
             h('label', { className: 'zp-chk' },

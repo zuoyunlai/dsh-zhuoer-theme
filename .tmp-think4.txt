@@ -1,0 +1,10 @@
+thinkingToggle hits: 12
+
+---
+)(`div`,{className:`${TrajectoryTable_module_css_default.assistantContent} ${TrajectoryTable_module_css_default.assistantContentRendered}`,children:[(0,react_jsx_runtime.jsxs)(`div`,{className:preview&&!record.cell.outputDetail?`${TrajectoryTable_module_css_default.thinkingQuote} ${TrajectoryTable_module_css_default.thinkingQuoteOnlyPreview}`:TrajectoryTable_module_css_default.thinkingQuote,children:[(0,react_jsx_runtime.jsxs)(`button`,{type:`button`,className:TrajectoryTable_module_css_default.thinkingToggle,"aria-expanded":thinkingExpanded,onClick:()=>{onThinkingExpandedChange(!thinkingExpanded)},children:[t(`record.thinking`),(0,react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconChevronRightOutlineRegular,{className:TrajectoryTable_module_css_default.thinkingChevron,size:12})]}),thinkingExpanded&&(0,react_jsx_runtime.jsx)(MarkdownFragment,{text:record.cell.thinkingDetail,rendered,preview,variant:`compact`,t})]}),record.cell.outputDetail&&(0,react_jsx_runtime.jsx)(`div`,{className:TrajectoryTable_module_css_default.assistantOutput,children:(0,react_jsx_runtime.jsx)(MarkdownFragment,{text:record.cell.outputDetail,rendered,preview,t})}),(0,react_jsx_runtime.jsx)(Assis
+
+---
+e !== undefined && value !== '').join('\n\n') return <MarkdownFragment text={source} rendered={false} preview={preview} t={t} /> } return ( <div className={`${css.assistantContent} ${css.assistantContentRendered}`}> <div className={ preview && !record.cell.outputDetail ? `${css.thinkingQuote} ${css.thinkingQuoteOnlyPreview}` : css.thinkingQuote } > <button type="button" className={css.thinkingToggle} aria-expanded={thinkingExpanded} onClick={() => { onThinkingExpandedChange(!thinkingExpanded) }} > {t('record.thinking')} <IconChevronRightOutlineRegular className={css.thinkingChevron} size={12} /> </button> {thinkingExpanded && ( <MarkdownFragment text={record.cell.thinkingDetail} rendered={rendered} preview={preview} variant="compact" t={t} /> )} </div> {record.cell.outputDetail && ( <div className={css.assistantOutput}> <MarkdownFragment text
+
+
+===== currentColor total: 790 =====

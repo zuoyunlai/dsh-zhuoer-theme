@@ -193,6 +193,8 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
           a11yHit: p.a11yHit === true,
           // Markdown 排版密度：只调节奏（行高/段距/标题尺度），不动字号体系。
           mdDensity: p.mdDensity === 'compact' || p.mdDensity === 'roomy' ? p.mdDensity : 'normal',
+          // 步骤过程组头的活动图标是否用语义色（读=信息蓝 / 写=行动橙 / 执行=紫 / 提问=黄 / 思考=品牌）。
+          procIconColor: p.procIconColor === true,
           // 标题配色：follow=跟随正文 / soft=品牌色淡化 / brand=品牌色。
           // 宿主没有「标题色」token，所以这一层由我们从 brand + label 推。
           mdHeading: p.mdHeading === 'follow' || p.mdHeading === 'brand' ? p.mdHeading : 'soft',

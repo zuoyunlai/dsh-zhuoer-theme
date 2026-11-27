@@ -1,0 +1,29 @@
+groupTitle rules: 28
+
+ let e = new We(null, r.source, r.level, n.groupTitle(), { type: T.ConsoleAPICalledEventType.StartGroupCollapsed }
+
+.pc3rQa_groupTitle{color:var(--dsw-alias-label-tertiary);padding:6px 8px;font-size:11px;line-height:15px}
+
+className:PluginManagerPage_module_css_default.groupHead,children:[(0,react_jsx_runtime.jsx)(`h3`,{className:PluginManagerPage_module_css_default.groupTitle,children:heading}
+
+),(0,react_jsx_runtime.jsx)(`span`,{className:PluginInventorySettingsTab_module_css_default.groupTitle,children:t(`presetTitle`)}
+
+children:[group.showGroupTitle===false||group.items.some(item=>item.section!==void 0)?null:(0,react_jsx_runtime.jsx)(`div`,{className:MenuView_module_css_default.groupTitle,role:`presentation`,"data-source":group.source,children:t(group.source)}
+
+> <h3 className={css.groupTitle}
+
+)), this.#t.step && !this.#t.isRecording && (this.#t.hasBreakpoint ? e.push({ id: "remove-breakpoint", label: W(U.removeBreakpoint), group: "breakPointManagement", groupTitle: W(U.breakpoints) }
+
+.qgYWUG_groupTitleRow{align-items:center;gap:8px;min-height:36px;display:flex}
+
+ /* Heading row above a source group: non-interactive small grey text, * padding aligned with items (mirrors ui-primitives Menu .label). */ .groupTitle { padding: 6px 8px; font-size: 11px; line-height: 15px; color: var(--dsw-alias-label-tertiary); }
+
+ /* Every group header takes the preset switcher's 36px height, so each subtitle sits the same distance below its title. */ .groupTitleRow { display: flex; align-items: center; gap: 8px; min-height: 36px; }
+
+===== JSX =====
+---
+`,value:query,placeholder:t(`search`),"aria-label":t(`search`),onChange:event=>{setQuery(event.currentTarget.value)}})]}),entries.length===0&&presets.length===0?(0,react_jsx_runtime.jsx)(`p`,{className:PluginInventorySettingsTab_module_css_default.status,children:t(`empty`)}):null,nothingMatches?(0,react_jsx_runtime.jsx)(`p`,{className:PluginInventorySettingsTab_module_css_default.status,children:t(`emptySearch`)}):null,selected!==void 0?(0,react_jsx_runtime.jsxs)(`section`,{className:PluginInventorySettingsTab_module_css_default.group,"data-plugin-scope":`preset`,"data-preset-id":selected.id,children:[(0,react_jsx_runtime.jsxs)(`div`,{className:PluginInventorySettingsTab_module_css_default.groupTitleRow,children:[(0,react_jsx_runtime.jsxs)(`button`,{type:`button`,className:PluginInventorySettingsTab_module_css_default.groupToggle,"aria-expanded":presetEffectiveOpen,"aria-controls":`${sectionId}-preset`,onClick:()=>{setPresetOpen(!presetEffectiveOpen)},children:[(0,react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconChevronDownOutlineRegular,{className:PluginInventorySettingsTab_module_css_default.chevron,size:12,"aria-hidden":`true`}),(0,react_jsx_runtime.jsx)(`span`,
+
+---
+ted,row,index))}):null,otherMatchCount>0?(0,react_jsx_runtime.jsxs)(`p`,{className:PluginInventorySettingsTab_module_css_default.hint,children:[t(`matchesInOtherPresets`,{count:String(otherMatchCount)}),otherPresetMatches.map(preset=>(0,react_jsx_runtime.jsx)(`button`,{type:`button`,className:PluginInventorySettingsTab_module_css_default.jumpLink,onClick:()=>{setChosenPreset(preset.id)},children:presetName(preset)},preset.id))]}):null]}):null]}):null,entries.length>0?(0,react_jsx_runtime.jsxs)(`section`,{className:PluginInventorySettingsTab_module_css_default.group,"data-plugin-scope":`global`,children:[(0,react_jsx_runtime.jsx)(`div`,{className:PluginInventorySettingsTab_module_css_default.groupTitleRow,children:(0,react_jsx_runtime.jsxs)(`button`,{type:`button`,className:PluginInventorySettingsTab_module_css_default.groupToggle,"aria-expanded":globalEffectiveOpen,"aria-controls":`${sectionId}-global`,onClick:()=>{setGlobalOpen(!globalEffectiveOpen)},children:[(0,react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconChevronDownOutlineRegular,{className:PluginInventorySettingsTab_module_css_default.chevron,size:12,"aria-hidden":`true`}),(0,react_jsx_runtime.jsx)(`span`,{
+

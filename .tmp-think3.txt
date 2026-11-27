@@ -1,0 +1,24 @@
+rules with thinking+color: 10
+
+ .thinkingQuote { --dsh-content-font-size-secondary: 13px; --dsh-content-font-delta-secondary: 0px; margin: 6px 14px 0 12px; padding-left: 6px; border-left: 2px solid var(--dsw-alias-markdown-citation); color: var(--dsw-alias-label-secondary); background: transparent; }
+
+ .thinkingQuote .markdownPreview, .thinkingQuote .markdownPayload, .thinkingQuote .payload { min-height: 0; padding: 2px 0; color: var(--dsw-alias-label-secondary); background: transparent; }
+
+ .thinkingToggle:hover { color: var(--dsw-alias-label-secondary); }
+
+ .thinkingToggle { display: flex; align-items: center; width: max-content; height: 18px; padding: 0; border: 0; color: var(--dsw-alias-label-tertiary); background: transparent; cursor: pointer; font: 600 12px/18px var(--dsw-font-family); gap: 2px; user-select: none; }
+
+.xeixwq_thinkingToggle:focus-visible{outline:1px solid var(--dsw-focus-ring-color,var(--dsw-alias-state-business-primary));outline-offset:2px}
+
+ .thinkingToggle:focus-visible { outline: 1px solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary)); outline-offset: 2px; }
+
+.xeixwq_thinkingQuote .xeixwq_markdownPreview,.xeixwq_thinkingQuote .xeixwq_markdownPayload,.xeixwq_thinkingQuote .xeixwq_payload{min-height:0;color:var(--dsw-alias-label-secondary);background:0 0;padding:2px 0}
+
+.xeixwq_thinkingToggle:hover{color:var(--dsw-alias-label-secondary)}
+
+.xeixwq_thinkingQuote{--dsh-content-font-size-secondary:13px;--dsh-content-font-delta-secondary:0px;border-left:2px solid var(--dsw-alias-markdown-citation);color:var(--dsw-alias-label-secondary);background:0 0;margin:6px 14px 0 12px;padding-left:6px}
+
+.xeixwq_thinkingToggle{width:max-content;height:18px;color:var(--dsw-alias-label-tertiary);cursor:pointer;font:600 12px/18px var(--dsw-font-family);user-select:none;background:0 0;border:0;align-items:center;gap:2px;padding:0;display:flex}
+
+
+stepProcess-ish fragments: processIcon
