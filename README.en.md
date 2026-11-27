@@ -184,12 +184,18 @@ The assistant first asks one explicit question — **do you want a background te
 3. posts a **preview card** in the chat: swatches, theme name, fonts and radius;
 4. applies nothing until you press Apply; Edit lets you tweak anchors first.
 
-Three things worth knowing:
+A few things worth knowing:
 
 - **Never auto-applied**: the card is a preview, only your confirmation writes it.
 - **Colours can come from a picture**: pass a reference image path (`imagePath`) and the anchors are sampled locally from it; the card lists the sampled hex values.
+- **Chat sampling uses the faithful tier**: large flat areas no longer swallow small highlights such as sky blue or cloud white (the panel keeps the fast tier — three seconds matters more there).
+- **The colour source is visible and switchable**: the card is labelled "sampled from image", the model palette is kept alongside, and you can switch back at any time; the dark row is editable too.
+- **Shape and font can be requested directly**: `radiusScale` (0-3), `preset` (one of the 12 built-in preset ids) and `font` (one of the 14 shipped families, or `__mono__`) — no prompt wording needed. A family that is not shipped is replaced with Inter instead of silently falling back to a system font.
 - **At most 4 direct token keys**: the 8 anchors cover 156 tokens; the model may add up to 4 extra `--dsw-*` keys for spot fixes.
-- **Textures draw lines, not a new base**: image textures are composited with `mix-blend-mode` (dark `lighten` / light `multiply`), the same technique as the built-in transparent line art.
+- **Both textures are mandatory**: with `texture=want` you must pass dark `texturePath` and light `texturePathLight` together; one alone is rejected (the other cannot substitute — reusing an inverted copy tints the whole light mode).
+- **Textures are normalised**: on the client the image base is shifted onto that theme's `bg-base`, and strokes darker than the base are flipped to brighter than the base — otherwise the light-mode composite eats the lines entirely.
+- **Textures draw lines, not a new base**: image textures always use `mix-blend-mode: lighten` (only pixels brighter than the base survive), the same technique as the built-in transparent line art; normalisation guarantees the strokes end up brighter.
+- **The effective palette is written to disk**: pressing Apply makes the client write the **final** palette (sampling results and texture keys included) to `last-theme.json` in the plugin data directory; `GET /dsh-zhuoer-theme/api/last-theme` serves the same copy, so scripts, audits or another agent outside the chat read exactly what you see.
 
 ## Usage
 
