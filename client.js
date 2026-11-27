@@ -6607,13 +6607,15 @@ function applyTokens(theme, pref) {
       // C1：左边缘 6px 拖拽热区。视觉上是 2px 竖线，热区放大到 6px 才拖得着（与宿主分隔条同一手法）。
       // 用 fixed 而不是 absolute：面板本身 overflow:auto，absolute 子元素会跟着内容一起滚走，
       // 滚到一半就没有热区可抓了（锚点列表很长，这是常态而不是边界）。
-      // 面板固定在 left:0 且满高，所以 fixed 与面板边缘重合；标题栏那档单独抬 top。
-      '.zp-ed-rz{position:fixed;left:0;top:0;bottom:0;width:6px;cursor:col-resize;z-index:3;',
+      // 热区**不从 x=0 起**：桌面端无边框窗口最左 5px 是系统的窗口缩放判定区，
+      // 从 0 起的热区会被窗口边框吃掉——现象就是「怎么拖都没反应」。所以从 6px 起、宽 10px。
+      // 竖线常驻（35% 不透明度），让「这里能拖」自己长出来，而不是靠用户悬停试出来。
+      '.zp-ed-rz{position:fixed;left:6px;top:0;bottom:0;width:10px;cursor:col-resize;z-index:3;',
       'background:transparent;border:0;padding:0;touch-action:none;}',
       'html[data-windows-titlebar] .zp-ed-rz{top:var(--dsh-windows-titlebar-height,34px);}',
-      '.zp-ed-rz::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;',
-      'background:var(--dsw-alias-border-l2);opacity:0;transition:opacity .12s ease;}',
-      '.zp-ed-rz:hover::before,.zp-ed-rz:focus-visible::before{opacity:1;}',
+      '.zp-ed-rz::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;border-radius:2px;',
+      'background:var(--dsw-alias-border-l2);opacity:.35;transition:opacity .12s ease,background-color .12s ease;}',
+      '.zp-ed-rz:hover::before,.zp-ed-rz:focus-visible::before{opacity:1;background:var(--dsw-alias-brand-primary);}',
       '.zp-ed-rz:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:-2px;}',
       '.zp-ed-hd{position:sticky;top:-16px;z-index:2;display:flex;align-items:center;justify-content:space-between;',
       'gap:8px;margin:-16px -16px 0;padding:14px 16px 10px;background:var(--dsw-alias-bg-base);',
