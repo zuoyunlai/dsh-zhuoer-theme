@@ -258,6 +258,60 @@ window.__ModuleLoader__.load({
       return Math.max(0, Math.round(m - e));
     }
 
+    // ---- 会话随机数失效判定 ----
+    // 客户端把 nonce 缓存住（一次会话只取一次），但服务端的 sessionNonce 在**每次插件装载**时
+    // 重新生成（见 index.js 的 makeNonce）。于是：插件重载 / 宿主热更新之后，客户端手里那个
+    // 已经是旧的，服务端一律 403 —— 而客户端会一直拿旧的重试，永远好不了。
+    // 判据：403 = nonce 过期（唯一会返回 403 的原因，见 index.js 的二次门），其它状态码不重试。
+    function zrIsStaleNonce(status) {
+      return Number(status) === 403;
+    }
+
+    // ---- CSS 值转义 ----
+    // 为什么需要：底图、品牌图、界面字体名都是**用户可控**的字符串，被原样拼进注入的样式表。
+    // 一个双引号就能提前闭合 url("...") 并注入任意 CSS（实测可写出 `html{background:url(外部地址)}`）。
+    // 攻击面有限（要能写 localStorage = 同源脚本），但同文件里的 brandImage 早就做了前缀校验，
+    // bgImage 没做——这种「一半有、一半没有」最危险：后来者会以为整个文件都安全了。
+    // 修法：拼接处统一走转义，而不是在每个字段里各写一遍正则（漏一个就是一次注入）。
+    function cssUrl(v) {
+      // url() 里要转义引号、反斜杠、括号与空白；其余交给 CSS 的 \ 转义。
+      // 字符类里用十六进制转义（\x22 = 双引号、\x27 = 单引号、\x5c = 反斜杠），不直接写引号：
+      // 仓库里有几道门用「按引号计数的状态机」剥注释，它们认不出正则字面量——
+      // 正则里那个引号会被当成字符串开头，后面一整段注释就再也剥不掉（会造出假门禁失败）。
+      return String(v == null ? '' : v).replace(/[\x5c\x22\x27()\s{}]/g, function (c) { return '\\' + c; });
+    }
+    function cssStr(v) {
+      // 字符串字面量里要转义引号与反斜杠（后者能反过来闭合引号）。
+      return String(v == null ? '' : v).replace(/[\x5c\x22]/g, function (c) { return '\\' + c; });
+    }
+
+    // ---- 缓存键与淘汰 ----
+    // 原来的 key 是「长度 + 末 96 字符」：data URL 动辄几百 KB，两张**末 96 字符相同、长度相同**
+    // 的图会共用一条缓存 —— 一旦撞了，A 图的对比度限幅会被用到 B 图上（静默的视觉错误）。
+    // 换成对全文做 hash：键唯一、无碰撞，也不再要求把整串 URL 拉进内存比较。
+    function zrHashKey(s) {
+      // FNV-1a 32 位：够快、够散；只用于缓存键，不做安全用途。
+      let h = 0x811c9dc5;
+      const str = String(s == null ? '' : s);
+      for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+      }
+      return h.toString(16);
+    }
+    // 缓存上限：用户换十几次底图就会在内存里留十几次大字符串（每张 data URL 可到几 MB）。
+    // Map 保持插入序，满了丢最旧的（LRU）。
+    const ZR_CACHE_MAX = 12;
+    function zrCachePut(map, key, value) {
+      if (map.has(key)) { map.delete(key); map.set(key, value); return value; }
+      map.set(key, value);
+      while (map.size > ZR_CACHE_MAX) {
+        const oldest = map.keys().next().value;
+        if (oldest === undefined) break;
+        try { map.delete(oldest); } catch (e) { break; }
+      }
+      return value;
+    }
     function zrDpr() {
       try { return window.devicePixelRatio || 1; } catch (e) { return 1; }
     }
@@ -266,6 +320,35 @@ window.__ModuleLoader__.load({
       const n = Number(v);
       if (!isFinite(n)) return v;
       return Math.round(n * d) / d;
+    }
+
+    // ---- 探针资源的回收登记 ----
+    // doctor K3 一直报这两处：图标探针与半透明探针各自起 setTimeout + MutationObserver，
+    // 且**没有回收路径**——热更新时旧实例的观察者仍在 document.body 上跑，
+    // 每次 HMR 都多留一个最长 120 秒的全局观察者。
+    // 修法：把定时器与观察者登记到一张表里，卸载时统一断开（面板的 dispose 会调 zrProbeCleanup）。
+    const zrProbeTimers = [];
+    const zrProbeObservers = [];
+    function zrProbeTimer(fn, ms) {
+      const id = setTimeout(function () {
+        const i = zrProbeTimers.indexOf(id);
+        if (i !== -1) zrProbeTimers.splice(i, 1);
+        try { fn(); } catch (e) { /* ignore */ }
+      }, ms);
+      zrProbeTimers.push(id);
+      return id;
+    }
+    function zrProbeObserver(mo) {
+      zrProbeObservers.push(mo);
+      return mo;
+    }
+    function zrProbeCleanup() {
+      while (zrProbeTimers.length) {
+        try { clearTimeout(zrProbeTimers.pop()); } catch (e) { /* ignore */ }
+      }
+      while (zrProbeObservers.length) {
+        try { const mo = zrProbeObservers.pop(); if (mo && mo.disconnect) mo.disconnect(); } catch (e) { /* ignore */ }
+      }
     }
 
     // 步骤图标探针：报告图标元素的**实际计算颜色**，用来核对「语义色有没有真的上上去」。
@@ -298,13 +381,13 @@ window.__ModuleLoader__.load({
             body: JSON.stringify({ at: new Date().toISOString(), phase: 'icon-probe', n: sent, icons: list }),
           }).catch(function () {});
         };
-        setTimeout(fire, 900);
+        zrProbeTimer(fire, 900);
         const root = document.body;
         if (root && typeof MutationObserver === 'function') {
           let t = 0;
-          const mo = new MutationObserver(function () { clearTimeout(t); t = setTimeout(fire, 1200); });
+          const mo = zrProbeObserver(new MutationObserver(function () { clearTimeout(t); t = setTimeout(fire, 1200); }));
           mo.observe(root, { childList: true, subtree: true });
-          setTimeout(function () { mo.disconnect(); }, 120000);
+          zrProbeTimer(function () { try { mo.disconnect(); } catch (e) { /* ignore */ } }, 120000);
         }
       } catch (e) { /* ignore */ }
     }
@@ -332,10 +415,10 @@ window.__ModuleLoader__.load({
         };
         const root = document.querySelector('[class*="_centerCol"]');
         if (root && typeof MutationObserver === 'function') {
-          const mo = new MutationObserver(function () {
+          const mo = zrProbeObserver(new MutationObserver(function () {
             clearTimeout(timer);
             timer = setTimeout(fire, 1500);
-          });
+          }));
           mo.observe(root, { childList: true, subtree: true });
         }
         setTimeout(fire, 2500);

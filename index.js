@@ -3,6 +3,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { generateThemeSpec } from './theme-gen.js';
 import { registerThemeTool } from './theme-tool.js';
 
@@ -42,12 +43,24 @@ function isOwnClient(req) {
 // 诚实边界（见 SECURITY.md）：同源页面里的**其它脚本**理论上仍能取到它——
 // 浏览器里同源脚本互相无法隔离，nonce 挡的是「外部来源的直连探测」与「误撞」，不是同源恶意脚本。
 let sessionNonce = '';
+// 会话随机数：24 字节密码学随机。
+// 这里曾经写的是 `require('node:crypto')`——本文件是 ESM（package.json 里 type=module），
+// require 在模块作用域**不存在**，那行必抛 ReferenceError，于是每次都掉进下面的兜底：
+// 兜底是 Date.now() + Math.random()，前 13 位就是毫秒时间戳，任何同源脚本都能在
+// 毫秒级窗口里猜到并直接调 /api/gen-theme 烧宿主模型额度（实测：nonce 前缀 = 时间戳）。
+// 修法：文件顶部 ESM import crypto；兜底也必须是密码学随机的；
+// 再兜不住就**不发** nonce（空串会让服务端拒绝所有生成请求）——宁可不可用，不可被猜。
 function makeNonce() {
   try {
-    const bytes = require('node:crypto').randomBytes(24);
-    return bytes.toString('hex');
+    return crypto.randomBytes(24).toString('hex');
   } catch (e) {
-    return String(Date.now()) + '-' + Math.random().toString(36).slice(2) + '-' + Math.random().toString(36).slice(2);
+    try {
+      const b = new Uint8Array(24);
+      globalThis.crypto.getRandomValues(b);
+      return Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('');
+    } catch (e2) {
+      return '';
+    }
   }
 }
 
@@ -107,11 +120,24 @@ export function apply(ctx, config) {
         handler: (req, res) => {
           if (!isOwnClient(req)) return rejectForeign(res);
           let body = '';
+          let truncated = false;
           try {
-            req.on('data', (c) => { body += c; if (body.length > 200000) body = body.slice(0, 200000); });
+            req.on('data', (c) => {
+              // 旧写法是「先拼再截」：超过上限后每个 chunk 都要 slice 一次 200 KB（O(n) 拷贝），
+              // 而且截断落在 JSON 中间，解析必失败，落盘的是半截 JSON，排障时看不到内容。
+              // 新写法：超限即停，只留头部 2 KB 供排障，并标记 truncated。
+              if (truncated) return;
+              body += c;
+              if (body.length > 200000) {
+                truncated = true;
+                body = body.slice(0, 2000);
+                // 不 destroy：destroy 掉请求就不会触发 end，响应也发不出去。
+                // 后面的 chunk 直接丢弃即可（不再有 O(n) 拷贝）。
+              }
+            });
             req.on('end', () => {
               let parsed = null;
-              try { parsed = JSON.parse(body); } catch (e) { parsed = { raw: String(body).slice(0, 2000) }; }
+              try { parsed = JSON.parse(body); } catch (e) { parsed = { raw: String(body).slice(0, 2000), truncated: truncated }; }
               // 追加 JSONL：保留整条执行链，不被后一条覆盖
               try {
                 fs.mkdirSync(dir(), { recursive: true });

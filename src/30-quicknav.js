@@ -593,7 +593,10 @@
           roRef.current = null
         }
 
-        window.addEventListener('resize', () => schedulePass(true), true)
+        // 具名函数：装与卸必须是**同一个函数对象**，否则 removeEventListener 静默无效，
+        // 每次热更新/重挂载都多留一个 resize 监听器。
+        const onResize = () => schedulePass(true)
+        window.addEventListener('resize', onResize, true)
 
         return () => {
           disposed = true
@@ -621,7 +624,7 @@
             }
             roRef.current = null
           }
-          window.removeEventListener('resize', schedulePass, true)
+          window.removeEventListener('resize', onResize, true)
         }
       }, [schedulePass, placeRail])
 
@@ -1213,6 +1216,8 @@
             try { clearTimeout(lateProbeTimer); lateProbeTimer = 0; } catch (e) { /* ignore */ }
             try { if (zrSkinObs) { zrSkinObs.disconnect(); zrSkinObs = null; } } catch (e) { /* ignore */ }
             try { clearTimeout(hostReapplyTimer); hostReapplyTimer = 0; } catch (e) { /* ignore */ }
+            // 探针的定时器与观察者（doctor K3 指的那两处）：不回收的话热更新会越积越多。
+            try { zrProbeCleanup(); } catch (e) { /* ignore */ }
           };
         }, 'dsh-zhuoer-theme: token layer');
 

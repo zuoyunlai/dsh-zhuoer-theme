@@ -195,7 +195,7 @@ function brandCssFor(pref) {
   var src = pref.brandLogo ? (pref.brandImage || BRAND_LOGO) : '';
   if (!src) return '';
   return 'html svg:has(#dsh-wordmark-badge-clip)>*{opacity:0 !important;}'
-    + 'html svg:has(#dsh-wordmark-badge-clip){background-image:url("' + src + '") !important;'
+    + 'html svg:has(#dsh-wordmark-badge-clip){background-image:url("' + cssUrl(src) + '") !important;'
     + 'background-size:contain !important;background-position:left center !important;'
     + 'background-repeat:no-repeat !important;}';
 }
@@ -209,7 +209,7 @@ function brandCssFor(pref) {
 // 为什么是 4.5 而不是正文地板 7:1：7:1 会把大多数照片压到几乎不可见，失去「用自己照片」的意义。
 const PHOTO_CONTRAST_TARGET = 4.5;
 const PHOTO_CAP_MAX = 0.7;
-const photoCapCache = Object.create(null);
+const photoCapCache = new Map();
 // 面板用它显示「已按对比度限制」；非照片路径恒为 0.7（即原口径「满格 = 70%」）。
 let currentPhotoCap = PHOTO_CAP_MAX;
 let zrReapply = null;   // 采样是异步的，回来后触发一次重算
@@ -251,9 +251,9 @@ function zrSolvePhotoCap(pixels, textHex, baseHex) {
 
 function zrPhotoCapFor(url, textHex, baseHex, kind) {
   if (!url || kind === 'texture') return PHOTO_CAP_MAX;
-  const key = String(url).length + ':' + String(url).slice(-96);
-  if (photoCapCache[key] != null) return photoCapCache[key];
-  photoCapCache[key] = PHOTO_CAP_MAX;   // 采样未完成前先按原值，避免「先压到 0 再跳回来」
+  const key = zrHashKey(url);
+  if (photoCapCache.has(key)) return photoCapCache.get(key);
+  zrCachePut(photoCapCache, key, PHOTO_CAP_MAX);   // 采样未完成前先按原值，避免「先压到 0 再跳回来」
   try {
     const img = new Image();
     img.onload = function () {
@@ -266,11 +266,11 @@ function zrPhotoCapFor(url, textHex, baseHex, kind) {
         cx.drawImage(img, 0, 0, S, S);
         cap = zrSolvePhotoCap(cx.getImageData(0, 0, S, S).data, textHex, baseHex);
       } catch (e) { cap = PHOTO_CAP_MAX; }
-      const changed = Math.abs(cap - photoCapCache[key]) >= 0.01;
-      photoCapCache[key] = cap;
+      const changed = Math.abs(cap - photoCapCache.get(key)) >= 0.01;
+      zrCachePut(photoCapCache, key, cap);
       if (changed && typeof zrReapply === 'function') { try { zrReapply(); } catch (e) { /* ignore */ } }
     };
-    img.onerror = function () { photoCapCache[key] = PHOTO_CAP_MAX; };
+    img.onerror = function () { zrCachePut(photoCapCache, key, PHOTO_CAP_MAX); };
     img.src = url;
   } catch (e) { /* ignore */ }
   return PHOTO_CAP_MAX;
@@ -321,7 +321,7 @@ function bgCssFor(o) {
     : 'linear-gradient(180deg,#000 0%,#000 calc(100% - 320px),transparent calc(100% - 60px))';
   var fadeMask = '-webkit-mask-image:' + maskVal + ' !important;mask-image:' + maskVal + ' !important;';
   return '[class*="_centerCol"],[class*="_mainPanel"]{background-color:var(--dsw-alias-bg-base) !important;background-image:none !important;position:relative !important;isolation:isolate !important;}'
-    + '[class*="_centerCol"]::before,[class*="_mainPanel"]::before{content:"" !important;' + blendCss + 'position:absolute !important;inset:0 !important;background-image:url("' + bgUrl + '") !important;background-size:cover !important;background-position:50% 0% !important;background-repeat:no-repeat !important;opacity:' + imgOpacity + ' !important;' + invertCss + fadeMask + 'pointer-events:none !important;z-index:0 !important;}'
+    + '[class*="_centerCol"]::before,[class*="_mainPanel"]::before{content:"" !important;' + blendCss + 'position:absolute !important;inset:0 !important;background-image:url("' + cssUrl(bgUrl) + '") !important;background-size:cover !important;background-position:50% 0% !important;background-repeat:no-repeat !important;opacity:' + imgOpacity + ' !important;' + invertCss + fadeMask + 'pointer-events:none !important;z-index:0 !important;}'
     + '[class*="_centerCol"] [class*="_root"],[class*="_mainPanel"] [class*="_root"]{background-color:transparent !important;}'
     + 'html[data-zr-state="empty"][data-zr-bg-empty="0"] [class*="_centerCol"]::before,html[data-zr-state="empty"][data-zr-bg-empty="0"] [class*="_mainPanel"]::before,html[data-zr-state="session"][data-zr-bg-session="0"] [class*="_centerCol"]::before,html[data-zr-state="session"][data-zr-bg-session="0"] [class*="_mainPanel"]::before{display:none !important;}';
 }
@@ -923,7 +923,9 @@ function applyTokens(theme, pref) {
           }
         } catch (e) { /* ignore */ }
         if (pref.uiFont) {
-          const fam = '"' + pref.uiFont.replace(/"/g, '') + '", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+          // 字体名走 cssStr：原来的 replace(/"/g,'') 挡得住引号，挡不住反斜杠
+          //（尾部一个反斜杠能把闭合引号吃掉，后面整段 CSS 都被并进字体名）。
+          const fam = '"' + cssStr(pref.uiFont) + '", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
           // html body 提高特异性：宿主用 font shorthand 写在 body 上，单条 body 规则会被重置。
           fxCss += ':root{--dsw-font-family:' + fam + ' !important;}'
             + 'html body,html body [class*="_root"],html body [class*="_msg"],html body [class*="_content"]{font-family:' + fam + ' !important;}';
@@ -2191,11 +2193,19 @@ function applyTokens(theme, pref) {
       };
       // 会话随机数：AI 生成会消耗宿主模型额度，服务端要求带上它。取一次缓存住即可。
       let aiNonce = '';
-      const fetchAiNonce = function () {
-        if (aiNonce) return Promise.resolve(aiNonce);
+      const fetchAiNonce = function (force) {
+        if (aiNonce && !force) return Promise.resolve(aiNonce);
         return fetch('/dsh-zhuoer-theme/api/nonce', { headers: { 'x-zhuoer-client': '1' } })
           .then(function (r) { return r.json(); })
           .then(function (d) { aiNonce = (d && d.nonce) || ''; return aiNonce; });
+      };
+      // 一次生成 = 领 nonce → 请求 → 解析。403 说明 nonce 过期（插件重载过），
+      // 这时丢掉缓存重领一次再试——只重试这一次，避免和服务端互相踢皮球。
+      const callGenTheme = function (prompt, nonce) {
+        return fetch('/dsh-zhuoer-theme/api/gen-theme?prompt=' + encodeURIComponent(prompt), { method: 'GET', headers: { 'x-zhuoer-client': '1', 'x-zhuoer-nonce': nonce } })
+          .then(function (resp) {
+            return resp.json().then(function (data) { return { status: resp.status, data: data }; });
+          });
       };
       const aiGenerate = function () {
         const prompt = String(aiPrompt || '').trim();
@@ -2205,11 +2215,15 @@ function applyTokens(theme, pref) {
         const aiStartedAt = Date.now();
         // query string 传参：宿主会在 handler 之前截走 POST body。
         fetchAiNonce()
-          .then(function (nonce) {
-            return fetch('/dsh-zhuoer-theme/api/gen-theme?prompt=' + encodeURIComponent(prompt), { method: 'GET', headers: { 'x-zhuoer-client': '1', 'x-zhuoer-nonce': nonce } });
+          .then(function (nonce) { return callGenTheme(prompt, nonce); })
+          .then(function (r1) {
+            if (!zrIsStaleNonce(r1.status)) return r1;
+            // nonce 过期：清掉缓存重领一次（服务端每次装载插件都会换 sessionNonce）。
+            aiNonce = '';
+            return fetchAiNonce(true).then(function (nonce2) { return callGenTheme(prompt, nonce2); });
           })
-          .then(function (resp) { return resp.json(); })
-          .then(function (data) {
+          .then(function (r) {
+            const data = r && r.data;
             if (!data || !data.ok) {
               throw new Error((data && (data.message || data.error)) || t('panel.ai.failed'));
             }

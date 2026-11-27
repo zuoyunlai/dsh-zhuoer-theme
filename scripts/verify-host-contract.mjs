@@ -45,7 +45,12 @@ if (at >= 0) {
 
 // 剥离注释：注释里出现的 [class*="xxx"] 是文档示例，不是真实依赖。
 // 状态机跳过字符串，避免误伤 CSS 选择器字符串与 URL 里的斜杠。
+// **必须也认正则字面量**：正则字符类里的引号会被当成字符串开头，后面一整段注释就再也剥不掉——
+// 表现是「代码里新增了一个没登记的宿主片段」的假失败。实测触发点：
+// 10-themes.js 里 /^[「『""'（(\[]+/ 这类字符类带引号的正则。
+// verify-i18n.mjs 早就踩过同一个坑并修好了（见它的 stripComments 注释），这里对齐做法。
 const stripComments = (s) => {
+  const regexAllowed = (prev) => !prev || '([{,;:=!&|?+-*%~^<>'.includes(prev)
   let out = ''
   let i = 0
   let quote = null
@@ -62,6 +67,26 @@ const stripComments = (s) => {
     if (c === '"' || c === "'" || c === '`') { quote = c; out += c; i++; continue }
     if (c === '/' && n === '*') { const e = s.indexOf('*/', i + 2); i = e < 0 ? s.length : e + 2; continue }
     if (c === '/' && n === '/') { const e = s.indexOf('\n', i); i = e < 0 ? s.length : e; continue }
+    if (c === '/') {
+      // 前面是运算符/分隔符时，'/' 开的是正则字面量：整段跳过（含字符类与转义）。
+      let k = out.length - 1
+      while (k >= 0 && /\s/.test(out[k])) k--
+      if (regexAllowed(k >= 0 ? out[k] : '')) {
+        let j = i + 1
+        let inClass = false
+        while (j < s.length) {
+          const d = s[j]
+          if (d === '\\') { j += 2; continue }
+          if (d === '[') inClass = true
+          else if (d === ']') inClass = false
+          else if (d === '/' && !inClass) break
+          else if (d === '\n') break
+          j++
+        }
+        i = j + 1
+        continue
+      }
+    }
     out += c
     i++
   }

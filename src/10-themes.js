@@ -179,6 +179,59 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
     // 这条规则与原读取侧那条推断逐字等价，所以归一接上之后那条推断可以删掉而行为不变。
     // 每次读取都跑而不是按版本触发一次：编辑器新建主题时仍可能写出缺 kind 的 spec，
     // 逐条判缺比整库判版本更不容易漏；版本号的作用是给下一次形状变更标一个确定起点。
+    // ---- 持久化合并（纯函数，可无头测试）----
+    // 为什么单独抽出来：read→write 往返丢数据这件事，只有把合并逻辑做成纯函数才测得动。
+    // 三个坑都在这里解决：
+    //   1) 派生字段不落盘（droppedCustomIds 由读取侧现算，落盘后必然过期：面板提示消失、数据已删）。
+    //   2) 形状版本只增不减（用户降级插件后，不把新版本写的存档改回旧版本号）。
+    //   3) 存档里超出上限的那几套**保留**——面板不显示它们，但也不能在任意一次设置写入时被抹掉。
+    //      可见区按调用方给的来；多出来的按 id 保留（调用方只可能增删它看得见的那批）。
+    function zrMergePref(raw, patch, maxCount, specV) {
+      const base = (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {};
+      const p = (patch && typeof patch === 'object') ? patch : {};
+      const next = Object.assign({}, base, p);
+      // 派生字段不落盘。
+      try { delete next.droppedCustomIds; } catch (e) { /* ignore */ }
+      try { delete next.specFromNewer; } catch (e) { /* ignore */ }
+      // 形状版本只增不减：存档里是更新的版本时，我们不把它改回旧版本号。
+      const stored = (typeof base.specV === 'number' && isFinite(base.specV)) ? base.specV : 0;
+      const cur = (typeof specV === 'number' && isFinite(specV)) ? specV : 0;
+      next.specV = Math.max(stored, cur);
+      // 自定义主题：调用方给的是「看得见的那批」（≤ 上限）。存档里可能还有多出来的
+      //（旧版本写的上限更高，或手工改过 localStorage）——它们不能被顺手删掉。
+      if (Object.prototype.hasOwnProperty.call(p, 'customThemes')) {
+        const visible = Array.isArray(p.customThemes) ? p.customThemes : [];
+        const seen = {};
+        for (let i = 0; i < visible.length; i++) {
+          const c = visible[i];
+          if (c && typeof c.id === 'string') seen[c.id] = 1;
+        }
+        const rawList = Array.isArray(base.customThemes) ? base.customThemes : [];
+        const limit = (typeof maxCount === 'number' && maxCount >= 0) ? maxCount : 0;
+        const keep = [];
+        for (let i = limit; i < rawList.length; i++) {
+          const c = rawList[i];
+          if (c && typeof c.id === 'string' && !seen[c.id]) keep.push(c);
+        }
+        next.customThemes = visible.concat(keep);
+      }
+      return next;
+    }
+
+    // 默认偏好：唯一真源。readPref 的兜底分支原来手写了一份**少一半字段**的对象，
+    // 而 writePref 又把 readPref() 的结果写回 localStorage —— 于是「一次 JSON 解析失败
+    // + 任意一次设置写入」= 全部偏好被默认值覆盖（实测）。
+    function defaultPref() {
+      return {
+        theme: 'zhuoer', customThemes: [], mode: 'auto', bgSource: 'none', bgStyle: 'fade',
+        bgOpacity: 85, bgImage: '', bgOnEmpty: true, bgOnSession: true, sharp: false,
+        a11yHit: false, mdDensity: 'normal', mdHeadSize: 'theme', mdCode: 'none',
+        mdTable: 'plain', mdQuote: 'plain', procIconColor: false, mdHeading: 'soft',
+        fontScale: 100, chatWidth: 0, accent: '', uiFont: '', quicknav: 'three',
+        brandLogo: false, brandImage: '', editorWidth: ZR_ED_W_DEFAULT,
+        specV: SPEC_V, droppedCustomIds: [], specFromNewer: false,
+      };
+    }
     function normalizeSpec(customs) {
       for (let i = 0; i < customs.length; i++) {
         const bg = customs[i] && customs[i].bg;
@@ -195,11 +248,17 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
         const p = raw ? JSON.parse(raw) : {};
         // 自定义主题：只存锚点，上限 CUSTOM_MAX 套（写入前判、读取再截一次兜底）；theme 既可以是内置 id，也可以是自定义 id
         const rawCustoms = Array.isArray(p.customThemes) ? p.customThemes : [];
+        // 形状版本：读**存档里真正的值**，不是常量。SPEC_V 单调递增、写入取 max，
+        // 所以这个值能回答「这份数据是谁写的」：比当前代码更老 = 0（未归一）；
+        // 比当前代码更新 = 用户降级了插件（我们只读，不替它解释形状）。
+        const storedSpecV = (typeof p.specV === 'number' && isFinite(p.specV)) ? p.specV : 0;
+        const specFromNewer = storedSpecV > SPEC_V;
         // 读取侧截断不能再静默：超过上限的部分丢掉时，把被丢的 id 记下来给面板提示。
         const customs = rawCustoms.slice(0, CUSTOM_MAX).map(sanitizeCustomSpec).filter(Boolean);
         // A1：读取侧不再猜旧形状，归一一次做完（幂等）。前提是 sanitizeCustomSpec 已把每条的
         // bg.kind 收敛成空 / photo / texture 三态之一（见它的 bg 段），这里只补最后那一步。
-        normalizeSpec(customs);
+        // 只在本版本及更老的存档上归一；更新的存档归一会替别人解释形状（bg.kind 的语义可能已变）。
+        if (!specFromNewer) normalizeSpec(customs);
         const dropped = rawCustoms.slice(CUSTOM_MAX).map(function (c) { return c && typeof c.id === 'string' ? c.id : ''; }).filter(Boolean);
         const themeKnown = THEME_IDS.indexOf(p.theme) !== -1
           || customs.some(function (c) { return c.id === p.theme; });
@@ -208,7 +267,8 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
           customThemes: customs,
           // 形状版本随每次写入落盘：writePref 走 Object.assign(readPref(), patch)，
           // 所以任何一次设置写入都会把 specV 一起写回，不需要单独的迁移步骤。
-          specV: SPEC_V,
+          specV: storedSpecV,
+          specFromNewer: specFromNewer,
           // C1：编辑器抽屉宽度（可拖、可键盘调、双击回默认）。越界值在这里一次收敛。
           editorWidth: zrClampEdW(p.editorWidth),
           droppedCustomIds: dropped,
@@ -216,7 +276,9 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
           bgSource: ['none', 'theme', 'image'].indexOf(p.bgSource) !== -1 ? p.bgSource : 'none',
           bgStyle: p.bgStyle === 'full' ? 'full' : 'fade',
           bgOpacity: typeof p.bgOpacity === 'number' && p.bgOpacity >= 0 && p.bgOpacity <= 100 ? p.bgOpacity : 85,
-          bgImage: typeof p.bgImage === 'string' ? p.bgImage : '',
+          // 底图与品牌图都是**用户可控的字符串**，会被拼进注入的样式表。
+          // 与 brandImage 同口径校验（data:image/ 前缀）：前者能提前闭合 url(") 并注入任意 CSS。
+          bgImage: typeof p.bgImage === 'string' && p.bgImage.indexOf('data:image/') === 0 ? p.bgImage : '',
           bgOnEmpty: p.bgOnEmpty !== false,
           bgOnSession: p.bgOnSession !== false,
           // 硬边强化：把第三方插件里硬编码的圆角/描边也压平（token 到不了它们）。
@@ -249,11 +311,17 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
           brandImage: typeof p.brandImage === 'string' && p.brandImage.indexOf('data:image/') === 0 ? p.brandImage : '',
         };
       } catch (e) {
-        return { customThemes: [], theme: 'zhuoer', mode: 'auto', bgSource: 'none', bgStyle: 'fade', bgOpacity: 85, bgImage: '', bgOnEmpty: true, bgOnSession: true, fontScale: 100, a11yHit: false, mdDensity: 'normal', mdHeadSize: 'theme', mdCode: 'none', mdTable: 'plain', mdQuote: 'plain', accent: '', uiFont: '', quicknav: 'three' };
+        return defaultPref();
       }
     }
     function writePref(patch) {
-      try { window.localStorage.setItem(STORE, JSON.stringify(Object.assign(readPref(), patch))); } catch (e) { /* ignore */ }
+      try {
+        // 合并到**原始存档**，不用 readPref() 的结果当底：readPref() 会把超出上限的
+        // 那几套截掉，拿它回写等于「读一次就删一次」（实测 30 套 → 24 套）。
+        let raw = {};
+        try { raw = JSON.parse(window.localStorage.getItem(STORE) || '{}'); } catch (e) { raw = {}; }
+        window.localStorage.setItem(STORE, JSON.stringify(zrMergePref(raw, patch, CUSTOM_MAX, SPEC_V)));
+      } catch (e) { /* ignore */ }
       // 同窗口不会触发 storage 事件，用自定义事件让内嵌的快捷导航模块立刻换模式
       try { window.dispatchEvent(new CustomEvent('dsh-zhuoer-theme:pref')); } catch (e) { /* ignore */ }
     }
@@ -367,7 +435,9 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
     // 把 IDB 里的图全部读进内存缓存；完成后触发一次重算，让底图出现
     function preloadBgImages() {
       return idbAll().then(function (pairs) {
-        pairs.forEach(function (p) { if (p[1]) imageCache.set(p[0], p[1]); });
+        // 预加载进内存缓存：Map 保持插入序，满了丢最旧的。
+        // 为什么要有上限：每张 data URL 可到几 MB，用户换十几次图就是几十 MB 常驻。
+        pairs.forEach(function (p) { if (p[1]) zrCachePut(imageCache, p[0], p[1]); });
         bgReady = true;
         emitChange();
       }).catch(function (e) {
