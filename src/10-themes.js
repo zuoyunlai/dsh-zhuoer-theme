@@ -545,18 +545,178 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
       }).sort(function (a, b) { return b.share - a.share; });
     }
 
-    function extractPalette(imageData, count) {
+    // ---- 保真档（R-05 / F-05）----
+    // 为什么要有第二档：面板是「给素材、人来挑」，3 秒出结果比精确更重要（快档 = 中位切分）；
+    // 对话是「给结论、人来审」，用户没有「自己挑」这层兜底，所以必须扛得住「大面积单色」的照片。
+    // 快档的已知失效：切点优先落在「颜色跳变最大处」，且 5 bit 量化后一块连续色带会并成 1 格；
+    // 那一格再也不会被切（box.length < 2 直接跳过），于是 83% 的像素吐成同一个灰绿，
+    // 天空蓝与云白整段丢失。实测证据见 docs/report-chat-theme-2026-11-27.md F-05。
+    // 保真档三处不同：6 bit 量化（连续色带不再并成 1 格）→ 按「跨度 × √像素量」挑箱、
+    // 在**加权中位**处切（不是最大跳变）→ 两轮 Lloyd 重心修正 → 亮部保底（云白这类高光不丢）。
+    // rgb → #rrggbb。放在 palette 区：取色与底纹归一化都要用，只留一处实现。
+    function zrTexHex(rgb) {
+      return '#' + [rgb[0], rgb[1], rgb[2]].map(function (v) {
+        return Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0');
+      }).join('');
+    }
+
+    const paletteCentroid = function (box) {
+      let r = 0, g = 0, b = 0, n = 0;
+      box.forEach(function (p) { r += p.r * p.n; g += p.g * p.n; b += p.b * p.n; n += p.n; });
+      return n ? [r / n, g / n, b / n] : [0, 0, 0];
+    };
+    const paletteMass = function (box) {
+      let s = 0;
+      box.forEach(function (p) { s += p.n; });
+      return s;
+    };
+    function medianCutWeighted(pixels, count) {
+      let boxes = [pixels];
+      while (boxes.length < count) {
+        let bestIdx = -1, bestScore = 0, bestCh = 'r';
+        boxes.forEach(function (box, i) {
+          if (box.length < 2) return;
+          const mass = Math.sqrt(paletteMass(box));
+          ['r', 'g', 'b'].forEach(function (ch) {
+            let mn = 255, mx = 0;
+            box.forEach(function (p) { if (p[ch] < mn) mn = p[ch]; if (p[ch] > mx) mx = p[ch]; });
+            const rng = mx - mn;
+            if (rng <= 0) return;
+            const score = rng * mass;
+            if (score > bestScore) { bestScore = score; bestIdx = i; bestCh = ch; }
+          });
+        });
+        if (bestIdx < 0) break;
+        const box = boxes[bestIdx];
+        box.sort(function (a, b) { return a[bestCh] - b[bestCh]; });
+        const totalN = paletteMass(box);
+        let acc = 0, mid = -1;
+        for (let i = 0; i < box.length; i++) {
+          acc += box[i].n;
+          if (acc * 2 >= totalN) { mid = i + 1; break; }
+        }
+        if (mid <= 0) mid = 1;
+        if (mid >= box.length) mid = box.length - 1;
+        boxes.splice(bestIdx, 1, box.slice(0, mid), box.slice(mid));
+      }
+      return boxes.filter(function (b) { return b.length; });
+    }
+
+    // 两轮 Lloyd：中位切分的箱子边界是「中位数」，中心未必是箱内真实重心，
+    // 一轮重心修正就能把「灰绿混进天空蓝」这类偏色拉回来。不迭代更多轮：收益递减，且要保住确定性。
+    function paletteLloyd(pixels, centers, rounds) {
+      let cs = centers.map(function (c) { return [c[0], c[1], c[2]]; });
+      for (let it = 0; it < rounds; it++) {
+        const acc = cs.map(function () { return { r: 0, g: 0, b: 0, n: 0 }; });
+        pixels.forEach(function (p) {
+          let bi = 0, bd = Infinity;
+          for (let i = 0; i < cs.length; i++) {
+            const dr = p.r - cs[i][0], dg = p.g - cs[i][1], db = p.b - cs[i][2];
+            const d = dr * dr + dg * dg + db * db;
+            if (d < bd) { bd = d; bi = i; }
+          }
+          const a = acc[bi];
+          a.r += p.r * p.n; a.g += p.g * p.n; a.b += p.b * p.n; a.n += p.n;
+        });
+        cs = cs.map(function (c, i) {
+          const a = acc[i];
+          return a.n ? [a.r / a.n, a.g / a.n, a.b / a.n] : c;
+        });
+      }
+      return cs;
+    }
+
+    // 亮部保底：天空/云/高光本来占比小，最容易被切没。
+    // 取「占比 >= 2% 的最亮一格」，若离所有中心都太远就替掉最不重要的那一色。
+    function paletteBrightFloor(pixels, centers) {
+      const total = paletteMass(pixels) || 1;
+      let best = null;
+      pixels.forEach(function (p) {
+        if (p.n / total < 0.02) return;
+        const l = 0.299 * p.r + 0.587 * p.g + 0.114 * p.b;
+        if (!best || l > best.l) best = { l: l, rgb: [p.r, p.g, p.b] };
+      });
+      if (!best) return centers;
+      let near = Infinity;
+      centers.forEach(function (c) {
+        const dr = c[0] - best.rgb[0], dg = c[1] - best.rgb[1], db = c[2] - best.rgb[2];
+        const d = Math.sqrt(dr * dr + dg * dg + db * db);
+        if (d < near) near = d;
+      });
+      if (near <= 40) return centers;
+      // 替掉「离所有中心都最近、占比最小」的那一色：用质量最小的中心近似。
+      const mass = centers.map(function (c) {
+        let s = 0;
+        pixels.forEach(function (p) {
+          let bi = 0, bd = Infinity;
+          centers.forEach(function (cc, i) {
+            const dr = p.r - cc[0], dg = p.g - cc[1], db = p.b - cc[2];
+            const d = dr * dr + dg * dg + db * db;
+            if (d < bd) { bd = d; bi = i; }
+          });
+          if (bi === centers.indexOf(c)) s += p.n;
+        });
+        return s;
+      });
+      let minI = 0;
+      for (let i = 1; i < mass.length; i++) if (mass[i] < mass[minI]) minI = i;
+      const out = centers.slice();
+      out[minI] = best.rgb;
+      return out;
+    }
+
+    // 按「最近中心」重新统计占比，顺便把重心重合的两色合并。
+    function paletteShares(pixels, centers) {
+      const total = paletteMass(pixels) || 1;
+      const acc = centers.map(function () { return { r: 0, g: 0, b: 0, n: 0 }; });
+      pixels.forEach(function (p) {
+        let bi = 0, bd = Infinity;
+        for (let i = 0; i < centers.length; i++) {
+          const dr = p.r - centers[i][0], dg = p.g - centers[i][1], db = p.b - centers[i][2];
+          const d = dr * dr + dg * dg + db * db;
+          if (d < bd) { bd = d; bi = i; }
+        }
+        const a = acc[bi];
+        a.r += p.r * p.n; a.g += p.g * p.n; a.b += p.b * p.n; a.n += p.n;
+      });
+      const merged = new Map();
+      acc.forEach(function (a) {
+        if (!a.n) return;
+        const hex = zrTexHex([a.r / a.n, a.g / a.n, a.b / a.n]);
+        const cur = merged.get(hex);
+        if (cur) cur.share += a.n / total;
+        else merged.set(hex, { hex: hex, share: a.n / total });
+      });
+      return Array.from(merged.values()).sort(function (a, b) { return b.share - a.share; });
+    }
+
+    function faithfulPalette(pixels, count) {
+      const n = Math.max(1, count || 6);
+      if (pixels.length <= n) return paletteShares(pixels, pixels.map(function (p) { return [p.r, p.g, p.b]; }));
+      const boxes = medianCutWeighted(pixels, n);
+      let centers = boxes.map(paletteCentroid);
+      centers = paletteLloyd(pixels, centers, 2);
+      centers = paletteBrightFloor(pixels, centers);
+      return paletteShares(pixels, centers);
+    }
+    // tier: 'fast'（默认，面板用的现算法）/ 'faithful'（对话用，见上）。
+    // 缺省行为与改动前逐字一致——轻量档不该因为富档加档而变。
+    function extractPalette(imageData, count, opts) {
+      const tier = (opts && opts.tier === 'faithful') ? 'faithful' : 'fast';
       const data = imageData.data;
       const px = imageData.width * imageData.height;
       // 采样步长：把样本压到 1.2 万级，避免大图卡主线程
       const step = Math.max(1, Math.floor(Math.sqrt(px / 12000)));
+      // 保真档用 6 bit 量化：连续色带在 5 bit 下会并成 1 格，而单格箱子永远不会被切，
+      // 这就是「83% 像素吐成同一个灰绿」的机械原因。
+      const mask = tier === 'faithful' ? 0xfc : 0xf8;
       const buckets = new Map();
       for (let y = 0; y < imageData.height; y += step) {
         for (let x = 0; x < imageData.width; x += step) {
           const i = (y * imageData.width + x) * 4;
           if (data[i + 3] < 128) continue;
           // 5 bit/通道量化，压掉噪点
-          const r = data[i] & 0xf8, g = data[i + 1] & 0xf8, b = data[i + 2] & 0xf8;
+          const r = data[i] & mask, g = data[i + 1] & mask, b = data[i + 2] & mask;
           const key = r + ',' + g + ',' + b;
           const cur = buckets.get(key);
           if (cur) cur.n++;
@@ -565,6 +725,7 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
       }
       const pixels = Array.from(buckets.values());
       if (!pixels.length) return [];
+      if (tier === 'faithful') return faithfulPalette(pixels, count || 6);
       return medianCut(pixels, count || 6);
     }
 
@@ -757,12 +918,6 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
       buckets.forEach(function (b) { if (!best || b.n > best.n) best = b; });
       if (!best) return null;
       return [Math.round(best.r / best.n), Math.round(best.g / best.n), Math.round(best.b / best.n)];
-    }
-
-    function zrTexHex(rgb) {
-      return '#' + [rgb[0], rgb[1], rgb[2]].map(function (v) {
-        return Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0');
-      }).join('');
     }
 
     // 平移 + 极性 + 余量压缩。返回统计，供 scripts/test-texture-normalize.mjs 断言。

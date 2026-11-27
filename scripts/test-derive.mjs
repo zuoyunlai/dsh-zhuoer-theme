@@ -42,7 +42,10 @@ const helpers = grabFn('hexHsl') + '\n' + grabFn('hslHex')
 // 取色用的纯函数（medianCut / paletteToAnchors）单独抠出来——它们不碰 DOM
 const pStart = src.indexOf('// #region palette')
 const pEnd = src.indexOf('// #endregion palette')
-const paletteRegion = pStart >= 0 && pEnd > pStart ? src.slice(pStart, pEnd) : ''
+// 坑：palette / texture-normalize / presets 三个 #region 都**嵌在** #region derive 里面
+// （#endregion derive 在文件末尾附近），再单独抠一次等于把同名声明拼两遍。
+// 函数声明重复是静默的后者覆盖，但 const 重复会直接 SyntaxError——所以只抠 derive 一段。
+const paletteRegion = ''
 // 注意：STYLE_PRESETS 位于 #region derive 内部，已随 region 一起抠出，
 // 不要再单独抠一次，否则等于声明两遍（SyntaxError: already been declared）。
 

@@ -38,7 +38,9 @@ const slice = (a, b) => src.slice(src.indexOf('// #region ' + a), src.indexOf('/
 const helpers = grabFn('hexHsl') + '\n' + grabFn('hslHex')
 // 注意：slice('derive') 里已经带着真的 tokensFor，所以这里不要塞替身（会被后者覆盖）。
 const make = new Function('THEMES', 'THEME_IDS',
-  helpers + '\n' + slice('derive', 'derive') + '\n' + slice('palette', 'palette') + '\n' + slice('texture-normalize', 'texture-normalize') +
+  // derive 里已经嵌了 palette 与 texture-normalize（#endregion derive 在文件末尾附近），
+  // 再单独拼一次会让同名 const 重复声明而 SyntaxError。
+  helpers + '\n' + slice('derive', 'derive') +
   '\nreturn { zrTexBaseRgb, zrTexHex, zrTexNormalizePixels, zrTexTargetBg, parseHexColor };')
 const api = make(THEMES, THEME_IDS)
 

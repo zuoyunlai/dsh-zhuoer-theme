@@ -37,12 +37,13 @@ const dStart = src.indexOf('// #region derive')
 const dEnd = src.indexOf('// #endregion derive')
 const pStart = src.indexOf('// #region palette')
 const pEnd = src.indexOf('// #endregion palette')
+// #region palette 嵌在 #region derive 里（#endregion derive 在文件末尾附近），
+// 只抠 derive 一段即可；再拼一次 palette 会让同名 const 重复声明而 SyntaxError。
 const region = src.slice(dStart, dEnd)
-const paletteRegion = src.slice(pStart, pEnd)
 const helpers = grabFn('hexHsl') + '\n' + grabFn('hslHex')
 
 const make = new Function('THEMES', 'THEME_IDS',
-  helpers + '\n' + region + '\n' + paletteRegion +
+  helpers + '\n' + region +
   '\nreturn { paletteToAnchors, parseHexColor };')
 const { paletteToAnchors, parseHexColor } = make(THEMES, THEME_IDS)
 

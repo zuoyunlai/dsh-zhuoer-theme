@@ -349,7 +349,8 @@
           })
           .then(function (img) {
             if (!img || dead) return;
-            const palette = extractPalette(img, 6);
+            // R-05：对话走保真档（大面积单色照片不再塌成一格灰绿）；面板仍走快档。
+            const palette = extractPalette(img, 6, { tier: 'faithful' });
             const lightAnchors = paletteToAnchors(palette, 'light');
             const darkAnchors = paletteToAnchors(palette, 'dark');
             if (!lightAnchors || !darkAnchors) return;
