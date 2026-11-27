@@ -2792,6 +2792,21 @@ function applyTokens(theme, pref) {
       const accents = accentOptions(effectiveThemeId(pref), scheme, pref.accent);
       const accentNow = pref.accent || accents[0] || '#000000';
       const bgOn = pref.bgSource !== 'none';
+      // 底图不透明度有两个来源：全局 pref.bgOpacity 与「自定义主题自带的 bg.opacity」。
+      // 后者在 bgCssFor 里**覆盖**前者（specBg.opacity 优先），所以面板滑块必须显示并编辑
+      // 真正生效的那个数——否则用户拖了半天没反应，还以为滑块坏了（2026-11-27 实测报障）。
+      const specBgOpacity = (currentCustom && currentCustom.bg && typeof currentCustom.bg.opacity === 'number')
+        ? currentCustom.bg.opacity : null;
+      const shownBgOpacity = specBgOpacity === null ? pref.bgOpacity : specBgOpacity;
+      const setBgOpacity = function (v) {
+        if (specBgOpacity === null) { set({ bgOpacity: v }); return; }
+        const next = (pref.customThemes || []).map(function (c) {
+          if (c.id !== currentCustom.id) return c;
+          return Object.assign({}, c, { bg: Object.assign({}, c.bg, { opacity: v }) });
+        });
+        // 同时把全局值跟上：切到别的主题时滑块停在同一个位置，不会突然跳。
+        set({ customThemes: next, bgOpacity: v });
+      };
       const scalePx = Math.round(16 * pref.fontScale / 100);
 
       // 底图：压到最长边 1280 + JPEG 0.72，原图动辄几 MB，直接塞 localStorage 会超限。
@@ -3060,12 +3075,12 @@ function applyTokens(theme, pref) {
               h(Row, { label: t('panel.bg.opacityRow') },
                 h('input', {
                   type: 'range', className: 'zp-range', min: 0, max: 100,
-                  value: pref.bgOpacity, 'aria-label': t('panel.bg.opacityAria'),
+                  value: shownBgOpacity, 'aria-label': t('panel.bg.opacityAria'),
                   // 已选段长度交给 CSS 渐变：读起来是「填到哪了」，不是一根无信息的灰轨
-                  style: { '--zp-pct': (Number(pref.bgOpacity) || 0) + '%' },
-                  onChange: function (ev) { set({ bgOpacity: Number(ev.target.value) || 0 }); },
+                  style: { '--zp-pct': (Number(shownBgOpacity) || 0) + '%' },
+                  onChange: function (ev) { setBgOpacity(Number(ev.target.value) || 0); },
                 }),
-                h('span', { className: 'zp-val' }, pref.bgOpacity + '%'),
+                h('span', { className: 'zp-val' }, shownBgOpacity + '%'),
                 // 滑块 85% ≠ 实际 85% 不透明度（实现是 可见度 × 0.7）。上限写在旁边而不是塞进
                 // 行标签：塞进 4.8em 的标签列会把这一行撑成三行，整块的行高跟着变形。
                 h('span', { className: 'zp-hint' }, currentPhotoCap < 0.699

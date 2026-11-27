@@ -9,7 +9,7 @@ A skin plugin that recolours the whole DSH UI: **12 built-in themes + 12 style p
 - Colours go through the host theme service: `ctx.theme.overrideTokens()` maps each theme onto DSH's `--dsw-alias-*` tokens (224 per theme). No DOM hijacking, no injected host components.
 - **Fully local**: no account, no telemetry, no external network calls. The only network activity is the host's own model when you press "Generate" in the editor.
 - Light / dark / follow-system is **two-way synced** with the host's Settings → Appearance: changing either side updates the other.
-- Current version **0.6.44**, MIT.
+- Current version **0.6.45**, MIT.
 
 ## At a glance
 
@@ -167,7 +167,7 @@ Usage: **Plugins → Experimental plugins → enable “Custom plugin index” �
 
 Fallback: mirror [`market/index.json`](market/index.json) to any static host you can reach (object storage, your own server, a LAN http server; plain HTTP is fine) and add that URL instead.
 
-The index lists only the three safe versions (0.6.44 / 0.6.43 / 0.6.42) and deliberately skips 0.6.11, which shipped a broken settings panel. Run `npm run verify:market` after editing — it checks the official schema (LocalizedText must contain `en`, exact SemVer, `source.type`, `engines.dsh`) and cross-checks it against this package’s `package.json`.
+The index lists only the three safe versions (0.6.45 / 0.6.44 / 0.6.43) and deliberately skips 0.6.11, which shipped a broken settings panel. Run `npm run verify:market` after editing — it checks the official schema (LocalizedText must contain `en`, exact SemVer, `source.type`, `engines.dsh`) and cross-checks it against this package’s `package.json`.
 
 Run `npm run verify:market` after editing — it checks the official schema (LocalizedText must contain `en`, exact SemVer, `source.type`, `engines.dsh`) and cross-checks it against this package’s `package.json`.
 
@@ -335,11 +335,13 @@ npm run coverage      # token coverage and the "deliberately not derived" allowl
 | `verify:text` | **Copy gate** (deterministic): renders the panel in Node and compares 220 strings and attributes (`title`/`aria-label`/`placeholder`/`alt`) against `contracts/text-snapshot/{zh,en}.json`, versions normalised. Change copy ⇒ run `--update` |
 | `verify:visual` | Pixel comparison of the panel (**still out of `verify:all`**): two consecutive captures of the same state differ by 2.3% in light mode, and a gate that cannot reproduce itself is a false sense of safety. Since 0.6.43 it carries **real-device baselines** (`contracts/visual-baseline/`: dark/light 559×2757, narrow 323×666) used for before/after review and for cropping docs images — not an automatic gate |
 | `verify:csssnap` | Compares the **injected** CSS text byte for byte against `contracts/css-snapshot/`, reporting the first offset and context. SKIPs when `visual/css-current/` is absent; `--strict` makes it hard-fail |
+| `verify:readme` | **README gate**: image links must exist and be non-empty (raw.githubusercontent URLs are mapped back to local files), the zh/en versions must be structurally aligned (same counts of headings/images/code fences/table rows), the version string must match `package.json`, and stale wording is banned (e.g. "bilingual UI" or "why there is no pixel baseline any more" — both were real drifts found by hand) |
 | `verify:claims` | **Public-claim gate**: theme count, version, background count, string count and the bare-Chinese baseline in README / market index / locale / package.json must equal the freshly computed truth (add a theme, forget the docs → red) |
 | `verify:i18n` | Bare-Chinese **ratchet**: per-file baseline that may only go down; new strings must go through the dictionary. Currently 46 |
 | `verify:panel` | **Panel smoke test**: loads `client.js` with a minimal host stand-in in Node, calls `apply()` and renders `settings.section` once; any render-time throw is red (this is the gate for the 0.6.11 `t is not defined` class of bug) |
 | `verify:git` | Checks `.git` metadata (HEAD/config/index) integrity; `node scripts/git-doctor.mjs --fix` rebuilds it in one command (see `docs/git-integrity.md`) |
 | `verify:release` | Release preflight: content-hash comparison of the working tree against HEAD (catches same-length edits swallowed by git's stat cache) plus the version triple |
+| `verify:chain` | **Release-chain check**: local tag → `origin/main` → npm registry (including `dist-tags.latest`) → GitHub Release, all four aligned. `PENDING` means CI has published but the registry is still propagating — not a failure |
 | `token-surface` | Which host tokens are covered and which are deliberately not derived |
 | `node --check` | Artefact syntax |
 | `test-derive` | Runs the derivation functions headlessly: 151 keys × 4 bases × 2 schemes |
@@ -408,7 +410,7 @@ scripts/             verify-* gates, sync-themes, coverage, token-surface,
 contracts/           host contract lists (positives / negatives), texture-luminance.json,
                      visual-baseline/ (real-device screenshots + labels.json)
 visual/              local capture area: current/ screenshots, css-current/ injected CSS
-docs/                design notes and runbooks: i18n-plan.md, live-verify.md, official-requirements.md, git-integrity.md
+docs/                design notes and runbooks: i18n-plan.md, live-verify.md, troubleshooting.md, official-requirements.md, git-integrity.md
 assets/fonts/        23 woff2 files (14 Latin families + 3 CJK subsets) plus provenance
 assets/bg/           24 theme backgrounds (webp)
 assets/logo/         zhuoer.svg (brand-slot logo, served under /assets/logo/)
@@ -416,6 +418,7 @@ assets/icon-180.png  market card icon (180×180, rasterised from zhuoer.svg)
 icon.svg             plugin page icon (referenced by package.json "icon")
 docs/images/         README screenshots (panel light/dark, 12-theme grid, editor drawer, contrast chart)
 locale/{zh,en}.json  display metadata (meta.title / meta.description, read by the host and market)
+llms.txt             agent-facing summary (theme/texture/persistence facts an AI needs)
 ```
 
 ## Release

@@ -7,20 +7,20 @@
     {
       "file": "settings-dark.png",
       "w": 559,
-      "h": 2757,
-      "sha256": "78a3226b6754063a48a32d690785c3249394b37e31c79b4f887f7a206deaf17a"
+      "h": 693,
+      "sha256": "3952e7046521713874058d839883c58165761ec444df8529d25c49c377b3b66b"
     },
     {
       "file": "settings-light.png",
       "w": 559,
-      "h": 2757,
-      "sha256": "ffdfa9fd2c8e73be666d40e77ccfe95bb83e4b40032c25e2a95e2a7e2f0e4cab"
+      "h": 693,
+      "sha256": "1fb4267d46f5e2eb99ba90c14dcc7a7042d74ef9b22944323df8876f36864a67"
     },
     {
       "file": "settings-narrow.png",
       "w": 323,
       "h": 666,
-      "sha256": "2507e45e965a6cff3349e1282f47cf91e2390617ca30c2d4dfa9a8de76aeaafc"
+      "sha256": "55ea365329c161b0863e81f97d6675430dc04dd41134ee5f5c0d5a11a1fadb89"
     }
   ]
 }

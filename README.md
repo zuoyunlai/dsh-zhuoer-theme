@@ -9,7 +9,7 @@
 - 配色走宿主主题服务：`ctx.theme.overrideTokens()` 把每套主题映射到 DSH 的 `--dsw-alias-*` token（每套 224 个），不劫持 DOM 结构、不注入宿主组件。
 - **纯本地**：没有账号、没有遥测、不请求外部网络。唯一的联网行为是你在编辑器里点「AI 生成」时，插件通过**宿主自己的模型**补一组锚点色。
 - 明暗三态（浅色 / 深色 / 跟随系统）与宿主「通用设置 → 外观」**双向同步**，两边改任一边都会一起变。
-- 当前版本 **0.6.44**，MIT。
+- 当前版本 **0.6.45**，MIT。
 
 ## 一眼看清
 
@@ -166,7 +166,7 @@ https://ghproxy.net/https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme
 
 兜底：把 [`market/index.json`](market/index.json) 镜像到你能访问的静态主机（对象存储 / 自己的服务器 / 内网 http；HTTP 即可，不要求 https），再添加那个 URL。
 
-索引只列 **0.6.44 / 0.6.43 / 0.6.42** 三个可安全使用的版本（刻意跳过 0.6.11 那版面板报错的）。改完跑 `npm run verify:market`——它按官方 schema 校验 LocalizedText 必含 `en`、SemVer、`source.type`、`engines.dsh`，并与 `package.json` 交叉对账。
+索引只列 **0.6.45 / 0.6.44 / 0.6.43** 三个可安全使用的版本（刻意跳过 0.6.11 那版面板报错的）。改完跑 `npm run verify:market`——它按官方 schema 校验 LocalizedText 必含 `en`、SemVer、`source.type`、`engines.dsh`，并与 `package.json` 交叉对账。
 
 
 ## 在对话框里生成主题
@@ -335,6 +335,7 @@ npm run coverage      # token 覆盖率与「刻意不跟锚点」的豁免清�
 | `verify:text` | **文案门**（确定性）：Node 端渲染面板，把 220 条文案与属性（`title`/`aria-label`/`placeholder`/`alt`）与 `contracts/text-snapshot/{zh,en}.json` 逐条比对，版本号归一化。改文案要配 `--update`，否则红 |
 | `verify:visual` | 面板截图像素比对（**仍不在 `verify:all`**）：同状态连续两次截 `.zp-root` 在光态下互差 2.3%，无法复现的像素门等于安全错觉。0.6.43 起改成**真机基线**（`contracts/visual-baseline/`，深/浅 559×2757、窄 323×666），用途是「改版前后对照」与裁 docs 图，不是自动门 |
 | `verify:csssnap` | 把插件**实际注入**的 CSS 文本与 `contracts/css-snapshot/` 逐字节比对；差异会报出首个偏移与上下文。没有 `visual/css-current/` 时 SKIP，`--strict` 才硬判 |
+| `verify:readme` | **README 门**：图文链接（含 raw.githubusercontent 映射到本地文件）必须真实存在且非空、中英两版结构对齐（标题/图片/代码块/表格计数一致）、版本串与 `package.json` 一致、不得出现过期措辞（如「界面中英双语」「为什么没有像素基线了」——两次真实脱节都在这条上） |
 | `verify:claims` | **对外口径门**：README / market 索引 / locale / package.json 里的主题数、版本号、底图数、文案条数、裸中文基线必须等于现算真值（加主题后忘记改文档 → 红） |
 | `verify:i18n` | 裸中文字面量**棘轮**：按文件记基线，只许减少；多一条就红（文案要写进 `src/05-i18n.js` 的 `I18N` 再 `t()` 取）。当前合计 46 条 |
 | `verify:panel` | **面板冒烟**：Node 端用最小宿主替身加载 `client.js`、调 `apply()`，把 `settings.section` 真渲染一遍；任何渲染期抛错即红（0.6.11 的 `t is not defined` 就是它该抓的） |
@@ -413,7 +414,8 @@ contracts/           宿主契约清单（含 positives / negatives：哪些契�
                      texture-luminance.json（底纹合成实测）、visual-baseline/（真机截图基线 + labels.json）
 visual/              本机采集区：current/ 截图、css-current/ 注入 CSS（提交与否见 .gitignore）
 docs/                设计与权衡记录与操作规程：i18n-plan.md（多语言规划与进度）、
-                     live-verify.md（起一次性 profile 做真机验证）、official-requirements.md（官方硬要求与合规对照）、
+                     live-verify.md（起一次性 profile 做真机验证）、troubleshooting.md（按症状排障）、
+                     official-requirements.md（官方硬要求与合规对照）、
                      git-integrity.md（.git 事故与修复约定）
 assets/fonts/        23 个 woff2（14 个西文族 + 3 个中文子集）+ 来源说明
 assets/bg/           24 张主题底图（webp）
@@ -422,6 +424,7 @@ assets/icon-180.png  市场卡片图标（180×180，由 zhuoer.svg 栅格化）
 icon.svg             插件页图标（package.json 的 "icon" 指向它）
 docs/images/         README 用的截图（面板深浅两张 + 12 套主题网格 + 编辑器抽屉 + 对比度图）
 locale/{zh,en}.json  展示元数据（meta.title / meta.description，宿主与市场读这里）
+llms.txt             给 AI agent 读的摘要（选主题/底图/持久化的关键事实）
 ```
 
 ## 发布

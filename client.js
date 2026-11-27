@@ -255,7 +255,7 @@ window.__ModuleLoader__.load({
     }
 
     // 版本号唯一源：面板文案与自检回传都用它，别再出现「构建 0.1.101」这种漂移。
-    const PVERSION = '0.6.44';
+    const PVERSION = '0.6.45';
     // 诊断探针总闸：默认关闭，开启方式 localStorage['dsh-zhuoer-theme:debug'] = '1'。
     // 下面若干探针会在每次 apply 时全文档遍历 DOM、逐元素 getComputedStyle、扫 styleSheets，
     // 是「启动 / 切主题卡顿」的主要来源之一，只在排障时打开。
@@ -352,8 +352,6 @@ window.__ModuleLoader__.load({
         'panel.ed.title': '编辑配色',
         'panel.ed.closeAria': '关闭编辑器',
         'panel.ed.closeTitle': '关闭（有未保存改动会先确认）',
-        'panel.ed.secAppearance': '外观',
-        'panel.ed.clonedFrom': '克隆自 {theme}，其余 token 按差值派生',
         'panel.ed.name': '名称',
         'panel.ed.nameAria': '主题名称',
         'panel.ed.dark': '深色',
@@ -379,7 +377,6 @@ window.__ModuleLoader__.load({
         'panel.palette.failed': '取色失败',
         'panel.palette.notEnough': '色值不足以分配锚点',
         'panel.ed.presets': '风格预设',
-        'panel.ed.presetsNote': '整套替换：锚点、圆角、字体一起换',
         'panel.ed.presetTitle': '{label} · 直角/圆角 {radius} · {body}',
         'panel.ed.mono': '等宽',
         'panel.ed.aiSection': 'AI 与取色',
@@ -665,8 +662,6 @@ window.__ModuleLoader__.load({
         'panel.ed.title': 'Edit colors',
         'panel.ed.closeAria': 'Close editor',
         'panel.ed.closeTitle': 'Close (unsaved changes are confirmed first)',
-        'panel.ed.secAppearance': 'Appearance',
-        'panel.ed.clonedFrom': 'Cloned from {theme}; other tokens are derived by delta',
         'panel.ed.name': 'Name',
         'panel.ed.nameAria': 'Theme name',
         'panel.ed.dark': 'Dark',
@@ -692,7 +687,6 @@ window.__ModuleLoader__.load({
         'panel.palette.failed': 'Color extraction failed',
         'panel.palette.notEnough': 'Not enough colors to assign anchors',
         'panel.ed.presets': 'Style presets',
-        'panel.ed.presetsNote': 'Replaces everything: anchors, radii and fonts at once',
         'panel.ed.presetTitle': '{label} · radius {radius} · {body}',
         'panel.ed.mono': 'monospace',
         'panel.ed.aiSection': 'AI & color picking',
@@ -978,8 +972,6 @@ window.__ModuleLoader__.load({
         'panel.ed.title': 'Farben bearbeiten',
         'panel.ed.closeAria': 'Editor schließen',
         'panel.ed.closeTitle': 'Schließen (ungespeicherte Änderungen werden bestätigt)',
-        'panel.ed.secAppearance': 'Darstellung',
-        'panel.ed.clonedFrom': 'Kopiert von {theme}; die übrigen Tokens werden per Differenz abgeleitet',
         'panel.ed.name': 'Name',
         'panel.ed.nameAria': 'Themenname',
         'panel.ed.dark': 'Dunkel',
@@ -1005,7 +997,6 @@ window.__ModuleLoader__.load({
         'panel.palette.failed': 'Farbextraktion fehlgeschlagen',
         'panel.palette.notEnough': 'Zu wenige Farben, um die Anker zu belegen',
         'panel.ed.presets': 'Stil-Voreinstellungen',
-        'panel.ed.presetsNote': 'Ersetzt alles auf einmal: Anker, Radien und Schriften',
         'panel.ed.presetTitle': '{label} · Radius {radius} · {body}',
         'panel.ed.mono': 'Dicktengleich',
         'panel.ed.aiSection': 'KI und Farbwahl',
@@ -1291,8 +1282,6 @@ window.__ModuleLoader__.load({
         'panel.ed.title': 'Editar colores',
         'panel.ed.closeAria': 'Cerrar el editor',
         'panel.ed.closeTitle': 'Cerrar (los cambios sin guardar se confirman antes)',
-        'panel.ed.secAppearance': 'Apariencia',
-        'panel.ed.clonedFrom': 'Clonado de {theme}; el resto de tokens se deriva por diferencia',
         'panel.ed.name': 'Nombre',
         'panel.ed.nameAria': 'Nombre del tema',
         'panel.ed.dark': 'Oscuro',
@@ -1318,7 +1307,6 @@ window.__ModuleLoader__.load({
         'panel.palette.failed': 'Error al extraer los colores',
         'panel.palette.notEnough': 'No hay suficientes colores para asignar a los anclajes',
         'panel.ed.presets': 'Estilos predefinidos',
-        'panel.ed.presetsNote': 'Sustituye todo de golpe: anclajes, radios y fuentes',
         'panel.ed.presetTitle': '{label} · radio {radius} · {body}',
         'panel.ed.mono': 'monoespaciada',
         'panel.ed.aiSection': 'IA y extracción de color',
@@ -1604,8 +1592,6 @@ window.__ModuleLoader__.load({
         'panel.ed.title': 'Modifier les couleurs',
         'panel.ed.closeAria': 'Fermer l\'éditeur',
         'panel.ed.closeTitle': 'Fermer (les modifications non enregistrées sont confirmées d\'abord)',
-        'panel.ed.secAppearance': 'Apparence',
-        'panel.ed.clonedFrom': 'Cloné depuis {theme} ; les autres jetons sont dérivés par delta',
         'panel.ed.name': 'Nom',
         'panel.ed.nameAria': 'Nom du thème',
         'panel.ed.dark': 'Sombre',
@@ -1631,7 +1617,6 @@ window.__ModuleLoader__.load({
         'panel.palette.failed': 'Échec de l\'extraction des couleurs',
         'panel.palette.notEnough': 'Pas assez de couleurs pour attribuer les ancres',
         'panel.ed.presets': 'Préréglages de style',
-        'panel.ed.presetsNote': 'Remplace tout d\'un coup : ancres, rayons et polices',
         'panel.ed.presetTitle': '{label} · rayon {radius} · {body}',
         'panel.ed.mono': 'à chasse fixe',
         'panel.ed.aiSection': 'IA et prélèvement de couleurs',
@@ -1917,8 +1902,6 @@ window.__ModuleLoader__.load({
         'panel.ed.title': '配色を編集',
         'panel.ed.closeAria': 'エディターを閉じる',
         'panel.ed.closeTitle': '閉じる（未保存の変更は確認されます）',
-        'panel.ed.secAppearance': '外観',
-        'panel.ed.clonedFrom': '{theme} から複製。ほかの token は差分で派生します',
         'panel.ed.name': '名前',
         'panel.ed.nameAria': 'テーマ名',
         'panel.ed.dark': 'ダーク',
@@ -1944,7 +1927,6 @@ window.__ModuleLoader__.load({
         'panel.palette.failed': '色の抽出に失敗しました',
         'panel.palette.notEnough': 'アンカーに割り当てる十分な色がありません',
         'panel.ed.presets': 'スタイルプリセット',
-        'panel.ed.presetsNote': 'アンカー・角丸・フォントをまとめて置き換えます',
         'panel.ed.presetTitle': '{label} · 角丸 {radius} · {body}',
         'panel.ed.mono': '等幅',
         'panel.ed.aiSection': 'AI と色の抽出',
@@ -2230,8 +2212,6 @@ window.__ModuleLoader__.load({
         'panel.ed.title': 'Editar cores',
         'panel.ed.closeAria': 'Fechar o editor',
         'panel.ed.closeTitle': 'Fechar (alterações por guardar são confirmadas primeiro)',
-        'panel.ed.secAppearance': 'Aparência',
-        'panel.ed.clonedFrom': 'Clonado de {theme}; os restantes tokens são derivados por diferença',
         'panel.ed.name': 'Nome',
         'panel.ed.nameAria': 'Nome do tema',
         'panel.ed.dark': 'Escuro',
@@ -2257,7 +2237,6 @@ window.__ModuleLoader__.load({
         'panel.palette.failed': 'Falha ao extrair as cores',
         'panel.palette.notEnough': 'Cores insuficientes para atribuir às âncoras',
         'panel.ed.presets': 'Predefinições de estilo',
-        'panel.ed.presetsNote': 'Substitui tudo de uma vez: âncoras, raios e tipos de letra',
         'panel.ed.presetTitle': '{label} · raio {radius} · {body}',
         'panel.ed.mono': 'monoespaçado',
         'panel.ed.aiSection': 'IA e extração de cores',
@@ -2543,8 +2522,6 @@ window.__ModuleLoader__.load({
         'panel.ed.title': 'Изменить цвета',
         'panel.ed.closeAria': 'Закрыть редактор',
         'panel.ed.closeTitle': 'Закрыть (несохранённые изменения подтверждаются)',
-        'panel.ed.secAppearance': 'Оформление',
-        'panel.ed.clonedFrom': 'Скопировано из {theme}; остальные токены выводятся по разнице',
         'panel.ed.name': 'Название',
         'panel.ed.nameAria': 'Название темы',
         'panel.ed.dark': 'Тёмная',
@@ -2570,7 +2547,6 @@ window.__ModuleLoader__.load({
         'panel.palette.failed': 'Не удалось извлечь цвета',
         'panel.palette.notEnough': 'Недостаточно цветов, чтобы заполнить якоря',
         'panel.ed.presets': 'Стилевые пресеты',
-        'panel.ed.presetsNote': 'Заменяет всё разом: якоря, радиусы и шрифты',
         'panel.ed.presetTitle': '{label} · радиус {radius} · {body}',
         'panel.ed.mono': 'моноширинный',
         'panel.ed.aiSection': 'ИИ и подбор цвета',
@@ -7720,6 +7696,21 @@ function applyTokens(theme, pref) {
       const accents = accentOptions(effectiveThemeId(pref), scheme, pref.accent);
       const accentNow = pref.accent || accents[0] || '#000000';
       const bgOn = pref.bgSource !== 'none';
+      // 底图不透明度有两个来源：全局 pref.bgOpacity 与「自定义主题自带的 bg.opacity」。
+      // 后者在 bgCssFor 里**覆盖**前者（specBg.opacity 优先），所以面板滑块必须显示并编辑
+      // 真正生效的那个数——否则用户拖了半天没反应，还以为滑块坏了（2026-11-27 实测报障）。
+      const specBgOpacity = (currentCustom && currentCustom.bg && typeof currentCustom.bg.opacity === 'number')
+        ? currentCustom.bg.opacity : null;
+      const shownBgOpacity = specBgOpacity === null ? pref.bgOpacity : specBgOpacity;
+      const setBgOpacity = function (v) {
+        if (specBgOpacity === null) { set({ bgOpacity: v }); return; }
+        const next = (pref.customThemes || []).map(function (c) {
+          if (c.id !== currentCustom.id) return c;
+          return Object.assign({}, c, { bg: Object.assign({}, c.bg, { opacity: v }) });
+        });
+        // 同时把全局值跟上：切到别的主题时滑块停在同一个位置，不会突然跳。
+        set({ customThemes: next, bgOpacity: v });
+      };
       const scalePx = Math.round(16 * pref.fontScale / 100);
 
       // 底图：压到最长边 1280 + JPEG 0.72，原图动辄几 MB，直接塞 localStorage 会超限。
@@ -7988,12 +7979,12 @@ function applyTokens(theme, pref) {
               h(Row, { label: t('panel.bg.opacityRow') },
                 h('input', {
                   type: 'range', className: 'zp-range', min: 0, max: 100,
-                  value: pref.bgOpacity, 'aria-label': t('panel.bg.opacityAria'),
+                  value: shownBgOpacity, 'aria-label': t('panel.bg.opacityAria'),
                   // 已选段长度交给 CSS 渐变：读起来是「填到哪了」，不是一根无信息的灰轨
-                  style: { '--zp-pct': (Number(pref.bgOpacity) || 0) + '%' },
-                  onChange: function (ev) { set({ bgOpacity: Number(ev.target.value) || 0 }); },
+                  style: { '--zp-pct': (Number(shownBgOpacity) || 0) + '%' },
+                  onChange: function (ev) { setBgOpacity(Number(ev.target.value) || 0); },
                 }),
-                h('span', { className: 'zp-val' }, pref.bgOpacity + '%'),
+                h('span', { className: 'zp-val' }, shownBgOpacity + '%'),
                 // 滑块 85% ≠ 实际 85% 不透明度（实现是 可见度 × 0.7）。上限写在旁边而不是塞进
                 // 行标签：塞进 4.8em 的标签列会把这一行撑成三行，整块的行高跟着变形。
                 h('span', { className: 'zp-hint' }, currentPhotoCap < 0.699

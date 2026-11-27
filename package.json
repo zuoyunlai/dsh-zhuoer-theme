@@ -1,6 +1,6 @@
 {
   "name": "dsh-zhuoer-theme",
-  "version": "0.6.44",
+  "version": "0.6.45",
   "type": "module",
   "scripts": {
     "gen:hosttext": "node scripts/gen-host-text.mjs",
@@ -37,10 +37,11 @@
     "verify:locale": "node scripts/verify-locale.mjs",
     "verify:market": "node scripts/verify-market-index.mjs",
     "verify:claims": "node scripts/verify-claims.mjs",
+    "verify:readme": "node scripts/verify-readme.mjs",
     "verify:syntax": "node scripts/verify-syntax.mjs",
     "verify:chain": "node scripts/verify-release-chain.mjs",
     "chart:contrast": "node scripts/contrast-chart.mjs",
-    "verify:all": "node scripts/verify-syntax.mjs && node scripts/git-guard.mjs && node scripts/git-doctor.mjs && node scripts/verify-build.mjs && node scripts/verify-version.mjs && node scripts/verify-assets.mjs && node scripts/verify-contrast.mjs && node scripts/verify-texture.mjs && node scripts/verify-css-grid.mjs && node scripts/verify-scale.mjs && node scripts/verify-important.mjs && node scripts/verify-themes.mjs && node scripts/verify-host-contract.mjs && node scripts/verify-host-drift.mjs && node scripts/verify-css-snapshot.mjs && node scripts/verify-text.mjs && node scripts/verify-keys.mjs && node scripts/verify-locale.mjs && node scripts/verify-market-index.mjs && node scripts/verify-claims.mjs && node scripts/verify-i18n.mjs && node scripts/verify-markdown-css.mjs && node scripts/verify-host-hooks.mjs && node scripts/verify-schema-output.mjs && node scripts/smoke-panel.mjs && node scripts/token-surface.mjs && node --check client.js"
+    "verify:all": "node scripts/verify-syntax.mjs && node scripts/git-guard.mjs && node scripts/git-doctor.mjs && node scripts/verify-build.mjs && node scripts/verify-version.mjs && node scripts/verify-assets.mjs && node scripts/verify-contrast.mjs && node scripts/verify-texture.mjs && node scripts/verify-css-grid.mjs && node scripts/verify-scale.mjs && node scripts/verify-important.mjs && node scripts/verify-themes.mjs && node scripts/verify-host-contract.mjs && node scripts/verify-host-drift.mjs && node scripts/verify-css-snapshot.mjs && node scripts/verify-text.mjs && node scripts/verify-keys.mjs && node scripts/verify-locale.mjs && node scripts/verify-market-index.mjs && node scripts/verify-claims.mjs && node scripts/verify-readme.mjs && node scripts/verify-i18n.mjs && node scripts/verify-markdown-css.mjs && node scripts/verify-host-hooks.mjs && node scripts/verify-schema-output.mjs && node scripts/smoke-panel.mjs && node scripts/token-surface.mjs && node --check client.js"
   },
   "license": "MIT",
   "icon": "./icon.svg",

@@ -1,0 +1,28 @@
+# dsh-zhuoer-theme (Zhuo'er Theme) — agent-facing summary
+
+DSH client plugin that replaces the whole DSH colour system: 12 built-in themes,
+12 style presets, a custom-theme editor (AI generation / image palette / per-anchor tuning),
+theme background textures, font sizing, transcript width and accent colour.
+
+## What an agent usually needs
+
+- **Select a theme**: Settings → Zhuoer 主题 → 配色主题 (click a specimen card). Modes: 浅色 / 深色 / 跟随系统.
+- **Custom theme**: 新建主题 clones the current built-in theme; only 8 anchor colours are stored, the rest derive by RGB offsets. Max 24 custom themes.
+- **Generate from chat**: ask in the composer ("给我一套赛博朋克配色"); a preview card is produced and applied on confirm.
+- **Background texture**: 底图来源 = 主题底图 / 自定义图片 / 无; 样式 = 淡化 / 全幅; 可见度 slider maps to real opacity = 可见度 × 0.7.
+  Built-in line art is normalised to max alpha 45/255 (0.6.44). Custom photos are auto-capped for contrast (4.5:1).
+- **Persistence**: prefs in localStorage, custom-theme background images in IndexedDB (`dsh-zhuoer-theme-bg`, 3 MiB/image). Export JSON excludes images.
+
+## Facts worth not getting wrong
+
+- The plugin never calls the network by itself; AI generation goes through the host's own model.
+- UI copy ships in 8 languages (zh/en/ja/es/fr/de/pt/ru); theme and preset **names are not translated** by design.
+- Requires a **host restart** after any code change: the host snapshots `client.js` at startup.
+- Contrast: every text role has a floor; body 7:1 for custom themes, built-in worst cases are measured, and a texture gate judges the worst-case pixel.
+
+## Repo pointers
+
+- `README.md` / `README.en.md` — full docs
+- `docs/troubleshooting.md` — symptom-based fixes
+- `docs/live-verify.md` — how to boot a throwaway profile for real-UI checks
+- `CHANGELOG.md` — why each change was made
