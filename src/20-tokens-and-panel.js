@@ -204,6 +204,8 @@ function applyTokens(theme, pref) {
       try { zrDumpTokensOnce(scheme, pref, tokens); } catch (e) { /* ignore */ }
       // 面板切换后再取样半透明面（页面加载时看到的是聊天页）。
       try { zrHookSemiProbe(scheme); } catch (e) { /* ignore */ }
+      // 步骤图标语义色的实测探针：报告图标的**实际计算颜色**（debug 开关下才发）。
+      try { zrIconProbe(); } catch (e) { /* ignore */ }
       // 自定义主题的 SHAPES / FONTS / 底图都按它克隆的 base 查（自定义 id 在那些表里不存在）
       const effTheme = effectiveThemeId(pref);
       // 用户强调色：必须写进 tokens，否则 extra 的 * {…!important} 兜底层会把主题旧色压在按钮上

@@ -182,6 +182,29 @@ window.__ModuleLoader__.load({
       } catch (e) { /* ignore */ }
     }
 
+    // 步骤图标探针：报告图标元素的**实际计算颜色**，用来核对「语义色有没有真的上上去」。
+    function zrIconProbe() {
+      if (!zrDebug()) return;
+      try {
+        const list = [];
+        const seen = {};
+        for (const el of Array.from(document.querySelectorAll('[data-step-process-icon]'))) {
+          const btn = el.closest('[data-process-activity]');
+          const act = btn ? btn.getAttribute('data-process-activity') : '?';
+          const cs = getComputedStyle(el);
+          const key = act + '|' + cs.color;
+          if (seen[key]) continue;
+          seen[key] = 1;
+          list.push({ activity: act, color: cs.color, text: btn ? String(btn.innerText || '').slice(0, 14) : '' });
+        }
+        fetch(REPORT_URL, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-zhuoer-client': '1' },
+          body: JSON.stringify({ at: new Date().toISOString(), phase: 'icon-probe', count: list.length, icons: list }),
+        }).catch(function () {});
+      } catch (e) { /* ignore */ }
+    }
+
     // 面板切换后再取样：页面加载时看到的是聊天页，抓不到插件面板。
     function zrHookSemiProbe(scheme) {
       if (!zrDebug()) return;
@@ -4704,6 +4727,8 @@ function applyTokens(theme, pref) {
       try { zrDumpTokensOnce(scheme, pref, tokens); } catch (e) { /* ignore */ }
       // 面板切换后再取样半透明面（页面加载时看到的是聊天页）。
       try { zrHookSemiProbe(scheme); } catch (e) { /* ignore */ }
+      // 步骤图标语义色的实测探针：报告图标的**实际计算颜色**（debug 开关下才发）。
+      try { zrIconProbe(); } catch (e) { /* ignore */ }
       // 自定义主题的 SHAPES / FONTS / 底图都按它克隆的 base 查（自定义 id 在那些表里不存在）
       const effTheme = effectiveThemeId(pref);
       // 用户强调色：必须写进 tokens，否则 extra 的 * {…!important} 兜底层会把主题旧色压在按钮上

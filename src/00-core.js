@@ -182,6 +182,29 @@ window.__ModuleLoader__.load({
       } catch (e) { /* ignore */ }
     }
 
+    // 步骤图标探针：报告图标元素的**实际计算颜色**，用来核对「语义色有没有真的上上去」。
+    function zrIconProbe() {
+      if (!zrDebug()) return;
+      try {
+        const list = [];
+        const seen = {};
+        for (const el of Array.from(document.querySelectorAll('[data-step-process-icon]'))) {
+          const btn = el.closest('[data-process-activity]');
+          const act = btn ? btn.getAttribute('data-process-activity') : '?';
+          const cs = getComputedStyle(el);
+          const key = act + '|' + cs.color;
+          if (seen[key]) continue;
+          seen[key] = 1;
+          list.push({ activity: act, color: cs.color, text: btn ? String(btn.innerText || '').slice(0, 14) : '' });
+        }
+        fetch(REPORT_URL, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-zhuoer-client': '1' },
+          body: JSON.stringify({ at: new Date().toISOString(), phase: 'icon-probe', count: list.length, icons: list }),
+        }).catch(function () {});
+      } catch (e) { /* ignore */ }
+    }
+
     // 面板切换后再取样：页面加载时看到的是聊天页，抓不到插件面板。
     function zrHookSemiProbe(scheme) {
       if (!zrDebug()) return;
