@@ -1,16 +1,16 @@
 {
   "$comment": "插件注入 CSS 的运行时快照基线。改动后重新采集：node scripts/verify-css-snapshot.mjs --capture visual/css-current",
-  "cssInputs": "23b3d0d40e8866d701bf797c2e3d720d921c4a1a6c30deb2572db9fda43af3ab",
+  "cssInputs": "e2e181b7bb7f28623d3f8ea3b9d63f2d5b60a3f24ecd298e46497ffb39dec3a9",
   "files": [
     {
       "file": "plugin-dark.css",
-      "bytes": 68484,
-      "sha256": "c4894486b43efd286acd9a9c00fb056329986d2217a9cc39a7579b224ff5656b"
+      "bytes": 68486,
+      "sha256": "a36907279cdaa93cbcc000c3ded9b699730a0d62e1f1253208236dc7638fdea1"
     },
     {
       "file": "plugin-light.css",
-      "bytes": 68489,
-      "sha256": "bfcafcee4317e9266d3ae93cbca09412810764fd8d4e018bb2cf541dde291272"
+      "bytes": 68491,
+      "sha256": "7ec23c1caa67aafc9152def24f1069836123e00af42f6e9952f164bf0545a3d0"
     }
   ]
 }

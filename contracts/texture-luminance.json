@@ -3,7 +3,7 @@
   "alpha": 0.7,
   "blend": "lighten",
   "canvas": "320x200",
-  "generatedAt": "2026-11-27T08:19:54.474Z",
+  "generatedAt": "2026-11-27T08:26:46.044Z",
   "floors": {
     "absolute": 4.5,
     "erosionRatio": 0.4
@@ -15,36 +15,36 @@
   ],
   "textures": {
     "bg-zhuoer.webp": {
-      "bytes": 34368,
-      "sha256": "0d255c900941f6f9ef3b50de95d2cc9ebe1e769c887e34b4ba9968957d701162"
+      "bytes": 34416,
+      "sha256": "01c1452a9ebc76884f90caf1cbc7a6069b8f4f159d5cb5264dcbcc5457f98669"
     },
     "bg-soft-zhuoer.webp": {
-      "bytes": 27582,
-      "sha256": "d17829f1c0319e39788096bec24ecc2412732c1f71b8e143fd8ee15daa32db80"
+      "bytes": 27540,
+      "sha256": "dbda395a5f2370ed493a582b4aa032f2c2b1005e24f4717b6a6e77afe138179d"
     },
     "bg-absolutely.webp": {
-      "bytes": 7202,
-      "sha256": "ad23e2a73b810ac4f69526688ced726b9e3cfce56be8521ba674428a3409a88a"
+      "bytes": 7196,
+      "sha256": "7a2ea08ffc2f5d7b06a07829fb26691caffd4884bce3e13ba57379f0048bb23f"
     },
     "bg-soft-absolutely.webp": {
-      "bytes": 4936,
-      "sha256": "81d5b6f0b242c2a0e973bf0aa9dfb6cf06b627fe4dbd6ba754cc53285af55bf1"
+      "bytes": 4966,
+      "sha256": "f1d78d413fbdf313e596687c2f8b839b8da29f53705b69a3d4b526f0d563bd49"
     },
     "bg-beacon.webp": {
-      "bytes": 22766,
-      "sha256": "e23be342b4f6d07417dc6ca418a4667f1bd95fec6b9f63081a5d331d61688a1d"
+      "bytes": 22740,
+      "sha256": "ef80f09fe19155a9ee00fd714f3ea664b3eb5af82a19561600442e258b53914e"
     },
     "bg-soft-beacon.webp": {
-      "bytes": 14840,
-      "sha256": "f43986c362bf2016ae4a051133dc74ae5c4855a541663210106c7313169135d0"
+      "bytes": 14902,
+      "sha256": "0f8eb28fb473d0f30affc99d075ffef119c729bc60a8a10321bfb73c8e0e3f36"
     },
     "bg-crt.webp": {
-      "bytes": 3266,
-      "sha256": "ab7e3777d92588ac772c3d660cbb3c1bbc098f07bcaa6e645fe34d70a13dcd0d"
+      "bytes": 3224,
+      "sha256": "46a0a559eaee3f6fcbbbf76b5468664f010da32095e686cb8fba9fa72c78d442"
     },
     "bg-soft-crt.webp": {
-      "bytes": 1644,
-      "sha256": "aa3652c6b1826ab9a93af0970db960aa5622736c9d5b740cd03328a46ab86335"
+      "bytes": 1648,
+      "sha256": "51ec5fdf6a79acc9d934c81b3544068cc95d2e22f6eeaa32d63b5f70a5c6f82a"
     },
     "bg-dash.webp": {
       "bytes": 29174,
@@ -55,52 +55,52 @@
       "sha256": "771aa1e4df3b69640d827c54270700bddfa809d1632c5178697b028c2da6b359"
     },
     "bg-knot.webp": {
-      "bytes": 17418,
-      "sha256": "84be16aaf93c2040c1256c8386845ad017020796f73cf137f28121f461bed498"
+      "bytes": 17392,
+      "sha256": "985253321dea80edb62c3c14029b1ac1b7d301611d5821f6ad99cdbe474bd76c"
     },
     "bg-soft-knot.webp": {
       "bytes": 18754,
       "sha256": "d86e44ab98554c67de15f8e3b1c552afe9e200c46726858af16cd46cd815b7d2"
     },
     "bg-manuscript.webp": {
-      "bytes": 12258,
-      "sha256": "c603c8be5140123430b775e68271c7afcc6bb4c24a3be62c583e564afd7287d1"
+      "bytes": 12288,
+      "sha256": "cb8fec26540b2eea3854e41d5c2abf36681401c0fd2ccf76956b18af9c25d565"
     },
     "bg-soft-manuscript.webp": {
-      "bytes": 7584,
-      "sha256": "c7691d0cbe21a9dd07e4d71684f2bb79ed34d684bd06f5082303fd1edfaaddc2"
+      "bytes": 7564,
+      "sha256": "cbf8b0a4a9cd9d44dc6480fad54d47eddc25afe4aa80d7f72338f4c61246d184"
     },
     "bg-miami.webp": {
-      "bytes": 21182,
-      "sha256": "8cb55585c1ebe1faae28468670522a9e94e8932b42ad34e542bd897d43686917"
+      "bytes": 21284,
+      "sha256": "531ccfa072473ab38e8d2e74b5b88e36ac3853fd0293b54ed7d7abe13deb3cb0"
     },
     "bg-soft-miami.webp": {
-      "bytes": 12914,
-      "sha256": "90300036c211cfd7633164405c23258a73b2276503f5343392016e41d5296716"
+      "bytes": 12912,
+      "sha256": "f56dbd9eba6ed3b6deddf76da4b871b73234378e60724e263668ed51b60c470c"
     },
     "bg-phosphor.webp": {
-      "bytes": 3124,
-      "sha256": "cf58ce6336cb49e76282f5593171da5bbb21d89e35e52bf166a9209cd8125e20"
+      "bytes": 3136,
+      "sha256": "43f110f2458116ddcfff5ceed401fdc1f085cfa99e66a610cb643ad95bc48dda"
     },
     "bg-soft-phosphor.webp": {
-      "bytes": 1830,
-      "sha256": "9386716acb4308c5f61c03eb3518107b4177f96b8e93efc9055c8ff0cb19b2c2"
+      "bytes": 1816,
+      "sha256": "d81dd99b203aa46b6cfad1503bd8fff6b877cb65958eef4708570ed111a8a6eb"
     },
     "bg-rose.webp": {
-      "bytes": 26664,
-      "sha256": "3daef0b308f89e47b8e1bd7a69c2060522a740f2b985b62027925406a4d0a192"
+      "bytes": 26614,
+      "sha256": "14187b1902c1c58a97394aba45beaf22bbbdb38242e9da5154bf3d23d6d24a7c"
     },
     "bg-soft-rose.webp": {
-      "bytes": 20096,
-      "sha256": "548c2a13e88407e487e287877b5a2e2e1368c081db5a15369ef4f4b77a87f5f2"
+      "bytes": 20102,
+      "sha256": "4ee1b3dae1b83ca3f07154b40245ea008af0bc497ded4894ec1b5880a3fbd2c7"
     },
     "bg-tide.webp": {
-      "bytes": 22012,
-      "sha256": "dd79d9064fc5613d81ae491a9837acc6069a2789198719adbe5ebb30ced0d794"
+      "bytes": 22102,
+      "sha256": "4acb4f4337cfe6eeee9f716ec8312d3e285120d4a326549e98e27986f425a5ed"
     },
     "bg-soft-tide.webp": {
-      "bytes": 13496,
-      "sha256": "f1954e8250fe99df1da1562b7152de69f99d321f3603c6679ce33e6c62117bf4"
+      "bytes": 13540,
+      "sha256": "1725b7bd188bd5d43dcbc9e46a07c8359d3f44b7b6403ebf4238af163817c5eb"
     },
     "bg-vintage-paper.webp": {
       "bytes": 47470,
@@ -120,8 +120,8 @@
       "base": "#0e1015",
       "lumP5": 0.00518,
       "lumP50": 0.00518,
-      "lumP95": 0.00518,
-      "lumP100": 0.00634
+      "lumP95": 0.00544,
+      "lumP100": 0.00898
     },
     {
       "theme": "zhuoer",
@@ -131,8 +131,8 @@
       "base": "#0e1015",
       "lumP5": 0.00518,
       "lumP50": 0.00518,
-      "lumP95": 0.00518,
-      "lumP100": 0.00546
+      "lumP95": 0.00523,
+      "lumP100": 0.00778
     },
     {
       "theme": "zhuoer",
@@ -143,7 +143,7 @@
       "lumP5": 0.882,
       "lumP50": 0.882,
       "lumP95": 0.882,
-      "lumP100": 0.88251
+      "lumP100": 0.88262
     },
     {
       "theme": "zhuoer",
@@ -154,7 +154,7 @@
       "lumP5": 0.882,
       "lumP50": 0.882,
       "lumP95": 0.882,
-      "lumP100": 0.88211
+      "lumP100": 0.88216
     },
     {
       "theme": "absolutely",
@@ -164,8 +164,8 @@
       "base": "#1b1b1a",
       "lumP5": 0.01091,
       "lumP50": 0.01091,
-      "lumP95": 0.01091,
-      "lumP100": 0.01223
+      "lumP95": 0.0113,
+      "lumP100": 0.01569
     },
     {
       "theme": "absolutely",
@@ -175,8 +175,8 @@
       "base": "#1b1b1a",
       "lumP5": 0.01091,
       "lumP50": 0.01091,
-      "lumP95": 0.01091,
-      "lumP100": 0.011
+      "lumP95": 0.01098,
+      "lumP100": 0.01389
     },
     {
       "theme": "absolutely",
@@ -187,7 +187,7 @@
       "lumP5": 0.92278,
       "lumP50": 0.92278,
       "lumP95": 0.92278,
-      "lumP100": 0.92297
+      "lumP100": 0.92306
     },
     {
       "theme": "absolutely",
@@ -198,7 +198,7 @@
       "lumP5": 0.92278,
       "lumP50": 0.92278,
       "lumP95": 0.92278,
-      "lumP100": 0.92282
+      "lumP100": 0.9229
     },
     {
       "theme": "beacon",
@@ -209,7 +209,7 @@
       "lumP5": 0,
       "lumP50": 0,
       "lumP95": 0,
-      "lumP100": 0.00121
+      "lumP100": 0.00709
     },
     {
       "theme": "beacon",
@@ -220,7 +220,7 @@
       "lumP5": 0,
       "lumP50": 0,
       "lumP95": 0,
-      "lumP100": 0
+      "lumP100": 0.00226
     },
     {
       "theme": "beacon",
@@ -231,7 +231,7 @@
       "lumP5": 0.93869,
       "lumP50": 0.93869,
       "lumP95": 0.93869,
-      "lumP100": 0.93915
+      "lumP100": 0.93935
     },
     {
       "theme": "beacon",
@@ -252,8 +252,8 @@
       "base": "#090a09",
       "lumP5": 0.00295,
       "lumP50": 0.00295,
-      "lumP95": 0.00295,
-      "lumP100": 0.0043
+      "lumP95": 0.00316,
+      "lumP100": 0.0081
     },
     {
       "theme": "crt",
@@ -264,7 +264,7 @@
       "lumP5": 0.00295,
       "lumP50": 0.00295,
       "lumP95": 0.00295,
-      "lumP100": 0.00295
+      "lumP100": 0.00424
     },
     {
       "theme": "crt",
@@ -275,7 +275,7 @@
       "lumP5": 0.90466,
       "lumP50": 0.90466,
       "lumP95": 0.90466,
-      "lumP100": 0.90584
+      "lumP100": 0.90644
     },
     {
       "theme": "crt",
@@ -340,8 +340,8 @@
       "base": "#080808",
       "lumP5": 0.00243,
       "lumP50": 0.00243,
-      "lumP95": 0.00243,
-      "lumP100": 0.00419
+      "lumP95": 0.00263,
+      "lumP100": 0.0063
     },
     {
       "theme": "knot",
@@ -363,7 +363,7 @@
       "lumP5": 0.9065,
       "lumP50": 0.9065,
       "lumP95": 0.9065,
-      "lumP100": 0.90675
+      "lumP100": 0.90677
     },
     {
       "theme": "knot",
@@ -385,7 +385,7 @@
       "lumP5": 0.01318,
       "lumP50": 0.01318,
       "lumP95": 0.01318,
-      "lumP100": 0.01488
+      "lumP100": 0.01887
     },
     {
       "theme": "manuscript",
@@ -396,7 +396,7 @@
       "lumP5": 0.01318,
       "lumP50": 0.01318,
       "lumP95": 0.01318,
-      "lumP100": 0.01318
+      "lumP100": 0.0157
     },
     {
       "theme": "manuscript",
@@ -407,7 +407,7 @@
       "lumP5": 0.86961,
       "lumP50": 0.86961,
       "lumP95": 0.86961,
-      "lumP100": 0.86996
+      "lumP100": 0.8703
     },
     {
       "theme": "manuscript",
@@ -418,7 +418,7 @@
       "lumP5": 0.86961,
       "lumP50": 0.86961,
       "lumP95": 0.86961,
-      "lumP100": 0.86961
+      "lumP100": 0.86968
     },
     {
       "theme": "miami",
@@ -429,7 +429,7 @@
       "lumP5": 0.00584,
       "lumP50": 0.00584,
       "lumP95": 0.00584,
-      "lumP100": 0.00745
+      "lumP100": 0.01063
     },
     {
       "theme": "miami",
@@ -440,7 +440,7 @@
       "lumP5": 0.00584,
       "lumP50": 0.00584,
       "lumP95": 0.00584,
-      "lumP100": 0.00591
+      "lumP100": 0.00747
     },
     {
       "theme": "miami",
@@ -451,7 +451,7 @@
       "lumP5": 0.8969,
       "lumP50": 0.8969,
       "lumP95": 0.8969,
-      "lumP100": 0.89758
+      "lumP100": 0.89781
     },
     {
       "theme": "miami",
@@ -462,7 +462,7 @@
       "lumP5": 0.8969,
       "lumP50": 0.8969,
       "lumP95": 0.8969,
-      "lumP100": 0.89694
+      "lumP100": 0.89703
     },
     {
       "theme": "phosphor",
@@ -473,7 +473,7 @@
       "lumP5": 0.00428,
       "lumP50": 0.00428,
       "lumP95": 0.00428,
-      "lumP100": 0.00562
+      "lumP100": 0.00832
     },
     {
       "theme": "phosphor",
@@ -484,7 +484,7 @@
       "lumP5": 0.00428,
       "lumP50": 0.00428,
       "lumP95": 0.00428,
-      "lumP100": 0.00428
+      "lumP100": 0.00568
     },
     {
       "theme": "phosphor",
@@ -495,7 +495,7 @@
       "lumP5": 0.89753,
       "lumP50": 0.89753,
       "lumP95": 0.89753,
-      "lumP100": 0.89844
+      "lumP100": 0.8988
     },
     {
       "theme": "phosphor",
@@ -506,7 +506,7 @@
       "lumP5": 0.89753,
       "lumP50": 0.89753,
       "lumP95": 0.89753,
-      "lumP100": 0.89753
+      "lumP100": 0.89789
     },
     {
       "theme": "rose",
@@ -517,7 +517,7 @@
       "lumP5": 0.00947,
       "lumP50": 0.00947,
       "lumP95": 0.00947,
-      "lumP100": 0.01224
+      "lumP100": 0.0199
     },
     {
       "theme": "rose",
@@ -528,7 +528,7 @@
       "lumP5": 0.00947,
       "lumP50": 0.00947,
       "lumP95": 0.00947,
-      "lumP100": 0.00954
+      "lumP100": 0.01253
     },
     {
       "theme": "rose",
@@ -539,7 +539,7 @@
       "lumP5": 0.8579,
       "lumP50": 0.8579,
       "lumP95": 0.8579,
-      "lumP100": 0.85892
+      "lumP100": 0.85926
     },
     {
       "theme": "rose",
@@ -550,7 +550,7 @@
       "lumP5": 0.8579,
       "lumP50": 0.8579,
       "lumP95": 0.8579,
-      "lumP100": 0.8579
+      "lumP100": 0.858
     },
     {
       "theme": "tide",
@@ -561,7 +561,7 @@
       "lumP5": 0.00726,
       "lumP50": 0.00726,
       "lumP95": 0.00726,
-      "lumP100": 0.00874
+      "lumP100": 0.01161
     },
     {
       "theme": "tide",
@@ -572,7 +572,7 @@
       "lumP5": 0.00726,
       "lumP50": 0.00726,
       "lumP95": 0.00726,
-      "lumP100": 0.00726
+      "lumP100": 0.00919
     },
     {
       "theme": "tide",
@@ -594,7 +594,7 @@
       "lumP5": 0.89395,
       "lumP50": 0.89395,
       "lumP95": 0.89395,
-      "lumP100": 0.89395
+      "lumP100": 0.89416
     },
     {
       "theme": "vintage-paper",
