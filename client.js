@@ -584,6 +584,10 @@ window.__ModuleLoader__.load({
         'panel.chat.fail': '应用失败',
         'panel.chat.limitErr': '自定义主题已达上限（{n} 套），先删一套再试',
         'panel.chat.texOff': '底纹：未启用 · 想要就说「加个底纹」',
+'panel.chat.srcSampled': '配色来源：按图取色',
+'panel.chat.srcModel': '配色来源：模型配色',
+'panel.chat.useSampled': '用取色',
+'panel.chat.useModel': '用模型配色',
         'panel.ed.drop': '丢弃',
         'panel.ed.pickFromImage': '从图片取色',
         'panel.ed.picking': '取色中…',
@@ -1033,6 +1037,10 @@ window.__ModuleLoader__.load({
         'preset.devterm': 'Developer terminal',
         'preset.deepspace': 'Deep space',
         'panel.chat.texOff': 'Texture: not enabled · say "add a texture" if you want one',
+'panel.chat.srcSampled': 'Colors: sampled from image',
+'panel.chat.srcModel': 'Colors: model palette',
+'panel.chat.useSampled': 'Use sampled',
+'panel.chat.useModel': 'Use model palette',
         'panel.mdfine.title': 'Markdown refinement',
         'panel.mdfine.note': 'Element looks only: heading size, code block, table, quote',
         'panel.mdfine.headRow': 'Heading size',
@@ -1343,6 +1351,10 @@ window.__ModuleLoader__.load({
         'preset.devterm': 'Entwicklerterminal',
         'preset.deepspace': 'Tiefenraum',
         'panel.chat.texOff': 'Textur: nicht aktiviert · sag „Textur hinzufügen“, wenn du eine möchtest',
+'panel.chat.srcSampled': 'Farben: aus dem Bild entnommen',
+'panel.chat.srcModel': 'Farben: Modellpalette',
+'panel.chat.useSampled': 'Entnommene nutzen',
+'panel.chat.useModel': 'Modellpalette nutzen',
         'panel.mdfine.title': 'Markdown-Verfeinerung',
         'panel.mdfine.note': 'Nur das Aussehen: Überschriftengröße, Codeblock, Tabelle, Zitat',
         'panel.mdfine.headRow': 'Überschriftengröße',
@@ -1653,6 +1665,10 @@ window.__ModuleLoader__.load({
         'preset.devterm': 'Terminal de desarrollo',
         'preset.deepspace': 'Espacio profundo',
         'panel.chat.texOff': 'Textura: no activada · di «añade una textura» si la quieres',
+'panel.chat.srcSampled': 'Colores: extraídos de la imagen',
+'panel.chat.srcModel': 'Colores: paleta del modelo',
+'panel.chat.useSampled': 'Usar extraídos',
+'panel.chat.useModel': 'Usar paleta del modelo',
         'panel.mdfine.title': 'Refinado de Markdown',
         'panel.mdfine.note': 'Solo el aspecto: tamaño de títulos, bloque de código, tabla y cita',
         'panel.mdfine.headRow': 'Tamaño de títulos',
@@ -1963,6 +1979,10 @@ window.__ModuleLoader__.load({
         'preset.devterm': 'Terminal développeur',
         'preset.deepspace': 'Espace profond',
         'panel.chat.texOff': 'Texture : désactivée · dites « ajoute une texture » si vous en voulez une',
+'panel.chat.srcSampled': 'Couleurs : prélevées sur l\'image',
+'panel.chat.srcModel': 'Couleurs : palette du modèle',
+'panel.chat.useSampled': 'Utiliser les prélevées',
+'panel.chat.useModel': 'Utiliser la palette du modèle',
         'panel.mdfine.title': 'Finitions Markdown',
         'panel.mdfine.note': 'L\'apparence seule : taille des titres, bloc de code, tableau, citation',
         'panel.mdfine.headRow': 'Taille des titres',
@@ -2273,6 +2293,10 @@ window.__ModuleLoader__.load({
         'preset.devterm': '開発者ターミナル',
         'preset.deepspace': 'ディープスペース',
         'panel.chat.texOff': 'テクスチャ：未使用 · 必要なら「テクスチャを追加」と伝えてください',
+'panel.chat.srcSampled': '配色：画像から取得',
+'panel.chat.srcModel': '配色：モデル',
+'panel.chat.useSampled': '取得色を使う',
+'panel.chat.useModel': 'モデル配色を使う',
         'panel.mdfine.title': 'Markdown の微調整',
         'panel.mdfine.note': '見た目だけ：見出しサイズ、コードブロック、表、引用',
         'panel.mdfine.headRow': '見出しサイズ',
@@ -2583,6 +2607,10 @@ window.__ModuleLoader__.load({
         'preset.devterm': 'Terminal de programador',
         'preset.deepspace': 'Espaço profundo',
         'panel.chat.texOff': 'Textura: desativada · diga «adiciona uma textura» se quiser uma',
+'panel.chat.srcSampled': 'Cores: extraídas da imagem',
+'panel.chat.srcModel': 'Cores: paleta do modelo',
+'panel.chat.useSampled': 'Usar extraídas',
+'panel.chat.useModel': 'Usar paleta do modelo',
         'panel.mdfine.title': 'Refinamento de Markdown',
         'panel.mdfine.note': 'Apenas a aparência: tamanho dos títulos, bloco de código, tabela e citação',
         'panel.mdfine.headRow': 'Tamanho dos títulos',
@@ -2893,6 +2921,10 @@ window.__ModuleLoader__.load({
         'preset.devterm': 'Терминал разработчика',
         'preset.deepspace': 'Глубокий космос',
         'panel.chat.texOff': 'Текстура: не включена · скажите «добавь текстуру», если она нужна',
+'panel.chat.srcSampled': 'Цвета: с изображения',
+'panel.chat.srcModel': 'Цвета: палитра модели',
+'panel.chat.useSampled': 'Взять с изображения',
+'panel.chat.useModel': 'Взять палитру модели',
         'panel.mdfine.title': 'Тонкая настройка Markdown',
         'panel.mdfine.note': 'Только внешний вид: размер заголовков, блок кода, таблица, цитата',
         'panel.mdfine.headRow': 'Размер заголовков',
@@ -9325,6 +9357,35 @@ function applyTokens(theme, pref) {
       };
     }
 
+
+    // ---- 卡片的纯逻辑（抽到组件外，便于无头验证）----
+    // R-06：明暗两套都能改。原来 setAnchor 只写 next.light，深色排是只读 hex，
+    // 而面板一直支持「明暗分开编辑」——同一个功能两个入口行为不一致。
+    function zrSetAnchor(spec, scheme, anchor, hex) {
+      const next = JSON.parse(JSON.stringify(spec || {}));
+      const key = scheme === 'dark' ? 'dark' : 'light';
+      if (!next[key] || typeof next[key] !== 'object') next[key] = {};
+      next[key][anchor] = String(hex || '').toLowerCase();
+      // 来源标记不动：它记的是「这套色的出身」，手改单个锚点不该把它抹掉；
+      // 编辑态本身已经在标签上写着「修改中」，用户看得见自己在改。
+      return next;
+    }
+
+    // 「用取色 / 用模型配色」：两套对调，随时可逆（不重新取色，避免同一张图跑两次结果漂移）。
+    // 返回 null 表示这份 spec 没有第二套（没走过取色），调用方据此不渲染按钮。
+    function zrSwapSource(spec) {
+      // 空对象不算「有第二套」：换过去会导致整套色板被清空。
+      if (!spec || !spec.altLight || !Object.keys(spec.altLight).length) return null;
+      const next = JSON.parse(JSON.stringify(spec));
+      const keepLight = next.light, keepDark = next.dark;
+      next.light = next.altLight;
+      next.dark = next.altDark || {};
+      next.altLight = keepLight;
+      next.altDark = keepDark;
+      next.src = next.src === 'sampled' ? 'model' : 'sampled';
+      return next;
+    }
+
     // PTC（run_code）子调用的 tool/ptc-dispatch 事件既没有 turn 也没有 presentationMeta，
     // 规格随渲染文本下发（见 theme-tool.js 的 SPEC_MARKER）。
     const SPEC_MARKER = 'DSH_THEME_SPEC:';
@@ -9598,9 +9659,14 @@ function applyTokens(theme, pref) {
             const darkAnchors = paletteToAnchors(palette, 'dark');
             if (!lightAnchors || !darkAnchors) return;
             // 明暗各出一套：与「对话里 AI 生成」保持一致，深色不是由浅色反推的。
+            // R-06：取色结果不能「静默替换」模型配色——两套都留着，卡片上标明来源并可一键换回。
+            // 存法：light/dark 是当前生效那套，altLight/altDark 是另一套；切换 = 对调。
             const next = Object.assign({}, spec, {
               light: lightAnchors, dark: darkAnchors, autoDark: false, sampled: true,
               sampledHex: palette.map(function (c) { return c.hex; }).slice(0, 6),
+              src: 'sampled',
+              altLight: Object.assign({}, spec.light || {}),
+              altDark: Object.assign({}, spec.dark || {}),
             });
             setSpec(next);
             setDraft(next);
@@ -9621,7 +9687,8 @@ function applyTokens(theme, pref) {
         const t2 = Object.assign({}, target, { textureDataUrl: bgs.dark, textureLightDataUrl: bgs.light });
         try {
           const safe = zrApplyThemeSpec(t2);
-          const next = { label: safe.label, light: Object.assign({}, target.light), dark: Object.assign({}, target.dark || {}), font: target.font, radiusScale: target.radiusScale, texture: target.texture || null, textureLight: target.textureLight || null, textureDecision: target.textureDecision };
+          // 应用后重建 spec：除锚点外，来源标记与「另一套配色」也要带过去，否则一次应用就把换回入口丢掉了。
+          const next = { label: safe.label, light: Object.assign({}, target.light), dark: Object.assign({}, target.dark || {}), font: target.font, radiusScale: target.radiusScale, texture: target.texture || null, textureLight: target.textureLight || null, textureDecision: target.textureDecision, sampled: !!target.sampled, sampledHex: target.sampledHex, src: target.src, altLight: target.altLight, altDark: target.altDark };
           setSpec(next);
           setDraft(next);
           setDone(true);
@@ -9636,10 +9703,17 @@ function applyTokens(theme, pref) {
         setDraft(JSON.parse(JSON.stringify(spec)));
         setMode('edit');
       };
-      const setAnchor = function (anchor, hex) {
-        const next = JSON.parse(JSON.stringify(draft));
-        next.light[anchor] = String(hex || '').toLowerCase();
-        setDraft(next);
+      const setAnchor = function (scheme, anchor, hex) {
+        setDraft(zrSetAnchor(draft, scheme, anchor, hex));
+      };
+      const swapSource = function () {
+        const next = zrSwapSource(draft);
+        if (next) setDraft(next);
+      };
+      // view 态只换「显示的是哪套」，不写盘：用户点「应用」才落成主题（否则每点一次就吃掉一个自定义主题名额）。
+      const swapInView = function () {
+        const next = zrSwapSource(spec);
+        if (next) setSpec(next);
       };
       const view = mode === 'edit' ? draft : spec;
 
@@ -9648,6 +9722,10 @@ function applyTokens(theme, pref) {
         h('div', { className: 'zrc-hd' },
           h('span', { className: 'zrc-name' }, view.label || spec.label),
           h('span', { className: 'zrc-tag' }, mode === 'edit' ? t('panel.chat.editing') : t('panel.chat.preview')),
+          // 配色来源必须写在卡片上：取色会把模型配色整表替换掉，用户有权知道眼前是哪一套。
+          view.src
+            ? h('span', { className: 'zrc-tag zrc-src' }, view.src === 'sampled' ? t('panel.chat.srcSampled') : t('panel.chat.srcModel'))
+            : null,
         ),
         h('div', { className: 'zrc-grid' },
           ANCHOR_GROUPS.map(function (g) {
@@ -9659,7 +9737,7 @@ function applyTokens(theme, pref) {
                 ? h('input', {
                     type: 'color', className: 'zrc-inp', 'aria-label': t('anchor.' + g.key),
                     value: /^#[0-9a-fA-F]{6}$/.test(hex) ? hex : '#000000',
-                    onChange: function (ev) { setAnchor(g.anchor, ev.target.value); },
+                    onChange: function (ev) { setAnchor('light', g.anchor, ev.target.value); },
                   })
                 : h('div', { className: 'zrc-hex' }, hex),
             );
@@ -9674,7 +9752,13 @@ function applyTokens(theme, pref) {
                   return h('div', { className: 'zrc-cell', key: 'd-' + g.key },
                     h('div', { className: 'zrc-sw', style: { background: dh }, 'aria-hidden': 'true' }),
                     h('div', { className: 'zrc-lb' }, t('anchor.' + g.key)),
-                    h('div', { className: 'zrc-hex' }, dh),
+                    mode === 'edit'
+                      ? h('input', {
+                          type: 'color', className: 'zrc-inp', 'aria-label': t('panel.ed.dark') + ' ' + t('anchor.' + g.key),
+                          value: /^#[0-9a-fA-F]{6}$/.test(dh) ? dh : '#000000',
+                          onChange: function (ev) { setAnchor('dark', g.anchor, ev.target.value); },
+                        })
+                      : h('div', { className: 'zrc-hex' }, dh),
                   );
                 })
               )
@@ -9687,6 +9771,9 @@ function applyTokens(theme, pref) {
                 'aria-label': t('panel.chat.nameAria'), value: draft.label,
                 onChange: function (ev) { const n = JSON.parse(JSON.stringify(draft)); n.label = String(ev.target.value).slice(0, 24); setDraft(n); },
               }),
+              draft.altLight
+                ? h('button', { type: 'button', className: 'zrc-btn', onClick: swapSource }, draft.src === 'sampled' ? t('panel.chat.useModel') : t('panel.chat.useSampled'))
+                : null,
               h('button', { type: 'button', className: 'zrc-btn', 'data-pri': '1', onClick: function () { applied(draft); } }, t('panel.chat.applyEdited')),
               h('button', { type: 'button', className: 'zrc-btn', onClick: function () { setMode('view'); } }, t('panel.chat.cancel')),
             )
@@ -9700,6 +9787,9 @@ function applyTokens(theme, pref) {
                   })()
                 : h('button', { type: 'button', className: 'zrc-btn', 'data-pri': '1', onClick: function () { applied(spec); } }, t('panel.chat.apply')),
               h('button', { type: 'button', className: 'zrc-btn', onClick: startEdit }, t('panel.chat.modify')),
+              spec.altLight
+                ? h('button', { type: 'button', className: 'zrc-btn', onClick: swapInView }, spec.src === 'sampled' ? t('panel.chat.useModel') : t('panel.chat.useSampled'))
+                : null,
             ),
         spec.textureDecision === 'no' && !spec.texture
           ? h('div', { className: 'zrc-texnote' }, t('panel.chat.texOff'))
