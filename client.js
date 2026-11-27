@@ -184,24 +184,41 @@ window.__ModuleLoader__.load({
 
     // 步骤图标探针：报告图标元素的**实际计算颜色**，用来核对「语义色有没有真的上上去」。
     function zrIconProbe() {
-      if (!zrDebug()) return;
+      // 不受 zrDebug 门控：每次会话最多发 6 次，量的是「图标实际计算颜色」这一个事实。
+      // 用 MutationObserver 采样（与 zrHookSemiProbe 同一手法）：插件初始化时聊天区还没渲染，
+      // 一次性取样只会得到 0 个图标；等 DOM 稳定后再取，才能覆盖历史上出现过的各类活动。
+      try { if (window.__zrIconProbed) return; window.__zrIconProbed = true; } catch (e2) { /* ignore */ }
       try {
-        const list = [];
+        let sent = 0;
         const seen = {};
-        for (const el of Array.from(document.querySelectorAll('[data-step-process-icon]'))) {
-          const btn = el.closest('[data-process-activity]');
-          const act = btn ? btn.getAttribute('data-process-activity') : '?';
-          const cs = getComputedStyle(el);
-          const key = act + '|' + cs.color;
-          if (seen[key]) continue;
-          seen[key] = 1;
-          list.push({ activity: act, color: cs.color, text: btn ? String(btn.innerText || '').slice(0, 14) : '' });
+        const fire = function () {
+          if (sent >= 6) return;
+          const list = [];
+          for (const el of Array.from(document.querySelectorAll('[data-step-process-icon]'))) {
+            const btn = el.closest('[data-process-activity]');
+            const act = btn ? btn.getAttribute('data-process-activity') : '?';
+            const cs = getComputedStyle(el);
+            const key = act + '=' + cs.color;
+            if (seen[key]) continue;
+            seen[key] = 1;
+            list.push({ activity: act, color: cs.color, text: btn ? String(btn.innerText || '').slice(0, 16) : '' });
+          }
+          if (!list.length) return;
+          sent++;
+          fetch(REPORT_URL, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json', 'x-zhuoer-client': '1' },
+            body: JSON.stringify({ at: new Date().toISOString(), phase: 'icon-probe', n: sent, icons: list }),
+          }).catch(function () {});
+        };
+        setTimeout(fire, 900);
+        const root = document.body;
+        if (root && typeof MutationObserver === 'function') {
+          let t = 0;
+          const mo = new MutationObserver(function () { clearTimeout(t); t = setTimeout(fire, 1200); });
+          mo.observe(root, { childList: true, subtree: true });
+          setTimeout(function () { mo.disconnect(); }, 120000);
         }
-        fetch(REPORT_URL, {
-          method: 'POST',
-          headers: { 'content-type': 'application/json', 'x-zhuoer-client': '1' },
-          body: JSON.stringify({ at: new Date().toISOString(), phase: 'icon-probe', count: list.length, icons: list }),
-        }).catch(function () {});
       } catch (e) { /* ignore */ }
     }
 
