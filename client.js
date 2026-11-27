@@ -6605,8 +6605,12 @@ function applyTokens(theme, pref) {
       'border-right:1px solid var(--dsw-alias-border-l2);',
       'box-shadow:var(--dsw-elevation-panel);}',
       // C1：左边缘 6px 拖拽热区。视觉上是 2px 竖线，热区放大到 6px 才拖得着（与宿主分隔条同一手法）。
-      '.zp-ed-rz{position:absolute;left:0;top:0;bottom:0;width:6px;cursor:col-resize;',
+      // 用 fixed 而不是 absolute：面板本身 overflow:auto，absolute 子元素会跟着内容一起滚走，
+      // 滚到一半就没有热区可抓了（锚点列表很长，这是常态而不是边界）。
+      // 面板固定在 left:0 且满高，所以 fixed 与面板边缘重合；标题栏那档单独抬 top。
+      '.zp-ed-rz{position:fixed;left:0;top:0;bottom:0;width:6px;cursor:col-resize;z-index:3;',
       'background:transparent;border:0;padding:0;touch-action:none;}',
+      'html[data-windows-titlebar] .zp-ed-rz{top:var(--dsh-windows-titlebar-height,34px);}',
       '.zp-ed-rz::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;',
       'background:var(--dsw-alias-border-l2);opacity:0;transition:opacity .12s ease;}',
       '.zp-ed-rz:hover::before,.zp-ed-rz:focus-visible::before{opacity:1;}',
