@@ -1,0 +1,35 @@
+PASS  不改锚点时与 base 完全一致  —  224 个 token 全部一致
+PASS  改底色后 layer-1 ≥ 平移结果且达到底色+4% 层距  —  bg #000000→#101014，layer1 #080808→#303034（L1 0.196 vs 底色 0.071+0.04）
+PASS  改品牌色后组内 same 成员全部跟随  —  13 个成员 = #00bcd4
+PASS  品牌组的 shift 成员保持层次（不等于纯色）  —  button-primary-dimmed=#000c20 --dsw-specific-sidebar-right-flash=#00b8d9
+PASS  文字层级仍保持 primary > secondary > tertiary  —  label-primary=#ffffff(255) label-secondary=#c9c9c9(201) label-tertiary=#a1a1a1(161)
+PASS  浅色主题也能派生  —  light base #f8f8f8→#222222，layer1 #f3f3f3→#1e1e1e
+PASS  autoDark: 浅底反推成深底  —  light #f2ede4 → dark #292114
+PASS  autoDark: 深字反推成浅字  —  light #2a2118 → dark #e7ded5
+PASS  autoDark: 手调的深色锚点覆盖反推值  —  期望 #101018，实得 #101018
+PASS  autoDark: 未手调的组仍按反推  —  label-primary=#e7ded5
+PASS  所有分组 key 在主题表里真实存在  —  8 组共 156 个 key 全部存在
+PASS  中位切分把三簇切成三份  —  #f02828(50%) #2850f0(33%) #f0f03c(17%)
+PASS  取色占比与像素数一致  —  最大簇占比 50%（期望约 50%）
+PASS  取色映射：最暗→底色 / 最亮→正文  —  bg=#101018 text=#f0f0f8
+PASS  取色映射：品牌色被压暗到白字可读  —  brand #ff6b35（原 #ff6b35）
+PASS  浅底照片：底色落在亮侧、文字落在暗侧  —  bg=#f2eee3 text=#2a2620
+PASS  深底照片：底色落在暗侧、文字落在亮侧  —  bg=#0d1018 text=#e8e2d4
+PASS  同一张图：浅色出浅底、深色出深底（两套独立，不互相反推）  —  light bg=#e3f1f2(L0.93) dark bg=#13282a(L0.14)
+PASS  灰片兜底：文字被推到近黑/近白  —  bg=#6e6e6e text=#f2f2f2
+PASS  风景照：底色浅、文字深  —  bg=#e3f1f2(L0.93) text=#14161a
+PASS  风景照：底色被推到接近白  —  bg=#e3f1f2(L0.929)
+PASS  风景照：边框与底色有可见亮度差  —  border=#abd5d8(Δ0.14)
+PASS  风景照：品牌色与底色有可见亮度差  —  brand=#7ab400(Δ0.37)
+PASS  日落图：主色是浅米，底色不能是纯黑  —  bg=#f2eae3 text=#14161a
+PASS  日落图：7 个锚点全部填满（含语义色）  —  danger=#d92b2b warn=#b45309
+PASS  风格预设：锚点齐全且 key 合法  —  12 套预设全部合规
+PASS  shift 成员跟随锚点色相（不再残留 base 暖色）  —  menu=#d9e9ef(H196) hover=#d5e5eb(H196)
+PASS  自定义主题：弹出层跟随暖锚点色相（不再是中性灰）  —  hovercard=#ebe6dc(H40,S27%) menu=#efe9df
+PASS  自定义11（暖base+冷锚点）：弹出层必须冷色  —  hovercard=#e7eff3(H200) menu=#ebf2f7(H205) bg=#f2f7fa
+PASS  自定义11：--dsw-alias-hovercard-bg（界面真正消费的那个）也是冷色  —  alias-hovercard-bg=#e7eff3(H200)
+PASS  tint 成员保留语义色相：diff 增=绿、删=红（不被冷底色染蓝）  —  added=#e4ebdf(H95) deleted=#f1e0dd(H9)
+PASS  锚点写回原值即与 base 逐字节相同（含 same/tint 成员）  —  156 个 key × 4 套 base × 2 方案全部一致
+PASS  success 组存在且 5 个成员在主题表里都有值  —  --dsw-alias-state-success-secondary,--dsw-alias-state-success-tertiary,--dsw-alias-state-done-primary,--dsw-alias-hovercard-state-done,--dsw-alias-json-tree-string
+
+ALL PASS

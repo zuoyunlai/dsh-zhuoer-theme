@@ -1,0 +1,17 @@
+OK    已构建 client.js：7 个分片，938045 字节
+OK    产物与源码一致：7 个分片，938045 字节
+<anonymous_script>:711
+      const m = hexOklch(memberHex);
+                ^
+
+ReferenceError: hexOklch is not defined
+    at shiftMember (eval at <anonymous> (file:///E:/Documents/deepseek-harness/default-workspace/dsh-zhuoer-theme/scripts/test-derive.mjs:49:14), <anonymous>:711:17)
+    at eval (eval at <anonymous> (file:///E:/Documents/deepseek-harness/default-workspace/dsh-zhuoer-theme/scripts/test-derive.mjs:49:14), <anonymous>:764:20)
+    at Array.forEach (<anonymous>)
+    at applyGroup (eval at <anonymous> (file:///E:/Documents/deepseek-harness/default-workspace/dsh-zhuoer-theme/scripts/test-derive.mjs:49:14), <anonymous>:757:17)
+    at eval (eval at <anonymous> (file:///E:/Documents/deepseek-harness/default-workspace/dsh-zhuoer-theme/scripts/test-derive.mjs:49:14), <anonymous>:1091:9)
+    at Array.forEach (<anonymous>)
+    at buildCustomTokens (eval at <anonymous> (file:///E:/Documents/deepseek-harness/default-workspace/dsh-zhuoer-theme/scripts/test-derive.mjs:49:14), <anonymous>:1085:21)
+    at file:///E:/Documents/deepseek-harness/default-workspace/dsh-zhuoer-theme/scripts/test-derive.mjs:68:17
+
+Node.js v26.13.1

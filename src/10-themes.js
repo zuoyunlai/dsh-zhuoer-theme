@@ -913,6 +913,11 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
     // 上一套的色相，看起来就像"复制了上一主题"。
     // 改成：亮度继承 base 成员的相对层次（成员 vs base 锚点的 L 差），
     // 色相与饱和度跟随新锚点。这样层次还在，色相一定跟着走。
+    // 0.7.0 曾试过把这里换成 OKLCH（想修「提亮锚点时文字跌破 AA」），实测**否掉了**：
+    // 全量前后对照 1181 个 token 变化，text 族修好 12 条 AA 却**造成 7 条倒退**
+    // （beacon/light 5.02 → 3.82，不是临界而是明显破线）。用 12 换 7 不划算，
+    // 且 ΔE 最大 30.8（border-selected 由红变黄），风险远大于收益。
+    // 真正的原因是这些文字 token **没进 TEXT_FLOOR**，见下面的地板表扩展——那才是对准的修法。
     function shiftMember(memberHex, baseAnchorHex, newAnchorHex) {
       const m = hexHsl(memberHex);
       const ba = hexHsl(baseAnchorHex);
@@ -1084,6 +1089,20 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
       ['--dsw-alias-toast-label', 6],
       ['--dsw-alias-menu-icon', 4.5],
       ['--dsw-alias-chart-tools', 4.5], ['--dsw-alias-chart-messages', 4.5],
+      // 0.6.45 补：这些也是**渲染成文字**的键，但以前没进地板表。
+      // 实测（全量前后对照）beacon/light 的 json-tree-*、state-idle-primary、label-shimmer、
+      // label-deep-diving* 会被派生压到 3.82:1——用户只要提亮一次正文锚点就破 AA。
+      // 注意：text 分组里还有边框/插画/按钮填充，那些**不是文字**，刻意不进来。
+      ['--dsw-alias-hovercard-label-primary', 6],
+      ['--dsw-alias-label-primary-bluish', 6],
+      ['--dsw-alias-label-shimmer', 4.5],
+      ['--dsw-alias-label-deep-diving', 4.5],
+      ['--dsw-alias-label-deep-diving-shimmer', 4.5],
+      ['--dsw-alias-label-document-preview', 4.5],
+      ['--dsw-alias-state-idle-primary', 4.5],
+      ['--dsw-alias-json-tree-property', 4.5],
+      ['--dsw-alias-json-tree-punctuation', 4.5],
+      ['--dsw-alias-json-tree-icon', 4.5],
     ];
     function relLumOf(hex) {
       const rgb = parseHexColor(hex);

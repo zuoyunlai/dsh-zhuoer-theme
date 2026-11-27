@@ -44,6 +44,20 @@
 - `docs/troubleshooting.md` + `.en.md`：按症状查（底纹、重启、图标槽、各门红了怎么办）；
 - `llms.txt`：给 AI agent 的摘要（选主题/底图/持久化的关键事实）。
 
+### §6.5 试过并否掉：派生算法整体换 OKLCH；改用「把地板铺满」
+
+为修「用户提亮锚点时文字跌破 AA」，曾把 `shiftMember` 换到 OKLCH 空间实现（L 差继承、C 保底）。
+用旧/新 client.js 跑全量前后对照（12 套 × 明暗 × 全部锚点分组）：1181 个 token 变化，
+**修好 21 条 AA 却新造成 7 条**（beacon/light 5.02 → 3.82），ΔE 最大 30.8（border-selected 由红变黄）。
+**用 12 换 7 不划算，回退。**
+
+真正原因：这些文字 token 没进 `TEXT_FLOOR`。`text` 分组 36 个成员、地板只覆盖 12 个。
+补进 10 个真正是文字的键（hovercard-label-primary / label-primary-bluish / label-shimmer /
+label-deep-diving(-shimmer) / label-document-preview / state-idle-primary / json-tree-{property,punctuation,icon}），
+边框/插画/按钮填充刻意不进。同一套对照重跑：**变化 114、修好 95、新违规 0**。
+
+结论：缺的不是感知均匀的插值，是「文字必须达标」这条地板没铺满。细节见 `docs/color-derivation.md`。
+
 ### §6 特写基线与调色口径
 
 - `verify:visual` 基线从 3 张扩到 **9 张**：设置页明/暗/窄 + 编辑器抽屉明暗（392×771）+ JSON 弹层明暗（359×270）+ 主题卡明暗（134×100）。

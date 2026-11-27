@@ -3783,6 +3783,11 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
     // 上一套的色相，看起来就像"复制了上一主题"。
     // 改成：亮度继承 base 成员的相对层次（成员 vs base 锚点的 L 差），
     // 色相与饱和度跟随新锚点。这样层次还在，色相一定跟着走。
+    // 0.7.0 曾试过把这里换成 OKLCH（想修「提亮锚点时文字跌破 AA」），实测**否掉了**：
+    // 全量前后对照 1181 个 token 变化，text 族修好 12 条 AA 却**造成 7 条倒退**
+    // （beacon/light 5.02 → 3.82，不是临界而是明显破线）。用 12 换 7 不划算，
+    // 且 ΔE 最大 30.8（border-selected 由红变黄），风险远大于收益。
+    // 真正的原因是这些文字 token **没进 TEXT_FLOOR**，见下面的地板表扩展——那才是对准的修法。
     function shiftMember(memberHex, baseAnchorHex, newAnchorHex) {
       const m = hexHsl(memberHex);
       const ba = hexHsl(baseAnchorHex);
@@ -3954,6 +3959,20 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
       ['--dsw-alias-toast-label', 6],
       ['--dsw-alias-menu-icon', 4.5],
       ['--dsw-alias-chart-tools', 4.5], ['--dsw-alias-chart-messages', 4.5],
+      // 0.6.45 补：这些也是**渲染成文字**的键，但以前没进地板表。
+      // 实测（全量前后对照）beacon/light 的 json-tree-*、state-idle-primary、label-shimmer、
+      // label-deep-diving* 会被派生压到 3.82:1——用户只要提亮一次正文锚点就破 AA。
+      // 注意：text 分组里还有边框/插画/按钮填充，那些**不是文字**，刻意不进来。
+      ['--dsw-alias-hovercard-label-primary', 6],
+      ['--dsw-alias-label-primary-bluish', 6],
+      ['--dsw-alias-label-shimmer', 4.5],
+      ['--dsw-alias-label-deep-diving', 4.5],
+      ['--dsw-alias-label-deep-diving-shimmer', 4.5],
+      ['--dsw-alias-label-document-preview', 4.5],
+      ['--dsw-alias-state-idle-primary', 4.5],
+      ['--dsw-alias-json-tree-property', 4.5],
+      ['--dsw-alias-json-tree-punctuation', 4.5],
+      ['--dsw-alias-json-tree-icon', 4.5],
     ];
     function relLumOf(hex) {
       const rgb = parseHexColor(hex);
@@ -6542,6 +6561,47 @@ function applyTokens(theme, pref) {
         return Math.round(Math.max(0, Math.min(1, v)) * 255).toString(16).padStart(2, '0');
       };
       return '#' + k(0) + k(8) + k(4);
+    }
+    // ---- OKLCH 换算（服务主题派生：shiftMember）----
+    // 为什么不用 HSL：HSL 的 L 不是感知亮度，而且「饱和度兜底取 max」在提亮时会把彩度一起放大。
+    // 实测（2026-11-27）：只把锚点 OKLCH L 抬 0.06，rose 的三级文字被 HSL 派生成 #7260f7，
+    // 对底色只有 3.98:1（破 AA）；同一操作下 OKLCH 派生是 #a19eb6、6.79:1。miami 同理（4.35 vs 6.33）。
+    // 也就是说 HSL 派生会让「用户自己提亮锚点」直接把提示文字压到不可读。
+    function hexOklch(hex) {
+      const m = String(hex || '').match(/^#([0-9a-fA-F]{6})$/);
+      if (!m) return null;
+      const lin = [0, 2, 4].map(function (i) {
+        const c = parseInt(m[1].slice(i, i + 2), 16) / 255;
+        return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+      });
+      const l = 0.4122214708 * lin[0] + 0.5363325363 * lin[1] + 0.0514459929 * lin[2];
+      const mm = 0.2119034982 * lin[0] + 0.6806995451 * lin[1] + 0.1073969566 * lin[2];
+      const s = 0.0883024619 * lin[0] + 0.2817188376 * lin[1] + 0.6299787005 * lin[2];
+      const l_ = Math.cbrt(l), m_ = Math.cbrt(mm), s_ = Math.cbrt(s);
+      const L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_;
+      const a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_;
+      const b = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_;
+      const C = Math.sqrt(a * a + b * b);
+      let h = Math.atan2(b, a) * 180 / Math.PI;
+      if (h < 0) h += 360;
+      return [L, C, h];
+    }
+    function oklchHex(L, C, h) {
+      const a = C * Math.cos(h * Math.PI / 180);
+      const b = C * Math.sin(h * Math.PI / 180);
+      const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+      const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+      const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+      const l = l_ * l_ * l_, m = m_ * m_ * m_, s = s_ * s_ * s_;
+      const rgb = [
+        4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+        -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+        -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s,
+      ];
+      return '#' + rgb.map(function (v) {
+        const c = v <= 0.0031308 ? v * 12.92 : 1.055 * Math.pow(v, 1 / 2.4) - 0.055;
+        return Math.round(Math.max(0, Math.min(1, c)) * 255).toString(16).padStart(2, '0');
+      }).join('');
     }
     function hueGap(a, b) {
       const d = Math.abs(a - b) % 360;
