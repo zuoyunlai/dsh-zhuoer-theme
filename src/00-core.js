@@ -302,13 +302,21 @@ window.__ModuleLoader__.load({
     // 缓存上限：用户换十几次底图就会在内存里留十几次大字符串（每张 data URL 可到几 MB）。
     // Map 保持插入序，满了丢最旧的（LRU）。
     const ZR_CACHE_MAX = 12;
-    function zrCachePut(map, key, value) {
+    function zrCachePut(map, key, value, protectedKeys) {
       if (map.has(key)) { map.delete(key); map.set(key, value); return value; }
       map.set(key, value);
       while (map.size > ZR_CACHE_MAX) {
-        const oldest = map.keys().next().value;
-        if (oldest === undefined) break;
-        try { map.delete(oldest); } catch (e) { break; }
+        // 优先淘汰**没被任何主题引用**的条目；被引用的绝不能丢——
+        // 丢了那条主题的底纹就静默消失（运行期只同步读内存缓存，IDB 没有按 key 读回的通路）。
+        // 全部条目都被引用时停止淘汰：宁可多占内存，也不让用户的主题少一张图。
+        let victim = undefined;
+        for (const k of map.keys()) {
+          if (protectedKeys && protectedKeys.has && protectedKeys.has(k)) continue;
+          victim = k;
+          break;
+        }
+        if (victim === undefined) break;
+        try { map.delete(victim); } catch (e) { break; }
       }
       return value;
     }

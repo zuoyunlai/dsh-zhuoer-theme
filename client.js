@@ -302,13 +302,21 @@ window.__ModuleLoader__.load({
     // 缓存上限：用户换十几次底图就会在内存里留十几次大字符串（每张 data URL 可到几 MB）。
     // Map 保持插入序，满了丢最旧的（LRU）。
     const ZR_CACHE_MAX = 12;
-    function zrCachePut(map, key, value) {
+    function zrCachePut(map, key, value, protectedKeys) {
       if (map.has(key)) { map.delete(key); map.set(key, value); return value; }
       map.set(key, value);
       while (map.size > ZR_CACHE_MAX) {
-        const oldest = map.keys().next().value;
-        if (oldest === undefined) break;
-        try { map.delete(oldest); } catch (e) { break; }
+        // 优先淘汰**没被任何主题引用**的条目；被引用的绝不能丢——
+        // 丢了那条主题的底纹就静默消失（运行期只同步读内存缓存，IDB 没有按 key 读回的通路）。
+        // 全部条目都被引用时停止淘汰：宁可多占内存，也不让用户的主题少一张图。
+        let victim = undefined;
+        for (const k of map.keys()) {
+          if (protectedKeys && protectedKeys.has && protectedKeys.has(k)) continue;
+          victim = k;
+          break;
+        }
+        if (victim === undefined) break;
+        try { map.delete(victim); } catch (e) { break; }
       }
       return value;
     }
@@ -3473,12 +3481,32 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
       });
     }
 
+    // 当前被任何自定义主题引用的底图键（key 与 keyLight 都算）。
+    // 内存缓存淘汰时用：这些键丢了就等于主题少一张图。
+    function zrReferencedBgKeys() {
+      const set = new Set();
+      try {
+        const list = (readPref() && readPref().customThemes) || [];
+        for (let i = 0; i < list.length; i++) {
+          const b = list[i] && list[i].bg;
+          if (!b) continue;
+          if (b.key) set.add(b.key);
+          if (b.keyLight) set.add(b.keyLight);
+        }
+      } catch (e) { /* ignore */ }
+      return set;
+    }
+
     // 把 IDB 里的图全部读进内存缓存；完成后触发一次重算，让底图出现
     function preloadBgImages() {
       return idbAll().then(function (pairs) {
         // 预加载进内存缓存：Map 保持插入序，满了丢最旧的。
         // 为什么要有上限：每张 data URL 可到几 MB，用户换十几次图就是几十 MB 常驻。
-        pairs.forEach(function (p) { if (p[1]) zrCachePut(imageCache, p[0], p[1]); });
+        // 但**被主题引用的键不能被淘汰**：运行期只同步读内存缓存（IDB 没有按 key 读回的通路），
+        // 淘汰掉就等于那条主题的底纹静默消失——对话里生成的主题每套带两张（明+暗），
+        // 攒到第 7 套就会越过上限，这正是踩过的坑。
+        const keep = zrReferencedBgKeys();
+        pairs.forEach(function (p) { if (p[1]) zrCachePut(imageCache, p[0], p[1], keep); });
         bgReady = true;
         emitChange();
       }).catch(function (e) {
