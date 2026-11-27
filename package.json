@@ -86,6 +86,7 @@
     "README.md",
     "README.en.md",
     "CHANGELOG.md",
+    "llms.txt",
     "locale",
     "i18n",
     "LICENSE",
