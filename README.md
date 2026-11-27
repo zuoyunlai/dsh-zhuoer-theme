@@ -415,6 +415,7 @@ contracts/           宿主契约清单（含 positives / negatives：哪些契�
 visual/              本机采集区：current/ 截图、css-current/ 注入 CSS（提交与否见 .gitignore）
 docs/                设计与权衡记录与操作规程：i18n-plan.md（多语言规划与进度）、
                      live-verify.md（起一次性 profile 做真机验证）、troubleshooting.md（按症状排障）、
+                     color-derivation.md（调色口径：为什么用 OKLCH ΔL 表达抬亮）、
                      official-requirements.md（官方硬要求与合规对照）、
                      git-integrity.md（.git 事故与修复约定）
 assets/fonts/        23 个 woff2（14 个西文族 + 3 个中文子集）+ 来源说明

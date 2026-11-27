@@ -23,6 +23,7 @@
 | §3 `verify:drift` | 宿主改名 → 样式静默消失，这道门补上；顺带清掉契约 4 条 TODO 占位 |
 | §4 `verify:readme` | 图文链接/中英结构/版本串/过期措辞；上线即抓到中英少一行 |
 | §5 文档与清理 | `shot-docs` 脚本化、troubleshooting 中英、llms.txt、3 个未用词条 |
+| §6 特写基线与调色口径 | `verify:visual` 从 3 张扩到 **9 张**（抽屉/JSON 弹层/主题卡 × 明暗）；新增 `oklch-step` 工具 + `docs/color-derivation.md` |
 
 ### §1 视觉基线：一直是假绿
 
@@ -42,6 +43,21 @@
 - `verify:keys` 的 3 个未使用词条（`panel.ed.secAppearance` / `clonedFrom` / `presetsNote`）已删，8 语言同步；
 - `docs/troubleshooting.md` + `.en.md`：按症状查（底纹、重启、图标槽、各门红了怎么办）；
 - `llms.txt`：给 AI agent 的摘要（选主题/底图/持久化的关键事实）。
+
+### §6 特写基线与调色口径
+
+- `verify:visual` 基线从 3 张扩到 **9 张**：设置页明/暗/窄 + 编辑器抽屉明暗（392×771）+ JSON 弹层明暗（359×270）+ 主题卡明暗（134×100）。
+  `shot-docs.mjs` 的 `EXPECT` 一并登记尺寸，采完照旧机械校验（重复/空白/尺寸）。
+- 新增 `scripts/oklch-step.mjs`（零依赖 sRGB ↔ OKLab）+ `docs/color-derivation.md`：
+  复核 0.6.44 那 7 组抬色的 OKLCH ΔL 是 **0.0096–0.0417（极差 0.032，约 4.3 倍）**——
+  不是手调得忽高忽低，而是每套起点余量不同、都恰好越过 4.5:1。以后为对比度调色，
+  用 `--lift --dl --base` 算，并把 ΔL 记进 CHANGELOG；**为层级**新增派生色时反而应当尽量等 ΔL。
+
+### 顺带核对：组件面（`docs/plan-component-surface.md`）
+
+该批次 2.1 开关形状与过渡、2.3 弹层圆角、2.5 焦点描边**早已落地**（产物里 `role=switch` 4 处、
+`data-input-modality` 2 处、`prefers-reduced-motion` 4 处）；2.2 标签页指示条与 2.4 按钮过渡是
+**有理有据的降级不做**（前者只有哈希类名可锚定、后者整条覆盖会换掉宿主自带过渡）。本轮只核实，不重做。
 
 收口：`npm test` 全绿；CSS 快照按 0.6.45 重采（68486 / 68491）；`verify:drift` 24/24 命中。
 

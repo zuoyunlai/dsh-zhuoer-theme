@@ -5,6 +5,42 @@
   "ratioLimit": 0.001,
   "images": [
     {
+      "file": "card-dark.png",
+      "w": 134,
+      "h": 100,
+      "sha256": "b50ce43cf97ab7003f02d37af2e81cd89cec34a1475f3715ead0d6e85e837952"
+    },
+    {
+      "file": "card-light.png",
+      "w": 134,
+      "h": 100,
+      "sha256": "f191356c3452c173397cc613c4e2c4bc06914f60d5a98e977a78a7557f7c78fb"
+    },
+    {
+      "file": "dialog-dark.png",
+      "w": 359,
+      "h": 270,
+      "sha256": "667955aea8bfb38d376404c81bebc6b453e88f1bae3b0dce10af2e058fee7eaa"
+    },
+    {
+      "file": "dialog-light.png",
+      "w": 359,
+      "h": 270,
+      "sha256": "c18ddb0126a63ec3fec125ec73ecfcb164734900bf366903bb23cbfee8765ac1"
+    },
+    {
+      "file": "editor-dark.png",
+      "w": 392,
+      "h": 771,
+      "sha256": "b4371e3cffca0870ad7deabb133f6fed0b37066ff660ee22bef4c61a1104077a"
+    },
+    {
+      "file": "editor-light.png",
+      "w": 392,
+      "h": 771,
+      "sha256": "36e04f4239d892b3942d6af909b0bbfd6a36f757e359ca1b208303a62c3e15fd"
+    },
+    {
       "file": "settings-dark.png",
       "w": 559,
       "h": 693,

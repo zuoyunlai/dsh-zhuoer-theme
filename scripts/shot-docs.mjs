@@ -42,6 +42,13 @@ const EXPECT = {
   'settings-light.png': { w: 559, h: 693, tol: 30 },
   'settings-dark.png': { w: 559, h: 693, tol: 30 },
   'settings-narrow.png': { w: 323, h: 666, tol: 30 },
+  // 特写（0.6.45 补）：抽屉取可见的 392×771，虽然抽屉自身高 1973（内部滚动）
+  'editor-light.png': { w: 392, h: 771, tol: 30 },
+  'editor-dark.png': { w: 392, h: 771, tol: 30 },
+  'dialog-light.png': { w: 359, h: 270, tol: 30 },
+  'dialog-dark.png': { w: 359, h: 270, tol: 30 },
+  'card-light.png': { w: 134, h: 100, tol: 20 },
+  'card-dark.png': { w: 134, h: 100, tol: 20 },
 }
 
 function decodePng(buf) {

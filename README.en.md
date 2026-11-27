@@ -410,7 +410,7 @@ scripts/             verify-* gates, sync-themes, coverage, token-surface,
 contracts/           host contract lists (positives / negatives), texture-luminance.json,
                      visual-baseline/ (real-device screenshots + labels.json)
 visual/              local capture area: current/ screenshots, css-current/ injected CSS
-docs/                design notes and runbooks: i18n-plan.md, live-verify.md, troubleshooting.md, official-requirements.md, git-integrity.md
+docs/                design notes and runbooks: i18n-plan.md, live-verify.md, troubleshooting.md, color-derivation.md, official-requirements.md, git-integrity.md
 assets/fonts/        23 woff2 files (14 Latin families + 3 CJK subsets) plus provenance
 assets/bg/           24 theme backgrounds (webp)
 assets/logo/         zhuoer.svg (brand-slot logo, served under /assets/logo/)
