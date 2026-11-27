@@ -103,6 +103,24 @@ const distToSeg = (p, a, b) => {
 const BAND = 4
 const MIN_INK = 6
 
+// 全图主色：用来判断这张截图到底是深色还是浅色（narrow 那张没有模式后缀，
+// 早先按文件名默认 light，暗色图套亮色 label 会量出 1.60 这种无意义的值）。
+function dominant(img) {
+  const { w, h, ch, data } = img
+  const hist = new Map()
+  const step = Math.max(1, Math.floor((w * h) / 20000))
+  for (let i = 0; i < w * h; i += step) {
+    const p = i * ch
+    const r = data[p], g = ch >= 3 ? data[p + 1] : r, b = ch >= 3 ? data[p + 2] : r
+    const key = ((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3)
+    const e = hist.get(key)
+    if (e) { e.n++; e.r += r; e.g += g; e.b += b } else hist.set(key, { n: 1, r, g, b })
+  }
+  let best = null
+  for (const e of hist.values()) if (!best || e.n > best.n) best = e
+  return [best.r / best.n, best.g / best.n, best.b / best.n]
+}
+
 function analyze(img, labels) {
   const { w, h, ch, data } = img
   const segs = labels.filter(Boolean).map((L) => ({ hex: L, rgb: hexRgb(L) })).filter((s) => s.rgb)
@@ -175,10 +193,23 @@ for (const f of files) {
   if (seenHash.has(hh)) { console.log('SKIP  ' + f + '（与 ' + seenHash.get(hh) + ' 内容相同）'); continue }
   seenHash.set(hh, f)
   let mode = argOf('--mode', null)
-  if (!mode && /narrow/i.test(f)) mode = (LABELS && LABELS.light) ? 'light' : 'dark'
+  const img = decodePng(buf)
+  if (!mode) {
+    // 按全图主色与各模式 bg 的距离选模式，而不是按文件名猜
+    const dom = dominant(img)
+    let bestMode = null, bestD = Infinity
+    for (const key of Object.keys(LABELS || {})) {
+      if (key === 'capturedAt') continue
+      const bg = hexRgb(LABELS[key] && LABELS[key].bg)
+      if (!bg) continue
+      const d = Math.hypot(dom[0] - bg[0], dom[1] - bg[1], dom[2] - bg[2])
+      if (d < bestD) { bestD = d; bestMode = key }
+    }
+    mode = bestMode || 'dark'
+  }
   const labels = labelsFor(f, mode)
   if (!labels) { console.log('SKIP  ' + f + '（没有对应模式的 label 颜色）'); continue }
-  const res = analyze(decodePng(buf), labels)
+  const res = analyze(img, labels)
   if (!res.bands) { console.log('SKIP  ' + f + '（没有可判定的文字带）'); continue }
   console.log('INFO  ' + f + '  ' + res.w + 'x' + res.h + '  textBands=' + res.bands
     + '  p5=' + res.p5.toFixed(2) + ':1  p50=' + res.p50.toFixed(2) + ':1')
