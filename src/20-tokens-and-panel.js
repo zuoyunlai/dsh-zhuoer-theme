@@ -1168,28 +1168,25 @@ function applyTokens(theme, pref) {
       return dispose;
     }
 
-    // ---- 设置面板样式（v59 重构：层次 / 留白 / 分组 / 控件态）----
-    // 排版规则（改之前先读，否则很容易把节奏改乱）：
-    //   · 区块分隔 = 18px 留白 + 18px 内边距 + 1px 细线：细线上下等距，才不会读成
-    //     上一块内容的「尾巴」（旧版 22/16 不对称，细线总贴着上一个区）。
-    //   · 圆角 8（卡片 10、胶囊 8、输入 8），字号只用 11/12/13/15 四档。
-    //   · 文字三级：primary（标题 / 值）— secondary（标签 / 副行）— tertiary（说明）。
-    //     tertiary 只在 bg-base 上达标（12 套 × 两态实测 4.50），不要放到卡片 / 胶囊 /
-    //     提示底色上（实测最低 4.08）；需要「浅一点」就用 secondary。
+    // ---- 设置面板样式（v60 试样台：主题卡 = 界面试样，编辑器 = 可调试样）----
+    // 排版规则：
+    //   · 字体只用 11/12/13/15/20；圆角只用 2/3/4/6/8/10/999；间距 ≥4px 一律偶数。
+    //   · 颜色只经 CSS 变量 / 内联 --zp-* 数据变量进入，PANEL_CSS 保持零色值。
+    //   · 主题卡的「试样」是内容不是装饰：底 / 表面 / 字 / 品牌 / 语义色都取该主题自己的 token。
+    //   · 区块 = 18px 留白 + 1px 细线；全局偏好内部用 14px 分组，避免六个同款大块。
     const PANEL_CSS = [
       '.zp-root{display:flex;flex-direction:column;gap:0;min-width:0;max-width:100%;',
       'color:var(--dsw-alias-label-primary);font-size:13px;line-height:1.5;}',
-      // 给所有子元素压 min-width：flex/grid 子项默认 min-width:auto，
-      // 一个长主题名或长字体名就能把面板顶出横向滚动条。
       '.zp-root,.zp-root *{box-sizing:border-box;min-width:0;}',
       '.zp-hd{display:flex;flex-direction:column;gap:6px;}',
       '.zp-hd-row{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;}',
       '.zp-hd-t{font-size:15px;font-weight:600;letter-spacing:.01em;}',
+      '.zp-hd-cur{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;',
+      'color:var(--dsw-alias-label-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
+      '.zp-hd-cur::before{content:"";width:3px;height:12px;border-radius:2px;flex:0 0 auto;',
+      'background:var(--zp-hd-accent,var(--dsw-alias-brand-primary));}',
       '.zp-hd-m{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;',
       'font-size:12px;color:var(--dsw-alias-label-tertiary);}',
-      '.zp-tag{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:999px;',
-      'background:var(--dsw-alias-interactive-bg-hover-accent);color:var(--dsw-alias-label-primary);',
-      'font-size:12px;font-weight:600;line-height:1.6;}',
       '.zp-live{display:inline-flex;align-items:center;gap:6px;}',
       '.zp-live::before{content:"";width:6px;height:6px;border-radius:999px;',
       'background:var(--dsw-alias-state-success-primary);}',
@@ -1198,44 +1195,89 @@ function applyTokens(theme, pref) {
       '.zp-sec-hd{display:flex;flex-direction:column;gap:2px;}',
       '.zp-sec-t{font-size:13px;font-weight:600;letter-spacing:.01em;margin:0;}',
       '.zp-sec-n{font-size:12px;line-height:1.55;color:var(--dsw-alias-label-secondary);max-width:56em;}',
-      // 主题卡：132px 起跳，320px 宽能放两列，再宽自动三列/四列，永不横向溢出
+      // ---- 主题库：界面试样 ----
       '.zp-ths{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:8px;}',
-      '.zp-th{position:relative;display:flex;flex-direction:column;gap:8px;padding:8px;border-radius:10px;',
-      'cursor:pointer;font:inherit;text-align:left;color:inherit;',
-      'background:var(--dsw-alias-button-elevated-fill);border:1px solid var(--dsw-alias-border-l1);',
-      'transition:border-color .13s ease,box-shadow .13s ease;}',
-      '.zp-th:hover{border-color:var(--dsw-alias-border-l3);box-shadow:0 0 0 1px var(--dsw-alias-border-l3);}',
-      // 选中态用当前主题的品牌色（不是卡片自己的色），和界面其它选中态同一语义
+      '.zp-th{position:relative;display:flex;flex-direction:column;gap:6px;padding:6px;border-radius:8px;',
+      'cursor:pointer;font:inherit;text-align:left;color:inherit;background:transparent;',
+      'border:1px solid var(--dsw-alias-border-l1);transition:border-color .13s ease;}',
+      '.zp-th:hover{border-color:var(--dsw-alias-border-l3);}',
       '.zp-th[data-on="1"]{border-color:var(--dsw-alias-brand-primary);',
       'box-shadow:0 0 0 1px var(--dsw-alias-brand-primary);}',
-      '.zp-th[data-on="1"]::after{content:"";position:absolute;top:6px;right:6px;width:14px;height:14px;',
+      '.zp-th[data-on="1"]::after{content:"";position:absolute;top:10px;right:10px;width:14px;height:14px;',
       'border-radius:999px;background:var(--dsw-alias-brand-primary);',
       'box-shadow:0 0 0 2px var(--dsw-alias-bg-base);}',
-      '.zp-th[data-on="1"]::before{content:"";position:absolute;top:9px;right:11px;z-index:1;width:4px;height:8px;',
+      '.zp-th[data-on="1"]::before{content:"";position:absolute;top:13px;right:15px;z-index:1;width:4px;height:8px;',
       'border-right:1.5px solid var(--dsw-alias-label-primary-foreground);',
       'border-bottom:1.5px solid var(--dsw-alias-label-primary-foreground);transform:rotate(45deg);}',
       '.zp-th:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;}',
-      '.zp-th-p{position:relative;display:flex;flex-direction:column;justify-content:center;gap:6px;',
-      'height:46px;border-radius:6px;padding:0 10px 0 14px;overflow:hidden;',
-      'background:var(--zp-th-bg,var(--dsw-alias-bg-layer-2));',
-      'border:1px solid var(--zp-th-line,var(--dsw-alias-border-l2));}',
-      '.zp-th-p::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;',
-      'background:var(--zp-th-accent,var(--dsw-alias-brand-primary));}',
-      '.zp-th-c{height:10px;width:66%;border-radius:3px;',
-      'background:var(--zp-th-surface,var(--dsw-alias-bg-layer-2));',
-      'border:1px solid var(--zp-th-line,var(--dsw-alias-border-l2));}',
-      '.zp-th-b{height:4px;width:42%;border-radius:2px;',
-      'background:var(--zp-th-ink,var(--dsw-alias-label-primary));opacity:.42;}',
-      '.zp-th-n{display:flex;flex-direction:column;gap:1px;padding:0 2px;}',
-      '.zp-th-nm{font-size:12px;font-weight:600;line-height:1.25;',
+      '.zp-th-n{display:flex;flex-direction:column;gap:1px;padding:0 2px;min-width:0;}',
+      '.zp-th-nm{font-size:12px;font-weight:600;line-height:1.3;',
       'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
-      '.zp-th-id{font-size:11px;line-height:1.3;color:var(--dsw-alias-label-secondary);',
-      'font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;',
+      '.zp-th-add{border-style:dashed;align-items:center;justify-content:center;min-height:96px;}',
+      '.zp-th-p-add{display:flex;align-items:center;justify-content:center;height:64px;width:100%;',
+      'border:1px dashed var(--dsw-alias-border-l2);border-radius:8px;background:transparent;',
+      'font-size:20px;line-height:1;color:var(--dsw-alias-label-tertiary);}',
+      // 试样：3px 品牌书脊 + 15px 表面侧轨 + 内容卡 + 两行字色 + 三枚语义点。
+      '.zp-spec{position:relative;display:block;overflow:hidden;border-radius:8px;',
+      'background:var(--zp-spec-bg,var(--dsw-alias-bg-layer-2));',
+      'border:1px solid var(--zp-spec-line,var(--dsw-alias-border-l2));}',
+      '.zp-spec::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;',
+      'background:var(--zp-spec-accent,var(--dsw-alias-brand-primary));}',
+      '.zp-spec-rail{position:absolute;left:3px;top:0;bottom:0;width:15px;',
+      'background:var(--zp-spec-rail,var(--dsw-alias-bg-layer-2));',
+      'border-right:1px solid var(--zp-spec-line,var(--dsw-alias-border-l2));}',
+      '.zp-spec-bar{position:absolute;left:18px;right:0;top:0;height:10px;',
+      'background:var(--zp-spec-rail,var(--dsw-alias-bg-layer-2));',
+      'border-bottom:1px solid var(--zp-spec-line,var(--dsw-alias-border-l2));}',
+      '.zp-spec-card{position:absolute;left:26px;right:8px;top:18px;bottom:16px;display:flex;',
+      'flex-direction:column;justify-content:center;gap:4px;padding:6px;border-radius:4px;',
+      'background:var(--zp-spec-card,var(--dsw-alias-bg-layer-3));',
+      'border:1px solid var(--zp-spec-line,var(--dsw-alias-border-l2));}',
+      '.zp-spec-ln{height:3px;width:100%;border-radius:2px;',
+      'background:var(--zp-spec-ink,var(--dsw-alias-label-primary));opacity:.58;}',
+      '.zp-spec-ln.is-2{width:64%;opacity:.3;}',
+      '.zp-spec-btn{position:absolute;right:6px;bottom:6px;width:24px;height:8px;border-radius:2px;',
+      'background:var(--zp-spec-accent,var(--dsw-alias-brand-primary));}',
+      '.zp-spec-dots{position:absolute;left:26px;bottom:6px;display:flex;gap:4px;}',
+      '.zp-spec-dot{width:5px;height:5px;border-radius:999px;',
+      'background:var(--zp-spec-ok,var(--dsw-alias-state-success-primary));}',
+      '.zp-spec-dot.is-warn{background:var(--zp-spec-warn,var(--dsw-alias-state-warn-primary));}',
+      '.zp-spec-dot.is-err{background:var(--zp-spec-err,var(--dsw-alias-state-error-primary));}',
+      '.zp-th-p{height:64px;width:100%;}',
+      // ---- 风格预设：配方签 ----
+      '.zp-recipes{display:flex;flex-wrap:wrap;gap:8px;}',
+      '.zp-recipe{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:6px 10px 6px 6px;',
+      'border-radius:8px;border:1px solid var(--dsw-alias-border-l2);background:transparent;',
+      'color:var(--dsw-alias-label-primary);font:inherit;font-size:12px;line-height:1.3;cursor:pointer;',
+      'transition:border-color .15s ease,background-color .15s ease;}',
+      '.zp-recipe:hover{border-color:var(--dsw-alias-brand-primary);background:var(--dsw-alias-interactive-bg-hover);}',
+      '.zp-recipe:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;}',
+      '.zp-recipe-spine{width:6px;height:32px;flex:0 0 auto;border-radius:3px;',
+      'border:1px solid var(--dsw-alias-border-l2);',
+      'background:linear-gradient(180deg,var(--zp-pre-bg) 0 34%,var(--zp-pre-brand) 34% 67%,var(--zp-pre-accent) 67% 100%);}',
+      '.zp-recipe-nm{white-space:nowrap;}',
+      // ---- 自定义配色：当前自定义主题的试样 + 动作 ----
+      '.zp-cus{display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:8px;',
+      'background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l2);}',
+      '.zp-cus-hd{display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-width:0;}',
+      '.zp-cus-pv{width:112px;height:64px;flex:0 0 112px;}',
+      '.zp-cus-info{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 120px;}',
+      '.zp-cus-nm{font-size:13px;font-weight:600;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
+      '.zp-cus-note{font-size:12px;line-height:1.4;color:var(--dsw-alias-label-secondary);',
       'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
-      // 胶囊组：flex-wrap 而不是等分分段——5 档字号在窄容器里换行比压扁可读
+      '.zp-cus-acts{display:flex;gap:8px;flex-wrap:wrap;padding-top:2px;}',
+      // ---- 全局偏好：一条台账 ----
+      '.zp-grp{display:flex;flex-direction:column;gap:8px;}',
+      // Section 里第一个 PrefGroup 前面还有 .zp-sec-hd（也是 div），所以用兄弟选择器而不是 :first-of-type。
+      '.zp-grp+.zp-grp{padding-top:14px;margin-top:14px;border-top:1px solid var(--dsw-alias-border-l1);}',
+      '.zp-grp-hd{display:flex;flex-direction:column;gap:2px;}',
+      '.zp-grp-t{font-size:12px;font-weight:600;color:var(--dsw-alias-label-secondary);}',
+      '.zp-grp-n{font-size:12px;line-height:1.5;color:var(--dsw-alias-label-secondary);max-width:56em;}',
+      '.zp-grp-b{display:flex;flex-direction:column;gap:8px;min-width:0;}',
+      // ---- 通用控件 ----
       '.zp-seg{display:inline-flex;flex-wrap:wrap;gap:2px;padding:2px;border-radius:10px;',
       'background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l2);}',
-      '.zp-pill{appearance:none;display:inline-flex;align-items:center;gap:4px;min-height:24px;padding:4px 12px;',
+      '.zp-pill{appearance:none;display:inline-flex;align-items:center;gap:4px;min-height:28px;padding:4px 12px;',
       'border-radius:8px;border:1px solid transparent;background:transparent;',
       'font:inherit;font-size:12px;line-height:1.4;cursor:pointer;',
       'color:var(--dsw-alias-label-secondary);',
@@ -1272,13 +1314,7 @@ function applyTokens(theme, pref) {
       '.zp-range:focus-visible::-moz-range-thumb{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;}',
       '.zp-val{min-width:38px;text-align:right;font-size:12px;',
       'color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums;}',
-      '.zp-inp{flex:1 1 180px;padding:6px 8px;border-radius:8px;font:inherit;font-size:12px;',
-      'background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l2);',
-      'color:var(--dsw-alias-label-primary);}',
-      '.zp-inp::placeholder{color:var(--dsw-alias-label-dimmed);}',
-      '.zp-inp:focus{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;',
-      'border-color:var(--dsw-alias-brand-primary);}',
-      '.zp-btn{display:inline-flex;align-items:center;gap:6px;min-height:24px;padding:4px 12px;border-radius:8px;',
+      '.zp-btn{display:inline-flex;align-items:center;gap:6px;min-height:28px;padding:4px 12px;border-radius:8px;',
       'font:inherit;font-size:12px;line-height:1.5;cursor:pointer;',
       'background:var(--dsw-alias-button-elevated-fill);border:1px solid var(--dsw-alias-border-l2);',
       'color:var(--dsw-alias-label-primary);',
@@ -1286,23 +1322,35 @@ function applyTokens(theme, pref) {
       '.zp-btn:hover{background:var(--dsw-alias-interactive-bg-hover);',
       'border-color:var(--dsw-alias-border-l3);}',
       '.zp-btn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;}',
+      '.zp-btn[disabled]{opacity:.42;cursor:default;}',
+      '.zp-btn[disabled]:hover{background:var(--dsw-alias-button-elevated-fill);',
+      'border-color:var(--dsw-alias-border-l2);}',
       '.zp-btn[data-tone="danger"]{background:var(--dsw-alias-bg-base);',
       'color:var(--dsw-alias-label-error);border-color:var(--dsw-alias-state-error-primary);}',
       '.zp-btn[data-tone="danger"]:hover{background:var(--dsw-alias-bg-base);',
       'border-color:var(--dsw-alias-state-error-primary);',
       'box-shadow:0 0 0 1px var(--dsw-alias-state-error-primary);}',
-      // 待确认态：文案已经变成「再点一次删除」，外观也要跟着变，否则用户会以为第一次点击没生效。
       '.zp-btn[data-tone="danger"].is-armed{background:var(--dsw-alias-interactive-bg-hover-danger);',
       'border-color:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-label-primary);',
       'box-shadow:0 0 0 1px var(--dsw-alias-state-error-primary);font-weight:600;}',
-      // 文件选择：input 视觉隐藏但保留可聚焦，靠 :focus-within 给键盘用户焦点环
+      '.zp-btn-pri{background:var(--dsw-alias-button-primary-fill);',
+      'color:var(--dsw-alias-label-primary-foreground,var(--dsw-alias-bg-base));border-color:transparent;}',
+      '.zp-btn-pri:hover{background:var(--dsw-alias-button-primary-hover);}',
       '.zp-file{position:relative;}',
       '.zp-file input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;}',
       '.zp-file:focus-within{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;}',
+      '.zp-txt{padding:4px 8px;min-height:28px;border-radius:8px;border:1px solid var(--dsw-alias-border-l2);',
+      'background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font-size:13px;min-width:110px;}',
+      '.zp-txt:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;}',
+      '.zp-num{width:104px;text-align:right;}',
+      '.zp-sel-wrap{display:inline-flex;min-width:0;}',
+      '.zp-sel{appearance:none;padding-right:26px;background-repeat:no-repeat;background-position:right 8px center;',
+      'background-size:9px;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),',
+      'linear-gradient(135deg,currentColor 50%,transparent 50%);',
+      'background-position-x:calc(100% - 14px),calc(100% - 9px);background-size:5px 5px,5px 5px;}',
       '.zp-sws{display:flex;align-items:center;flex-wrap:wrap;gap:12px;}',
-      // 视觉 22px，命中区靠 ::after 外扩到 34px：一排 9 个色点，不能为了 44px 把面板撑爆
-      '.zp-sw{position:relative;width:24px;height:24px;min-width:24px;min-height:24px;padding:0;border-radius:999px;cursor:pointer;',
-      'border:1px solid var(--dsw-alias-border-l3);background:transparent;',
+      '.zp-sw{position:relative;width:24px;height:24px;min-width:24px;min-height:24px;padding:0;',
+      'border-radius:999px;cursor:pointer;border:1px solid var(--dsw-alias-border-l3);background:transparent;',
       'transition:transform .12s ease,box-shadow .12s ease;}',
       '.zp-sw::after{content:"";position:absolute;inset:-6px;border-radius:999px;}',
       '.zp-sw:hover{transform:scale(1.08);}',
@@ -1314,93 +1362,94 @@ function applyTokens(theme, pref) {
       '.zp-thumb{width:56px;height:34px;border-radius:6px;object-fit:cover;',
       'border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);}',
       '.zp-hint{font-size:12px;line-height:1.55;color:var(--dsw-alias-label-secondary);}',
-      // 报错行不能只靠颜色区分（明暗 × 12 套主题里 label-error 压卡片底色最低 4.36），
-      // 用字重 + 点线更稳，颜色只做非文本的装饰线。
       '.zp-hint.is-warn{font-weight:600;text-decoration:underline dotted var(--dsw-alias-state-error-primary);',
       'text-underline-offset:2px;}',
-      // 视觉隐藏（屏读可见）：给 aria-live 播报区用。不能用 display:none/visibility:hidden，那会连屏读一起隐藏。
       '.zp-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;',
       'clip:rect(0,0,0,0);white-space:nowrap;border:0;}',
-      // 读取侧截断提示条：非模态、可关闭。
       '.zp-note{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:8px 10px;border-radius:8px;',
       'font-size:12px;line-height:1.5;color:var(--dsw-alias-label-primary);',
       'background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l2);}',
-      // ---- 自定义主题：卡片 / 编辑器 ----
-      '.zp-th-add{border-style:dashed;align-items:center;justify-content:center;min-height:78px;}',
-      '.zp-th-p-add{display:flex;align-items:center;justify-content:center;height:46px;',
-      'border:1px dashed var(--dsw-alias-border-l2);background:transparent;',
-      'font-size:20px;line-height:1;color:var(--dsw-alias-label-tertiary);}',
-      '.zp-th-p-add::before{display:none;}',
-      '.zp-cus-acts{display:flex;gap:8px;flex-wrap:wrap;padding-top:2px;}',
-      '.zp-txt{padding:4px 8px;border-radius:8px;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font-size:13px;min-width:110px;}',
-      '.zp-txt:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;}',
-      '.zp-num{width:104px;text-align:right;}',
-      '.zp-btn-pri{background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground,var(--dsw-alias-bg-base));border-color:transparent;}',
-      '.zp-btn-pri:hover{background:var(--dsw-alias-button-primary-hover);}',
-      // 编辑器浮层：外层 pointer-events:none，只有左侧面板接管点击，右半区让真实界面透出来当预览。
+      // ---- 编辑器 ----
       '.zp-ed{position:fixed;inset:0;z-index:2147483000;pointer-events:none;}',
-      // 桌面端的窗口拖拽条（--dsh-windows-titlebar-height，34px）里画着「应用 / 编辑」菜单，
-      // 抽屉若从 top:0 开始就会把面板标题压在那两个菜单上。桌面端整体下移一条标题栏的高度；
-      // Web 端没有 data-windows-titlebar，这条不生效，仍是满高。
       'html[data-windows-titlebar] .zp-ed-panel{top:var(--dsh-windows-titlebar-height,34px);}',
-      // 抽屉 352px：头尾吸顶/吸底，中间滚动；阴影改用主题自己的 elevation，
-      // 以前写死 rgba(0,0,0,.5)，浅色主题下会压出一圈 50% 黑边。
-      '.zp-ed-panel{pointer-events:auto;position:absolute;left:0;top:0;bottom:0;width:352px;max-width:94vw;display:flex;flex-direction:column;gap:10px;padding:16px;overflow:auto;background:var(--dsw-alias-bg-base);border-right:1px solid var(--dsw-alias-border-l2);box-shadow:var(--dsw-elevation-panel,0 18px 44px rgba(0,0,0,.28));}',
-      '.zp-ed-hd{position:sticky;top:-16px;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:-16px -16px 0;padding:14px 16px 10px;background:var(--dsw-alias-bg-base);border-bottom:1px solid var(--dsw-alias-border-l1);}',
+      '.zp-ed-panel{pointer-events:auto;position:absolute;left:0;top:0;bottom:0;width:392px;max-width:94vw;',
+      'display:flex;flex-direction:column;gap:12px;padding:16px;overflow:auto;background:var(--dsw-alias-bg-base);',
+      'border-right:1px solid var(--dsw-alias-border-l2);',
+      'box-shadow:var(--dsw-elevation-panel);}',
+      '.zp-ed-hd{position:sticky;top:-16px;z-index:2;display:flex;align-items:center;justify-content:space-between;',
+      'gap:8px;margin:-16px -16px 0;padding:14px 16px 10px;background:var(--dsw-alias-bg-base);',
+      'border-bottom:1px solid var(--dsw-alias-border-l1);}',
       '.zp-ed-ttl{font-size:15px;font-weight:600;}',
-      '.zp-ed-x{width:26px;height:26px;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--dsw-alias-label-secondary);font-size:18px;line-height:1;cursor:pointer;}',
+      '.zp-ed-x{width:26px;height:26px;border-radius:8px;border:1px solid transparent;background:transparent;',
+      'color:var(--dsw-alias-label-secondary);font-size:18px;line-height:1;cursor:pointer;}',
       '.zp-ed-x:hover{background:var(--dsw-alias-interactive-bg-hover);}',
+      '.zp-ed-sec{display:flex;flex-direction:column;gap:8px;padding-top:14px;',
+      'border-top:1px solid var(--dsw-alias-border-l1);}',
+      '.zp-ed-hd+.zp-ed-sec{padding-top:0;border-top:0;}',
+      '.zp-ed-spec{height:96px;margin:0 0 2px;}',
+      // 锚点带：5 个语义带，带内聚、带间呼吸
+      '.zp-bands{display:flex;flex-direction:column;gap:10px;}',
+      '.zp-band{display:flex;flex-direction:column;gap:4px;}',
+      '.zp-band-hd{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;',
+      'color:var(--dsw-alias-label-secondary);}',
+      '.zp-band-hd::after{content:"";flex:1;height:1px;background:var(--dsw-alias-border-l1);}',
       '.zp-ed-list{display:flex;flex-direction:column;gap:2px;}',
-      '.zp-adv-toggle{justify-self:start;font:inherit;font-size:12px;padding:4px 10px;border-radius:8px;cursor:pointer;',
-      'background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary);border:1px solid var(--dsw-alias-border-l2);}',
-      '.zp-adv-toggle:hover{background:var(--dsw-alias-interactive-bg-hover);}',
-      '.zp-adv-grp{display:flex;flex-direction:column;gap:2px;margin-top:2px;}',
-      '.zp-adv-hd{text-align:left;font:inherit;font-size:12px;padding:4px 8px;border-radius:6px;cursor:pointer;',
-      'background:transparent;color:var(--dsw-alias-label-secondary);border:1px solid transparent;}',
-      '.zp-adv-hd:hover{background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary);}',
-      // 标签列宽与 .zp-lbl(4.4em) 对齐、颜色同档 tertiary：
-      // 原来 58px + secondary，与上面的表单块左边缘差 5px 且深浅不同，看着不像同一张表单。
-      '.zp-ed-item{display:grid;grid-template-columns:minmax(4.6em,auto) 26px minmax(0,1fr) 62px 26px;gap:6px 8px;align-items:center;padding:3px 0 3px 2px;border-radius:6px;}',
-      '.zp-ed-lbl{font-size:12px;color:var(--dsw-alias-label-tertiary);overflow:hidden;word-break:break-word;white-space:normal;line-height:1.15;max-width:6.8em;}',
-      // 已改过的行：标签提亮并加底色，和「继承自主题」的值区分开。
+      '.zp-ed-item{display:grid;grid-template-columns:minmax(4.6em,auto) 26px 14px minmax(0,1fr) 56px 24px;',
+      'gap:6px;align-items:center;padding:3px 0 3px 2px;border-radius:6px;}',
+      '.zp-ed-lbl{font-size:12px;color:var(--dsw-alias-label-tertiary);overflow:hidden;word-break:break-word;',
+      'white-space:normal;line-height:1.15;max-width:6.8em;}',
       '.zp-ed-item.is-dirty .zp-ed-lbl{color:var(--dsw-alias-label-primary);font-weight:600;}',
       '.zp-ed-item.is-dirty{background:var(--dsw-alias-interactive-bg-hover);}',
+      '.zp-ed-def{width:14px;height:22px;border-radius:4px;',
+      'border:1px dashed var(--dsw-alias-border-l3);background:transparent;}',
       '.zp-ed-hex{min-width:0;width:100%;}',
-      '.zp-ed-ratio{font-size:11px;text-align:right;color:var(--dsw-alias-label-tertiary);}',
+      '.zp-ed-ratio{font-size:11px;text-align:right;color:var(--dsw-alias-label-tertiary);',
+      'font-variant-numeric:tabular-nums;}',
       '.zp-ed-ratio.is-low{color:var(--dsw-alias-state-warn-primary);font-weight:600;}',
-      '.zp-ed-reset{width:24px;height:24px;border-radius:6px;border:1px solid transparent;background:transparent;color:var(--dsw-alias-label-tertiary);cursor:pointer;}',
+      '.zp-ed-reset{width:24px;height:24px;border-radius:6px;border:1px solid transparent;background:transparent;',
+      'color:var(--dsw-alias-label-tertiary);cursor:pointer;}',
       '.zp-ed-reset:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary);}',
-      // 未改过的行 ↺ 置灰不可点：以前 8 个常亮，点了没反应，像坏了。
       '.zp-ed-reset[disabled]{opacity:.28;cursor:default;background:transparent;color:var(--dsw-alias-label-tertiary);}',
-      '.zp-ed-reset:focus-visible,.zp-ed-x:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;}',
-      '.zp-color:focus-visible,.zp-preset:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;}',
-      '.zp-ed-ft{position:sticky;bottom:-16px;z-index:2;display:flex;align-items:center;gap:8px;justify-content:flex-end;margin:0 -16px -16px;padding:10px 16px 14px;background:var(--dsw-alias-bg-base);border-top:1px solid var(--dsw-alias-border-l1);}',
-      '.zp-ed-confirm{flex:1;font-size:12px;line-height:1.4;color:var(--dsw-alias-state-warn-primary);}',
-      '.zp-ed .zp-sec{padding-top:12px;}',
-      '.zp-sel-wrap{display:inline-flex;min-width:0;}',
-      '.zp-sel{appearance:none;padding-right:26px;background-repeat:no-repeat;background-position:right 8px center;background-size:9px;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position-x:calc(100% - 14px),calc(100% - 9px);background-size:5px 5px,5px 5px;}',
-      '.zp-ed-err{font-size:12px;color:var(--dsw-alias-state-error-primary);line-height:1.45;}',
-      '.zp-presets{display:flex;flex-wrap:wrap;gap:6px;}',
-      '.zp-preset{padding:4px 10px;border-radius:8px;border:1px solid var(--dsw-alias-border-l2);background:transparent;color:var(--dsw-alias-label-primary);font-size:12px;line-height:1.2;cursor:pointer;transition:border-color .15s,color .15s;}',
-      '.zp-preset:hover{border-color:var(--dsw-alias-brand-primary);color:var(--dsw-alias-brand-primary);}',
+      '.zp-ed-reset:focus-visible,.zp-ed-x:focus-visible,.zp-color:focus-visible{',
+      'outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;}',
+      '.zp-adv-toggle{justify-self:start;font:inherit;font-size:12px;padding:4px 10px;border-radius:8px;cursor:pointer;',
+      'background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary);',
+      'border:1px solid var(--dsw-alias-border-l2);}',
+      '.zp-adv-toggle:hover{background:var(--dsw-alias-interactive-bg-hover);}',
+      '.zp-adv-grp{display:flex;flex-direction:column;gap:2px;margin-top:2px;}',
+      '.zp-adv-hd{display:flex;align-items:center;gap:6px;width:100%;text-align:left;font:inherit;font-size:12px;',
+      'padding:4px 8px;border-radius:6px;cursor:pointer;background:transparent;',
+      'color:var(--dsw-alias-label-secondary);border:1px solid transparent;}',
+      '.zp-adv-hd:hover{background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary);}',
+      '.zp-adv-chev{width:12px;flex:0 0 auto;text-align:center;font-size:11px;color:var(--dsw-alias-label-tertiary);}',
+      '.zp-adv-nm{flex:1;min-width:0;}',
+      '.zp-adv-n{font-size:11px;color:var(--dsw-alias-label-tertiary);font-variant-numeric:tabular-nums;}',
       '.zp-ed-ai{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0;}',
+      '.zp-ed-err{font-size:12px;color:var(--dsw-alias-state-error-primary);line-height:1.45;}',
       '.zp-pal{display:flex;flex-wrap:wrap;gap:8px;padding-top:2px;}',
       '.zp-pal-item{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:56px;}',
       '.zp-pal-sw{width:100%;height:34px;border-radius:8px;border:1px solid var(--dsw-alias-border-l2);}',
-      '.zp-pal-hex{font-size:11px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--dsw-alias-label-secondary);}',
+      '.zp-pal-hex{font-size:11px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;',
+      'color:var(--dsw-alias-label-secondary);}',
       '.zp-pal-share{font-size:11px;color:var(--dsw-alias-label-tertiary);}',
-      '.zp-pal-name{font-size:11px;color:var(--dsw-alias-label-secondary);max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
-      '.zp-ed-sec{display:flex;flex-direction:column;gap:6px;padding-top:12px;border-top:1px solid var(--dsw-alias-border-l1);}',
-      '.zp-ed-sec:first-of-type{padding-top:0;border-top:0;}',
-      '.zp-json{width:100%;box-sizing:border-box;padding:8px;border-radius:8px;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.5;resize:vertical;}',
+      '.zp-pal-name{font-size:11px;color:var(--dsw-alias-label-secondary);max-width:64px;',
+      'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
+      '.zp-json{width:100%;box-sizing:border-box;padding:8px;border-radius:8px;',
+      'border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);',
+      'color:var(--dsw-alias-label-primary);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;',
+      'font-size:12px;line-height:1.5;resize:vertical;}',
+      '.zp-ed-ft{position:sticky;bottom:-16px;z-index:2;display:flex;flex-direction:column;gap:8px;',
+      'margin:0 -16px -16px;padding:10px 16px 14px;background:var(--dsw-alias-bg-base);',
+      'border-top:1px solid var(--dsw-alias-border-l1);}',
+      '.zp-ed-ft-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;justify-content:flex-end;}',
+      '.zp-ed-ft-row.is-aux{justify-content:flex-start;}',
+      '.zp-ed-ft-note{flex:1 1 120px;font-size:12px;line-height:1.4;color:var(--dsw-alias-label-secondary);}',
+      '.zp-ed-confirm{flex:1;font-size:12px;line-height:1.4;color:var(--dsw-alias-state-warn-primary);}',
       '.zp-foot{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;',
       'padding-top:18px;margin-top:18px;border-top:1px solid var(--dsw-alias-border-l1);}',
       '@media (prefers-reduced-motion: reduce){.zp-root *{transition:none !important;',
       'animation:none !important;}}',
       // 极窄容器：行标签独占一行，避免「标签被压成竖条」
-      // 窄屏判定按**面板自身宽度**（data-zr-narrow），不是视口：面板活在宿主设置栏里，
-      // 视口宽不代表面板宽（宿主设置弹层固定 800px、内容列约 559px，视口永远 > 359px，
-      // 原来那条 @media (max-width:359px) 在真实宿主里从未生效）。
       '[data-zr-narrow="1"] .zp-lbl{width:auto;flex:1 0 100%;}',
       '@media (max-width:359px){.zp-lbl{width:auto;flex:1 0 100%;}',
       '.zp-sec{padding-top:14px;margin-top:14px;}.zp-hd{gap:4px;}',
@@ -1423,6 +1472,17 @@ function applyTokens(theme, pref) {
       return h('div', { className: 'zp-row' },
         h('div', { className: 'zp-lbl' }, props.label),
         h('div', { className: 'zp-body' }, props.children)
+      );
+    }
+
+    // 全局偏好内部的安静分组：12px 标题 + 细线，不再让每一块都长得像顶层 Section。
+    function PrefGroup(props) {
+      return h('div', { className: 'zp-grp' },
+        h('div', { className: 'zp-grp-hd' },
+          h('div', { className: 'zp-grp-t' }, props.title),
+          props.note ? h('div', { className: 'zp-grp-n' }, props.note) : null
+        ),
+        h('div', { className: 'zp-grp-b' }, props.children)
       );
     }
 
@@ -1455,7 +1515,7 @@ function applyTokens(theme, pref) {
           value: cur,
           onChange: function (ev) { props.onChange(ev.target.value); },
         },
-          h('option', { value: '__empty__' }, props.emptyLabel || t('panel.sel.follow')),
+          props.noEmpty ? null : h('option', { value: '__empty__' }, props.emptyLabel || t('panel.sel.follow')),
           opts.map(function (o) {
             return h('option', { key: o[0], value: o[0] }, o[1]);
           }),
@@ -1546,34 +1606,62 @@ function applyTokens(theme, pref) {
       return raw && raw.charAt(0) === '@' ? t('theme.' + raw.slice(7)) : raw;
     }
 
-    // 主题卡：预览条是这套主题的「缩略图」——左侧竖条用该主题的品牌色，底色 / 表面层 /
-    // 正文色各取该主题自己那套 token。旧版预览只有一条 layer-2 灰杠 + 一枚小圆点，
-    // 12 张卡在浅色主题下几乎一模一样，只能靠读名字分辨。
-    // 颜色一律经 --zp-th-* 内联变量交给 CSS：PANEL_CSS 里保持零色值，明暗两态同一套规则。
+    // 界面试样：把一套主题的底 / 表面 / 字 / 品牌 / 语义色搭成一个微型界面。
+    // 这是面板里唯一引用非当前 token 的地方 —— 12 张卡不这样会长得一模一样，
+    // 用户也没有选择依据。颜色一律经内联 --zp-spec-* 变量交给 CSS，PANEL_CSS 保持零色值。
+    function specimenVars(tk) {
+      const pv = {};
+      [['--zp-spec-bg', '--dsw-alias-bg-base'], ['--zp-spec-rail', '--dsw-alias-bg-layer-2'],
+        ['--zp-spec-card', '--dsw-alias-bg-layer-3'], ['--zp-spec-line', '--dsw-alias-border-l2'],
+        ['--zp-spec-ink', '--dsw-alias-label-primary'], ['--zp-spec-accent', '--dsw-alias-brand-primary'],
+        ['--zp-spec-ok', '--dsw-alias-state-success-primary'],
+        ['--zp-spec-warn', '--dsw-alias-state-warn-primary'],
+        ['--zp-spec-err', '--dsw-alias-state-error-primary']].forEach(function (pair) {
+        // 旧草稿可能缺某个 token：不写空值，让 CSS 的 var() 兜底。
+        if (tk[pair[1]]) pv[pair[0]] = tk[pair[1]];
+      });
+      if (!pv['--zp-spec-card'] && tk['--dsw-alias-bg-layer-2']) {
+        pv['--zp-spec-card'] = tk['--dsw-alias-bg-layer-2'];
+      }
+      return pv;
+    }
+
+    function Specimen(props) {
+      return h('span', {
+        className: 'zp-spec ' + (props.className || ''),
+        style: props.vars || {}, 'aria-hidden': 'true',
+      },
+        h('span', { className: 'zp-spec-rail' }),
+        h('span', { className: 'zp-spec-bar' }),
+        h('span', { className: 'zp-spec-card' },
+          h('span', { className: 'zp-spec-ln' }),
+          h('span', { className: 'zp-spec-ln is-2' }),
+          h('span', { className: 'zp-spec-btn' })
+        ),
+        h('span', { className: 'zp-spec-dots' },
+          h('span', { className: 'zp-spec-dot' }),
+          h('span', { className: 'zp-spec-dot is-warn' }),
+          h('span', { className: 'zp-spec-dot is-err' })
+        )
+      );
+    }
+
+    // 主题卡：整张卡就是一块界面试样 + 用户可读的名字。
+    // 内部 id（zhuoer / vintage-paper）不再上屏：那是系统语言，不是用户语言；
+    // 只留在 title 里供排障。
     function Swatch(props) {
       const def = props.def || {};
       const tk = def[props.scheme] || def.dark || {};
       const label = themeLabelOf(def.label || props.id);
       const active = props.active;
-      // 自定义主题若缺某个 token（旧版本存下来的草稿），不写空值：让 CSS 的 var() 兜底。
-      const pv = {};
-      [['--zp-th-bg', '--dsw-alias-bg-base'], ['--zp-th-line', '--dsw-alias-border-l2'],
-        ['--zp-th-surface', '--dsw-alias-bg-layer-2'], ['--zp-th-ink', '--dsw-alias-label-primary'],
-        ['--zp-th-accent', '--dsw-alias-brand-primary']].forEach(function (pair) {
-        if (tk[pair[1]]) pv[pair[0]] = tk[pair[1]];
-      });
       return h('button', {
         type: 'button', className: 'zp-th', 'data-on': active ? '1' : '0', role: 'radio',
         'aria-checked': active, 'aria-pressed': active, title: label + ' (' + props.id + ')',
         onClick: function () { props.onPick(props.id); },
       },
-        h('span', { className: 'zp-th-p', 'aria-hidden': 'true', style: pv },
-          h('span', { className: 'zp-th-c' }),
-          h('span', { className: 'zp-th-b' })
-        ),
+        h(Specimen, { className: 'zp-th-p', vars: specimenVars(tk) }),
         h('span', { className: 'zp-th-n' },
-          h('span', { className: 'zp-th-nm' }, label),
-          h('span', { className: 'zp-th-id' }, props.id)
+          h('span', { className: 'zp-th-nm' }, label)
         )
       );
     }
@@ -1617,6 +1705,13 @@ function applyTokens(theme, pref) {
           type: 'color', className: 'zp-color', value: cur,
           'aria-label': t('panel.ed.pickerAria', { label: props.label }),
           onChange: function (ev) { props.onChange(ev.target.value); },
+        }),
+        // 默认值一直可见：实线方块是当前值，旁边虚线方块是克隆主题的默认值。
+        // 改了哪一行，不用展开/悬浮就能同时看到两个状态。
+        h('span', {
+          className: 'zp-ed-def',
+          style: { background: props.defaultValue || 'transparent' },
+          title: t('panel.ed.defaultAria', { hex: props.defaultValue || '' }),
         }),
         h('input', {
           type: 'text', className: 'zp-txt zp-ed-hex', value: text, maxLength: 7,
@@ -1683,6 +1778,16 @@ function applyTokens(theme, pref) {
       }, []);
     }
 
+    // 8 个锚点按 5 个语义带呈现：带是给人读的分组，不是新的数据层。
+    // 顺序照着「先底子、后字、再线、品牌、最后语义」的调色直觉。
+    const ANCHOR_BANDS = [
+      { key: 'base', groups: ['bg'] },
+      { key: 'text', groups: ['text'] },
+      { key: 'line', groups: ['border'] },
+      { key: 'brand', groups: ['brand', 'brand2'] },
+      { key: 'semantic', groups: ['danger', 'warn', 'success'] },
+    ];
+
     function ThemeEditor(props) {
       const [draft, setDraft] = useState(function () { return JSON.parse(JSON.stringify(props.spec)); });
       // 模态语义（打开聚焦 / Tab 环 / Esc / 焦点归还）由 useModalA11y 统一提供，
@@ -1693,7 +1798,13 @@ function applyTokens(theme, pref) {
       useModalA11y(panelRef, requestCloseRef, nameRef);
       // 默认打开浅色：自定义主题的主体就是浅色锚点，深色由 autoDark 反推。
       // 从深色开始会让用户误以为"改浅色没反应"（其实是被反推覆盖了）。
-      const [editScheme, setEditScheme] = useState('light');
+      // 例外：自带 dark 表（autoDark=false）的主题跟随宿主当前明暗打开，
+      // 这样试样和右侧真实界面是同一态；autoDark 主题仍从浅色（源锚点）开始。
+      const [editScheme, setEditScheme] = useState(function () {
+        const spec = props.spec || {};
+        const hasDark = spec.autoDark === false && spec.dark && Object.keys(spec.dark).length;
+        return hasDark && props.scheme === 'dark' ? 'dark' : 'light';
+      });
       // 未保存改动与「放弃确认」：× / Esc / 取消 三条路径都会丢弃 draft，
       // 以前它们直接 onClose，调色 20 分钟误按一次就全没，且没有任何提示。
       const [dirty, setDirty] = useState(false);
@@ -1701,9 +1812,21 @@ function applyTokens(theme, pref) {
       const [advOpen, setAdvOpen] = useState(false);
       const [advGroup, setAdvGroup] = useState({});
       const [confirmDiscard, setConfirmDiscard] = useState(false);
+      // 撤销栈：只存草稿快照，不碰已保存的主题。最多 30 步，够覆盖一次连续微调。
+      const [history, setHistory] = useState([]);
+      // AI 与取色是「先给一组起点」的次要入口，默认收起，不抢锚点的注意力。
+      const [toolsOpen, setToolsOpen] = useState(false);
       // 显示「这一套实际算出来的值」而不是 base 主题原值：
       // autoDark 时深色格子里显示的就是反推结果，用户可以直接在它基础上调。
       const baseTokens = React.useMemo(function () { return buildCustomTokens(draft, editScheme); }, [draft, editScheme]);
+      // 当前明暗的「默认值」= 把当前明暗的覆盖清空后再算一遍。
+      // 这样 autoDark 的深色默认值也是真实反推值，而不是 base 主题的深色原值。
+      const defaultTokens = React.useMemo(function () {
+        const clean = JSON.parse(JSON.stringify(draft));
+        clean[editScheme] = {};
+        return buildCustomTokens(clean, editScheme);
+      }, [draft, editScheme]);
+      const specVars = specimenVars(baseTokens);
       const bg = (draft.bg && typeof draft.bg === 'object')
         ? draft.bg
         : { source: '', key: '', opacity: null, style: '' };
@@ -1756,14 +1879,25 @@ function applyTokens(theme, pref) {
 
       const draftRef = useRef(draft);
       draftRef.current = draft;
+      // 每一步草稿修改前先压栈；同一份快照连续出现（例如连续键入同一个字符）不重复记。
+      const pushHistory = function (prev) {
+        const snap = JSON.stringify(prev);
+        setHistory(function (h) {
+          if (h.length && h[h.length - 1] === snap) return h;
+          const next = h.concat([snap]);
+          return next.length > 30 ? next.slice(next.length - 30) : next;
+        });
+      };
       const commit = function (next) {
+        pushHistory(draftRef.current);
         setDraft(next);
         setDirty(true);
         props.onPreview(next, editScheme);
       };
       // 切 scheme 的场景：先落 draft，再按目标 scheme 预览一次。
-      // 以前是 commit() + onPreview() 各一次 → 预设/填入要跑两遍 applyTokens（26–45KB CSS 重建两次）。
+      // 预设/填入只跑一遍 applyTokens（26–45KB CSS 重建两次在这里合并掉）。
       const commitWith = function (next, scheme) {
+        pushHistory(draftRef.current);
         setDraft(next);
         setDirty(true);
         if (scheme && scheme !== editScheme) setEditScheme(scheme);
@@ -1780,21 +1914,20 @@ function applyTokens(theme, pref) {
         else delete next[editScheme][key];
         commit(next);
       };
-      // 应用风格预设：一次填齐锚点 + 圆角 + 字体 + autoDark。
-      // 深色系预设自带 dark 表（autoDark=false），所以预览切到深色；浅色系反之。
-      const applyPreset = function (p) {
-        if (!p) return;
-        const n = JSON.parse(JSON.stringify(draft));
-        // 替换而不是合并：预设是一整套配色。若只 merge，先套「赛博终端」再套「玻璃拟态」时，
-        // 玻璃拟态没有 dark 表，赛博留下的深色锚点会继续支配深色态（浅色对、深色错）。
-        n.light = Object.assign({}, p.light);
-        n.dark = p.dark ? Object.assign({}, p.dark) : {};
-        n.autoDark = p.autoDark;
-        n.radiusScale = p.radius;
-        n.font = { body: p.body || '', chat: p.chat || '' };
-        const scheme = p.autoDark ? 'light' : 'dark';
-        commitWith(n, scheme);
-        if (p.autoDark && props.onSwitchToLight) props.onSwitchToLight();
+      const undo = function () {
+        if (!history.length) return;
+        const prev = JSON.parse(history[history.length - 1]);
+        setHistory(history.slice(0, -1));
+        setDraft(prev);
+        setDirty(true);
+        props.onPreview(prev, editScheme);
+      };
+      // 只清当前明暗的锚点覆盖；base / 字体 / 圆角 / 底图保持不动。
+      const resetAllAnchors = function () {
+        if (!Object.keys(anchors).length) return;
+        const next = JSON.parse(JSON.stringify(draft));
+        next[editScheme] = {};
+        commit(next);
       };
       // AI 生成的锚点一律落进 light（模型只给浅色），并强制打开 autoDark，
       // 否则深色模式下这些值不参与计算，用户会看到"只变了一点点"。
@@ -1886,58 +2019,306 @@ function applyTokens(theme, pref) {
               onClick: function () { requestCloseRef.current(); },
             }, '×')
           ),
-          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('h3', { className: 'zp-sec-t' }, t('panel.ed.secAppearance')), h('div', { className: 'zp-sec-n' }, t('panel.ed.clonedFrom', { theme: THEMES[props.spec.base] ? (THEMES[props.spec.base].label || props.spec.base) : props.spec.base })))),
-          h(Row, { label: t('panel.ed.name') },
-            h('input', {
-              type: 'text', className: 'zp-txt', value: draft.label, maxLength: 24,
-              ref: nameRef, 'aria-label': t('panel.ed.nameAria'),
-              onChange: function (ev) { const n = JSON.parse(JSON.stringify(draft)); n.label = ev.target.value; setDraft(n); setDirty(true); },
-            })
-          ),
-          h(Row, { label: t('panel.ed.dark') },
-            h('label', { className: 'zp-chk' },
+
+          // 1. 基色：先定从哪套主题出发、编辑哪一态。试样紧跟在下面，改任何锚点先在这里显形。
+          h('div', { className: 'zp-ed-sec' },
+            h('div', { className: 'zp-sec-hd' },
+              h('h3', { className: 'zp-sec-t' }, t('panel.ed.baseSection')),
+              h('div', { className: 'zp-sec-n' }, t('panel.ed.previewNote'))
+            ),
+            h(Specimen, { className: 'zp-ed-spec', vars: specVars }),
+            h(Row, { label: t('panel.ed.name') },
               h('input', {
-                type: 'checkbox', checked: draft.autoDark === true,
-                onChange: function (ev) {
+                type: 'text', className: 'zp-txt', value: draft.label, maxLength: 24,
+                ref: nameRef, 'aria-label': t('panel.ed.nameAria'),
+                onChange: function (ev) { const n = JSON.parse(JSON.stringify(draft)); n.label = ev.target.value; setDraft(n); setDirty(true); },
+              })
+            ),
+            h(Row, { label: t('panel.ed.base') },
+              h(Select, {
+                label: t('panel.ed.baseAria'),
+                value: draft.base,
+                options: THEME_IDS.map(function (id) { return [id, themeLabelOf((THEMES[id] && THEMES[id].label) || id)]; }),
+                noEmpty: true,
+                onChange: function (v) {
                   const n = JSON.parse(JSON.stringify(draft));
-                  n.autoDark = Boolean(ev.target.checked);
+                  n.base = v === '__empty__' ? 'zhuoer' : v;
                   commit(n);
                 },
-              }),
-              h('span', null, t('panel.ed.autoDark'))
+              })
+            ),
+            h(Row, { label: t('panel.ed.dark') },
+              h('label', { className: 'zp-chk' },
+                h('input', {
+                  type: 'checkbox', checked: draft.autoDark === true,
+                  onChange: function (ev) {
+                    const n = JSON.parse(JSON.stringify(draft));
+                    n.autoDark = Boolean(ev.target.checked);
+                    commit(n);
+                  },
+                }),
+                h('span', null, t('panel.ed.autoDark'))
+              )
+            ),
+            h(Row, { label: t('panel.ed.editRow') },
+              h(Pills, {
+                label: t('panel.ed.schemeAria'),
+                opts: [['light', t('panel.ed.light')], ['dark', t('panel.ed.dark')]],
+                value: editScheme,
+                onChange: function (v) {
+                  setEditScheme(v);
+                  // 切明暗立刻按新 scheme 预览，否则面板显示浅色、界面仍是深色
+                  props.onPreview(JSON.parse(JSON.stringify(draftRef.current)), v);
+                },
+              })
             )
           ),
-          h(Row, { label: t('panel.ed.editRow') },
-            h(Pills, {
-              label: t('panel.ed.schemeAria'),
-              opts: [['light', t('panel.ed.light')], ['dark', t('panel.ed.dark')]],
-              value: editScheme,
-              onChange: function (v) {
-                setEditScheme(v);
-                // 切明暗立刻按新 scheme 预览，否则面板显示浅色、界面仍是深色
-                props.onPreview(JSON.parse(JSON.stringify(draftRef.current)), v);
-              },
-            })
+
+          // 2. 锚点：8 个锚点按 5 个语义带分组；每行永远显示当前色与默认色。
+          h('div', { className: 'zp-ed-sec' },
+            h('div', { className: 'zp-sec-hd' },
+              h('h3', { className: 'zp-sec-t' }, t('panel.ed.anchors')),
+              h('div', { className: 'zp-sec-n' }, t('panel.ed.anchorsNote'))
+            ),
+            h('div', { className: 'zp-bands' },
+              ANCHOR_BANDS.map(function (band) {
+                const bgHex = baseTokens['--dsw-alias-bg-base'] || anchors['--dsw-alias-bg-base'] || '#000000';
+                const groups = band.groups.map(function (key) {
+                  return ANCHOR_GROUPS.filter(function (g) { return g.key === key; })[0];
+                }).filter(Boolean);
+                return h('div', { key: band.key, className: 'zp-band' },
+                  h('div', { className: 'zp-band-hd' }, t('panel.ed.band.' + band.key)),
+                  h('div', { className: 'zp-ed-list' },
+                    groups.map(function (g) {
+                      const own = anchors[g.anchor];
+                      const cur = baseTokens[g.anchor] || own || '#000000';
+                      const def = defaultTokens[g.anchor] || cur;
+                      const ratio = g.key === 'bg' ? null : contrastRatio(cur, bgHex);
+                      return h(AnchorRow, {
+                        key: g.key, label: t('anchor.' + g.key), anchor: g.anchor, value: cur,
+                        defaultValue: def,
+                        ratio: ratio, low: ratio != null && ratio < 4.5,
+                        dirty: Boolean(own),
+                        onChange: function (v) { setAnchor(g.anchor, v); },
+                      });
+                    })
+                  )
+                );
+              })
+            )
           ),
-          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('h3', { className: 'zp-sec-t' }, t('panel.ed.anchors')), h('div', { className: 'zp-sec-n' }, t('panel.ed.anchorsNote')))),
-          h('div', { className: 'zp-ed-list' },
-            ANCHOR_GROUPS.map(function (g) {
-              const own = anchors[g.anchor];
-              const cur = own || baseTokens[g.anchor] || '#000000';
-              const bgHex = anchors['--dsw-alias-bg-base'] || baseTokens['--dsw-alias-bg-base'] || '#000000';
-              const ratio = g.key === 'bg' ? null : contrastRatio(cur, bgHex);
-              return h(AnchorRow, {
-                key: g.key, label: t('anchor.' + g.key), anchor: g.anchor, value: cur,
-                ratio: ratio, low: ratio != null && ratio < 4.5,
-                dirty: Boolean(own),
-                onChange: function (v) { setAnchor(g.anchor, v); },
-              });
-            })
+
+          // 3. 底图：只影响本主题。
+          h('div', { className: 'zp-ed-sec' },
+            h('div', { className: 'zp-sec-hd' },
+              h('h3', { className: 'zp-sec-t' }, t('panel.ed.bgSection')),
+              h('div', { className: 'zp-sec-n' }, t('panel.ed.bgNote'))
+            ),
+            h(Row, { label: t('panel.ed.bgSection') },
+              h(Pills, {
+                label: t('panel.ed.bgSourceAria'),
+                // 顺序按「最常用 → 最少用」排，并把抽象词换成大白话：
+                // 用户不需要知道「跟随全局」是什么意思，只有老数据还在用它时才看得见它。
+                opts: (function () {
+                  const list = [['none', t('panel.ed.bgNone')], ['theme', t('panel.ed.bgThemeOwn')], ['image', t('panel.ed.bgCustom')]];
+                  if (!bg.source) list.push(['', t('panel.ed.bgFollowGlobal')]);
+                  return list;
+                })(),
+                value: (bg.source || ''),
+                onChange: function (v) {
+                  // 只切「用哪种底图」，**不动**已存的图片引用。
+                  // 旧实现在这里把 key 清成 ''：切到「主题自带」再切回来，图片就永久丢了
+                  // （IDB 里的图还在，但主题不再引它，等于变成孤儿）。
+                  setBg({ source: v });
+                },
+              })
+            ),
+            bg.source === 'image'
+              ? h(Row, { label: t('panel.ed.imageRow') },
+                  h('label', { className: 'zp-btn zp-file' }, t('panel.ed.pickImage'),
+                    h('input', {
+                      type: 'file', accept: 'image/*',
+                      onChange: function (ev) { handleBgFile(ev); },
+                    })
+                  ),
+                  (bg.key && imageCache.has(bg.key))
+                    ? h('img', { className: 'zp-thumb', alt: t('panel.ed.bgPreviewAlt'), src: imageCache.get(bg.key) })
+                    : h('span', { className: 'zp-hint' }, t('panel.ed.bgStoredHint'))
+                )
+              : null,
+            (bg.source && bg.source !== 'none')
+              ? h(Row, { label: t('panel.ed.opacityRow') },
+                  h('input', {
+                    type: 'range', className: 'zp-range', min: 0, max: 100,
+                    value: typeof bg.opacity === 'number' ? bg.opacity : 85,
+                    style: { '--zp-pct': (typeof bg.opacity === 'number' ? bg.opacity : 85) + '%' },
+                    'aria-label': t('panel.ed.bgOpacityAria'),
+                    onChange: function (ev) { setBg({ opacity: Number(ev.target.value) || 0 }); },
+                  }),
+                  h('span', { className: 'zp-val' }, (typeof bg.opacity === 'number' ? bg.opacity : 85) + '%')
+                )
+              : null
           ),
-          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' },
-            h('h3', { className: 'zp-sec-t' }, t('panel.ed.advanced')),
-            h('div', { className: 'zp-sec-n' }, t('panel.ed.advancedNote')))),
-          h('div', { className: 'zp-ed-list' },
+
+          // 4. 形状与字体：圆角、第三方控件、两套字体。
+          h('div', { className: 'zp-ed-sec' },
+            h('div', { className: 'zp-sec-hd' },
+              h('h3', { className: 'zp-sec-t' }, t('panel.ed.shapeSection')),
+              h('div', { className: 'zp-sec-n' }, t('panel.ed.shapeNote'))
+            ),
+            h(Row, { label: t('panel.ed.radiusRow') },
+              h(Pills, {
+                label: t('panel.ed.radiusAria'),
+                opts: [[0, t('panel.ed.radiusSquare')], [0.6, t('panel.ed.radiusSmall')], [1, t('panel.ed.radiusNormal')], [1.5, t('panel.ed.radiusLarge')], [2, t('panel.ed.radiusXL')]],
+                value: draft.radiusScale == null ? 1 : draft.radiusScale,
+                onChange: function (v) {
+                  const n = JSON.parse(JSON.stringify(draft));
+                  n.radiusScale = v;
+                  commit(n);
+                },
+              })
+            ),
+            h(Row, { label: t('panel.ed.sharpRow') },
+              h('label', { className: 'zp-chk' },
+                h('input', {
+                  // 2026-11-26 修：「sharp」是**全局偏好**（存在 pref 里），不属于单条自定义主题的 draft。
+                  // 这一行原先从面板里复制进来，直接引用了面板作用域的 pref/set —— 编辑器里两者都不存在，
+                  // 于是点「新建主题」/「编辑」一打开编辑器就抛 ReferenceError: pref is not defined。
+                  type: 'checkbox', checked: props.sharp === true,
+                  onChange: function (ev) { props.onSharp(Boolean(ev.target.checked)); },
+                }),
+                t('panel.ed.sharpOn')
+              ),
+              h('span', { className: 'zp-hint' }, t('panel.ed.sharpNote'))
+            ),
+            h(Row, { label: t('panel.ed.bodyFont') },
+              h(Select, {
+                label: t('panel.ed.bodyFont'),
+                value: (draft.font && draft.font.body) || '',
+                options: FONT_CHOICES,
+                emptyLabel: t('panel.ed.followBase', { theme: themeLabelOf((THEMES[draft.base] && THEMES[draft.base].label) || draft.base) }),
+                onChange: function (v) {
+                  const n = JSON.parse(JSON.stringify(draft));
+                  n.font = n.font || {};
+                  n.font.body = v === '__empty__' ? '' : v;
+                  commit(n);
+                },
+              })
+            ),
+            h(Row, { label: t('panel.ed.chatFont') },
+              h(Select, {
+                label: t('panel.ed.chatFont'),
+                value: (draft.font && draft.font.chat) || '',
+                options: FONT_CHOICES,
+                emptyLabel: t('panel.ed.followBase', { theme: themeLabelOf((THEMES[draft.base] && THEMES[draft.base].label) || draft.base) }),
+                onChange: function (v) {
+                  const n = JSON.parse(JSON.stringify(draft));
+                  n.font = n.font || {};
+                  n.font.chat = v === '__empty__' ? '' : v;
+                  commit(n);
+                },
+              })
+            )
+          ),
+
+          // 5. AI 与取色：次要入口，默认收起。结果仍是先预览、点「填入」才改草稿。
+          h('div', { className: 'zp-ed-sec' },
+            h('div', { className: 'zp-sec-hd' },
+              h('h3', { className: 'zp-sec-t' }, t('panel.ed.aiSection')),
+              h('div', { className: 'zp-sec-n' }, t('panel.ed.aiNote'))
+            ),
+            h('button', {
+              type: 'button', className: 'zp-adv-toggle',
+              'aria-expanded': toolsOpen ? 'true' : 'false',
+              onClick: function () { setToolsOpen(!toolsOpen); },
+            }, toolsOpen ? t('panel.ed.toolsHide') : t('panel.ed.toolsShow')),
+            toolsOpen
+              ? h('div', { className: 'zp-ed-list' },
+                  h(Row, { label: t('panel.ed.aiRow') },
+                    h('div', { className: 'zp-ed-ai' },
+                      h('textarea', {
+                        className: 'zp-json', rows: 3, 'aria-label': t('panel.ed.aiPromptAria'),
+                        placeholder: t('panel.ed.aiPromptPh'),
+                        value: aiPrompt,
+                        onChange: function (ev) { setAiPrompt(ev.target.value); },
+                      }),
+                      h('div', { className: 'zp-cus-acts' },
+                        h('button', {
+                          type: 'button', className: 'zp-btn zp-btn-pri',
+                          disabled: aiBusy,
+                          onClick: function () { aiGenerate(); },
+                        }, aiBusy ? t('panel.ed.generating') : t('panel.ed.generate')),
+                        aiErr ? h('span', { className: 'zp-ed-err', role: 'alert' }, aiErr) : null
+                      ),
+                      aiResult
+                        ? h('div', null,
+                            h('div', { className: 'zp-hint' }, t('panel.ed.aiPreview', { label: aiResult.label }) +
+                              (aiResult.dropped && aiResult.dropped.length ? t('panel.ed.aiDropped', { n: aiResult.dropped.length }) : '')),
+                            h('div', { className: 'zp-pal' },
+                              Object.keys(aiResult.light).map(function (k) {
+                                const grp = ANCHOR_GROUPS.filter(function (g) { return g.anchor === k; })[0];
+                                return h('div', { className: 'zp-pal-item', key: k },
+                                  h('span', { className: 'zp-pal-sw', style: { background: aiResult.light[k] } }),
+                                  h('span', { className: 'zp-pal-name' }, grp ? t('anchor.' + grp.key) : k.replace('--dsw-alias-', '')),
+                                  h('span', { className: 'zp-pal-hex' }, aiResult.light[k])
+                                );
+                              })
+                            ),
+                            h('div', { className: 'zp-cus-acts' },
+                              h('button', {
+                                type: 'button', className: 'zp-btn zp-btn-pri',
+                                onClick: function () { applyAiToDraft(); },
+                              }, t('panel.ed.applyCurrent')),
+                              h('button', {
+                                type: 'button', className: 'zp-btn',
+                                onClick: function () { setAiResult(null); },
+                              }, t('panel.ed.drop'))
+                            )
+                          )
+                        : null
+                    )
+                  ),
+                  h(Row, { label: t('panel.ed.pickFromImage') },
+                    h('div', { className: 'zp-ed-ai' },
+                      h('label', { className: 'zp-btn zp-file' }, paletteBusy ? t('panel.ed.picking') : t('panel.ed.pickImage'),
+                        h('input', { type: 'file', accept: 'image/*', onChange: function (ev) { pickPalette(ev); } })
+                      ),
+                      paletteErr ? h('span', { className: 'zp-ed-err', role: 'alert' }, paletteErr) : null,
+                      palette
+                        ? h('div', { className: 'zp-pal' },
+                            palette.map(function (c) {
+                              return h('div', { className: 'zp-pal-item', key: c.hex },
+                                h('span', { className: 'zp-pal-sw', style: { background: c.hex } }),
+                                h('span', { className: 'zp-pal-hex' }, c.hex),
+                                h('span', { className: 'zp-pal-share' }, Math.round(c.share * 100) + '%')
+                              );
+                            })
+                          )
+                        : null,
+                      palette
+                        ? h('div', { className: 'zp-cus-acts' },
+                            h('button', {
+                              type: 'button', className: 'zp-btn zp-btn-pri',
+                              onClick: function () { applyPaletteToDraft(); },
+                            }, t('panel.ed.applyCurrent')),
+                            h('button', {
+                              type: 'button', className: 'zp-btn',
+                              onClick: function () { setPalette(null); setPaletteErr(''); },
+                            }, t('panel.ed.clear'))
+                          )
+                        : null
+                    )
+                  )
+                )
+              : null
+          ),
+
+          // 6. 高级 token：仍然保留，但默认收起。
+          h('div', { className: 'zp-ed-sec' },
+            h('div', { className: 'zp-sec-hd' },
+              h('h3', { className: 'zp-sec-t' }, t('panel.ed.advanced')),
+              h('div', { className: 'zp-sec-n' }, t('panel.ed.advancedNote'))
+            ),
             h('button', {
               type: 'button', className: 'zp-adv-toggle',
               'aria-expanded': advOpen ? 'true' : 'false',
@@ -1947,7 +2328,7 @@ function applyTokens(theme, pref) {
               ? ANCHOR_GROUPS.map(function (g) {
                   const key = g.key;
                   const open = Boolean(advGroup[key]);
-                  const bgAll = anchors['--dsw-alias-bg-base'] || baseTokens['--dsw-alias-bg-base'] || '#000000';
+                  const bgAll = baseTokens['--dsw-alias-bg-base'] || anchors['--dsw-alias-bg-base'] || '#000000';
                   return h('div', { key: key, className: 'zp-adv-grp' },
                     h('button', {
                       type: 'button', className: 'zp-adv-hd',
@@ -1955,18 +2336,23 @@ function applyTokens(theme, pref) {
                       onClick: function () {
                         const n = Object.assign({}, advGroup); n[key] = !open; setAdvGroup(n);
                       },
-                    }, (open ? '▾ ' : '▸ ') + t('anchor.' + key) + ' · ' + g.members.length),
+                    },
+                      h('span', { className: 'zp-adv-chev', 'aria-hidden': 'true' }, open ? '▾' : '▸'),
+                      h('span', { className: 'zp-adv-nm' }, t('anchor.' + key)),
+                      h('span', { className: 'zp-adv-n' }, String(g.members.length))
+                    ),
                     open
                       ? h('div', { className: 'zp-ed-list' },
                           g.members.map(function (m) {
                             const token = m[0];
                             const own = anchors[token];
-                            const cur = own || baseTokens[token] || '';
+                            const cur = baseTokens[token] || own || '';
                             if (!cur) return null;
+                            const def = defaultTokens[token] || cur;
                             const ratio = contrastRatio(cur, bgAll);
                             return h(AnchorRow, {
                               key: token, label: token.replace('--dsw-alias-', '').replace('--dsw-', ''),
-                              anchor: token, value: cur,
+                              anchor: token, value: cur, defaultValue: def,
                               ratio: ratio, low: ratio != null && ratio < 4.5,
                               dirty: Boolean(own),
                               onChange: function (v) { setAnchor(token, v); },
@@ -1978,205 +2364,33 @@ function applyTokens(theme, pref) {
                 })
               : null
           ),
-          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('h3', { className: 'zp-sec-t' }, t('panel.ed.presets')), h('div', { className: 'zp-sec-n' }, t('panel.ed.presetsNote')))),
-          h(Row, { label: t('panel.ed.presets') },
-            h('div', { className: 'zp-presets' },
-              STYLE_PRESETS.map(function (p) {
-                return h('button', {
-                  type: 'button', className: 'zp-preset', key: p.id,
-                  title: t('panel.ed.presetTitle', { label: t('preset.' + p.id), radius: p.radius, body: p.body === '__mono__' ? t('panel.ed.mono') : p.body }),
-                  onClick: function () { applyPreset(p); },
-                }, t('preset.' + p.id));
-              })
-            )
-          ),
-          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('h3', { className: 'zp-sec-t' }, t('panel.ed.aiSection')), h('div', { className: 'zp-sec-n' }, t('panel.ed.aiNote')))),
-          h(Row, { label: t('panel.ed.aiRow') },
-            h('div', { className: 'zp-ed-ai' },
-              h('textarea', {
-                className: 'zp-json', rows: 3, 'aria-label': t('panel.ed.aiPromptAria'),
-                placeholder: t('panel.ed.aiPromptPh'),
-                value: aiPrompt,
-                onChange: function (ev) { setAiPrompt(ev.target.value); },
-              }),
-              h('div', { className: 'zp-cus-acts' },
-                h('button', {
-                  type: 'button', className: 'zp-btn zp-btn-pri',
-                  disabled: aiBusy,
-                  onClick: function () { aiGenerate(); },
-                }, aiBusy ? t('panel.ed.generating') : t('panel.ed.generate')),
-                aiErr ? h('span', { className: 'zp-ed-err', role: 'alert' }, aiErr) : null
-              ),
-              aiResult
-                ? h('div', null,
-                    h('div', { className: 'zp-hint' }, t('panel.ed.aiPreview', { label: aiResult.label }) +
-                      (aiResult.dropped && aiResult.dropped.length ? t('panel.ed.aiDropped', { n: aiResult.dropped.length }) : '')),
-                    h('div', { className: 'zp-pal' },
-                      Object.keys(aiResult.light).map(function (k) {
-                        const grp = ANCHOR_GROUPS.filter(function (g) { return g.anchor === k; })[0];
-                        return h('div', { className: 'zp-pal-item', key: k },
-                          h('span', { className: 'zp-pal-sw', style: { background: aiResult.light[k] } }),
-                          h('span', { className: 'zp-pal-name' }, grp ? t('anchor.' + grp.key) : k.replace('--dsw-alias-', '')),
-                          h('span', { className: 'zp-pal-hex' }, aiResult.light[k])
-                        );
-                      })
-                    ),
-                    h('div', { className: 'zp-cus-acts' },
-                      h('button', {
-                        type: 'button', className: 'zp-btn zp-btn-pri',
-                        onClick: function () { applyAiToDraft(); },
-                      }, t('panel.ed.applyCurrent')),
-                      h('button', {
-                        type: 'button', className: 'zp-btn',
-                        onClick: function () { setAiResult(null); },
-                      }, t('panel.ed.drop'))
-                    )
-                  )
-                : null
-            )
-          ),
-          h(Row, { label: t('panel.ed.pickFromImage') },
-            h('div', { className: 'zp-ed-ai' },
-              h('label', { className: 'zp-btn zp-file' }, paletteBusy ? t('panel.ed.picking') : t('panel.ed.pickImage'),
-                h('input', { type: 'file', accept: 'image/*', onChange: function (ev) { pickPalette(ev); } })
-              ),
-              paletteErr ? h('span', { className: 'zp-ed-err', role: 'alert' }, paletteErr) : null,
-              palette
-                ? h('div', { className: 'zp-pal' },
-                    palette.map(function (c) {
-                      return h('div', { className: 'zp-pal-item', key: c.hex },
-                        h('span', { className: 'zp-pal-sw', style: { background: c.hex } }),
-                        h('span', { className: 'zp-pal-hex' }, c.hex),
-                        h('span', { className: 'zp-pal-share' }, Math.round(c.share * 100) + '%')
-                      );
-                    })
-                  )
-                : null,
-              palette
-                ? h('div', { className: 'zp-cus-acts' },
-                    h('button', {
-                      type: 'button', className: 'zp-btn zp-btn-pri',
-                      onClick: function () { applyPaletteToDraft(); },
-                    }, t('panel.ed.applyCurrent')),
-                    h('button', {
-                      type: 'button', className: 'zp-btn',
-                      onClick: function () { setPalette(null); setPaletteErr(''); },
-                    }, t('panel.ed.clear'))
-                  )
-                : null
-            )
-          ),
 
-          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('h3', { className: 'zp-sec-t' }, t('panel.ed.bgSection')), h('div', { className: 'zp-sec-n' }, t('panel.ed.bgNote')))),
-          h(Row, { label: t('panel.ed.bgSection') },
-            h(Pills, {
-              label: t('panel.ed.bgSourceAria'),
-              // 顺序按「最常用 → 最少用」排，并把抽象词换成大白话：
-              // 用户不需要知道「跟随全局」是什么意思，只有老数据还在用它时才看得见它。
-              opts: (function () {
-                const list = [['none', t('panel.ed.bgNone')], ['theme', t('panel.ed.bgThemeOwn')], ['image', t('panel.ed.bgCustom')]];
-                if (!bg.source) list.push(['', t('panel.ed.bgFollowGlobal')]);
-                return list;
-              })(),
-              value: (bg.source || ''),
-              onChange: function (v) {
-                // 只切「用哪种底图」，**不动**已存的图片引用。
-                // 旧实现在这里把 key 清成 ''：切到「主题自带」再切回来，图片就永久丢了
-                // （IDB 里的图还在，但主题不再引它，等于变成孤儿）。
-                setBg({ source: v });
-              },
-            })
-          ),
-          bg.source === 'image'
-            ? h(Row, { label: t('panel.ed.imageRow') },
-                h('label', { className: 'zp-btn zp-file' }, t('panel.ed.pickImage'),
-                  h('input', {
-                    type: 'file', accept: 'image/*',
-                    onChange: function (ev) { handleBgFile(ev); },
-                  })
-                ),
-                (bg.key && imageCache.has(bg.key))
-                  ? h('img', { className: 'zp-thumb', alt: t('panel.ed.bgPreviewAlt'), src: imageCache.get(bg.key) })
-                  : h('span', { className: 'zp-hint' }, t('panel.ed.bgStoredHint'))
-              )
-            : null,
-          (bg.source && bg.source !== 'none')
-            ? h(Row, { label: t('panel.ed.opacityRow') },
-                h('input', {
-                  type: 'range', className: 'zp-range', min: 0, max: 100,
-                  value: typeof bg.opacity === 'number' ? bg.opacity : 85,
-                  style: { '--zp-pct': (typeof bg.opacity === 'number' ? bg.opacity : 85) + '%' },
-                  'aria-label': t('panel.ed.bgOpacityAria'),
-                  onChange: function (ev) { setBg({ opacity: Number(ev.target.value) || 0 }); },
-                }),
-                h('span', { className: 'zp-val' }, (typeof bg.opacity === 'number' ? bg.opacity : 85) + '%')
-              )
-            : null,
-          h('div', { className: 'zp-ed-sec' }, h('div', { className: 'zp-sec-hd' }, h('h3', { className: 'zp-sec-t' }, t('panel.ed.shapeSection')), h('div', { className: 'zp-sec-n' }, t('panel.ed.shapeNote')))),
-          h(Row, { label: t('panel.ed.radiusRow') },
-            h(Pills, {
-              label: t('panel.ed.radiusAria'),
-              opts: [[0, t('panel.ed.radiusSquare')], [0.6, t('panel.ed.radiusSmall')], [1, t('panel.ed.radiusNormal')], [1.5, t('panel.ed.radiusLarge')], [2, t('panel.ed.radiusXL')]],
-              value: draft.radiusScale == null ? 1 : draft.radiusScale,
-              onChange: function (v) {
-                const n = JSON.parse(JSON.stringify(draft));
-                n.radiusScale = v;
-                commit(n);
-              },
-            })
-          ),
-          h(Row, { label: t('panel.ed.sharpRow') },
-            h('label', { className: 'zp-chk' },
-              h('input', {
-                // 2026-11-26 修：「sharp」是**全局偏好**（存在 pref 里），不属于单条自定义主题的 draft。
-                // 这一行原先从面板里复制进来，直接引用了面板作用域的 pref/set —— 编辑器里两者都不存在，
-                // 于是点「新建主题」/「编辑」一打开编辑器就抛 ReferenceError: pref is not defined。
-                type: 'checkbox', checked: props.sharp === true,
-                onChange: function (ev) { props.onSharp(Boolean(ev.target.checked)); },
-              }),
-              t('panel.ed.sharpOn')
-            ),
-            h('span', { className: 'zp-hint' }, t('panel.ed.sharpNote'))
-          ),
-          h(Row, { label: t('panel.ed.bodyFont') },
-            h(Select, {
-              label: t('panel.ed.bodyFont'),
-              value: (draft.font && draft.font.body) || '',
-              options: FONT_CHOICES,
-              emptyLabel: t('panel.ed.followBase', { theme: THEMES[props.spec.base] ? (THEMES[props.spec.base].label || props.spec.base) : props.spec.base }),
-              onChange: function (v) {
-                const n = JSON.parse(JSON.stringify(draft));
-                n.font = n.font || {};
-                n.font.body = v === '__empty__' ? '' : v;
-                commit(n);
-              },
-            })
-          ),
-          h(Row, { label: t('panel.ed.chatFont') },
-            h(Select, {
-              label: t('panel.ed.chatFont'),
-              value: (draft.font && draft.font.chat) || '',
-              options: FONT_CHOICES,
-              emptyLabel: t('panel.ed.followBase', { theme: THEMES[props.spec.base] ? (THEMES[props.spec.base].label || props.spec.base) : props.spec.base }),
-              onChange: function (v) {
-                const n = JSON.parse(JSON.stringify(draft));
-                n.font = n.font || {};
-                n.font.chat = v === '__empty__' ? '' : v;
-                commit(n);
-              },
-            })
-          ),
-
+          // 应用 / 重置 / 撤销：副动作一行，主动作一行；放弃确认占用主动作行。
           h('div', { className: 'zp-ed-ft' },
             confirmDiscard
-              ? h('span', { className: 'zp-ed-confirm', role: 'alert' }, t('panel.ed.confirmDiscard'))
-              : h('span', { className: 'zp-hint' }, dirty ? t('panel.ed.dirtyHint') : ''),
+              ? h('div', { className: 'zp-ed-ft-row' },
+                  h('span', { className: 'zp-ed-confirm', role: 'alert' }, t('panel.ed.confirmDiscard')),
+                  h('button', { type: 'button', className: 'zp-btn', onClick: function () { setConfirmDiscard(false); } }, t('panel.ed.keepEditing')),
+                  h('button', { type: 'button', className: 'zp-btn', 'data-tone': 'danger', onClick: function () { props.onClose(); } }, t('panel.ed.discard'))
+                )
+              : h('div', { className: 'zp-ed-ft-row is-aux' },
+                  h('button', {
+                    type: 'button', className: 'zp-btn', disabled: !history.length,
+                    onClick: undo,
+                  }, t('panel.ed.undo')),
+                  h('button', {
+                    type: 'button', className: 'zp-btn', disabled: !Object.keys(anchors).length,
+                    title: t('panel.ed.resetAllTitle'),
+                    onClick: resetAllAnchors,
+                  }, t('panel.ed.resetAll')),
+                  h('span', { className: 'zp-ed-ft-note' }, dirty ? t('panel.ed.dirtyHint') : '')
+                ),
             confirmDiscard
-              ? h('button', { type: 'button', className: 'zp-btn', onClick: function () { setConfirmDiscard(false); } }, t('panel.ed.keepEditing'))
-              : h('button', { type: 'button', className: 'zp-btn', onClick: function () { requestCloseRef.current(); } }, t('panel.ed.cancel')),
-            confirmDiscard
-              ? h('button', { type: 'button', className: 'zp-btn', 'data-tone': 'danger', onClick: function () { props.onClose(); } }, t('panel.ed.discard'))
-              : h('button', { type: 'button', className: 'zp-btn zp-btn-pri', onClick: function () { props.onSave(draft); } }, t('panel.ed.save'))
+              ? null
+              : h('div', { className: 'zp-ed-ft-row' },
+                  h('button', { type: 'button', className: 'zp-btn', onClick: function () { requestCloseRef.current(); } }, t('panel.ed.cancel')),
+                  h('button', { type: 'button', className: 'zp-btn zp-btn-pri', onClick: function () { props.onSave(draft); } }, t('panel.ed.save'))
+                )
           )
         )
       );
@@ -2352,6 +2566,29 @@ function applyTokens(theme, pref) {
         set({ customThemes: customs.concat([spec]), theme: spec.id });
         openEditor(spec);
       };
+      // 风格预设从编辑器挪到面板后：点一下 = 用这套配方新建一条自定义主题，
+      // 随后直接打开编辑器继续微调。预设里的 __mono__ 是下拉里的「等宽」占位，
+      // 落进主题前换成真正的等宽族名，否则 applyTokens 会拿到一个不存在的字族。
+      const newFromPreset = function (p) {
+        if (!p) return;
+        if (customs.length >= CUSTOM_MAX) { alert(t('panel.custom.limitErr', { n: CUSTOM_MAX })); return; }
+        const base = THEME_IDS.indexOf(pref.theme) !== -1 ? pref.theme : (currentCustom ? currentCustom.base : 'zhuoer');
+        const fam = function (v) { return v === '__mono__' ? 'JetBrains Mono' : (v || ''); };
+        const spec = {
+          id: 'c' + Date.now().toString(36),
+          label: t('preset.' + p.id),
+          base: base,
+          light: Object.assign({}, p.light),
+          dark: p.dark ? Object.assign({}, p.dark) : {},
+          autoDark: p.autoDark === true,
+          radiusScale: p.radius,
+          font: { body: fam(p.body), chat: fam(p.chat) },
+          bg: { source: 'none' },
+        };
+        setCreatedId(spec.id);
+        set({ customThemes: customs.concat([spec]), theme: spec.id });
+        openEditor(spec);
+      };
       const saveCustom = function (draft) {
         const next = customs.map(function (c) { return c.id === draft.id ? draft : c; });
         // mode 用进编辑器前的值还原：预览期间它被临时改成正在编辑的 scheme。
@@ -2458,6 +2695,8 @@ function applyTokens(theme, pref) {
       }
       const customs = pref.customThemes || [];
       const currentCustom = customSpec(pref);
+      // 自定义配色区里的试样用「这套自定义主题在当前明暗下算出来的 token」上色。
+      const currentCustomTokens = currentCustom ? buildCustomTokens(currentCustom, scheme) : null;
       const themeDef = THEMES[pref.theme] || {};
       const themeName = themeLabelOf((currentCustom && currentCustom.label) || themeDef.label || pref.theme);
       const accents = accentOptions(effectiveThemeId(pref), scheme, pref.accent);
@@ -2573,7 +2812,8 @@ function applyTokens(theme, pref) {
         h('div', { className: 'zp-hd' },
           h('div', { className: 'zp-hd-row' },
             h('div', { className: 'zp-hd-t' }, t('panel.header.title')),
-            h('span', { className: 'zp-tag' }, themeName)
+            // 当前主题名前的 3px 书脊取当前主题/强调色的真实值，是一条会随主题变化的细线。
+            h('span', { className: 'zp-hd-cur', style: { '--zp-hd-accent': accentNow } }, themeName)
           ),
           h('div', { className: 'zp-hd-m' },
             h('span', null, labelOf(modes(), modeNow)),
@@ -2590,6 +2830,7 @@ function applyTokens(theme, pref) {
             )
           : null,
 
+        // 1. 主题库：内置 + 自定义 + 新建，全部用界面试样呈现。
         h(Section, { title: t('panel.theme.title'), note: t('panel.theme.note') },
           h(Row, { label: t('panel.theme.modeRow') },
             h(Pills, { label: t('panel.theme.modeAria'), opts: modes(), value: modeNow,
@@ -2619,21 +2860,10 @@ function applyTokens(theme, pref) {
               type: 'button', className: 'zp-th zp-th-add', title: t('panel.theme.addTitle'),
               onClick: newCustom,
             },
-              h('span', { className: 'zp-th-p zp-th-p-add', 'aria-hidden': 'true' }, '+'),
+              h('span', { className: 'zp-th-p-add', 'aria-hidden': 'true' }, '+'),
               h('span', { className: 'zp-th-n' }, h('span', { className: 'zp-th-nm' }, t('panel.theme.addLabel')))
             )
           ),
-          currentCustom
-            ? h('div', { className: 'zp-cus-acts' },
-                h('button', { type: 'button', className: 'zp-btn', onClick: function () { openEditor(currentCustom); } }, t('panel.theme.edit')),
-                h('button', { type: 'button', className: 'zp-btn', onClick: duplicateCustom }, t('panel.theme.duplicate')),
-                h('button', { type: 'button', className: 'zp-btn', onClick: exportCustom }, t('panel.theme.exportJson')),
-                h('button', {
-                  type: 'button', className: 'zp-btn' + (deleteArmed ? ' is-armed' : ''), 'data-tone': 'danger',
-                  onClick: deleteCustom,
-                }, deleteArmed ? t('panel.theme.deleteConfirm') : t('panel.theme.delete'))
-              )
-            : null,
           h('div', { className: 'zp-cus-acts' },
             h('button', {
               type: 'button', className: 'zp-btn',
@@ -2642,259 +2872,324 @@ function applyTokens(theme, pref) {
           )
         ),
 
-        h(Section, { title: t('panel.bg.title'), note: t('panel.bg.note') },
-          h(Row, { label: t('panel.bg.sourceRow') },
-            h(Pills, { label: t('panel.bg.sourceAria'), opts: sources(), value: pref.bgSource,
-              onChange: function (v) { set({ bgSource: v }); } })
-          ),
-          pref.bgSource === 'image'
-            ? h(Row, { label: t('panel.bg.imageRow') },
-                h('label', { className: 'zp-btn zp-file' }, t('panel.bg.pick'),
-                  h('input', {
-                    type: 'file', accept: 'image/*',
-                    onChange: function (ev) {
-                      const file = ev.target.files && ev.target.files[0];
-                      // 选同一个文件不会再触发 change，先清空 value 才能重选
-                      try { ev.target.value = ''; } catch (e) { /* ignore */ }
-                      if (file) pickImage(file);
-                    },
-                  })
+        // 2. 风格预设：配方签 = 三段色脊（底 / 品牌 / 次色）+ 名称。
+        // 选中后生成一套可继续微调的自定义主题，而不是在编辑器深处再放一排按钮。
+        h(Section, { title: t('panel.ed.presets'), note: t('panel.presets.note') },
+          h('div', { className: 'zp-recipes' },
+            STYLE_PRESETS.map(function (p) {
+              const light = p.light || {};
+              const pv = {};
+              if (light['--dsw-alias-bg-base']) pv['--zp-pre-bg'] = light['--dsw-alias-bg-base'];
+              if (light['--dsw-alias-brand-primary']) pv['--zp-pre-brand'] = light['--dsw-alias-brand-primary'];
+              const accent = light['--dsw-alias-trajectory-accent'] || light['--dsw-alias-brand-primary'];
+              if (accent) pv['--zp-pre-accent'] = accent;
+              return h('button', {
+                key: p.id, type: 'button', className: 'zp-recipe', style: pv,
+                title: t('panel.ed.presetTitle', {
+                  label: t('preset.' + p.id), radius: p.radius,
+                  body: p.body === '__mono__' ? t('panel.ed.mono') : (p.body || ''),
+                }),
+                onClick: function () { newFromPreset(p); },
+              },
+                h('span', { className: 'zp-recipe-spine', 'aria-hidden': 'true' }),
+                h('span', { className: 'zp-recipe-nm' }, t('preset.' + p.id))
+              );
+            })
+          )
+        ),
+
+        // 3. 自定义配色：选中自定义主题时给出「编辑 / 复制 / 导出 / 删除」；
+        // 内置主题下只留一个明确的「新建」入口，不把动作按钮悬在半空。
+        h(Section, { title: t('panel.custom.title'), note: t('panel.custom.note') },
+          currentCustom
+            ? h('div', { className: 'zp-cus' },
+                h('div', { className: 'zp-cus-hd' },
+                  currentCustomTokens
+                    ? h(Specimen, { className: 'zp-cus-pv', vars: specimenVars(currentCustomTokens) })
+                    : null,
+                  h('div', { className: 'zp-cus-info' },
+                    h('div', { className: 'zp-cus-nm' }, themeName),
+                    h('div', { className: 'zp-cus-note' },
+                      t('panel.custom.basedOn', {
+                        theme: themeLabelOf((THEMES[currentCustom.base] && THEMES[currentCustom.base].label) || currentCustom.base),
+                      }))
+                  )
                 ),
-                pref.bgImage ? h('img', { className: 'zp-thumb', alt: t('panel.bg.previewAlt'), src: pref.bgImage }) : null,
-                pref.bgImage
-                  ? h('button', {
-                      type: 'button', className: 'zp-btn',
-                      onClick: function () { set({ bgImage: '', bgSource: 'none' }); },
-                    }, t('panel.bg.remove'))
-                  : h('span', { className: 'zp-hint' }, t('panel.bg.formatHint'))
+                h('div', { className: 'zp-cus-acts' },
+                  h('button', { type: 'button', className: 'zp-btn zp-btn-pri', onClick: function () { openEditor(currentCustom); } }, t('panel.theme.edit')),
+                  h('button', { type: 'button', className: 'zp-btn', onClick: duplicateCustom }, t('panel.theme.duplicate')),
+                  h('button', { type: 'button', className: 'zp-btn', onClick: exportCustom }, t('panel.theme.exportJson')),
+                  h('button', {
+                    type: 'button', className: 'zp-btn' + (deleteArmed ? ' is-armed' : ''), 'data-tone': 'danger',
+                    onClick: deleteCustom,
+                  }, deleteArmed ? t('panel.theme.deleteConfirm') : t('panel.theme.delete'))
+                )
               )
-            : null,
-          h('div', null,
-            h(Row, { label: t('panel.bg.styleRow') },
-              h(Pills, { label: t('panel.bg.styleAria'), opts: styles(), value: pref.bgStyle,
-                onChange: function (v) { set({ bgStyle: v }); } })
+            : h('div', { className: 'zp-cus' },
+                h('div', { className: 'zp-hint' }, t('panel.custom.empty')),
+                h('div', { className: 'zp-cus-acts' },
+                  h('button', { type: 'button', className: 'zp-btn zp-btn-pri', onClick: newCustom }, t('panel.theme.addLabel'))
+                )
+              )
+        ),
+
+        // 4. 全局偏好：一条连续的台账，组内聚、组间用 1px 细线呼吸。
+        h(Section, { title: t('panel.prefs.title'), note: t('panel.prefs.note') },
+          h(PrefGroup, { title: t('panel.bg.title'), note: t('panel.bg.note') },
+            h(Row, { label: t('panel.bg.sourceRow') },
+              h(Pills, { label: t('panel.bg.sourceAria'), opts: sources(), value: pref.bgSource,
+                onChange: function (v) { set({ bgSource: v }); } })
             ),
-            h(Row, { label: t('panel.bg.opacityRow') },
-              h('input', {
-                type: 'range', className: 'zp-range', min: 0, max: 100,
-                value: pref.bgOpacity, 'aria-label': t('panel.bg.opacityAria'),
-                // 已选段长度交给 CSS 渐变：读起来是「填到哪了」，不是一根无信息的灰轨
-                style: { '--zp-pct': (Number(pref.bgOpacity) || 0) + '%' },
-                onChange: function (ev) { set({ bgOpacity: Number(ev.target.value) || 0 }); },
-              }),
-              h('span', { className: 'zp-val' }, pref.bgOpacity + '%'),
-              // 滑块 85% ≠ 实际 85% 不透明度（实现是 可见度 × 0.7）。上限写在旁边而不是塞进
-              // 行标签：塞进 4.8em 的标签列会把这一行撑成三行，整块的行高跟着变形。
-              h('span', { className: 'zp-hint' }, t('panel.bg.opacityCap'))
-            ),
-            h(Row, { label: t('panel.bg.showRow') },
-              h('label', { className: 'zp-chk' },
-                h('input', {
-                  type: 'checkbox', checked: pref.bgOnEmpty !== false,
-                  onChange: function (ev) { set({ bgOnEmpty: Boolean(ev.target.checked) }); },
-                }),
-                t('panel.bg.showEmpty')
+            pref.bgSource === 'image'
+              ? h(Row, { label: t('panel.bg.imageRow') },
+                  h('label', { className: 'zp-btn zp-file' }, t('panel.bg.pick'),
+                    h('input', {
+                      type: 'file', accept: 'image/*',
+                      onChange: function (ev) {
+                        const file = ev.target.files && ev.target.files[0];
+                        // 选同一个文件不会再触发 change，先清空 value 才能重选
+                        try { ev.target.value = ''; } catch (e) { /* ignore */ }
+                        if (file) pickImage(file);
+                      },
+                    })
+                  ),
+                  pref.bgImage ? h('img', { className: 'zp-thumb', alt: t('panel.bg.previewAlt'), src: pref.bgImage }) : null,
+                  pref.bgImage
+                    ? h('button', {
+                        type: 'button', className: 'zp-btn',
+                        onClick: function () { set({ bgImage: '', bgSource: 'none' }); },
+                      }, t('panel.bg.remove'))
+                    : h('span', { className: 'zp-hint' }, t('panel.bg.formatHint'))
+                )
+              : null,
+            h('div', { className: 'zp-grp-b' },
+              h(Row, { label: t('panel.bg.styleRow') },
+                h(Pills, { label: t('panel.bg.styleAria'), opts: styles(), value: pref.bgStyle,
+                  onChange: function (v) { set({ bgStyle: v }); } })
               ),
+              h(Row, { label: t('panel.bg.opacityRow') },
+                h('input', {
+                  type: 'range', className: 'zp-range', min: 0, max: 100,
+                  value: pref.bgOpacity, 'aria-label': t('panel.bg.opacityAria'),
+                  // 已选段长度交给 CSS 渐变：读起来是「填到哪了」，不是一根无信息的灰轨
+                  style: { '--zp-pct': (Number(pref.bgOpacity) || 0) + '%' },
+                  onChange: function (ev) { set({ bgOpacity: Number(ev.target.value) || 0 }); },
+                }),
+                h('span', { className: 'zp-val' }, pref.bgOpacity + '%'),
+                // 滑块 85% ≠ 实际 85% 不透明度（实现是 可见度 × 0.7）。上限写在旁边而不是塞进
+                // 行标签：塞进 4.8em 的标签列会把这一行撑成三行，整块的行高跟着变形。
+                h('span', { className: 'zp-hint' }, t('panel.bg.opacityCap'))
+              ),
+              h(Row, { label: t('panel.bg.showRow') },
+                h('label', { className: 'zp-chk' },
+                  h('input', {
+                    type: 'checkbox', checked: pref.bgOnEmpty !== false,
+                    onChange: function (ev) { set({ bgOnEmpty: Boolean(ev.target.checked) }); },
+                  }),
+                  t('panel.bg.showEmpty')
+                ),
+                h('label', { className: 'zp-chk' },
+                  h('input', {
+                    type: 'checkbox', checked: pref.bgOnSession !== false,
+                    onChange: function (ev) { set({ bgOnSession: Boolean(ev.target.checked) }); },
+                  }),
+                  t('panel.bg.showSession')
+                )
+              )
+            ),
+            bgOn ? null : h('div', { className: 'zp-hint' }, t('panel.bg.offHint'))
+          ),
+
+          h(PrefGroup, { title: t('panel.brand.title'), note: t('panel.brand.note') },
+            h(Row, { label: t('panel.brand.toggle') },
               h('label', { className: 'zp-chk' },
                 h('input', {
-                  type: 'checkbox', checked: pref.bgOnSession !== false,
-                  onChange: function (ev) { set({ bgOnSession: Boolean(ev.target.checked) }); },
+                  type: 'checkbox', checked: pref.brandLogo === true,
+                  onChange: function (ev) { set({ brandLogo: Boolean(ev.target.checked) }); },
                 }),
-                t('panel.bg.showSession')
-              )
-            )
-          ),
-          bgOn ? null : h('div', { className: 'zp-hint' }, t('panel.bg.offHint'))
-        ),
-
-        h(Section, { title: t('panel.brand.title'), note: t('panel.brand.note') },
-          h(Row, { label: t('panel.brand.toggle') },
-            h('label', { className: 'zp-chk' },
-              h('input', {
-                type: 'checkbox', checked: pref.brandLogo === true,
-                onChange: function (ev) { set({ brandLogo: Boolean(ev.target.checked) }); },
-              }),
-              t('panel.brand.toggleHint')
+                t('panel.brand.toggleHint')
+              ),
+              pref.brandLogo && !pref.brandImage
+                ? h('span', { className: 'zp-hint' }, t('panel.brand.builtinHint'))
+                : null
             ),
-            pref.brandLogo && !pref.brandImage
-              ? h('span', { className: 'zp-hint' }, t('panel.brand.builtinHint'))
-              : null
-          ),
-          h(Row, { label: t('panel.brand.imageRow') },
-            h('label', { className: 'zp-btn zp-file' }, pref.brandImage ? t('panel.brand.repick') : t('panel.brand.pick'),
-              h('input', {
-                type: 'file', accept: 'image/png,image/jpeg,image/webp',
-                onChange: function (ev) {
-                  const file = ev.target.files && ev.target.files[0];
-                  // 选同一个文件不会再触发 change，先清空 value 才能重选
-                  try { ev.target.value = ''; } catch (e) { /* ignore */ }
-                  if (file) pickBrand(file);
-                },
-              })
-            ),
-            pref.brandImage ? h('img', { className: 'zp-thumb', alt: t('panel.brand.previewAlt'), src: pref.brandImage }) : null,
-            pref.brandImage
-              ? h('button', {
-                  type: 'button', className: 'zp-btn',
-                  onClick: function () { set({ brandImage: '', brandLogo: false }); },
-                }, t('panel.brand.remove'))
-              : h('span', { className: 'zp-hint' }, t('panel.brand.autoHint'))
-          ),
-          pref.brandLogo && pref.brandImage
-            ? h('div', { className: 'zp-hint' }, t('panel.brand.replacedHint'))
-            : null
-        ),
-
-        h(Section, { title: t('panel.type.title'), note: t('panel.type.note') },
-          h(Row, { label: t('panel.type.sizeRow') },
-            h(Pills, { label: t('panel.type.sizeAria'), opts: scales(), value: pref.fontScale,
-              onChange: function (v) { set({ fontScale: v }); } }),
-            h('span', { className: 'zp-hint' }, t('panel.type.pxHint', { px: scalePx })),
-            pref.fontScale !== 100 && HOST_TEXT_STATS && HOST_TEXT_STATS.rules === 0
-              ? h('span', { className: 'zp-hint is-warn' }, t('panel.type.scaleMiss'))
-              : null
-          ),
-          h(Row, { label: t('panel.type.mdRow') },
-            h(Pills, {
-              label: t('panel.type.mdAria'),
-              opts: [['compact', t('panel.type.mdCompact')], ['normal', t('panel.type.mdNormal')], ['roomy', t('panel.type.mdRoomy')]],
-              value: pref.mdDensity || 'normal',
-              onChange: function (v) { set({ mdDensity: v }); },
-            }),
-            h('span', { className: 'zp-hint' }, t('panel.type.mdNote'))
-          ),
-          h(Row, { label: t('panel.type.mdHeadRow') },
-            h(Pills, {
-              label: t('panel.type.mdHeadAria'),
-              opts: [['follow', t('panel.type.mdHeadFollow')], ['soft', t('panel.type.mdHeadSoft')], ['brand', t('panel.type.mdHeadBrand')]],
-              value: pref.mdHeading || 'soft',
-              onChange: function (v) { set({ mdHeading: v }); },
-            }),
-            h('span', { className: 'zp-hint' }, t('panel.type.mdHeadNote'))
-          ),
-          h(Row, { label: t('panel.a11y.procRow') },
-            h('label', { className: 'zp-chk' },
-              h('input', {
-                type: 'checkbox', checked: pref.procIconColor === true,
-                onChange: function (ev) { set({ procIconColor: Boolean(ev.target.checked) }); },
-              }),
-              h('span', null, t('panel.a11y.procOn'))
-            ),
-            h('span', { className: 'zp-hint' }, t('panel.a11y.procNote'))
-          ),
-          h(Row, { label: t('panel.a11y.hitRow') },
-            h('label', { className: 'zp-chk' },
-              h('input', {
-                type: 'checkbox', checked: pref.a11yHit === true,
-                onChange: function (ev) { set({ a11yHit: Boolean(ev.target.checked) }); },
-              }),
-              h('span', null, t('panel.a11y.hitOn'))
-            ),
-            h('span', { className: 'zp-hint' }, t('panel.a11y.hitNote'))
-          ),
-          h(Row, { label: t('panel.type.widthRow') },
-            // 非受控输入：边打字边裁剪会把「8」立刻变成「640」，用户只会觉得输不进去。
-            // 失焦或回车才提交，清空即恢复自适应。
-            h('input', {
-              type: 'number', className: 'zp-txt zp-num', min: 640, max: 1600, step: 10,
-              defaultValue: pref.chatWidth ? String(pref.chatWidth) : '',
-              placeholder: t('panel.type.widthPh'),
-              'aria-label': t('panel.type.widthAria'),
-              onBlur: function (ev) { commitChatWidth(ev.target.value); },
-              onKeyDown: function (ev) { if (ev.key === 'Enter') { try { ev.currentTarget.blur(); } catch (e) { /* ignore */ } } },
-            }),
-            h('span', { className: 'zp-hint' }, t('panel.type.widthHint'))
-          ),
-          h(Row, { label: t('panel.type.fontRow') },
-            // 受控下拉：只列包内真正 @font-face 注册过的族名。自由输入一旦写错，
-            // 浏览器会静默回落到系统默认，用户只会觉得「这个功能没用」。
-            h(Select, {
-              label: t('panel.type.fontAria'),
-              value: pref.uiFont || '',
-              options: FONT_CHOICES,
-              emptyLabel: t('panel.type.fontPh'),
-              onChange: function (v) { set({ uiFont: v === '__empty__' ? '' : v }); },
-            }),
-            h('span', { className: 'zp-hint' }, t('panel.type.fontHint'))
-          )
-        ),
-
-        // Markdown 精细化：标题字号 / 代码块 / 表格 / 引用块。
-        // 与上面的「排版节奏」分工：节奏管行距与间距（整体松紧），这里管**元素长相**。
-        h(Section, { title: t('panel.mdfine.title'), note: t('panel.mdfine.note') },
-          h(Row, { label: t('panel.mdfine.headRow') },
-            h(Pills, {
-              label: t('panel.mdfine.headAria'),
-              opts: [['theme', t('panel.mdfine.headTheme')], ['compact', t('panel.mdfine.headCompact')], ['clear', t('panel.mdfine.headClear')]],
-              value: pref.mdHeadSize || 'theme',
-              onChange: function (v) { set({ mdHeadSize: v }); },
-            }),
-            h('span', { className: 'zp-hint' }, t('panel.mdfine.headNote'))
-          ),
-          h(Row, { label: t('panel.mdfine.codeRow') },
-            h(Pills, {
-              label: t('panel.mdfine.codeAria'),
-              opts: [['none', t('panel.mdfine.codeNone')], ['line', t('panel.mdfine.codeLine')], ['card', t('panel.mdfine.codeCard')]],
-              value: pref.mdCode || 'none',
-              onChange: function (v) { set({ mdCode: v }); },
-            }),
-            h('span', { className: 'zp-hint' }, t('panel.mdfine.codeNote'))
-          ),
-          h(Row, { label: t('panel.mdfine.tableRow') },
-            h(Pills, {
-              label: t('panel.mdfine.tableAria'),
-              opts: [['plain', t('panel.mdfine.tablePlain')], ['line', t('panel.mdfine.tableLine')], ['zebra', t('panel.mdfine.tableZebra')]],
-              value: pref.mdTable || 'plain',
-              onChange: function (v) { set({ mdTable: v }); },
-            }),
-            h('span', { className: 'zp-hint' }, t('panel.mdfine.tableNote'))
-          ),
-          h(Row, { label: t('panel.mdfine.quoteRow') },
-            h(Pills, {
-              label: t('panel.mdfine.quoteAria'),
-              opts: [['plain', t('panel.mdfine.quotePlain')], ['strong', t('panel.mdfine.quoteStrong')]],
-              value: pref.mdQuote || 'plain',
-              onChange: function (v) { set({ mdQuote: v }); },
-            }),
-            h('span', { className: 'zp-hint' }, t('panel.mdfine.quoteNote'))
-          )
-        ),
-        h(Section, { title: t('panel.accent.title'), note: t('panel.accent.note') },
-          h(Row, { label: t('panel.accent.row') },
-            h('div', { className: 'zp-sws' },
-              accents.map(function (c) {
-                const on = String(pref.accent || '').toLowerCase() === c.toLowerCase();
-                return h('button', {
-                  key: c, type: 'button', className: 'zp-sw',
-                  'data-on': on ? '1' : '0', 'aria-pressed': on,
-                  'aria-label': t('panel.accent.swatchAria', { hex: c }), title: c,
-                  style: { background: c },
-                  onClick: function () { set({ accent: c }); },
-                });
-              }),
-              h('input', {
-                type: 'color', className: 'zp-color', value: accentNow,
-                'aria-label': t('panel.accent.custom'), title: t('panel.accent.custom'),
-                onChange: function (ev) { set({ accent: String(ev.target.value || '') }); },
-              }),
-              pref.accent
+            h(Row, { label: t('panel.brand.imageRow') },
+              h('label', { className: 'zp-btn zp-file' }, pref.brandImage ? t('panel.brand.repick') : t('panel.brand.pick'),
+                h('input', {
+                  type: 'file', accept: 'image/png,image/jpeg,image/webp',
+                  onChange: function (ev) {
+                    const file = ev.target.files && ev.target.files[0];
+                    // 选同一个文件不会再触发 change，先清空 value 才能重选
+                    try { ev.target.value = ''; } catch (e) { /* ignore */ }
+                    if (file) pickBrand(file);
+                  },
+                })
+              ),
+              pref.brandImage ? h('img', { className: 'zp-thumb', alt: t('panel.brand.previewAlt'), src: pref.brandImage }) : null,
+              pref.brandImage
                 ? h('button', {
                     type: 'button', className: 'zp-btn',
-                    onClick: function () { set({ accent: '' }); },
-                  }, t('panel.accent.reset'))
-                : null
-            )
-          )
-        ),
+                    onClick: function () { set({ brandImage: '', brandLogo: false }); },
+                  }, t('panel.brand.remove'))
+                : h('span', { className: 'zp-hint' }, t('panel.brand.autoHint'))
+            ),
+            pref.brandLogo && pref.brandImage
+              ? h('div', { className: 'zp-hint' }, t('panel.brand.replacedHint'))
+              : null
+          ),
 
-        h(Section, { title: t('panel.qn.title'), note: t('panel.qn.note') },
-          h(Row, { label: t('panel.qn.row') },
-            h(Pills, {
-              label: t('panel.qn.aria'),
-              value: pref.quicknav || 'three',
-              opts: [['three', t('panel.qn.optThree')], ['all', t('panel.qn.optAll')], ['off', t('panel.qn.optOff')]],
-              onChange: function (v) { set({ quicknav: v }); },
-            })
+          h(PrefGroup, { title: t('panel.type.title'), note: t('panel.type.note') },
+            h(Row, { label: t('panel.type.sizeRow') },
+              h(Pills, { label: t('panel.type.sizeAria'), opts: scales(), value: pref.fontScale,
+                onChange: function (v) { set({ fontScale: v }); } }),
+              h('span', { className: 'zp-hint' }, t('panel.type.pxHint', { px: scalePx })),
+              pref.fontScale !== 100 && HOST_TEXT_STATS && HOST_TEXT_STATS.rules === 0
+                ? h('span', { className: 'zp-hint is-warn' }, t('panel.type.scaleMiss'))
+                : null
+            ),
+            h(Row, { label: t('panel.type.mdRow') },
+              h(Pills, {
+                label: t('panel.type.mdAria'),
+                opts: [['compact', t('panel.type.mdCompact')], ['normal', t('panel.type.mdNormal')], ['roomy', t('panel.type.mdRoomy')]],
+                value: pref.mdDensity || 'normal',
+                onChange: function (v) { set({ mdDensity: v }); },
+              }),
+              h('span', { className: 'zp-hint' }, t('panel.type.mdNote'))
+            ),
+            h(Row, { label: t('panel.type.mdHeadRow') },
+              h(Pills, {
+                label: t('panel.type.mdHeadAria'),
+                opts: [['follow', t('panel.type.mdHeadFollow')], ['soft', t('panel.type.mdHeadSoft')], ['brand', t('panel.type.mdHeadBrand')]],
+                value: pref.mdHeading || 'soft',
+                onChange: function (v) { set({ mdHeading: v }); },
+              }),
+              h('span', { className: 'zp-hint' }, t('panel.type.mdHeadNote'))
+            ),
+            h(Row, { label: t('panel.a11y.procRow') },
+              h('label', { className: 'zp-chk' },
+                h('input', {
+                  type: 'checkbox', checked: pref.procIconColor === true,
+                  onChange: function (ev) { set({ procIconColor: Boolean(ev.target.checked) }); },
+                }),
+                h('span', null, t('panel.a11y.procOn'))
+              ),
+              h('span', { className: 'zp-hint' }, t('panel.a11y.procNote'))
+            ),
+            h(Row, { label: t('panel.a11y.hitRow') },
+              h('label', { className: 'zp-chk' },
+                h('input', {
+                  type: 'checkbox', checked: pref.a11yHit === true,
+                  onChange: function (ev) { set({ a11yHit: Boolean(ev.target.checked) }); },
+                }),
+                h('span', null, t('panel.a11y.hitOn'))
+              ),
+              h('span', { className: 'zp-hint' }, t('panel.a11y.hitNote'))
+            ),
+            h(Row, { label: t('panel.type.widthRow') },
+              // 非受控输入：边打字边裁剪会把「8」立刻变成「640」，用户只会觉得输不进去。
+              // 失焦或回车才提交，清空即恢复自适应。
+              h('input', {
+                type: 'number', className: 'zp-txt zp-num', min: 640, max: 1600, step: 10,
+                defaultValue: pref.chatWidth ? String(pref.chatWidth) : '',
+                placeholder: t('panel.type.widthPh'),
+                'aria-label': t('panel.type.widthAria'),
+                onBlur: function (ev) { commitChatWidth(ev.target.value); },
+                onKeyDown: function (ev) { if (ev.key === 'Enter') { try { ev.currentTarget.blur(); } catch (e) { /* ignore */ } } },
+              }),
+              h('span', { className: 'zp-hint' }, t('panel.type.widthHint'))
+            ),
+            h(Row, { label: t('panel.type.fontRow') },
+              // 受控下拉：只列包内真正 @font-face 注册过的族名。自由输入一旦写错，
+              // 浏览器会静默回落到系统默认，用户只会觉得「这个功能没用」。
+              h(Select, {
+                label: t('panel.type.fontAria'),
+                value: pref.uiFont || '',
+                options: FONT_CHOICES,
+                emptyLabel: t('panel.type.fontPh'),
+                onChange: function (v) { set({ uiFont: v === '__empty__' ? '' : v }); },
+              }),
+              h('span', { className: 'zp-hint' }, t('panel.type.fontHint'))
+            )
+          ),
+
+          // Markdown 精细化：标题字号 / 代码块 / 表格 / 引用块。
+          // 与上面的「排版节奏」分工：节奏管行距与间距（整体松紧），这里管**元素长相**。
+          h(PrefGroup, { title: t('panel.mdfine.title'), note: t('panel.mdfine.note') },
+            h(Row, { label: t('panel.mdfine.headRow') },
+              h(Pills, {
+                label: t('panel.mdfine.headAria'),
+                opts: [['theme', t('panel.mdfine.headTheme')], ['compact', t('panel.mdfine.headCompact')], ['clear', t('panel.mdfine.headClear')]],
+                value: pref.mdHeadSize || 'theme',
+                onChange: function (v) { set({ mdHeadSize: v }); },
+              }),
+              h('span', { className: 'zp-hint' }, t('panel.mdfine.headNote'))
+            ),
+            h(Row, { label: t('panel.mdfine.codeRow') },
+              h(Pills, {
+                label: t('panel.mdfine.codeAria'),
+                opts: [['none', t('panel.mdfine.codeNone')], ['line', t('panel.mdfine.codeLine')], ['card', t('panel.mdfine.codeCard')]],
+                value: pref.mdCode || 'none',
+                onChange: function (v) { set({ mdCode: v }); },
+              }),
+              h('span', { className: 'zp-hint' }, t('panel.mdfine.codeNote'))
+            ),
+            h(Row, { label: t('panel.mdfine.tableRow') },
+              h(Pills, {
+                label: t('panel.mdfine.tableAria'),
+                opts: [['plain', t('panel.mdfine.tablePlain')], ['line', t('panel.mdfine.tableLine')], ['zebra', t('panel.mdfine.tableZebra')]],
+                value: pref.mdTable || 'plain',
+                onChange: function (v) { set({ mdTable: v }); },
+              }),
+              h('span', { className: 'zp-hint' }, t('panel.mdfine.tableNote'))
+            ),
+            h(Row, { label: t('panel.mdfine.quoteRow') },
+              h(Pills, {
+                label: t('panel.mdfine.quoteAria'),
+                opts: [['plain', t('panel.mdfine.quotePlain')], ['strong', t('panel.mdfine.quoteStrong')]],
+                value: pref.mdQuote || 'plain',
+                onChange: function (v) { set({ mdQuote: v }); },
+              }),
+              h('span', { className: 'zp-hint' }, t('panel.mdfine.quoteNote'))
+            )
+          ),
+
+          h(PrefGroup, { title: t('panel.accent.title'), note: t('panel.accent.note') },
+            h(Row, { label: t('panel.accent.row') },
+              h('div', { className: 'zp-sws' },
+                accents.map(function (c) {
+                  const on = String(pref.accent || '').toLowerCase() === c.toLowerCase();
+                  return h('button', {
+                    key: c, type: 'button', className: 'zp-sw',
+                    'data-on': on ? '1' : '0', 'aria-pressed': on,
+                    'aria-label': t('panel.accent.swatchAria', { hex: c }), title: c,
+                    style: { background: c },
+                    onClick: function () { set({ accent: c }); },
+                  });
+                }),
+                h('input', {
+                  type: 'color', className: 'zp-color', value: accentNow,
+                  'aria-label': t('panel.accent.custom'), title: t('panel.accent.custom'),
+                  onChange: function (ev) { set({ accent: String(ev.target.value || '') }); },
+                }),
+                pref.accent
+                  ? h('button', {
+                      type: 'button', className: 'zp-btn',
+                      onClick: function () { set({ accent: '' }); },
+                    }, t('panel.accent.reset'))
+                  : null
+              )
+            )
+          ),
+
+          h(PrefGroup, { title: t('panel.qn.title'), note: t('panel.qn.note') },
+            h(Row, { label: t('panel.qn.row') },
+              h(Pills, {
+                label: t('panel.qn.aria'),
+                value: pref.quicknav || 'three',
+                opts: [['three', t('panel.qn.optThree')], ['all', t('panel.qn.optAll')], ['off', t('panel.qn.optOff')]],
+                onChange: function (v) { set({ quicknav: v }); },
+              })
+            )
           )
         ),
 
