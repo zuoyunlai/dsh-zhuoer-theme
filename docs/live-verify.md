@@ -4,6 +4,28 @@
 `profile "desktop" is managed exclusively by the Electron application`；而默认的 `dsh web` 跑的是
 `web` profile，里面**没有装**本插件。于是「想看一眼真实渲染」这件事经常卡在「没有可访问的界面」。
 
+
+## 改了源码、门禁全绿，但界面没变？先查「装的那份」
+
+2026-11-27 的真实事故：C1（编辑器抽屉可拖宽）改完、`verify:all` 29 项全绿、commit 也提了，
+用户在界面上却怎么拖都没反应——因为 DSH 加载的是**安装副本**，而副本还停在改动之前的构建。
+
+三条命令定位（都在仓库根）：
+
+```bash
+# 1) 仓库产物 vs 安装副本，字节数应完全一致
+stat -c%s client.js $DSH_HOME/profiles/desktop/node_modules/dsh-zhuoer-theme/client.js 2>/dev/null || ls -l client.js
+
+# 2) 不一致就推过去（默认只预览，必须 --apply 才写）
+node scripts/dev-sync.mjs --profile desktop --apply
+node scripts/dev-sync.mjs --profile web --apply --no-build
+
+# 3) 让渲染进程换掉内存里的旧 bundle：刷新窗口（或右键菜单 → Agent → 刷新）
+```
+
+**关键认知**：`verify:*` 验的是仓库里那份代码，**它证明不了用户加载了它**。
+凡「用户说没效果 / 我这边测不出来」的差异，第一步都应该是比这两份的字节数与 sha256，
+而不是继续读源码找 bug。同理，`dev-sync` 默认只预览、`--apply` 才写——这是 0.6.x 有意改的，别绕过去手抄文件。
 ## 一次性做法（约 1 分钟）
 
 ```bash
