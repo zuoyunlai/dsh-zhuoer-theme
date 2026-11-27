@@ -149,7 +149,7 @@ https://ghproxy.net/https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme
 
 兜底：把 [`market/index.json`](market/index.json) 镜像到你能访问的静态主机（对象存储 / 自己的服务器 / 内网 http；HTTP 即可，不要求 https），再添加那个 URL。
 
-索引只列 **0.6.41 / 0.6.34 / 0.6.29** 三个可安全使用的版本（刻意跳过 0.6.11 那版面板报错的）。改完跑 `npm run verify:market`——它按官方 schema 校验 LocalizedText 必含 `en`、SemVer、`source.type`、`engines.dsh`，并与 `package.json` 交叉对账。
+索引只列 **0.6.42 / 0.6.41 / 0.6.34** 三个可安全使用的版本（刻意跳过 0.6.11 那版面板报错的）。改完跑 `npm run verify:market`——它按官方 schema 校验 LocalizedText 必含 `en`、SemVer、`source.type`、`engines.dsh`，并与 `package.json` 交叉对账。
 
 
 ## 在对话框里生成主题
