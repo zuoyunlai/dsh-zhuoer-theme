@@ -220,6 +220,7 @@
 |---|---|
 | 卡片体系（展示卡并排 / 任务卡 / 验收 / 深度睡眠 / 提示音 / 虚拟 DSH） | agent 会话语义，主题没有会话可挂；且主题已通过 [25-chat-card.js](../src/25-chat-card.js) 读 `tool/ptc-dispatch` 适配 PTC，需要卡片时让 PTC 自己渲染。 |
 | `content-visibility` 长会话优化 | 上游 2.5.4 上、2.5.7 撤，理由"长会话性能交给宿主"。主题若加会与宿主虚拟滚动冲突。 |
+| C5 生成卡只留最新 | 预览卡由**宿主**按 tool result 渲染，插件不持有该节点；要「只留最新」只能改宿主会话 DOM，违背本仓「不劫持宿主结构」的纪律。上游 PTC 能做是因为卡片由它自己画。 |
 
 ## 4. 已对齐（不动，仅登记）
 
@@ -248,7 +249,7 @@
 - 门禁：**27/28 绿**（`node --check client.js` 0；build / version / assets / contrast / texture / css-grid / scale / important / themes / host-contract / host-drift / css-snapshot / text / keys / locale / market-index / claims / readme / i18n / markdown-css / host-hooks / schema-output / smoke-panel / token-surface / git-guard / git-doctor 全 0）
 - **唯一未执行：`verify:syntax`** —— 本会话沙箱内子进程 `spawnSync` 被拒（实测 `SPAWN=EPERM`），非代码问题。改用等价的逐文件 `node --check`（index.js / theme-tool.js / theme-gen.js / build.mjs / scripts/*.mjs）全部 exit 0。换到无沙箱环境复跑 `npm run verify:all` 才算全额绿。
 - 与报告的口径偏差：A1 由「版本不符即丢弃」改为「归一 + 版本标记」。理由：上游那条规则成立的前提是有事件日志可重建，本仓 pref 是用户手写数据、没有日志，丢弃等于删用户的主题。已在 CHANGELOG 写明。
-- 未提交：A 批等 A2、A3 一起提交（报告 §2 提交纪律第 1 条）。
+- 提交：A 批三条合批为 `4d6f25f`（11 文件，+676/−26）。
 ### A2（2026-11-27 20:12）：全局键收口 + extra 样式表两键缓存
 
 - 改动面：`src/00-core.js`（两个探针守卫改模块作用域）、`src/20-tokens-and-panel.js`（sheet 改模块作用域 + `__zrMark` 接力 + 缓存键 `extra|HOST_ASAR_STAMP`）、`src/15-host-text.js` 与 `scripts/gen-host-text.mjs`（新增 `HOST_ASAR_STAMP` 常量）、新增 `scripts/verify-globals.mjs`、`package.json`（新脚本 + 接进 verify:all）
@@ -315,9 +316,34 @@
 - 门禁：默认 PASS（本机 asar 与契约一致，209083008）；`--strict` 可用作硬门。
 - 顺带修掉一个我自己引入的缺陷：那段代码用了未定义的 `argv`（该文件用的是 `process.argv`），默认路径下直接被判红才发现——**又一次证明「管道后取 $?」是错的**（前一次它把崩溃读成了 0）。
 
-## 7. 收口汇总（待填）
+## 7. 收口汇总
 
-（全部批次完成后填：最终门禁清单与 exit 码、css-snapshot 差异数、新增脚本清单、CHANGELOG 条目。）
+### 收口（2026-11-27 23:59）
+
+11 项候选的最终处置：**10 项落地、1 项撤销（C3，代码里早已存在）、1 项不采纳（C5，卡片由宿主渲染）**。
+
+| 批次 | commit | 内容 |
+|---|---|---|
+| A | `4d6f25f` | A1 形状版本 / A2 全局键收口 / A3 共存探测 |
+| B3 | `8761c10` | 字号与内容字号拍到 1/dpr 栅格 |
+| B1 | `3e7dbcb` | overrideTokens 隔离状态机 |
+| B4 | `41cd6e3` | 字号覆盖改覆盖率判据 |
+| B2 | `ecd1478` | 契约记宿主指纹（收窄；原判断有误） |
+| C1 | `3be4584` | 编辑器抽屉可拖宽 |
+| C4 | `bbdc9c8` | 降级告警接覆盖率 |
+| C2 | `4920d43` | 生成等待态最小可见时长 |
+
+**最终验证**：`npm run verify:all` exit 0（29 项，含 `verify:syntax`）；6 个测试脚本全绿
+（`test-derive` / `test-conflict` 5 例 / `test-isolation` 8 例 / `test-textmode` 5 例 /
+`test-drawer` 5 例 / `test-dwell` 4 例）。
+
+**新增门 2 道**（`verify:globals`、`verify:dpi`），门禁总数 28 → 29；工作区干净，全部只本地提交。
+
+**仍然没验的**（不许当已验）：
+
+1. B3 的观感——125% / 150% 缩放下抖是否真的消失，需真机截图对比；
+2. C1 的拖动手感——`smoke-panel` 不渲染抽屉打开态；
+3. B1 的失败分类是按消息正则判的，宿主换文案后会退化成 transient（可接受退化，已在 CHANGELOG 写明）。
 
 ## 附录：候选来源索引
 
