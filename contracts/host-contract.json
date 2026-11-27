@@ -205,6 +205,21 @@
         "attribute": "data-zr-mdhead",
         "usedFor": "挂在 html 上的「标题配色」模式（follow/soft/brand），CSS 据此给 Markdown 标题上色",
         "breaksIfMissing": "「标题配色」设置项完全失效，标题回到跟随正文色"
+      },
+      {
+        "attribute": "data-step-process-icon",
+        "usedFor": "宿主给步骤过程组头的活动图标留的稳定属性；我们用它选中图标并单独设 color（宿主默认 color:inherit，跟着文字色走）",
+        "breaksIfMissing": "「步骤图标语义色」失效——图标回到继承文字色，功能看着像没开"
+      },
+      {
+        "attribute": "data-process-activity",
+        "usedFor": "组头按钮上的活动类型（thinking/read/edit/write/commands/code/search/questions/plan/subagents/webSearch/webFetch/tools），决定图标取哪一类语义色",
+        "breaksIfMissing": "图标只会是同一种颜色（无法按活动分类），语义色设计失效"
+      },
+      {
+        "attribute": "data-zr-proc",
+        "usedFor": "我们自己挂在 html 上的开关标记（1/0），表示是否启用步骤图标语义色",
+        "breaksIfMissing": "开关点不动——规则永远不命中或永远命中"
       }
     ]
   },
