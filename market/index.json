@@ -1,23 +1,47 @@
 {
   "format": 1,
   "title": {
+    "zh": "Zhuoer 主题",
     "en": "Zhuoer theme index",
-    "zh": "卓尔主题索引"
+    "ja": "Zhuoer テーマ",
+    "es": "Tema Zhuoer",
+    "fr": "Thème Zhuoer",
+    "de": "Zhuoer-Thema",
+    "ru": "Тема Zhuoer",
+    "pt": "Tema Zhuoer"
   },
   "description": {
+    "zh": "12 套内置配色 + 12 套风格预设 + 自定义主题编辑器；纯本地 token 注入，界面支持 8 种语言。",
     "en": "Index source for dsh-zhuoer-theme.",
-    "zh": "dsh-zhuoer-theme 的索引源。"
+    "ja": "12 套内置配色、12 套风格预设与自定义主题编辑器；纯本地 token 注入，8 语界面。",
+    "es": "12 temas de color integrados, 12 preajustes de estilo y un editor de temas personalizados; inyección local de tokens, interfaz en 8 idiomas.",
+    "fr": "12 thèmes de couleur intégrés, 12 préréglages de style et un éditeur de thèmes personnalisés ; injection locale de tokens, interface en 8 langues.",
+    "de": "12 eingebaute Farbthemen, 12 Stil-Voreinstellungen und ein Editor für eigene Themen; rein lokales Token-Injection, Oberfläche in 8 Sprachen.",
+    "ru": "12 встроенных цветовых тем, 12 стилевых пресетов и редактор своих тем; только локальная подстановка токенов, интерфейс на 8 языках.",
+    "pt": "12 temas de cor integrados, 12 predefinições de estilo e um editor de temas personalizados; injeção local de tokens, interface em 8 idiomas."
   },
   "plugins": [
     {
       "name": "dsh-zhuoer-theme",
       "title": {
+        "zh": "Zhuoer 主题",
         "en": "Zhuoer Theme",
-        "zh": "Zhuoer 主题"
+        "ja": "Zhuoer テーマ",
+        "es": "Tema Zhuoer",
+        "fr": "Thème Zhuoer",
+        "de": "Zhuoer-Thema",
+        "ru": "Тема Zhuoer",
+        "pt": "Tema Zhuoer"
       },
       "description": {
-        "en": "12 built-in colour themes, 12 style presets and a custom theme editor; pure local token injection, bilingual UI.",
-        "zh": "12 套内置配色 + 12 套风格预设 + 自定义主题编辑器；纯本地 token 注入，界面中英双语。"
+        "zh": "12 套内置配色 + 12 套风格预设 + 自定义主题编辑器；纯本地 token 注入，界面支持 8 种语言。",
+        "en": "12 built-in colour themes, 12 style presets and a custom theme editor; pure local token injection, 8-language UI.",
+        "ja": "12 套内置配色、12 套风格预设与自定义主题编辑器；纯本地 token 注入，8 语界面。",
+        "es": "12 temas de color integrados, 12 preajustes de estilo y un editor de temas personalizados; inyección local de tokens, interfaz en 8 idiomas.",
+        "fr": "12 thèmes de couleur intégrés, 12 préréglages de style et un éditeur de thèmes personnalisés ; injection locale de tokens, interface en 8 langues.",
+        "de": "12 eingebaute Farbthemen, 12 Stil-Voreinstellungen und ein Editor für eigene Themen; rein lokales Token-Injection, Oberfläche in 8 Sprachen.",
+        "ru": "12 встроенных цветовых тем, 12 стилевых пресетов и редактор своих тем; только локальная подстановка токенов, интерфейс на 8 языках.",
+        "pt": "12 temas de cor integrados, 12 predefinições de estilo e um editor de temas personalizados; injeção local de tokens, interface em 8 idiomas."
       },
       "icon": "https://raw.githubusercontent.com/zuoyunlai/dsh-zhuoer-theme/main/assets/icon-180.png",
       "author": "zuoyunlai",

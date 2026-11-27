@@ -3,6 +3,8 @@
 A skin plugin that recolours the whole DSH UI: **12 built-in themes + 12 style presets + a custom-theme editor (AI generation / image palette extraction / per-anchor tuning)** — and you can generate a whole theme **straight from the chat box**.
 
 > **English** ｜ [中文](README.md)
+>
+> This README is maintained in Chinese and English only (the UI itself ships 8 languages); the localised market-card title and description live in `locale/*.json`.
 
 - Colours go through the host theme service: `ctx.theme.overrideTokens()` maps each theme onto DSH's `--dsw-alias-*` tokens (224 per theme). No DOM hijacking, no injected host components.
 - **Fully local**: no account, no telemetry, no external network calls. The only network activity is the host's own model when you press "Generate" in the editor.
