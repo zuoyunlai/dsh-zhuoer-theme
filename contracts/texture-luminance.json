@@ -6,7 +6,7 @@
     "light": "none"
   },
   "canvas": "320x200",
-  "generatedAt": "2026-11-28T13:58:13.834Z",
+  "generatedAt": "2026-11-28T14:26:19.201Z",
   "floors": {
     "absolute": 4.5,
     "erosionRatio": 0.4
@@ -50,12 +50,12 @@
       "sha256": "51ec5fdf6a79acc9d934c81b3544068cc95d2e22f6eeaa32d63b5f70a5c6f82a"
     },
     "bg-dash.svg": {
-      "bytes": 13272,
-      "sha256": "84d88c5a175818e93fc3ba20ef7c3c936c34ff7eaf7813da5efd807405c24976"
+      "bytes": 13239,
+      "sha256": "0142f62b728cc1163544da05b8f0ca2fee4cf708f24a9904e39d3d2828c68890"
     },
     "bg-soft-dash.svg": {
-      "bytes": 13365,
-      "sha256": "54dc9bafaa07aa13fd9f248d4b10757813b3895ee5a70a9dad162926f999f2cb"
+      "bytes": 13332,
+      "sha256": "54119cce94183f8df2d6304e589130e37810f3e4deba63cde35d917c8ea28dc2"
     },
     "bg-knot.webp": {
       "bytes": 17392,
