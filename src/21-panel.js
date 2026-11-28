@@ -242,6 +242,9 @@
       '.zp-ed-lbl{font-size:12px;color:var(--dsw-alias-label-tertiary);overflow:hidden;word-break:break-word;',
       'white-space:normal;line-height:1.15;max-width:6.8em;}',
       '.zp-ed-item.is-dirty .zp-ed-lbl{color:var(--dsw-alias-label-primary);font-weight:600;}',
+      // 逐 token 的说明行：整行宽度（上面 6 列都让它），11px 弱化色。
+      '.zp-ed-note{grid-column:1/-1;font-size:11px;line-height:1.35;word-break:break-word;',
+      'color:var(--dsw-alias-label-tertiary);padding:0 0 1px 2px;}',
       '.zp-ed-item.is-dirty{background:var(--dsw-alias-interactive-bg-hover);}',
       '.zp-ed-def{width:14px;height:22px;border-radius:4px;',
       'border:1px dashed var(--dsw-alias-border-l3);background:transparent;}',

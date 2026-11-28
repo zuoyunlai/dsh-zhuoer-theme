@@ -5,6 +5,16 @@
     // 锚点行：hex 输入框有本地缓冲，才能逐字输入。
     // 之前直接把受控值绑到 draft 且只在 /^#[0-9a-f]{6}$/ 时才提交：
     // 输入中途一律不合法 → 每次按键都被 React 回弹，实际只剩「选中单个字符替换」能用。
+    // 逐 token 的人话说明（「这个颜色对应界面哪一处」）。
+    // 键是 tok.<去掉前缀的 token 名>；缺键时 zrT 回落键名本身，用它判断「没有说明」——
+    // 否则面板上会直接印出 tok.card-fill 这种键名。
+    function zrTokenNote(token) {
+      const slug = String(token || '').replace('--dsw-alias-', '').replace('--dsw-', '');
+      const key = 'tok.' + slug;
+      const s = t(key);
+      return s === key ? '' : s;
+    }
+
     function AnchorRow(props) {
       const cur = props.value;
       const [text, setText] = useState(cur);
@@ -46,7 +56,10 @@
           'aria-label': t('panel.ed.resetAria', { label: props.label }),
           title: props.dirty ? t('panel.ed.resetTitleDirty') : t('panel.ed.resetTitleClean'),
           onClick: function () { if (props.dirty) props.onChange(''); },
-        }, '↺')
+        }, '↺'),
+        // 说明单独占一整行（grid-column:1/-1）：名字那一列只有 6.8em，
+        // 塞进去会把一句话挤成竖排。
+        props.note ? h('div', { className: 'zp-ed-note' }, props.note) : null
       );
     }
 
@@ -479,7 +492,7 @@
                         key: g.key, label: t('anchor.' + g.key), anchor: g.anchor, value: cur,
                         defaultValue: def,
                         ratio: ratio, low: ratio != null && ratio < 4.5,
-                        dirty: Boolean(own),
+                        dirty: Boolean(own), note: zrTokenNote(g.anchor),
                         onChange: function (v) { setAnchor(g.anchor, v); },
                       });
                     })
@@ -735,7 +748,7 @@
                               key: token, label: token.replace('--dsw-alias-', '').replace('--dsw-', ''),
                               anchor: token, value: cur, defaultValue: def,
                               ratio: ratio, low: ratio != null && ratio < 4.5,
-                              dirty: Boolean(own),
+                              dirty: Boolean(own), note: zrTokenNote(token),
                               onChange: function (v) { setAnchor(token, v); },
                             });
                           })
