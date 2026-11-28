@@ -459,9 +459,17 @@ function bgCssFor(o) {  var bgUrl = o.bgUrl;
   var floor = (typeof o.glassFloor === 'number') ? Math.min(0.9, Math.max(0.05, o.glassFloor)) : GLASS_FLOOR_FALLBACK;
   var glassAlpha = +(1 - (glass / 100) * (1 - floor)).toFixed(2);
   var baseRgb = parseHexColor(tokens['--dsw-alias-bg-base']) || [0, 0, 0];
-  var sideSel = '[class*="sidebarCol"]';
-  return 'html [class*="_frame"]{background-image:url("' + cssUrl(bgUrl) + '") !important;background-size:cover !important;'
-      + 'background-position:50% 0% !important;background-repeat:no-repeat !important;}'
+  // 桌面壳的侧栏是 dshDesktopSidebarSurface 一类（不含 sidebarCol），所以两条都带上、并加 i 忽略大小写；
+  // 只认「侧栏表面」这两个后缀，不用 [class*="sidebar"] 一把梭（会连侧栏里的行/项一起染）。
+  var sideSel = '[class*="sidebarCol" i],[class*="sidebarSurface" i]';
+  // 底部渐隐：旧实现用 mask 淡出，但 mask 会连子元素一起遮（挂在 frame 上就等于把界面切掉）。
+  // 改成在同一个 background 栈里叠一层「透明 → 底色」的渐变：它只影响图，不影响内容，也就没有硬线。
+  var baseRgba1 = 'rgba(' + baseRgb[0] + ',' + baseRgb[1] + ',' + baseRgb[2] + ',1)';
+  var fadeLayer = 'linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,0) calc(100% - 320px),' + baseRgba1 + ' calc(100% - 60px))';
+  return 'html [class*="_frame"]{background-image:' + fadeLayer + ',url("' + cssUrl(bgUrl) + '") !important;'
+      + 'background-size:cover,cover !important;'
+      + 'background-position:50% 0,50% 0 !important;'
+      + 'background-repeat:no-repeat,no-repeat !important;}'
     + mainSel + '::before{display:none !important;}'
     // 主栏用「底色半透明」把自己压回原来的可见度：等价于旧实现的 opacity=imgOpacity，
     // 否则整窗图以 100% 亮度出现在正文下面，文字直接读不了（实测：标题与输入框提示全糊）。

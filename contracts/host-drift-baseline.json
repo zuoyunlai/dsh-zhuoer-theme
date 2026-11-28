@@ -1,0 +1,17 @@
+{
+  "$comment": "宿主漂移基线：这里记「已确认在宿主里消失、但还没改代码」的片段。每条必须写原因。出现基线外的新缺失时 verify:host-drift 会红。",
+  "updatedAt": "2026-11-28",
+  "host": {
+    "path": "D:/Programs/DeepSeek Harness/resources/app.asar",
+    "bytes": 209083008
+  },
+  "missing": [
+    {
+      "fragment": "sidebarSurface",
+      "kind": "class",
+      "reason": "sidebarSurface 是桌面壳专有类名，Web 运行时本就不存在；已在 host-contract 登记语义",
+      "since": "2026-11-28",
+      "breaksIfMissing": "桌面端侧栏不透明（玻璃只在 Web 生效）"
+    }
+  ]
+}
