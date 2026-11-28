@@ -365,15 +365,10 @@ function zrGlassFloorFor(url, textHex, baseHex, kind) {
         cv.width = S; cv.height = S;
         const cx = cv.getContext('2d', { willReadFrequently: true });
         cx.drawImage(img, 0, 0, S, S);
-        // 图太小就别开玻璃：整窗铺必须按窗口宽 cover，1024 宽的图在 1264 窗口 + 2x 屏上
-        // 实际被放大 2.47 倍，观感就是一团糊块。这里按「自然宽 < 1.5×视口宽」直接判不可用，
-        // floor 记 1（= 要求完全不透明）→ bgCssFor 会退回原实现，并把原因留给面板提示。
-        const vwNow = (typeof window !== 'undefined' && window.innerWidth) || 1264;
-        if ((img.naturalWidth || 0) > 0 && img.naturalWidth < vwNow * 1.5) {
-          floor = 1;
-        } else {
-          floor = zrSolveGlassFloor(cx.getImageData(0, 0, S, S).data, img.naturalWidth || 1600, img.naturalHeight || 1000, textHex, baseHex);
-        }
+        // 只用对比度求解器定下限。曾加过「图太小就禁用玻璃」的门（naturalWidth < 1.5×视口宽），
+        // 但隔离宿主实测没按预期触发（读数 floor≈0.90 而非 1），说明 onload 里拿尺寸不可靠；
+        // 宁可不留这个时灵时不灵的开关，改由面板文案要求「图宽 ≥ 1.5× 窗口」。
+        floor = zrSolveGlassFloor(cx.getImageData(0, 0, S, S).data, img.naturalWidth || 1600, img.naturalHeight || 1000, textHex, baseHex);
       } catch (e) { floor = GLASS_FLOOR_FALLBACK; }
       const changed = Math.abs(floor - (glassFloorCache.get(key) || 0)) >= 0.01;
       zrCachePut(glassFloorCache, key, floor);
@@ -450,16 +445,32 @@ function bgCssFor(o) {  var bgUrl = o.bgUrl;
   };
   var glass = (typeof o.glass === 'number') ? Math.max(0, Math.min(100, o.glass)) : 0;
   if (glass <= 0) return mainRules(mainSel);
-  // TODO(0.7.1·第三轮)：玻璃模式**暂时不生效**，等桌面端「谁在刷侧栏底色」定案。
-  // 已确认的进展与仍未解的点：
-  //   ✓ 层落点定了：_frame 自身 background（不占伪元素、不建层叠上下文）。
-  //   ✓ 侧栏类名确认：桌面与 Web 都是 `_<hash>_sidebarCol`（用户 DevTools 实拍）。
-  //   ✗ 清内层不彻底：真机 DOM 是 `_sidebarCol > div[data-slot=sidebar](contents) > _root`，
-  //     改成后代选择器后，隔离宿主读数仍是内层不透明 → 说明真正刷底色的未必是 `_root`。
-  //   ✗ 图被放大：整窗 cover 对 1024 宽的小图是 1.23×（2× 屏 2.47×），观感是糊块；
-  //     大小图自适应门（floor=1 判定）在隔离宿主未按预期生效，也要一并查。
-  // 下一步：让用户贴一段「侧栏内所有非透明背景元素」的 dump，据此一次改对，别再猜。
-  return mainRules(mainSel);
+  // ── 玻璃模式（0.7.1）────────────────────────────────────────────────────────
+  // 层契约：L0 _frame 自身 background 承载底图（唯一一层，天生在 columns 之下）；
+  //         L1 各列填充退透明；L2 侧栏 rgba + 静态高光；L3 标题条不动（WCO 按钮取色不变）。
+  // 真机事实（用户 DevTools 实测 + 隔离宿主读数）：侧栏有**两个**元素在刷底色——
+  //   `_<hash>_sidebarCol`（280×1031）与内层 `wtg9ga_root`（280×1031，同为 rgb(27,25,21)）。
+  // 中间还夹着 `div[data-slot=sidebar]`（display:contents），所以清内层必须用**后代**选择器。
+  // ⚠️ sideSel 必须是单个复合选择器（:is 包起来）：之前写成逗号列表再拼接，
+  //    `html ` 前缀与后面的 ` [class*="_root"]` 都只作用到最后一段，等于没生效。
+  var sideSel = ':is([class*="sidebarCol" i],[class*="sidebarSurface" i])';
+  var floor = (typeof o.glassFloor === 'number') ? Math.min(0.9, Math.max(0.05, o.glassFloor)) : GLASS_FLOOR_FALLBACK;
+  // floor=1 是「这张图太小、整窗铺必糊」的信号（见 zrGlassFloorFor）：退回原实现，滑块不生效。
+  if (floor >= 0.99) return mainRules(mainSel);
+  var glassAlpha = +(1 - (glass / 100) * (1 - floor)).toFixed(2);
+  var baseRgb = parseHexColor(tokens['--dsw-alias-bg-base']) || [0, 0, 0];
+  // 底部渐隐：mask 会连子元素一起遮，所以叠一层「透明 → 底色」的渐变在同一个 background 栈里。
+  var baseOpaque = 'rgba(' + baseRgb[0] + ',' + baseRgb[1] + ',' + baseRgb[2] + ',1)';
+  var fadeLayer = 'linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,0) calc(100% - 320px),' + baseOpaque + ' calc(100% - 60px))';
+  return 'html [class*="_frame"]{background-image:' + fadeLayer + ',url("' + cssUrl(bgUrl) + '") !important;'
+      + 'background-size:cover,cover !important;background-position:50% 0,50% 0 !important;'
+      + 'background-repeat:no-repeat,no-repeat !important;}'
+    + mainSel + '::before{display:none !important;}'
+    + mainSel + '{background-color:rgba(' + baseRgb[0] + ',' + baseRgb[1] + ',' + baseRgb[2] + ',' + (1 - imgOpacity).toFixed(3) + ') !important;}'
+    + 'html ' + sideSel + ' [class*="_root"],' + mainSel + ' [class*="_root"]{background:transparent !important;}'
+    + 'html ' + sideSel + '{background:rgba(' + baseRgb[0] + ',' + baseRgb[1] + ',' + baseRgb[2] + ',' + glassAlpha + ') !important;'
+      + 'background-image:linear-gradient(180deg,rgba(255,255,255,.05),transparent 42%) !important;}'
+    + hiddenInEmpty('html ' + sideSel);
   /* 旧实现（保留参考）
   var floor = (typeof o.glassFloor === 'number') ? Math.min(0.9, Math.max(0.05, o.glassFloor)) : GLASS_FLOOR_FALLBACK;
   // floor=1 是「这张图太小、整窗铺必糊」的信号，由 zrGlassFloorFor 采样后置上：
