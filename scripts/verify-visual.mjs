@@ -10,7 +10,8 @@
  *
  * 用法：
  *   node scripts/verify-visual.mjs                     比对 visual/current/*.png 与基线
- *   node scripts/verify-visual.mjs --strict            没有 current 截图也判红
+ *   node scripts/verify-visual.mjs --strict            严格：没有 current 截图、或采集比源码旧，都判红
+ *   node scripts/verify-visual.mjs --strict --allow-stale  过期也放行（要在提交说明里写原因）
  *   node scripts/verify-visual.mjs --capture <dir>     把 <dir>/*.png 提升为基线并写 manifest
  *   node scripts/verify-visual.mjs --tolerance 8       单通道差阈值（默认 8）
  *
@@ -34,6 +35,7 @@ const valueOf = (name) => {
   return i >= 0 ? argv[i + 1] : undefined
 }
 const strict = flag('--strict')
+const allowStale = flag('--allow-stale')
 const captureDir = valueOf('--capture')
 const tolerance = Number(valueOf('--tolerance') ?? 8)
 const ratioLimit = 0.001
@@ -121,15 +123,15 @@ function newestMtime(dir, ext) {
   }
 }
 
-function warnIfStale(currentDir, ext) {
+// 采集比源码旧 = 这次的绿只是「旧图 vs 旧基线」的绿，对最新代码没有任何保证。
+// 默认只 WARN 是因为重新采集要真实宿主界面，CI 里做不到；但本地/发版前应当让它判红，
+// 否则门会长期「绿着比旧图」——那比没有门更危险，因为它给人已经验过的错觉。
+function staleInfo(currentDir, ext) {
   const cur = newestMtime(currentDir, ext)
-  if (!cur) return
+  if (!cur) return { minutes: 0 }
   const src = newestMtime(join(root, 'src'), '.js')
-  if (src > cur) {
-    const mins = Math.round((src - cur) / 60000)
-    console.warn('WARN  采集比源码旧（源码新约 ' + mins + ' 分钟）—— 这次结论只对采集那一刻成立；')
-    console.warn('      改完代码请重新采集，否则门看起来是绿的，其实在比旧图。')
-  }
+  if (src <= cur) return { minutes: 0 }
+  return { minutes: Math.max(1, Math.round((src - cur) / 60000)) }
 }
 
 function capture() {
@@ -181,9 +183,18 @@ function verify() {
     console.log('     采集方法见 README「门禁与验证」；基线 ' + names.length + ' 张，视口 ' + manifest.viewport)
     return 0
   }
-  warnIfStale(currentDir, '.png')
+  const stale = staleInfo(currentDir, '.png')
+  const staleBite = stale.minutes > 0 && strict && !allowStale
+  if (staleBite) {
+    console.error('FAIL  采集比源码旧 ' + stale.minutes + ' 分钟：这次的绿是旧图的绿，对最新代码不作保证。')
+    console.error('      重新采集后 node scripts/verify-visual.mjs --capture visual/current；')
+    console.error('      确实不重采就显式加 --allow-stale（并在提交说明里写原因）。')
+  } else if (stale.minutes > 0) {
+    console.warn('WARN  采集比源码旧（源码新约 ' + stale.minutes + ' 分钟）—— 这次结论只对采集那一刻成立；')
+    console.warn('      改完代码请重新采集，否则门看起来是绿的，其实在比旧图。加 --strict 可让这种状态判红。')
+  }
   console.log('基线 ' + names.length + ' 张，视口 ' + manifest.viewport + '，容差 ' + tolerance + '，判红阈值 ' + (manifest.ratioLimit * 100).toFixed(2) + '%')
-  let failed = 0
+  let failed = staleBite ? 1 : 0
   for (const entry of manifest.images) {
     const curPath = join(currentDir, entry.file)
     if (!existsSync(curPath)) {
@@ -209,7 +220,9 @@ function verify() {
     }
   }
   if (failed) {
-    console.error('\nFAIL  ' + failed + ' 张与基线不符。确认是有意改动后重新采集基线；否则说明 CSS 改坏了。')
+    console.error('\nFAIL  ' + failed + ' 项不通过'
+    + (staleBite ? '（含「采集过期」1 项：不是图变了，是这份绿不算数）' : '')
+    + '。确认是有意改动后重新采集基线；否则说明 CSS 改坏了。')
     return 1
   }
   console.log('PASS  全部与视觉基线一致')

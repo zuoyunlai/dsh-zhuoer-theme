@@ -1,5 +1,5 @@
 {
-  "$comment": "i18n 棘轮基线：每个文件的裸中文字面量条数。只许减少；改完跑 node scripts/verify-i18n.mjs --update 收紧。",
+  "$comment": "i18n 棘轮基线：每个文件的裸中文字面量条数。只许减少；改完跑 node scripts/verify-i18n.mjs --update 收紧。注意：剩下的 46 条不是欠账——按 docs/i18n-plan.md 的决策 A1，运行期 console 日志与 10-themes.js 的主题名/预设名数据表属于「有意不译」的终态；这道棘轮的作用是防新增裸中文，不是催债。",
   "files": {
     "src/00-core.js": 0,
     "src/05-i18n.js": 0,

@@ -370,6 +370,8 @@ npm run coverage      # token 覆盖率与「刻意不跟锚点」的豁免清�
 冻结动画（`transition:none;animation:none`）、把祖先滚动条归零之后依旧不复现。一个红了说明不了代码坏、
 绿了也说明不了代码好的门，给的是安全错觉。它现在只做**真机基线对照**：基线在
 `contracts/visual-baseline/`，改版前后人工跑一次看差值，`--capture` 显式提升。
+`--strict` 会把「没有采集」**和**「采集比源码旧」都判红——后者尤其要命：过期的门绿的是旧图；
+确实不重采就 `--allow-stale` 显式放行，别让它默默绿着。
 
 **像素度量**（`scripts/analyze-pixels.mjs`）是另一回事，它是「读数」而不是「比对」，所以能跑：
 
