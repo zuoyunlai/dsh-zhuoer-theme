@@ -8,3 +8,6 @@ Thumbs.db
 .tmp-*
 # 调试/门禁重定向出来的临时日志：本会话里误提交过三次（.fd.out / .b7.out …），直接忽略
 *.out
+# Python 取证脚本的字节码缓存：scripts/ 下有 .py 工具，别把它们带进版本库
+__pycache__/
+*.pyc
