@@ -40,6 +40,34 @@
 - `dsh plugin add file:` 是**拷贝**不是链接：我改完源码重新 build，宿主跑的还是旧 bundle，
   排查浪费了一轮。验证前必须先 remove + add 一遍。
 
+### 定稿架构（在用户桌面端验收通过）
+
+层契约：
+
+| 层 | 内容 | 为什么 |
+| --- | --- | --- |
+| L0 | **唯一 AppFrame** 的 `background`：`linear-gradient(180deg,透明…底色) , url(底图)` | 图天生在所有 column 之下；不占伪元素、不建层叠上下文、不新增 DOM。渐变层替代 mask 做底部淡出（mask 会连子元素一起遮） |
+| L1 | `_sidebarCol` 与它内部 `_root` 的填充退透明 | 真机 dump：侧栏有**两个** 280×1031 的元素在刷同色（`_sidebarCol` + `wtg9ga_root`），只清一层等于没清 |
+| L2 | 侧栏 `rgba(bg-base, α)` + 5% 白色静态高光 | **不加 `backdrop-filter`**：filter 会让元素成为 `position:fixed` 后代的包含块，侧栏里菜单/tooltip 会错位（endfield 实测） |
+| L3 | 标题条、WCO 原生按钮 | 完全不动（用户要求：顶盖实色不变） |
+
+三个真机才暴露的坑：
+
+1. **`_frame` 不唯一**。同页有 `mP3x-q_frame`(1970×1071，真 AppFrame)、`nV4vHZW_frame`(**1684×11379** 的滚动容器)、
+   以及一堆 240×131 的卡片。把图铺到 `[class*="_frame"]` 上，那个万级高度的容器一 `cover` 就是
+   「无限放大 + 像素色块 + 和侧栏接缝错位」。改用 skins ADR-0009 的结构化锚定：
+   `[class*="_frame"]:has(> [class*="sidebarCol" i])`，全页只剩一个元素画图。
+2. **清内层不能用 `>`**。真机 DOM 是 `_sidebarCol > div[data-slot=sidebar](display:contents) > _root`，
+   直接子元素选择器永远命中不到中间那层。
+3. **选择器列表 + 字符串拼接**会把 `html ` 前缀和后代后缀都只作用到最后一段——同一个错误犯过两次，
+   现在 `sideSel` 一律用 `:is(...)` 包成单个复合选择器。
+
+已知边界（没做，不是 bug）：
+
+- **整窗铺图必然放大**：图宽需 ≥ 1.5× 窗口宽（窗口 1970 CSS px 时约 3000 宽），否则 `cover` 会把小图拉糊；
+  曾加过「图太小自动禁用玻璃」的门，但 `onload` 里拿 `naturalWidth` 不可靠（读数 floor≈0.90 而非 1），已移除。
+- 侧栏折叠成 rail、空对话/会话态的“底图关闭”开关对 L0 层尚未生效。
+
 
 
 ## 0.7.1（未发布）· 宿主依赖：给结构面加语义锚点兜底 + 锚点门禁
