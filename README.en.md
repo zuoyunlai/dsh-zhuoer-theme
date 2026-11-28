@@ -97,25 +97,26 @@ The UI shown is the Chinese one (same components in English; see [README.md](REA
 | UI font | Override the UI font family; CJK glyphs fall back to the bundled subsets |
 | Right-sidebar quick nav | Three modes: off / show three with hover expansion / show all |
 | Import & export | Custom themes and all preferences export to JSON and import back; "Restore default settings" requires two clicks |
-| Multilingual | UI copy in **8 languages** (中文 / English / 日本語 / Español / Français / Deutsch / Русский / Português), switching live with the host language; the set matches the host's own list exactly, and the gate fails if one is missing (theme names are intentionally untranslated) |
+| Multilingual | UI copy in **8 languages** (中文 / English / 日本語 / Español / Français / Deutsch / Русский / Português), switching live with the host language; the set matches the host's own list exactly, and the gate fails if one is missing (theme names are localised as poetic translations, see the list below) |
 
 ## Themes
 
 | id | Name | Dark canvas | Accent |
 |---|---|---|---|
-| zhuoer | Zhuoer 原版红 | `#0e1015` | `#d13c3c` |
-| absolutely | Absolutely · 极简 | `#1b1b1a` | `#d97757` |
-| beacon | 灯塔 · Beacon | `#000000` | `#ffc233` |
-| crt | CRT · 终端 | `#090a09` | `#e8e8e8` |
-| dash | Dash · 琥珀 | `#1a1210` | `#cf8b4d` |
-| knot | Knot · 绳结 | `#080808` | `#d92a3f` |
-| manuscript | 手稿 · Manuscript | `#211e18` | `#8fa8e0` |
-| miami | 迈阿密 · Miami | `#140f1e` | `#f472b6` |
-| phosphor | 荧光 · Phosphor | `#0a0f0a` | `#4ade80` |
-| rose | 桃红 · Rose | `#191724` | `#ebbcba` |
-| tide | 潮汐 · Tide | `#10151b` | `#5ab6d8` |
+| zhuoer | Zhuoer · Vermilion | `#0e1015` | `#d13c3c` |
+| absolutely | Terracotta | `#1b1b1a` | `#d97757` |
+| beacon | Everlight | `#000000` | `#ffc233` |
+| crt | Ink & Ash | `#090a09` | `#e8e8e8` |
+| dash | Amber | `#1a1210` | `#cf8b4d` |
+| knot | Crimson Knot | `#080808` | `#d92a3f` |
+| manuscript | Lamplight | `#211e18` | `#8fa8e0` |
+| miami | South Beach | `#140f1e` | `#f472b6` |
+| phosphor | Fireflies | `#0a0f0a` | `#4ade80` |
+| rose | Smoke Rose | `#191724` | `#ebbcba` |
+| tide | Spring Tide | `#10151b` | `#5ab6d8` |
+| vintage-paper | Old Letter | `#2d2621` | `#c0a080` |
 
-Theme names stay in Chinese on purpose (see "Known limits"): they are part of each theme's identity.
+Theme names are localised per language since 2026-11-28 (this supersedes decision A1 "names stay untranslated"): each name describes a palette's temperature and light rather than a metaphor, so it has to be read in your own language. The table above is the English set; the other seven locales carry their own.
 
 Shape language is also per theme (one `SHAPES` table): brutalist themes are square, terminal themes near-square, paper/manuscript slightly rounded, soft palettes rounder. Shadow scales are defined per theme as well.
 
@@ -269,7 +270,7 @@ All UI copy comes from a shared dictionary in `src/05-i18n.js` (`I18N.zh` / `I18
 - The language comes from the host locale service; **anything not `zh*` falls back to English**.
 - Changing the language in the host switches the UI live, no reload.
 - The panel, editor, JSON modal, error messages, and `aria-label` / `title` / `placeholder` / `alt` all go through the dictionary.
-- Theme and preset **names are intentionally not translated** (decision A1, they are part of the identity): the only Chinese left in the English UI should be those names.
+- **Theme names are localised** (since 2026-11-28, superseding A1 for themes only): preset names stay untranslated because they are pure style labels, not brand identity.
 
 To add a string: put it in both dictionaries, call `t('panel.xxx')`, then run `node scripts/verify-text.mjs --update` and `node scripts/verify-keys.mjs`. A bare-Chinese ratchet (`verify:i18n`) only lets the count go down. See [docs/i18n-plan.md](docs/i18n-plan.md).
 
@@ -471,7 +472,7 @@ gh release view v<version> -R zuoyunlai/dsh-zhuoer-theme --json isDraft --jq .is
 - **The pixel reading depends on the capture**: `analyze-pixels` reads one real render; a different DSH version, theme or zoom changes it. It reports "measured at that moment", never a permanent contract.
 - **DSH upgrades can break the contract**: class substrings and attribute names are not public API. `verify:host` reconciles "what the code uses ↔ what the contract records"; `verify:drift` adds "does that name still exist in the **local host**" by substring-matching `app.asar`. What neither can judge is **semantics** — the class may still exist while that chunk of DOM no longer does what it used to; only a real run catches that.
 - **Settings-section icon goes through a slot**: an `icon` field on the `settings.section` registration is ignored (dropped since 0.6.2, falls back to a gear). Register into `settings.section.icon` with `id` equal to the section id; the host calls it with `{ size, active }` (red Z shipped in 0.6.6). The three mechanisms — `package.json` `icon`, slot contribution, registration field — are unrelated; evidence lives in `contracts/host-contract.json` `positives` / `negatives`.
-- **Theme and preset names are not translated** (decision A1): they are part of each theme's identity. Group labels, buttons, notes and error messages all are.
+- **Theme names are localised** (decision A1 is superseded for themes only, 2026-11-28): each name describes its palette's temperature and light, so all eight locales carry a translation. Preset names are pure style labels and stay untranslated. Group labels, buttons, notes and error messages are always translated.
 
 ## Privacy
 
