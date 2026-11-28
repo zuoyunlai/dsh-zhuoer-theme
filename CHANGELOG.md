@@ -28,6 +28,47 @@
 回归：`scripts/test-routes.mjs` 用「重复即抛」的假 webServer 装配两次，断言第二次不抛、
 53 条路由各注册一次、状态落成 `endpoint-mounted`。
 
+## 0.6.46 · 首帧白闪：根因定位与修法（2026-11-28）
+
+上一节的「首帧观测」结论是**错的**，这里更正并给出真正的根因与修法。
+
+**根因**：宿主自己的 boot 主题在首屏注入 `body{background-color:#fff}`（深色 #151517），
+app.asar 里的原话是「CSS that colors the document canvas **before any script executes**」
+「head CSS colors the document canvas **before first paint**」；
+而我们的 token 只能等客户端 bundle 求值后才注入（实测首绘 144ms、bundle 求值 324ms、
+主题色真正落地 674ms）——于是中间约 450ms 画布是宿主的白底。用户在桌面端看到的
+「白色界面 → 主题底色界面」是真的。
+
+**上一节为什么测错**：探针是客户端代码，而客户端 bundle 是 defer 的模块脚本，
+首绘之后才求值——**首绘那一帧客户端根本看不见**。把「没观测到变化」当成「没有变化」，
+是方法错误。
+
+**修法**：走宿主正规通道 `webserver/index-inject`（宿主自己的主题就是这么做的：
+`ctx.on("webserver/index-inject", (table) => table.push(...rows), { prepend: true })`），
+服务端 push 一条 `{kind:'style'}` 行，首屏就把画布刷成主题底色。
+- 不用 tapIndex：桌面端是 file:// + IPC，字符串变换不会被执行；行表是两种呈现方式唯一共用的载体。
+- 底色来源：客户端 apply 后回传生效的明暗两态底色（新增 `POST /api/boot-colors`，落 boot-colors.json），
+  服务端首屏注入时读它；没有回传记录时退回内置 zhuoer 两态底色。
+- 明暗口径一致：客户端回传 mode（light/dark/auto），服务端据此决定刷单色还是用媒体查询——
+  无条件用媒体查询会让「显式浅色 + 系统深色」闪反方向，比不刷还糟。
+- 优先级：不抬 `!important`（本仓优先级计数是棘轮，基线 83）。首屏行用 `html body` 的
+  特异性压过宿主的 `body`；客户端那条选择器相同但注入更晚，同优先级后来者赢。
+
+**验收**：`scripts/test-boot-css.mjs` 16 组断言通过；web 端首屏 HTML 里两行都在
+（宿主 `body{...#fff}` 在前，我们的 `html body{...主题色}` 在后）；`npm test` exit 0；优先级计数 83 ≤ 83。
+
+**桌面端：通道通了，但首帧救不回来（结论已定，不再修）。** 桌面 host 重启后注入日志出现
+`inject known=true light=#dee7e9 dark=#101619`，说明 `webserver/index-inject` 在桌面端**确实触发**，
+推的行也是当期主题的正确值——所以「桌面端不触发」的猜测是错的。但观感未变，断点在推出去之后：
+桌面端引导代码是 `Ma.ready().then(({injections}) => iG(injections))`，行表要等**一次 IPC 往返**才被
+追加进 `head`，而那之前静态壳已经把窗口画上宿主底色了。换句话说插件唯一的上色通道排在首帧之后。
+web 端同一张行表是服务端直接渲染进首屏 HTML 的，所以那边零闪、这边必闪——不是同一段时序。
+根治只能宿主侧动手（把行表渲进桌面静态壳，或让窗口底色跟随主题），插件侧无解，故到此为止。
+详见 `docs/boot-probe-2026-11-28.md`。
+
+**诊断脚手架已清**：`index.js` 里每次渲染追加 `boot-inject.log` 的那段、以及探针的「常开」开关
+都已移除/收回调试闸门——诊断代码不留进正式版。
+
 ## 0.6.46 · 独立审计后的精简与口径收口（2026-11-28）
 
 对全仓做了一次独立审计（`plugin_doctor` 体检 + `npm test` 全链 + 11,208 行静态扫描 + 装机副本与运行日志对照），

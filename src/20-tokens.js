@@ -64,6 +64,42 @@ function findZrExtraSheet() {
     // 编辑期间只剩 CSS 兜底层。这里留一个模块级引用，任何调用点都能拿到宿主主题服务。
     let themeRef = null;
 
+    // ---- 首屏底色回传（让服务端能在首绘前把画布刷成主题色）----
+    // 背景：宿主自己的 boot 主题会在首屏注入 body{background-color:#fff}，而我们的 token
+    // 要等 bundle 求值后才生效 —— 中间那段就是用户看到的「白色界面」。
+    // 服务端在首绘前拿不到浏览器里的偏好（偏好存在 localStorage），只能靠我们回传。
+    let zrBootColorsKey = '';
+    function zrReportBootColors(pref) {
+      try {
+        // 键与 theme 字段都用**真实主题 id**（pref.theme），不能用 effectiveThemeId：
+        // 后者是自定义主题的 base，两个不同的自定义主题 base 相同（实测 9 个都 clone 自 zhuoer），
+        // 用 base 做键会导致「换主题不重新回传」，首屏底色停在旧主题上。
+        const themeId = String(pref.theme || 'zhuoer');
+        // 只在「主题 / 明暗模式 / 强调色」变化时回传一次：apply 在拖动滑块时会被 rAF 合并
+        // 高频触发，每次都算两套 token 再 POST 是纯浪费。
+        const key = themeId + '|' + (pref.mode || 'auto') + '|' + (pref.accent || '');
+        if (key === zrBootColorsKey) return;
+        const light = tokensForPref(pref, 'light')['--dsw-alias-bg-base'];
+        const dark = tokensForPref(pref, 'dark')['--dsw-alias-bg-base'];
+        const hexOk = (v) => typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v);
+        if (!hexOk(light) || !hexOk(dark)) return;
+        zrBootColorsKey = key;
+        fetch('/dsh-zhuoer-theme/api/boot-colors', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-zhuoer-client': '1' },
+          body: JSON.stringify({
+            light: String(light).toLowerCase(),
+            dark: String(dark).toLowerCase(),
+            // 明暗口径：'light' / 'dark' 是用户显式指定，'auto' 跟系统。
+            // 服务端据此决定首屏刷单色还是用媒体查询——不一致就会闪反方向。
+            mode: pref.mode === 'light' || pref.mode === 'dark' ? pref.mode : 'auto',
+            theme: String(themeId).slice(0, 40),
+            at: new Date().toISOString(),
+          }),
+        }).catch(function () { /* ignore */ });
+      } catch (e) { /* ignore */ }
+    }
+
     // 预览路径（取色器拖动、滑块、颜色输入）每个事件都会触发一次完整 apply，
     // 用 rAF 合并成「每帧至多一次」，拖动时不再重建几十次样式表。
     // ---- A3：外观插件共存探测（不点名）----
@@ -337,10 +373,14 @@ function zrTableFineCss(prefix, mode) {
   return css;
 }
 function applyTokens(theme, pref) {
+      // 首帧观测：overrideTokens 之前先读一次宿主原色（只有这一时刻读得到「闪之前是什么」）。
+      try { zrBootProbeMark('before'); } catch (e) { /* ignore */ }
       theme = theme || themeRef;
       const scheme = resolveScheme(pref.mode, theme);
       liveScheme = scheme;
       const tokens = Object.assign({}, tokensForPref(pref, scheme));
+      // 首屏底色回传：服务端靠它在首绘前刷画布（见 zrReportBootColors 的注释）。
+      try { zrReportBootColors(pref); } catch (e) { /* ignore */ }
       // 排障：自定义主题生效时把真实 token 表上报一次（每页一次，常态零开销）。
       try { zrDumpTokensOnce(scheme, pref, tokens); } catch (e) { /* ignore */ }
       // 面板切换后再取样半透明面（页面加载时看到的是聊天页）。
@@ -649,6 +689,8 @@ function applyTokens(theme, pref) {
           zrSkinDispose = null;
         }
         dispose = theme.overrideTokens(SOURCE, overrideMap) || (function () {});
+        // 首帧观测：token 真正落地这一刻（overrideTokens 返回之后）。
+        try { zrBootProbeMark('after'); } catch (e) { /* ignore */ }
         zrSkinDispose = dispose;
         overrideApplied = true;
         // B1：成功一次就把计数清零，并退出离线态。
@@ -676,7 +718,11 @@ function applyTokens(theme, pref) {
         // 历史：这里原本是 '*{' + decls + '}'，想压过「容器自己重新定义」，代价是 230+ 个属性
         // 对全 DOM 每个元素各算一遍（样式共享失效、每次 apply 全量重算）。
         // 现在只补一条精准兜底：显式在 style 里写了这些变量的元素（真正的重新定义路径）。
-        const css = 'html,body{' + decls + '}'
+        // 画布颜色也在这里声明一次，但**不抬优先级**（优先级计数是棘轮，只许降不许升）：
+        // 首屏那行（服务端注入的 style 行）给 html,body 写了 background-color，我们的这条
+        // 选择器相同（html,body）但**注入更晚**，同优先级下后来者赢——所以运行时这条接管，
+        // 深色模式切换时画布会跟着变量走，不会卡在首屏色。
+        const css = 'html,body{' + decls + ';background-color:var(--dsw-alias-bg-base)}'
           + '[style*="--dsw-alias-"],[style*="--dsw-font-"]{' + decls + '}';
         // 直接覆盖 markdown 内联 code / 代码块背景：
         // dsh-theme-palette 会注入 [class*="_markdown_"] :not(pre) > code{background:var(--dshtp-code-inline)}

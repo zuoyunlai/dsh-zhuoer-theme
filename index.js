@@ -175,6 +175,83 @@ function writeJsonAtomic(name, data) {
     return true;
   } catch (e) { return false; }
 }
+// ---- 首屏底色（首绘之前就把画布刷成主题色）----
+// 为什么要做这件事（2026-11-28 真机实测）：宿主自己的 boot 主题会在首屏注入
+// `body{background-color:#fff}`（深色 #151517），注释原文是「CSS that colors the
+// document canvas **before any script executes**」「head CSS colors the document canvas
+// **before first paint**」。而我们的 token 只能等客户端 bundle 求值后才注入——
+// 实测首绘 224ms、bundle 求值 370ms、主题色真正落地约 674ms，于是中间那 450ms
+// 画布是宿主的白底，用户看到的就是「白色界面 → 主题底色界面」。
+//
+// 修法走宿主正规通道：宿主自己的主题插件就是这么做的（app.asar 里 dsh-client-ui-theme）：
+//   ctx.on("webserver/index-inject", (table) => { table.push(...bootThemeInjections(...)) })
+// 行的 kind 是 'style'，会被渲染成 <style> 放在 <head> 里——首绘之前就在。
+//
+// 为什么不用 tapIndex：桌面端是 file:// + IPC，index.html 是打包好的静态壳，
+// tapIndex 的字符串变换不会被执行（见 dsh-boot-suite 的同款踩坑记录）。
+//
+// 底色从哪来：客户端每次 apply 都会把「当前生效的明暗两态底色」回传到这里
+// （POST /dsh-zhuoer-theme/api/boot-colors，见 src/20-tokens.js 的 zrReportBootColors），
+// 落 boot-colors.json；没有回传记录时（首次安装）退回内置 zhuoer 的两态底色。
+function zrBootBgColors() {
+  const fallback = { light: '#f4f1ec', dark: '#0e1015' };
+  // 先读客户端回传的生效底色（面板里选的主题、AI 生成的主题都走这条）。
+  try {
+    const raw = fs.readFileSync(path.join(dir(), 'boot-colors.json'), 'utf8');
+    const o = JSON.parse(raw);
+    const hexOk = (v) => typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v);
+    if (hexOk(o.light) && hexOk(o.dark)) {
+      return {
+        light: String(o.light).toLowerCase(),
+        dark: String(o.dark).toLowerCase(),
+        mode: o.mode === 'light' || o.mode === 'dark' ? o.mode : 'auto',
+        known: true,
+      };
+    }
+  } catch (e) { /* 没有回传记录：退回下面的兜底 */ }
+  // 再退回对话里生成过的主题（AI 卡片应用后落盘的那份）。
+  try {
+    const raw = fs.readFileSync(path.join(dir(), 'last-theme.json'), 'utf8');
+    const spec = JSON.parse(raw);
+    const pick = (side) => {
+      const v = spec && spec[side] && spec[side]['--dsw-alias-bg-base'];
+      return typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v) ? v.toLowerCase() : null;
+    };
+    const light = pick('light');
+    const dark = pick('dark');
+    if (light && dark) return { light: light, dark: dark, known: true };
+  } catch (e) { /* ignore */ }
+  return { light: fallback.light, dark: fallback.dark, known: false };
+}
+
+// 首屏 CSS：只刷画布底色，不碰任何别的变量。明暗口径见下面的 mode 分支。
+export function zrBootStyleCss(colors) {
+  const c = colors && typeof colors === 'object' ? colors : {};
+  const light = /^#[0-9a-fA-F]{6}$/.test(String(c.light || '')) ? String(c.light) : '#f4f1ec';
+  const dark = /^#[0-9a-fA-F]{6}$/.test(String(c.dark || '')) ? String(c.dark) : '#0e1015';
+  // 明暗口径必须跟客户端一致（pref.mode）：
+  //   'light' / 'dark' = 用户显式指定 → 首屏就刷那一个颜色；
+  //   'auto'（默认）   = 跟随系统 → 用媒体查询，跟宿主 boot 主题同款。
+  // 若这里无条件用媒体查询，用户显式选「浅色」而系统是深色时，首屏会先刷深色再被客户端改回浅色——
+  // 闪的方向反了，比不刷还糟。
+  const mode = c.mode === 'light' || c.mode === 'dark' ? c.mode : 'auto';
+  // 用「html body」而不是 !important 压过宿主的 body{background-color:#fff}：
+  // 宿主那条特异性是 (0,0,1)，我们是 (0,0,2)，同声明里特异性高者赢——不需要抬优先级。
+  // （!important 计数是棘轮，只许降不许升；这条是首屏兜底，不属于 a11y/排版那类。）
+  const sel = 'html body';
+  // 标记：让页面侧能认出「这条是卓尔的首屏行」——桌面端走 file:// + IPC 的页面侧解释器，
+  // 与 web 端（服务端拼 HTML）路径不同，只能由页面自己回答「首屏里有没有那行」。
+  const mark = '/*dsh-zhuoer-boot-canvas*/';
+  if (mode === 'light') {
+    return mark + ':root{color-scheme:light}' + sel + '{background-color:' + light + '}';
+  }
+  if (mode === 'dark') {
+    return mark + ':root{color-scheme:dark}' + sel + '{background-color:' + dark + '}';
+  }
+  return mark + ':root{color-scheme:light}' + sel + '{background-color:' + light + '}'
+    + '@media(prefers-color-scheme:dark){:root{color-scheme:dark}' + sel + '{background-color:' + dark + '}}';
+}
+
 export function apply(ctx, config) {
   // 对话里的主题生成工具：用户在 DSH 对话框说「给我一套赛博朋克配色」时，
   // 模型调用它生成主题 spec，对话流里出现色卡卡片，用户确认后才应用。
@@ -329,6 +406,51 @@ export function apply(ctx, config) {
               });
             } catch (e) {
               try { res.writeHead(404, { 'content-type': 'application/json; charset=utf-8' }); res.end('{"error":"none"}'); } catch (e2) { /* ignore */ }
+            }
+          },
+        });
+      } catch (e) { /* ignore */ }
+
+      // ---- 首屏底色回传（客户端 apply 后告诉服务端「现在生效的是哪套底色」）----
+      // 服务端在首绘前要刷画布，但偏好存在浏览器的 localStorage，服务端读不到，
+      // 只能等客户端回传。第一次安装还没有回传记录时用内置 zhuoer 的底色兜底。
+      try {
+        register({
+          kind: 'exact',
+          path: '/dsh-zhuoer-theme/api/boot-colors',
+          handler: (req, res) => {
+            if (!isOwnClient(req)) return rejectForeign(res);
+            try {
+              if (String(req.method || 'GET').toUpperCase() === 'GET') {
+                const buf = fs.readFileSync(path.join(dir(), 'boot-colors.json'));
+                res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+                res.end(buf);
+                return;
+              }
+              const collector = zrBodyCollector(8192, 1000);
+              req.on('data', (c) => { collector.push(c); });
+              req.on('end', () => {
+                const got = collector.result();
+                let parsed = null;
+                try { parsed = JSON.parse(got.body); } catch (e) { parsed = null; }
+                const hexOk = (v) => typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v);
+                if (!parsed || got.truncated || !hexOk(parsed.light) || !hexOk(parsed.dark)) {
+                  res.writeHead(400, { 'content-type': 'application/json; charset=utf-8' });
+                  res.end('{"error":"bad-body"}');
+                  return;
+                }
+                const wrote = writeJsonAtomic('boot-colors.json', {
+                  light: String(parsed.light).toLowerCase(),
+                  dark: String(parsed.dark).toLowerCase(),
+                  mode: parsed.mode === 'light' || parsed.mode === 'dark' ? parsed.mode : 'auto',
+                  theme: typeof parsed.theme === 'string' ? String(parsed.theme).slice(0, 40) : '',
+                  at: typeof parsed.at === 'string' ? String(parsed.at).slice(0, 40) : new Date().toISOString(),
+                });
+                res.writeHead(wrote ? 200 : 500, { 'content-type': 'application/json; charset=utf-8' });
+                res.end(JSON.stringify({ ok: wrote }));
+              });
+            } catch (e) {
+              try { res.writeHead(404); res.end('{"error":"none"}'); } catch (e2) { /* ignore */ }
             }
           },
         });
@@ -526,6 +648,21 @@ export function apply(ctx, config) {
       });
     }
   };
+
+  // 首屏底色：在宿主渲染 index.html 之前 push 一条 style 行，画布就是主题底色。
+  // prepend:true 让我们的行排在宿主 boot 主题的行之前——两行都给 body 写了 background-color，
+  // 后写的赢，我们要在前面就得先写。
+  try {
+    if (typeof ctx.on === 'function') {
+      ctx.on('webserver/index-inject', function (table) {
+        try {
+          if (!table || typeof table.push !== 'function') return;
+          const colors = zrBootBgColors();
+          table.push({ kind: 'style', text: zrBootStyleCss(colors) });
+        } catch (e) { /* 首屏底色失败不影响皮肤 */ }
+      }, { prepend: true });
+    }
+  } catch (e) { /* 没有这个事件也不影响皮肤 */ }
 
   if (typeof ctx.inject === 'function') {
     try {
