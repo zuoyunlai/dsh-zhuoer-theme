@@ -2,6 +2,32 @@
 
 按时间倒序。每条都写「为什么改」，而不只是改了什么。
 
+## 0.7.1（未发布）· 宿主依赖：给结构面加语义锚点兜底 + 锚点门禁
+
+参照 [open-sea-skin](https://github.com/d-dev0101/open-sea-skin) 的做法做的一轮“抗宿主改名”加固。**真机取证推翻了两个想当然的结论**，先说结果：
+
+1. **`[data-slot]` 不能用来上色**。真机 dump：`div[slot=sidebar]` / `[slot=main]` / `[slot=root]` 全是 `display:contents` 的 **0×0 包装**——背景无效、量不到尺寸。它只能做两件事：祖先限定，或 `div:has(> [data-slot="…"])` 反选回真正上色的盒子。
+2. **方向也反了**：`[data-slot="sidebar"]` 是 `_sidebarCol` 的**子节点**，不是它本身；`[data-slot="main"]` 同理（父节点是 `_mainPanel`，`_centerCol` 更外一层）。
+   实测 `div:has(> [data-slot="sidebar"])` 与 `[class*="sidebarCol"]` 命中同一个元素（`===` 为真）。
+
+改动：
+
+- 侧栏右缘分隔线、主栏底色/底纹挂载点，都改成 `:is(类名, div:has(> [data-slot=…]))` 并存；
+  用 `:is()` 而不是逗号列表——`:is()` 是**宽容列表**，老宿主不认 `:has()` 时只丢那一条分支，类名兜底仍在
+  （逗号列表里只要一条无效，整条规则作废）。`!important` 计数保持 83，没有升优先级。
+- 新增 `contracts/host-anchors.json`（44 个锚点，真机采集记录 hostVersion/时间）+ `scripts/verify-anchors.mjs`：
+  校验 src 里引用的每个 `[data-slot="…"]` 仍在清单内，缺一个就红；`--capture <dump>` 刷新清单。
+- `contracts/host-contract.json` 登记 `data-slot` 属性及其语义（不登记 `verify:host` 会判「ADDED 属性未登记」）。
+
+**两条被证伪的旧判断**（记下来免得再走）：
+
+- 我以为 `[class*="ivider_"]` 是死代码——错了。宿主的分隔条类是 `._divider_123xe_39`，含 `ivider_`，**规则有效**；
+  我的探测之所以没找到，是因为默认布局里没有 split 行，那元素只在分栏/dock 布局下才渲染。
+- 我以为“把 71 处哈希选择器迁到锚点”——数量也错了：真实是 706 处 / 503 个类名，
+  其中 620 处是字号表的微类名（不可迁），真正能迁的结构面只有 20-tokens.js 的 25 个类名。
+
+
+
 ## 0.7.0（2026-11-28 发布：底纹三修 + 矢量通道 + 12 套改名）
 
 这一版把攒在 0.6.46 工作号下的八批改动一次收口。升级后**看得见的变化**：

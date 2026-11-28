@@ -209,6 +209,11 @@
         "attribute": "data-zr-proc",
         "usedFor": "我们自己挂在 html 上的开关标记（1/0），表示是否启用步骤图标语义色",
         "breaksIfMissing": "开关点不动——规则永远不命中或永远命中"
+      },
+      {
+        "attribute": "data-slot",
+        "usedFor": "宿主 Slot 树落在 DOM 上的语义锚点（[data-slot=\"sidebar\"] / [data-slot=\"main\"]）。我们只用它做 CSS Modules 类名的兜底：真机实测这些元素是 display:contents 的 0×0 包装，背景无效、量不到尺寸，所以只能靠 `div:has(> [data-slot=\"sidebar\"])` 反选回真正上色的 _sidebarCol / _mainPanel。2026-11-28 真机核对：:has() 命中的元素与类名命中的是同一个。",
+        "breaksIfMissing": "类名被宿主改名时，侧栏右缘分隔线与主栏底色/底纹挂载点一起失配（静默，不报错）；锚点在时至少还能挂上。清单由 contracts/host-anchors.json + verify:anchors 守着。"
       }
     ]
   },

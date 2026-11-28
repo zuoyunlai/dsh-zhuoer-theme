@@ -351,10 +351,22 @@ function bgCssFor(o) {
     ? 'linear-gradient(180deg,#000 0%,rgba(0,0,0,.55) 45%,rgba(0,0,0,.12) calc(100% - 320px),transparent calc(100% - 60px))'
     : 'linear-gradient(180deg,#000 0%,#000 calc(100% - 320px),transparent calc(100% - 60px))';
   var fadeMask = '-webkit-mask-image:' + maskVal + ' !important;mask-image:' + maskVal + ' !important;';
-  return '[class*="_centerCol"],[class*="_mainPanel"]{background-color:var(--dsw-alias-bg-base) !important;background-image:none !important;position:relative !important;isolation:isolate !important;}'
-    + '[class*="_centerCol"]::before,[class*="_mainPanel"]::before{content:"" !important;' + blendCss + 'position:absolute !important;inset:0 !important;background-image:url("' + cssUrl(bgUrl) + '") !important;background-size:cover !important;background-position:50% 0% !important;background-repeat:no-repeat !important;opacity:' + imgOpacity + ' !important;' + invertCss + fadeMask + 'pointer-events:none !important;z-index:0 !important;}'
-    + '[class*="_centerCol"] [class*="_root"],[class*="_mainPanel"] [class*="_root"]{background-color:transparent !important;}'
-    + 'html[data-zr-state="empty"][data-zr-bg-empty="0"] [class*="_centerCol"]::before,html[data-zr-state="empty"][data-zr-bg-empty="0"] [class*="_mainPanel"]::before,html[data-zr-state="session"][data-zr-bg-session="0"] [class*="_centerCol"]::before,html[data-zr-state="session"][data-zr-bg-session="0"] [class*="_mainPanel"]::before{display:none !important;}';
+  var mainSel = ':is([class*="_centerCol"],[class*="_mainPanel"],div:has(> [data-slot="main"]))';
+  // 语义锚点兜底：真机实测 `[data-slot="main"]` 是 `_mainPanel` 的子节点且 display:contents（0×0，不能上色），
+  // 只能 `:has(> …)` 反选回上色盒子；`_centerCol` 在它外面一层，没有等价锚点，所以三者并存于 `:is()`。
+  // 用 `:is()` 而不是逗号列表：`:is()` 是宽容列表，老宿主不认 `:has()` 时只丢那一条分支，
+  // 类名兜底仍然生效（逗号列表里一条无效会让整条规则作废）。
+  var hiddenInEmpty = function (sel) {
+    return 'html[data-zr-state="empty"][data-zr-bg-empty="0"] ' + sel + '::before,'
+      + 'html[data-zr-state="session"][data-zr-bg-session="0"] ' + sel + '::before{display:none !important;}';
+  };
+  var mainRules = function (sel) {
+    return sel + '{background-color:var(--dsw-alias-bg-base) !important;background-image:none !important;position:relative !important;isolation:isolate !important;}'
+      + sel + '::before{content:"" !important;' + blendCss + 'position:absolute !important;inset:0 !important;background-image:url("' + cssUrl(bgUrl) + '") !important;background-size:cover !important;background-position:50% 0% !important;background-repeat:no-repeat !important;opacity:' + imgOpacity + ' !important;' + invertCss + fadeMask + 'pointer-events:none !important;z-index:0 !important;}'
+      + sel + ' [class*="_root"]{background-color:transparent !important;}'
+      + hiddenInEmpty(sel);
+  };
+  return mainRules(mainSel);
 }
 
 // 表格精细化的 CSS 片段（抽成纯函数，便于无头断言首末列内边距必须补回来）。
@@ -931,10 +943,14 @@ function applyTokens(theme, pref) {
         // 默认按 border-l3 画（= Web 端原生那条的观感），所有主题通用；
         // 灯塔（beacon）的设计特征是高对比分隔线，再单独提到 border-l4。
         // 选择器用 html 前缀而不是 data-zr-base：自定义主题（marker 是 c1:dark 之类）也要有线。
-        fxCss += 'html [class*="sidebarCol"]{'
+        fxCss += 'html :is([class*="sidebarCol"],div:has(> [data-slot="sidebar"])){'
           + 'border-right:1px solid var(--dsw-alias-border-l3,transparent) !important;}'
-          + 'html[data-zr-base="beacon"] [class*="sidebarCol"]{'
+          + 'html[data-zr-base="beacon"] :is([class*="sidebarCol"],div:has(> [data-slot="sidebar"])){'
           + 'border-right:1px solid var(--dsw-alias-border-l4,#9a9a9a) !important;}'
+          // 语义锚点兜底（宿主 CSS Modules 类名改了就失效）：真机实测 `[data-slot="sidebar"]` 是
+          // `_sidebarCol` 的**子节点**且 display:contents（0×0，不能上色），只能用 `:has(> …)` 反选回
+          // 那个真正上色的盒子——实测与 `[class*="sidebarCol"]` 命中同一个元素。
+          // 用 `:is()` 而非逗号列表：`:is()` 宽容，老宿主不认 `:has()` 只丢那一条分支，类名兜底仍在。
           // DSH 的对话卡片圆角是写死的 28px，不读 --dsw-radius-*，单独用变量接管。
           // var() 未定义时整条声明失效，所以内置主题不受影响。
           + '[class*="_card"],[class*="_card_"],[role="dialog"],[class*="_modal"]{'
