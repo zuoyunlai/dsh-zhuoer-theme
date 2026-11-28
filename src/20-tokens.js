@@ -475,7 +475,11 @@ function bgCssFor(o) {  var bgUrl = o.bgUrl;
     + 'html ' + sideSel + ' [class*="_root"],' + mainSel + ' [class*="_root"]{background:transparent !important;}'
     + 'html ' + sideSel + '{background:rgba(' + baseRgb[0] + ',' + baseRgb[1] + ',' + baseRgb[2] + ',' + glassAlpha + ') !important;'
       + 'background-image:linear-gradient(180deg,rgba(255,255,255,.05),transparent 42%) !important;}'
-    + hiddenInEmpty('html ' + sideSel);
+    + hiddenInEmpty('html ' + sideSel)
+    // 空对话 / 会话态的「底图关闭」开关在非玻璃模式下只影响主栏 ::before；玻璃模式的图挂在 AppFrame 上，
+    // 不补这一条的话，勾掉开关在玻璃模式下等于没关。
+    + 'html[data-zr-state="empty"][data-zr-bg-empty="0"] ' + appFrame + ','
+    + 'html[data-zr-state="session"][data-zr-bg-session="0"] ' + appFrame + '{background-image:none !important;}';
   /* 旧实现（保留参考）
   var floor = (typeof o.glassFloor === 'number') ? Math.min(0.9, Math.max(0.05, o.glassFloor)) : GLASS_FLOOR_FALLBACK;
   // floor=1 是「这张图太小、整窗铺必糊」的信号，由 zrGlassFloorFor 采样后置上：

@@ -471,5 +471,5 @@
   "tok.json-tree-string": "JSON-Baum: Zeichenkette",
   "panel.bg.glassRow": "Seitenleisten-Transparenz",
   "panel.bg.glassAria": "Seitenleisten-Transparenz",
-  "panel.bg.glassHint": "0 % = deckende Leiste; 100 % = so durchsichtig wie der Hintergrund erlaubt; die Untergrenze wird aus der Helligkeit unter der Leiste berechnet, damit Text lesbar bleibt"
+  "panel.bg.glassHint": "0 % = deckende Leiste; 100 % = so durchsichtig wie der Hintergrund erlaubt; die Untergrenze wird aus der Helligkeit unter der Leiste berechnet, damit Text lesbar bleibt; das Bild sollte mindestens 1,5× so breit wie das Fenster sein, sonst wird es hochskaliert und unscharf"
 }

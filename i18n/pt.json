@@ -471,5 +471,5 @@
   "tok.json-tree-string": "cadeia da árvore JSON",
   "panel.bg.glassRow": "Transparência da barra lateral",
   "panel.bg.glassAria": "Transparência da barra lateral",
-  "panel.bg.glassHint": "0% = barra sólida; 100% = o mais transparente que o fundo permitir; o limite é calculado pela luminosidade sob a barra para manter o texto legível"
+  "panel.bg.glassHint": "0% = barra sólida; 100% = o mais transparente que o fundo permitir; o limite é calculado pela luminosidade sob a barra para manter o texto legível; a imagem deve ter pelo menos 1,5× a largura da janela, senão será ampliada e ficará desfocada"
 }

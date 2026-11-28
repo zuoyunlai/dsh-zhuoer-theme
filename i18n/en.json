@@ -471,5 +471,5 @@
   "tok.json-tree-string": "JSON tree · string",
   "panel.bg.glassRow": "Sidebar glass",
   "panel.bg.glassAria": "Sidebar glass transparency",
-  "panel.bg.glassHint": "0% = solid sidebar; 100% = as clear as the background allows — the floor is solved from the brightness under the sidebar so text stays readable"
+  "panel.bg.glassHint": "0% = solid sidebar; 100% = as clear as the background allows — the floor is solved from the brightness under the sidebar so text stays readable; the image should be at least 1.5× the window width, otherwise covering the window upscales it and it goes soft"
 }

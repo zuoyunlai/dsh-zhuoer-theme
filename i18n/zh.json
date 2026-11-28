@@ -471,5 +471,5 @@
   "tok.json-tree-string": "JSON 树的字符串",
   "panel.bg.glassRow": "侧栏通透度",
   "panel.bg.glassAria": "侧栏通透度",
-  "panel.bg.glassHint": "0% = 侧栏实色；100% = 底图允许的最透，下限按侧栏那块图的亮度自动算，保证文字不糊"
+  "panel.bg.glassHint": "0% = 侧栏实色；100% = 底图允许的最透，下限按侧栏那块图的亮度自动算，保证文字不糊；图宽需 ≥1.5× 窗口，否则整窗铺开会被放大发糊"
 }

@@ -471,5 +471,5 @@
   "tok.json-tree-string": "chaîne de l'arbre JSON",
   "panel.bg.glassRow": "Transparence de la barre latérale",
   "panel.bg.glassAria": "Transparence de la barre latérale",
-  "panel.bg.glassHint": "0 % = barre opaque ; 100 % = le plus transparent que le fond autorise ; la limite est calculée d’après la luminosité sous la barre pour garder le texte lisible"
+  "panel.bg.glassHint": "0 % = barre opaque ; 100 % = le plus transparent que le fond autorise ; la limite est calculée d’après la luminosité sous la barre pour garder le texte lisible ; l’image doit faire au moins 1,5× la largeur de la fenêtre, sinon elle sera agrandie et floue"
 }

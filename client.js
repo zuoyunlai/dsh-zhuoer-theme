@@ -1139,7 +1139,7 @@ window.__ModuleLoader__.load({
         'tok.json-tree-string': 'JSON 树的字符串',
         'panel.bg.glassRow': '侧栏通透度',
         'panel.bg.glassAria': '侧栏通透度',
-        'panel.bg.glassHint': '0% = 侧栏实色；100% = 底图允许的最透，下限按侧栏那块图的亮度自动算，保证文字不糊',
+        'panel.bg.glassHint': '0% = 侧栏实色；100% = 底图允许的最透，下限按侧栏那块图的亮度自动算，保证文字不糊；图宽需 ≥1.5× 窗口，否则整窗铺开会被放大发糊',
       },
       en: {
         'rail.ariaLabel': 'Right sidebar quick nav',
@@ -1614,7 +1614,7 @@ window.__ModuleLoader__.load({
         'tok.json-tree-string': 'JSON tree · string',
         'panel.bg.glassRow': 'Sidebar glass',
         'panel.bg.glassAria': 'Sidebar glass transparency',
-        'panel.bg.glassHint': '0% = solid sidebar; 100% = as clear as the background allows — the floor is solved from the brightness under the sidebar so text stays readable',
+        'panel.bg.glassHint': '0% = solid sidebar; 100% = as clear as the background allows — the floor is solved from the brightness under the sidebar so text stays readable; the image should be at least 1.5× the window width, otherwise covering the window upscales it and it goes soft',
       },
       de: {
         'rail.ariaLabel': 'Schnellnavigation in der rechten Seitenleiste',
@@ -2089,7 +2089,7 @@ window.__ModuleLoader__.load({
         'tok.json-tree-string': 'JSON-Baum: Zeichenkette',
         'panel.bg.glassRow': 'Seitenleisten-Transparenz',
         'panel.bg.glassAria': 'Seitenleisten-Transparenz',
-        'panel.bg.glassHint': '0 % = deckende Leiste; 100 % = so durchsichtig wie der Hintergrund erlaubt; die Untergrenze wird aus der Helligkeit unter der Leiste berechnet, damit Text lesbar bleibt',
+        'panel.bg.glassHint': '0 % = deckende Leiste; 100 % = so durchsichtig wie der Hintergrund erlaubt; die Untergrenze wird aus der Helligkeit unter der Leiste berechnet, damit Text lesbar bleibt; das Bild sollte mindestens 1,5× so breit wie das Fenster sein, sonst wird es hochskaliert und unscharf',
       },
       es: {
         'rail.ariaLabel': 'Navegación rápida de la barra lateral derecha',
@@ -2564,7 +2564,7 @@ window.__ModuleLoader__.load({
         'tok.json-tree-string': 'cadena del árbol JSON',
         'panel.bg.glassRow': 'Transparencia de la barra lateral',
         'panel.bg.glassAria': 'Transparencia de la barra lateral',
-        'panel.bg.glassHint': '0% = barra sólida; 100% = lo más transparente que permita el fondo; el límite se calcula con el brillo bajo la barra para que el texto siga legible',
+        'panel.bg.glassHint': '0% = barra sólida; 100% = lo más transparente que permita el fondo; el límite se calcula con el brillo bajo la barra para que el texto siga legible; la imagen debe medir al menos 1,5× el ancho de la ventana, o al cubrirla se ampliará y se verá borrosa',
       },
       fr: {
         'rail.ariaLabel': 'Navigation rapide de la barre latérale droite',
@@ -3039,7 +3039,7 @@ window.__ModuleLoader__.load({
         'tok.json-tree-string': 'chaîne de l\'arbre JSON',
         'panel.bg.glassRow': 'Transparence de la barre latérale',
         'panel.bg.glassAria': 'Transparence de la barre latérale',
-        'panel.bg.glassHint': '0 % = barre opaque ; 100 % = le plus transparent que le fond autorise ; la limite est calculée d’après la luminosité sous la barre pour garder le texte lisible',
+        'panel.bg.glassHint': '0 % = barre opaque ; 100 % = le plus transparent que le fond autorise ; la limite est calculée d’après la luminosité sous la barre pour garder le texte lisible ; l’image doit faire au moins 1,5× la largeur de la fenêtre, sinon elle sera agrandie et floue',
       },
       ja: {
         'rail.ariaLabel': '右サイドバーのクイックナビ',
@@ -3514,7 +3514,7 @@ window.__ModuleLoader__.load({
         'tok.json-tree-string': 'JSON ツリーの文字列',
         'panel.bg.glassRow': 'サイドバーの透明度',
         'panel.bg.glassAria': 'サイドバーの透明度',
-        'panel.bg.glassHint': '0% = 不透明。100% = 背景が許す最大の透明度（サイドバー部分の明るさから下限を自動計算し、文字が読める範囲に収めます）',
+        'panel.bg.glassHint': '0% = 不透明。100% = 背景が許す最大の透明度（サイドバー部分の明るさから下限を自動計算し、文字が読める範囲に収めます）。画像の幅はウィンドウ幅の 1.5 倍以上が必要（それ未満だと拡大されてぼやけます）',
       },
       pt: {
         'rail.ariaLabel': 'Navegação rápida da barra lateral direita',
@@ -3989,7 +3989,7 @@ window.__ModuleLoader__.load({
         'tok.json-tree-string': 'cadeia da árvore JSON',
         'panel.bg.glassRow': 'Transparência da barra lateral',
         'panel.bg.glassAria': 'Transparência da barra lateral',
-        'panel.bg.glassHint': '0% = barra sólida; 100% = o mais transparente que o fundo permitir; o limite é calculado pela luminosidade sob a barra para manter o texto legível',
+        'panel.bg.glassHint': '0% = barra sólida; 100% = o mais transparente que o fundo permitir; o limite é calculado pela luminosidade sob a barra para manter o texto legível; a imagem deve ter pelo menos 1,5× a largura da janela, senão será ampliada e ficará desfocada',
       },
       ru: {
         'rail.ariaLabel': 'Быстрая навигация по правой боковой панели',
@@ -4464,7 +4464,7 @@ window.__ModuleLoader__.load({
         'tok.json-tree-string': 'дерево JSON: строка',
         'panel.bg.glassRow': 'Прозрачность боковой панели',
         'panel.bg.glassAria': 'Прозрачность боковой панели',
-        'panel.bg.glassHint': '0 % = панель непрозрачна; 100 % = максимальная прозрачность, которую допускает фон; нижняя граница считается по яркости под панелью, чтобы текст оставался читаемым',
+        'panel.bg.glassHint': '0 % = панель непрозрачна; 100 % = максимальная прозрачность, которую допускает фон; нижняя граница считается по яркости под панелью, чтобы текст оставался читаемым; ширина изображения должна быть не меньше 1,5× ширины окна, иначе оно растянется и станет размытым',
       },
     }
     // <<< i18n:end <<<
@@ -7640,7 +7640,11 @@ function bgCssFor(o) {  var bgUrl = o.bgUrl;
     + 'html ' + sideSel + ' [class*="_root"],' + mainSel + ' [class*="_root"]{background:transparent !important;}'
     + 'html ' + sideSel + '{background:rgba(' + baseRgb[0] + ',' + baseRgb[1] + ',' + baseRgb[2] + ',' + glassAlpha + ') !important;'
       + 'background-image:linear-gradient(180deg,rgba(255,255,255,.05),transparent 42%) !important;}'
-    + hiddenInEmpty('html ' + sideSel);
+    + hiddenInEmpty('html ' + sideSel)
+    // 空对话 / 会话态的「底图关闭」开关在非玻璃模式下只影响主栏 ::before；玻璃模式的图挂在 AppFrame 上，
+    // 不补这一条的话，勾掉开关在玻璃模式下等于没关。
+    + 'html[data-zr-state="empty"][data-zr-bg-empty="0"] ' + appFrame + ','
+    + 'html[data-zr-state="session"][data-zr-bg-session="0"] ' + appFrame + '{background-image:none !important;}';
   /* 旧实现（保留参考）
   var floor = (typeof o.glassFloor === 'number') ? Math.min(0.9, Math.max(0.05, o.glassFloor)) : GLASS_FLOOR_FALLBACK;
   // floor=1 是「这张图太小、整窗铺必糊」的信号，由 zrGlassFloorFor 采样后置上：
