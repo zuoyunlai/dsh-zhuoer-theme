@@ -6,7 +6,7 @@
     "light": "none"
   },
   "canvas": "320x200",
-  "generatedAt": "2026-11-28T13:53:40.062Z",
+  "generatedAt": "2026-11-28T13:58:13.834Z",
   "floors": {
     "absolute": 4.5,
     "erosionRatio": 0.4
@@ -50,12 +50,12 @@
       "sha256": "51ec5fdf6a79acc9d934c81b3544068cc95d2e22f6eeaa32d63b5f70a5c6f82a"
     },
     "bg-dash.svg": {
-      "bytes": 13126,
-      "sha256": "0cd082d2f7a798af855a8d5709af3bc821e90434a3bbfcc1ed614f2fa0bceddc"
+      "bytes": 13272,
+      "sha256": "84d88c5a175818e93fc3ba20ef7c3c936c34ff7eaf7813da5efd807405c24976"
     },
     "bg-soft-dash.svg": {
-      "bytes": 13315,
-      "sha256": "7940c4e5db8773bfd7f8fb1b34e94ad6b2447f9328d9691758853f26d1404a4d"
+      "bytes": 13365,
+      "sha256": "54dc9bafaa07aa13fd9f248d4b10757813b3895ee5a70a9dad162926f999f2cb"
     },
     "bg-knot.webp": {
       "bytes": 17392,
@@ -300,7 +300,7 @@
       "lumP5": 0.0069,
       "lumP50": 0.0069,
       "lumP95": 0.0069,
-      "lumP100": 0.01315
+      "lumP100": 0.01357
     },
     {
       "theme": "dash",
@@ -311,7 +311,7 @@
       "lumP5": 0.0069,
       "lumP50": 0.0069,
       "lumP95": 0.0069,
-      "lumP100": 0.01074
+      "lumP100": 0.01037
     },
     {
       "theme": "dash",
@@ -333,7 +333,7 @@
       "lumP5": 0.79083,
       "lumP50": 0.79083,
       "lumP95": 0.79083,
-      "lumP100": 0.79136
+      "lumP100": 0.79098
     },
     {
       "theme": "knot",
