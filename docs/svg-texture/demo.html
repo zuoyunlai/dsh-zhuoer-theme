@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<title>dash（琥珀）底纹：位图 vs SVG · 原型对照</title>
+<style>
+  body { margin: 0; padding: 24px; background: #f4f4f5; color: #18181b;
+         font: 14px/1.6 "Segoe UI", system-ui, sans-serif; }
+  h1 { font-size: 16px; margin: 0 0 4px; }
+  p.lead { margin: 0 0 18px; color: #52525b; max-width: 1400px; }
+  .row { display: flex; gap: 20px; margin-bottom: 22px; }
+  .cell { width: 977px; }
+  .cap { display: flex; justify-content: space-between; margin: 0 0 6px;
+         font: 12px/1.4 ui-monospace, monospace; color: #3f3f46; }
+  /* 照抄 src/20-tokens.js 的 bgCssFor：::before + inset:0 + cover + 0.595 + 底部淡出 */
+  .stage { position: relative; isolation: isolate; overflow: hidden;
+           width: 977px; height: 900px; border-radius: 10px;
+           box-shadow: 0 0 0 1px rgba(0,0,0,.12); }
+  .stage::before {
+    content: ""; position: absolute; inset: 0;
+    background-size: cover; background-position: 50% 0; background-repeat: no-repeat;
+    opacity: 0.595;
+    -webkit-mask-image: linear-gradient(180deg,#000 0%,#000 calc(100% - 320px),transparent calc(100% - 60px));
+    mask-image: linear-gradient(180deg,#000 0%,#000 calc(100% - 320px),transparent calc(100% - 60px));
+    pointer-events: none; z-index: 0;
+  }
+  .dark  { background: #1a1210; }
+  .light { background: #ebe5e0; }
+  .dark  .bmp::before { background-image: url("../../assets/bg/bg-dash.webp"); }
+  .dark  .vec::before { background-image: url("dash-dark.svg"); }
+  .light .bmp::before { background-image: url("../../assets/bg/bg-soft-dash.webp"); }
+  .light .vec::before { background-image: url("dash-light.svg"); }
+  /* 放大窗口：把同一个舞台放大 4 倍看边缘（这张图在 4K/DPR2 或系统缩放下就是这个处境） */
+  .zoom { width: 977px; height: 330px; overflow: hidden; position: relative;
+          border-radius: 10px; box-shadow: 0 0 0 1px rgba(0,0,0,.12); isolation: isolate; }
+  .zoom > .stage { transform: scale(4); transform-origin: 58% 0; border-radius: 0; box-shadow: none; }
+</style>
+<h1>dash（琥珀）底纹：内置位图 vs SVG 原型</h1>
+<p class="lead">同一套合成规则（<code>::before</code> + <code>inset:0</code> + <code>cover</code> + 不透明度 0.595 + 底部 320→60px 淡出），只换素材。SVG 是手绘近似，不是位图描摹。下半排把同一个舞台<strong>放大 4 倍</strong>——位图的线条已经糊成带状，SVG 仍是干净边缘。</p>
+
+<div class="row">
+  <div class="cell"><div class="cap"><span>深色 · 原始尺寸</span><span>位图 bg-dash.webp</span></div>
+    <div class="stage dark bmp"></div></div>
+  <div class="cell"><div class="cap"><span>深色 · 原始尺寸</span><span>矢量 dash-dark.svg</span></div>
+    <div class="stage dark vec"></div></div>
+</div>
+
+<div class="row">
+  <div class="cell"><div class="cap"><span>深色 · 放大 4×</span><span>位图（线条边缘发虚、颜色渗出）</span></div>
+    <div class="zoom"><div class="stage dark bmp"></div></div></div>
+  <div class="cell"><div class="cap"><span>深色 · 放大 4×</span><span>矢量（边缘始终锐利）</span></div>
+    <div class="zoom"><div class="stage dark vec"></div></div></div>
+</div>
+
+<div class="row">
+  <div class="cell"><div class="cap"><span>浅色 · 原始尺寸</span><span>位图 bg-soft-dash.webp</span></div>
+    <div class="stage light bmp"></div></div>
+  <div class="cell"><div class="cap"><span>浅色 · 原始尺寸</span><span>矢量 dash-light.svg</span></div>
+    <div class="stage light vec"></div></div>
+</div>
+</html>

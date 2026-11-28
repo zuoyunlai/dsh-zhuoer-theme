@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<title>dash 底纹：位图 vs SVG · 4× 放大与增强</title>
+<style>
+  body { margin: 0; padding: 20px; background: #111; color: #eee;
+         font: 14px/1.5 "Segoe UI", system-ui, sans-serif; }
+  h1 { font-size: 15px; margin: 0 0 6px; font-weight: 600; }
+  p { margin: 0 0 14px; color: #a1a1aa; max-width: 1000px; font-size: 12px; }
+  .row { display: flex; gap: 16px; margin-bottom: 16px; }
+  .cell { width: 977px; }
+  .cap { font: 12px/1.4 ui-monospace, monospace; color: #d4d4d8; margin-bottom: 5px; }
+  /* 为了在截图里看得见，这一页把不透明度拉满、并把舞台放大 4 倍（真实运行是 0.595） */
+  .stage { position: relative; isolation: isolate; overflow: hidden;
+           width: 977px; height: 300px; background: #1a1210; border-radius: 8px; }
+  .stage::before { content: ""; position: absolute; inset: 0;
+    background-size: cover; background-position: 50% 0; background-repeat: no-repeat;
+    opacity: 1; transform: scale(4); transform-origin: 62% 12%; }
+  .bmp::before { background-image: url("../../assets/bg/bg-dash.webp"); }
+  .vec::before { background-image: url("dash-dark.svg"); }
+  .light { background: #ebe5e0; }
+  .light.bmp::before { background-image: url("../../assets/bg/bg-soft-dash.webp"); }
+  .light.vec::before { background-image: url("dash-light.svg"); }
+</style>
+<h1>同样放大 4×、不透明度拉满：位图 vs SVG</h1>
+<p>真实运行时是 0.595 不透明度、约 1px 线宽——肉眼比这张图更淡。这张图只为看清「放大后边缘是什么样子」：位图在 1600px 的原生分辨率之外只能插值，SVG 在这个倍数下重新光栅化，边缘依旧干净。</p>
+<div class="row">
+  <div class="cell"><div class="cap">深色 · 位图（bg-dash.webp 1600×1000，3.1 KB）×4</div><div class="stage bmp"></div></div>
+  <div class="cell"><div class="cap">深色 · SVG（viewBox 1600×1000，1.1 KB）×4</div><div class="stage vec"></div></div>
+</div>
+<div class="row">
+  <div class="cell"><div class="cap">浅色 · 位图（bg-soft-dash.webp）×4</div><div class="stage light bmp"></div></div>
+  <div class="cell"><div class="cap">浅色 · SVG（dash-light.svg）×4</div><div class="stage light vec"></div></div>
+</div>
+</html>

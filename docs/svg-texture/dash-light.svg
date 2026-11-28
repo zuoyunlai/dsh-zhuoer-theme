@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" fill="none">
+  <title>dash 浅色底纹 · SVG 原型（手绘近似，非位图描摹）</title>
+  <g stroke="#987c59" stroke-opacity="0.176" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- 左下：三道同心大圆角，右边被画布裁掉 -->
+    <rect x="-620" y="470" width="1240" height="560" rx="280"/>
+    <rect x="-591" y="499" width="1182" height="502" rx="251"/>
+    <rect x="-562" y="528" width="1124" height="444" rx="222"/>
+    <!-- 右侧：四道同心竖圆角柱 -->
+    <rect x="1396" y="-60" width="760" height="1180" rx="320"/>
+    <rect x="1425" y="-31" width="702" height="1122" rx="291"/>
+    <rect x="1454" y="-2" width="644" height="1064" rx="262"/>
+    <rect x="1483" y="27" width="586" height="1006" rx="233"/>
+    <!-- 右上：同心圆簇 -->
+    <circle cx="1258" cy="176" r="46"/>
+    <circle cx="1258" cy="176" r="92"/>
+    <circle cx="1258" cy="176" r="138"/>
+    <circle cx="1258" cy="176" r="184"/>
+    <circle cx="1258" cy="176" r="230"/>
+  </g>
+</svg>
