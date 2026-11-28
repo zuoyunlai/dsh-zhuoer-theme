@@ -11,3 +11,6 @@ Thumbs.db
 # Python 取证脚本的字节码缓存：scripts/ 下有 .py 工具，别把它们带进版本库
 __pycache__/
 *.pyc
+
+# 图片生成工具的工作目录（不是本仓产物）：jpg/png 会撑大仓库，且 verify:release 要求工作区干净
+/dsh-image-gen/
