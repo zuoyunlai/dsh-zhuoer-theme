@@ -468,5 +468,8 @@
   "tok.state-success-tertiary": "Erfolg, tertiär",
   "tok.state-done-primary": "Erledigt-Farbe",
   "tok.hovercard-state-done": "Hover-Karte: erledigt",
-  "tok.json-tree-string": "JSON-Baum: Zeichenkette"
+  "tok.json-tree-string": "JSON-Baum: Zeichenkette",
+  "panel.bg.glassRow": "Seitenleisten-Transparenz",
+  "panel.bg.glassAria": "Seitenleisten-Transparenz",
+  "panel.bg.glassHint": "0 % = deckende Leiste; 100 % = so durchsichtig wie der Hintergrund erlaubt; die Untergrenze wird aus der Helligkeit unter der Leiste berechnet, damit Text lesbar bleibt"
 }

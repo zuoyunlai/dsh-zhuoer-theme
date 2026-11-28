@@ -468,5 +468,8 @@
   "tok.state-success-tertiary": "succès tertiaire",
   "tok.state-done-primary": "couleur terminée",
   "tok.hovercard-state-done": "carte au survol : terminé",
-  "tok.json-tree-string": "chaîne de l'arbre JSON"
+  "tok.json-tree-string": "chaîne de l'arbre JSON",
+  "panel.bg.glassRow": "Transparence de la barre latérale",
+  "panel.bg.glassAria": "Transparence de la barre latérale",
+  "panel.bg.glassHint": "0 % = barre opaque ; 100 % = le plus transparent que le fond autorise ; la limite est calculée d’après la luminosité sous la barre pour garder le texte lisible"
 }

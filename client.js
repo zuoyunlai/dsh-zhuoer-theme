@@ -1137,6 +1137,9 @@ window.__ModuleLoader__.load({
         'tok.state-done-primary': '完成态主色',
         'tok.hovercard-state-done': '悬停卡里的完成色',
         'tok.json-tree-string': 'JSON 树的字符串',
+        'panel.bg.glassRow': '侧栏通透度',
+        'panel.bg.glassAria': '侧栏通透度',
+        'panel.bg.glassHint': '0% = 侧栏实色；100% = 底图允许的最透，下限按侧栏那块图的亮度自动算，保证文字不糊',
       },
       en: {
         'rail.ariaLabel': 'Right sidebar quick nav',
@@ -1609,6 +1612,9 @@ window.__ModuleLoader__.load({
         'tok.state-done-primary': 'Done state primary',
         'tok.hovercard-state-done': 'Hover card · done',
         'tok.json-tree-string': 'JSON tree · string',
+        'panel.bg.glassRow': 'Sidebar glass',
+        'panel.bg.glassAria': 'Sidebar glass transparency',
+        'panel.bg.glassHint': '0% = solid sidebar; 100% = as clear as the background allows — the floor is solved from the brightness under the sidebar so text stays readable',
       },
       de: {
         'rail.ariaLabel': 'Schnellnavigation in der rechten Seitenleiste',
@@ -2081,6 +2087,9 @@ window.__ModuleLoader__.load({
         'tok.state-done-primary': 'Erledigt-Farbe',
         'tok.hovercard-state-done': 'Hover-Karte: erledigt',
         'tok.json-tree-string': 'JSON-Baum: Zeichenkette',
+        'panel.bg.glassRow': 'Seitenleisten-Transparenz',
+        'panel.bg.glassAria': 'Seitenleisten-Transparenz',
+        'panel.bg.glassHint': '0 % = deckende Leiste; 100 % = so durchsichtig wie der Hintergrund erlaubt; die Untergrenze wird aus der Helligkeit unter der Leiste berechnet, damit Text lesbar bleibt',
       },
       es: {
         'rail.ariaLabel': 'Navegación rápida de la barra lateral derecha',
@@ -2553,6 +2562,9 @@ window.__ModuleLoader__.load({
         'tok.state-done-primary': 'color de hecho',
         'tok.hovercard-state-done': 'tarjeta al pasar: hecho',
         'tok.json-tree-string': 'cadena del árbol JSON',
+        'panel.bg.glassRow': 'Transparencia de la barra lateral',
+        'panel.bg.glassAria': 'Transparencia de la barra lateral',
+        'panel.bg.glassHint': '0% = barra sólida; 100% = lo más transparente que permita el fondo; el límite se calcula con el brillo bajo la barra para que el texto siga legible',
       },
       fr: {
         'rail.ariaLabel': 'Navigation rapide de la barre latérale droite',
@@ -3025,6 +3037,9 @@ window.__ModuleLoader__.load({
         'tok.state-done-primary': 'couleur terminée',
         'tok.hovercard-state-done': 'carte au survol : terminé',
         'tok.json-tree-string': 'chaîne de l\'arbre JSON',
+        'panel.bg.glassRow': 'Transparence de la barre latérale',
+        'panel.bg.glassAria': 'Transparence de la barre latérale',
+        'panel.bg.glassHint': '0 % = barre opaque ; 100 % = le plus transparent que le fond autorise ; la limite est calculée d’après la luminosité sous la barre pour garder le texte lisible',
       },
       ja: {
         'rail.ariaLabel': '右サイドバーのクイックナビ',
@@ -3497,6 +3512,9 @@ window.__ModuleLoader__.load({
         'tok.state-done-primary': '完了状態の主色',
         'tok.hovercard-state-done': 'ホバーカード内の完了色',
         'tok.json-tree-string': 'JSON ツリーの文字列',
+        'panel.bg.glassRow': 'サイドバーの透明度',
+        'panel.bg.glassAria': 'サイドバーの透明度',
+        'panel.bg.glassHint': '0% = 不透明。100% = 背景が許す最大の透明度（サイドバー部分の明るさから下限を自動計算し、文字が読める範囲に収めます）',
       },
       pt: {
         'rail.ariaLabel': 'Navegação rápida da barra lateral direita',
@@ -3969,6 +3987,9 @@ window.__ModuleLoader__.load({
         'tok.state-done-primary': 'cor de concluído',
         'tok.hovercard-state-done': 'cartão ao passar: concluído',
         'tok.json-tree-string': 'cadeia da árvore JSON',
+        'panel.bg.glassRow': 'Transparência da barra lateral',
+        'panel.bg.glassAria': 'Transparência da barra lateral',
+        'panel.bg.glassHint': '0% = barra sólida; 100% = o mais transparente que o fundo permitir; o limite é calculado pela luminosidade sob a barra para manter o texto legível',
       },
       ru: {
         'rail.ariaLabel': 'Быстрая навигация по правой боковой панели',
@@ -4441,6 +4462,9 @@ window.__ModuleLoader__.load({
         'tok.state-done-primary': 'цвет «готово»',
         'tok.hovercard-state-done': 'карточка: готово',
         'tok.json-tree-string': 'дерево JSON: строка',
+        'panel.bg.glassRow': 'Прозрачность боковой панели',
+        'panel.bg.glassAria': 'Прозрачность боковой панели',
+        'panel.bg.glassHint': '0 % = панель непрозрачна; 100 % = максимальная прозрачность, которую допускает фон; нижняя граница считается по яркости под панелью, чтобы текст оставался читаемым',
       },
     }
     // <<< i18n:end <<<
@@ -4846,7 +4870,7 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
     function defaultPref() {
       return {
         theme: 'zhuoer', customThemes: [], mode: 'auto', bgSource: 'none', bgStyle: 'fade',
-        bgOpacity: 85, bgImage: '', bgOnEmpty: true, bgOnSession: true, sharp: false,
+        bgOpacity: 85, bgImage: '', bgOnEmpty: true, bgOnSession: true, sidebarGlass: 0, sharp: false,
         a11yHit: false, mdDensity: 'normal', mdHeadSize: 'theme', mdCode: 'none',
         mdTable: 'plain', mdQuote: 'plain', procIconColor: false, mdHeading: 'soft',
         fontScale: 100, chatWidth: 0, accent: '', uiFont: '', quicknav: 'three',
@@ -4898,6 +4922,7 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
           bgSource: ['none', 'theme', 'image'].indexOf(p.bgSource) !== -1 ? p.bgSource : 'none',
           bgStyle: p.bgStyle === 'full' ? 'full' : 'fade',
           bgOpacity: typeof p.bgOpacity === 'number' && p.bgOpacity >= 0 && p.bgOpacity <= 100 ? p.bgOpacity : 85,
+          sidebarGlass: typeof p.sidebarGlass === 'number' && p.sidebarGlass >= 0 && p.sidebarGlass <= 100 ? p.sidebarGlass : 0,
           // 底图与品牌图都是**用户可控的字符串**，会被拼进注入的样式表。
           // 与 brandImage 同口径校验（data:image/ 前缀）：前者能提前闭合 url(") 并注入任意 CSS。
           bgImage: typeof p.bgImage === 'string' && p.bgImage.indexOf('data:image/') === 0 ? p.bgImage : '',
@@ -7442,8 +7467,82 @@ function zrPhotoCapFor(url, textHex, baseHex, kind) {
   return PHOTO_CAP_MAX;
 }
 
-function bgCssFor(o) {
-  var bgUrl = o.bgUrl;
+// ── 侧栏玻璃（0.7.1）──────────────────────────────────────────────────────────
+// 「侧栏透出底图」不能靠拍脑袋定透明度：同一张照片，侧栏那 280px 可能是暗山、
+// 也可能是亮天空，安全下限差一倍。所以复用照片限幅那套求解器，只是把采样**限制在
+// 侧栏那一竖条**上，反解出「这里最多还能透多少」，再换算成侧栏底色至少要保留多少。
+//
+// 公式与照片限幅对齐：照片在侧栏里最亮能到 cap（= 满足 4.5 的最大不透明度），
+// 那么侧栏底色就需要 α_min = 1 - cap 才不至于把字压到 4.5 以下。
+// 用户滑块 g∈[0,100] 再在 [α_min, 1] 之间插值：g=0 → 不透明（现状），g=100 → α_min。
+const GLASS_BLUR_PX = 8;
+const GLASS_FLOOR_FALLBACK = 0.45;
+const glassFloorCache = new Map();
+
+function zrSolveGlassFloor(pixels, iw, ih, textHex, baseHex) {
+  const textLum = zrHexLum(textHex);
+  const b = parseHexColor(baseHex);
+  if (textLum === null || !b) return GLASS_FLOOR_FALLBACK;
+  // pixels 是 64×64 的缩略图；侧栏宽度按视口 280/1264 估（拿不到视口时按 0.22）
+  const S = 64;
+  const vw = (typeof window !== 'undefined' && window.innerWidth) || 1264;
+  const vh = (typeof window !== 'undefined' && window.innerHeight) || 771;
+  const sidebarPx = Math.min(vw, 280);
+  const scale = Math.max(vw / iw, vh / ih);
+  const dw = iw * scale;
+  const dx = (vw - dw) / 2;                       // background-position: 50% 0%
+  const x0 = Math.max(0, (0 - dx) / scale);
+  const x1 = Math.min(iw, (sidebarPx - dx) / scale);
+  const c0 = Math.max(0, Math.floor(x0 / iw * S));
+  const c1 = Math.min(S, Math.max(c0 + 1, Math.ceil(x1 / iw * S)));
+  // 照片在侧栏区域最多能显多亮
+  for (let a = PHOTO_CAP_MAX; a >= 0.049; a -= 0.01) {
+    let worst = Infinity;
+    for (let y = 0; y < S; y++) {
+      for (let x = c0; x < c1; x++) {
+        const i = (y * S + x) * 4;
+        const l = 0.2126 * zrLin(a * pixels[i] + (1 - a) * b[0])
+          + 0.7152 * zrLin(a * pixels[i + 1] + (1 - a) * b[1])
+          + 0.0722 * zrLin(a * pixels[i + 2] + (1 - a) * b[2]);
+        const c = zrRatio(textLum, l);
+        if (c < worst) worst = c;
+        if (worst < PHOTO_CONTRAST_TARGET) break;
+      }
+      if (worst < PHOTO_CONTRAST_TARGET) break;
+    }
+    if (worst >= PHOTO_CONTRAST_TARGET) return +(1 - a).toFixed(2);
+  }
+  return 0.95;
+}
+
+function zrGlassFloorFor(url, textHex, baseHex, kind) {
+  if (kind === 'texture') return GLASS_FLOOR_FALLBACK;   // 线稿极淡，交给对比度门禁兜底
+  const key = zrHashKey(url) + '|glass';
+  if (glassFloorCache.has(key)) return glassFloorCache.get(key);
+  zrCachePut(glassFloorCache, key, GLASS_FLOOR_FALLBACK);
+  try {
+    const img = new Image();
+    img.onload = function () {
+      let floor = GLASS_FLOOR_FALLBACK;
+      try {
+        const S = 64;
+        const cv = document.createElement('canvas');
+        cv.width = S; cv.height = S;
+        const cx = cv.getContext('2d', { willReadFrequently: true });
+        cx.drawImage(img, 0, 0, S, S);
+        floor = zrSolveGlassFloor(cx.getImageData(0, 0, S, S).data, img.naturalWidth || 1600, img.naturalHeight || 1000, textHex, baseHex);
+      } catch (e) { floor = GLASS_FLOOR_FALLBACK; }
+      const changed = Math.abs(floor - (glassFloorCache.get(key) || 0)) >= 0.01;
+      zrCachePut(glassFloorCache, key, floor);
+      if (changed && typeof zrReapply === 'function') { try { zrReapply(); } catch (e) { /* ignore */ } }
+    };
+    img.onerror = function () { zrCachePut(glassFloorCache, key, GLASS_FLOOR_FALLBACK); };
+    img.src = url;
+  } catch (e) { /* ignore */ }
+  return GLASS_FLOOR_FALLBACK;
+}
+
+function bgCssFor(o) {  var bgUrl = o.bgUrl;
   if (!bgUrl) return '';
   var bgOpacity = o.bgOpacity;
   var bgStyle = o.bgStyle;
@@ -7506,7 +7605,26 @@ function bgCssFor(o) {
       + sel + ' [class*="_root"]{background-color:transparent !important;}'
       + hiddenInEmpty(sel);
   };
-  return mainRules(mainSel);
+  var glass = (typeof o.glass === 'number') ? Math.max(0, Math.min(100, o.glass)) : 0;
+  if (glass <= 0) return mainRules(mainSel);
+  // 侧栏玻璃（g>0）：同一张底图上移成整窗一层，主栏让出底色，侧栏盖一层 rgba + 模糊。
+  // 只在这一档才改层结构，g=0 时 CSS 与改动前逐字一致（视觉基线不受影响）。
+  var floor = (typeof o.glassFloor === 'number') ? Math.min(0.9, Math.max(0.05, o.glassFloor)) : GLASS_FLOOR_FALLBACK;
+  var glassAlpha = +(1 - (glass / 100) * (1 - floor)).toFixed(2);
+  var baseRgb = parseHexColor(tokens['--dsw-alias-bg-base']) || [0, 0, 0];
+  var sideSel = ':is(div:has(> [data-slot="sidebar"]),[class*="sidebarCol"])';
+  var frameSel = '[class*="_frame"]';
+  var blurCss = 'backdrop-filter:blur(' + GLASS_BLUR_PX + 'px) saturate(110%) !important;';
+  return 'html ' + frameSel + '::before{content:"" !important;' + blendCss + 'position:fixed !important;inset:0 !important;'
+      + 'background-image:url("' + cssUrl(bgUrl) + '") !important;background-size:cover !important;background-position:50% 0% !important;'
+      + 'background-repeat:no-repeat !important;opacity:' + imgOpacity + ' !important;' + invertCss + fadeMask
+      + 'pointer-events:none !important;z-index:0 !important;}'
+    + mainSel + '{background-color:transparent !important;background-image:none !important;}'
+    + mainSel + '::before{display:none !important;}'
+    + mainSel + ' [class*="_root"]{background-color:transparent !important;}'
+    + 'html ' + sideSel + '{background:rgba(' + baseRgb[0] + ',' + baseRgb[1] + ',' + baseRgb[2] + ',' + glassAlpha + ') !important;' + blurCss + '}'
+    + 'html ' + sideSel + ' [class*="_root"]{background-color:transparent !important;}'
+    + hiddenInEmpty('html ' + frameSel) + hiddenInEmpty('html ' + sideSel);
 }
 
 // 表格精细化的 CSS 片段（抽成纯函数，便于无头断言首末列内边距必须补回来）。
@@ -7907,7 +8025,8 @@ function applyTokens(theme, pref) {
         // 照片：按采样解出对比度上限；底纹：恒 0.7（lighten 只留亮线，实测侵蚀极小）。
         const photoCap = zrPhotoCapFor(bgUrl, tokens['--dsw-alias-label-primary'], tokens['--dsw-alias-bg-base'], bgKind);
         currentPhotoCap = photoCap;
-        const bgCss = bgCssFor({ photoCap: photoCap, bgUrl: bgUrl, bgOpacity: bgOpacity, bgStyle: bgStyle, bgIsImage: !!(specBg && specBg.source === 'image') || pref.bgSource === 'image', bgInvert: bgInvert, bgKind: bgKind, tokens: tokens, scheme: scheme });
+        const glassFloor = zrGlassFloorFor(bgUrl, tokens['--dsw-alias-label-primary'], tokens['--dsw-alias-bg-base'], bgKind);
+        const bgCss = bgCssFor({ photoCap: photoCap, bgUrl: bgUrl, bgOpacity: bgOpacity, bgStyle: bgStyle, bgIsImage: !!(specBg && specBg.source === 'image') || pref.bgSource === 'image', bgInvert: bgInvert, bgKind: bgKind, tokens: tokens, scheme: scheme, glass: pref.sidebarGlass, glassFloor: glassFloor });
         // 每次应用都报一次底图解析事实（仅 debug 开关下），用于定位方案级不可见。
         try {
           const cc0 = document.querySelector('[class*="_centerCol"]');
@@ -10453,6 +10572,18 @@ function applyTokens(theme, pref) {
                 h('span', { className: 'zp-hint' }, currentPhotoCap < 0.699
                   ? t('panel.bg.opacityCapCapped', { p: Math.round(currentPhotoCap * 100) })
                   : t('panel.bg.opacityCap'))
+              ),
+              h(Row, { label: t('panel.bg.glassRow') },
+                h('input', {
+                  type: 'range', className: 'zp-range', min: 0, max: 100,
+                  value: Number(pref.sidebarGlass) || 0, 'aria-label': t('panel.bg.glassAria'),
+                  style: { '--zp-pct': (Number(pref.sidebarGlass) || 0) + '%' },
+                  onChange: function (ev) { set({ sidebarGlass: Number(ev.target.value) || 0 }); },
+                }),
+                h('span', { className: 'zp-val' }, (Number(pref.sidebarGlass) || 0) + '%'),
+                // 上限不是写死的数字：侧栏那 280px 里照片多亮，决定了还能透多少（左侧天空 vs
+                // 暗山能差一倍）。所以这里只解释语义，具体下限由 zrSolveGlassFloor 现算。
+                h('span', { className: 'zp-hint' }, t('panel.bg.glassHint'))
               ),
               h(Row, { label: t('panel.bg.showRow') },
                 h('label', { className: 'zp-chk' },

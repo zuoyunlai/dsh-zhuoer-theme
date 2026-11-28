@@ -468,5 +468,8 @@
   "tok.state-success-tertiary": "Success tertiary",
   "tok.state-done-primary": "Done state primary",
   "tok.hovercard-state-done": "Hover card · done",
-  "tok.json-tree-string": "JSON tree · string"
+  "tok.json-tree-string": "JSON tree · string",
+  "panel.bg.glassRow": "Sidebar glass",
+  "panel.bg.glassAria": "Sidebar glass transparency",
+  "panel.bg.glassHint": "0% = solid sidebar; 100% = as clear as the background allows — the floor is solved from the brightness under the sidebar so text stays readable"
 }

@@ -481,6 +481,9 @@
         'tok.state-done-primary': '完成态主色',
         'tok.hovercard-state-done': '悬停卡里的完成色',
         'tok.json-tree-string': 'JSON 树的字符串',
+        'panel.bg.glassRow': '侧栏通透度',
+        'panel.bg.glassAria': '侧栏通透度',
+        'panel.bg.glassHint': '0% = 侧栏实色；100% = 底图允许的最透，下限按侧栏那块图的亮度自动算，保证文字不糊',
       },
       en: {
         'rail.ariaLabel': 'Right sidebar quick nav',
@@ -953,6 +956,9 @@
         'tok.state-done-primary': 'Done state primary',
         'tok.hovercard-state-done': 'Hover card · done',
         'tok.json-tree-string': 'JSON tree · string',
+        'panel.bg.glassRow': 'Sidebar glass',
+        'panel.bg.glassAria': 'Sidebar glass transparency',
+        'panel.bg.glassHint': '0% = solid sidebar; 100% = as clear as the background allows — the floor is solved from the brightness under the sidebar so text stays readable',
       },
       de: {
         'rail.ariaLabel': 'Schnellnavigation in der rechten Seitenleiste',
@@ -1425,6 +1431,9 @@
         'tok.state-done-primary': 'Erledigt-Farbe',
         'tok.hovercard-state-done': 'Hover-Karte: erledigt',
         'tok.json-tree-string': 'JSON-Baum: Zeichenkette',
+        'panel.bg.glassRow': 'Seitenleisten-Transparenz',
+        'panel.bg.glassAria': 'Seitenleisten-Transparenz',
+        'panel.bg.glassHint': '0 % = deckende Leiste; 100 % = so durchsichtig wie der Hintergrund erlaubt; die Untergrenze wird aus der Helligkeit unter der Leiste berechnet, damit Text lesbar bleibt',
       },
       es: {
         'rail.ariaLabel': 'Navegación rápida de la barra lateral derecha',
@@ -1897,6 +1906,9 @@
         'tok.state-done-primary': 'color de hecho',
         'tok.hovercard-state-done': 'tarjeta al pasar: hecho',
         'tok.json-tree-string': 'cadena del árbol JSON',
+        'panel.bg.glassRow': 'Transparencia de la barra lateral',
+        'panel.bg.glassAria': 'Transparencia de la barra lateral',
+        'panel.bg.glassHint': '0% = barra sólida; 100% = lo más transparente que permita el fondo; el límite se calcula con el brillo bajo la barra para que el texto siga legible',
       },
       fr: {
         'rail.ariaLabel': 'Navigation rapide de la barre latérale droite',
@@ -2369,6 +2381,9 @@
         'tok.state-done-primary': 'couleur terminée',
         'tok.hovercard-state-done': 'carte au survol : terminé',
         'tok.json-tree-string': 'chaîne de l\'arbre JSON',
+        'panel.bg.glassRow': 'Transparence de la barre latérale',
+        'panel.bg.glassAria': 'Transparence de la barre latérale',
+        'panel.bg.glassHint': '0 % = barre opaque ; 100 % = le plus transparent que le fond autorise ; la limite est calculée d’après la luminosité sous la barre pour garder le texte lisible',
       },
       ja: {
         'rail.ariaLabel': '右サイドバーのクイックナビ',
@@ -2841,6 +2856,9 @@
         'tok.state-done-primary': '完了状態の主色',
         'tok.hovercard-state-done': 'ホバーカード内の完了色',
         'tok.json-tree-string': 'JSON ツリーの文字列',
+        'panel.bg.glassRow': 'サイドバーの透明度',
+        'panel.bg.glassAria': 'サイドバーの透明度',
+        'panel.bg.glassHint': '0% = 不透明。100% = 背景が許す最大の透明度（サイドバー部分の明るさから下限を自動計算し、文字が読める範囲に収めます）',
       },
       pt: {
         'rail.ariaLabel': 'Navegação rápida da barra lateral direita',
@@ -3313,6 +3331,9 @@
         'tok.state-done-primary': 'cor de concluído',
         'tok.hovercard-state-done': 'cartão ao passar: concluído',
         'tok.json-tree-string': 'cadeia da árvore JSON',
+        'panel.bg.glassRow': 'Transparência da barra lateral',
+        'panel.bg.glassAria': 'Transparência da barra lateral',
+        'panel.bg.glassHint': '0% = barra sólida; 100% = o mais transparente que o fundo permitir; o limite é calculado pela luminosidade sob a barra para manter o texto legível',
       },
       ru: {
         'rail.ariaLabel': 'Быстрая навигация по правой боковой панели',
@@ -3785,6 +3806,9 @@
         'tok.state-done-primary': 'цвет «готово»',
         'tok.hovercard-state-done': 'карточка: готово',
         'tok.json-tree-string': 'дерево JSON: строка',
+        'panel.bg.glassRow': 'Прозрачность боковой панели',
+        'panel.bg.glassAria': 'Прозрачность боковой панели',
+        'panel.bg.glassHint': '0 % = панель непрозрачна; 100 % = максимальная прозрачность, которую допускает фон; нижняя граница считается по яркости под панелью, чтобы текст оставался читаемым',
       },
     }
     // <<< i18n:end <<<

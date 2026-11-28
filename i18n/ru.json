@@ -468,5 +468,8 @@
   "tok.state-success-tertiary": "успех, третичный",
   "tok.state-done-primary": "цвет «готово»",
   "tok.hovercard-state-done": "карточка: готово",
-  "tok.json-tree-string": "дерево JSON: строка"
+  "tok.json-tree-string": "дерево JSON: строка",
+  "panel.bg.glassRow": "Прозрачность боковой панели",
+  "panel.bg.glassAria": "Прозрачность боковой панели",
+  "panel.bg.glassHint": "0 % = панель непрозрачна; 100 % = максимальная прозрачность, которую допускает фон; нижняя граница считается по яркости под панелью, чтобы текст оставался читаемым"
 }

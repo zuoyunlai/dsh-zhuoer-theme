@@ -352,7 +352,7 @@ npm run coverage      # token 覆盖率与「刻意不跟锚点」的豁免清�
 | `verify:market` | **市场索引门**：按官方 schema 校验 `market/index.json`（LocalizedText 必含 `en`、精确 SemVer、`source.type`、`engines.dsh`），并与本仓 `package.json` 交叉对账 |
 | `verify:locale` | **展示元数据门**：`locale/*.json` 的 `meta.title` 非空、`en` 必存、`exports`/`files` 齐全、`./icon` ≤256 KiB 且与 `icon` 字段指向一致 |
 | `verify:keys` | **词典门**（静态）：源码里 `t('…')` 用到的键必须在 zh/en 都存在，且同名键占位符集合一致；缺键或 `{n}`/`{count}` 不一致即红。审的是「渲染不到」的文案（抽屉、错误、ARIA） |
-| `verify:text` | **文案门**（确定性）：Node 端渲染面板，把 220 条文案与属性（`title`/`aria-label`/`placeholder`/`alt`）与 `contracts/text-snapshot/{zh,en}.json` 逐条比对，版本号归一化。改文案要配 `--update`，否则红 |
+| `verify:text` | **文案门**（确定性）：Node 端渲染面板，把 224 条文案与属性（`title`/`aria-label`/`placeholder`/`alt`）与 `contracts/text-snapshot/{zh,en}.json` 逐条比对，版本号归一化。改文案要配 `--update`，否则红 |
 | `verify:visual` | 面板截图像素比对（**仍不在 `verify:all`**）：同状态连续两次截 `.zp-root` 在光态下互差 2.3%，无法复现的像素门等于安全错觉。0.6.43 起改成**真机基线**（`contracts/visual-baseline/`，深/浅 559×2757、窄 323×666），用途是「改版前后对照」与裁 docs 图，不是自动门 |
 | `verify:csssnap` | 把插件**实际注入**的 CSS 文本与 `contracts/css-snapshot/` 逐字节比对；差异会报出首个偏移与上下文。没有 `visual/css-current/` 时 SKIP，`--strict` 才硬判 |
 | `verify:readme` | **README 门**：图文链接（含 raw.githubusercontent 映射到本地文件）必须真实存在且非空、中英两版结构对齐（标题/图片/代码块/表格计数一致）、版本串与 `package.json` 一致、不得出现过期措辞（如「界面中英双语」「为什么没有像素基线了」——两次真实脱节都在这条上） |

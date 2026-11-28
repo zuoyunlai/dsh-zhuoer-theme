@@ -468,5 +468,8 @@
   "tok.state-success-tertiary": "成功·三级色",
   "tok.state-done-primary": "完成态主色",
   "tok.hovercard-state-done": "悬停卡里的完成色",
-  "tok.json-tree-string": "JSON 树的字符串"
+  "tok.json-tree-string": "JSON 树的字符串",
+  "panel.bg.glassRow": "侧栏通透度",
+  "panel.bg.glassAria": "侧栏通透度",
+  "panel.bg.glassHint": "0% = 侧栏实色；100% = 底图允许的最透，下限按侧栏那块图的亮度自动算，保证文字不糊"
 }

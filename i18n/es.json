@@ -468,5 +468,8 @@
   "tok.state-success-tertiary": "éxito terciario",
   "tok.state-done-primary": "color de hecho",
   "tok.hovercard-state-done": "tarjeta al pasar: hecho",
-  "tok.json-tree-string": "cadena del árbol JSON"
+  "tok.json-tree-string": "cadena del árbol JSON",
+  "panel.bg.glassRow": "Transparencia de la barra lateral",
+  "panel.bg.glassAria": "Transparencia de la barra lateral",
+  "panel.bg.glassHint": "0% = barra sólida; 100% = lo más transparente que permita el fondo; el límite se calcula con el brillo bajo la barra para que el texto siga legible"
 }

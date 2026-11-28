@@ -302,8 +302,82 @@ function zrPhotoCapFor(url, textHex, baseHex, kind) {
   return PHOTO_CAP_MAX;
 }
 
-function bgCssFor(o) {
-  var bgUrl = o.bgUrl;
+// ── 侧栏玻璃（0.7.1）──────────────────────────────────────────────────────────
+// 「侧栏透出底图」不能靠拍脑袋定透明度：同一张照片，侧栏那 280px 可能是暗山、
+// 也可能是亮天空，安全下限差一倍。所以复用照片限幅那套求解器，只是把采样**限制在
+// 侧栏那一竖条**上，反解出「这里最多还能透多少」，再换算成侧栏底色至少要保留多少。
+//
+// 公式与照片限幅对齐：照片在侧栏里最亮能到 cap（= 满足 4.5 的最大不透明度），
+// 那么侧栏底色就需要 α_min = 1 - cap 才不至于把字压到 4.5 以下。
+// 用户滑块 g∈[0,100] 再在 [α_min, 1] 之间插值：g=0 → 不透明（现状），g=100 → α_min。
+const GLASS_BLUR_PX = 8;
+const GLASS_FLOOR_FALLBACK = 0.45;
+const glassFloorCache = new Map();
+
+function zrSolveGlassFloor(pixels, iw, ih, textHex, baseHex) {
+  const textLum = zrHexLum(textHex);
+  const b = parseHexColor(baseHex);
+  if (textLum === null || !b) return GLASS_FLOOR_FALLBACK;
+  // pixels 是 64×64 的缩略图；侧栏宽度按视口 280/1264 估（拿不到视口时按 0.22）
+  const S = 64;
+  const vw = (typeof window !== 'undefined' && window.innerWidth) || 1264;
+  const vh = (typeof window !== 'undefined' && window.innerHeight) || 771;
+  const sidebarPx = Math.min(vw, 280);
+  const scale = Math.max(vw / iw, vh / ih);
+  const dw = iw * scale;
+  const dx = (vw - dw) / 2;                       // background-position: 50% 0%
+  const x0 = Math.max(0, (0 - dx) / scale);
+  const x1 = Math.min(iw, (sidebarPx - dx) / scale);
+  const c0 = Math.max(0, Math.floor(x0 / iw * S));
+  const c1 = Math.min(S, Math.max(c0 + 1, Math.ceil(x1 / iw * S)));
+  // 照片在侧栏区域最多能显多亮
+  for (let a = PHOTO_CAP_MAX; a >= 0.049; a -= 0.01) {
+    let worst = Infinity;
+    for (let y = 0; y < S; y++) {
+      for (let x = c0; x < c1; x++) {
+        const i = (y * S + x) * 4;
+        const l = 0.2126 * zrLin(a * pixels[i] + (1 - a) * b[0])
+          + 0.7152 * zrLin(a * pixels[i + 1] + (1 - a) * b[1])
+          + 0.0722 * zrLin(a * pixels[i + 2] + (1 - a) * b[2]);
+        const c = zrRatio(textLum, l);
+        if (c < worst) worst = c;
+        if (worst < PHOTO_CONTRAST_TARGET) break;
+      }
+      if (worst < PHOTO_CONTRAST_TARGET) break;
+    }
+    if (worst >= PHOTO_CONTRAST_TARGET) return +(1 - a).toFixed(2);
+  }
+  return 0.95;
+}
+
+function zrGlassFloorFor(url, textHex, baseHex, kind) {
+  if (kind === 'texture') return GLASS_FLOOR_FALLBACK;   // 线稿极淡，交给对比度门禁兜底
+  const key = zrHashKey(url) + '|glass';
+  if (glassFloorCache.has(key)) return glassFloorCache.get(key);
+  zrCachePut(glassFloorCache, key, GLASS_FLOOR_FALLBACK);
+  try {
+    const img = new Image();
+    img.onload = function () {
+      let floor = GLASS_FLOOR_FALLBACK;
+      try {
+        const S = 64;
+        const cv = document.createElement('canvas');
+        cv.width = S; cv.height = S;
+        const cx = cv.getContext('2d', { willReadFrequently: true });
+        cx.drawImage(img, 0, 0, S, S);
+        floor = zrSolveGlassFloor(cx.getImageData(0, 0, S, S).data, img.naturalWidth || 1600, img.naturalHeight || 1000, textHex, baseHex);
+      } catch (e) { floor = GLASS_FLOOR_FALLBACK; }
+      const changed = Math.abs(floor - (glassFloorCache.get(key) || 0)) >= 0.01;
+      zrCachePut(glassFloorCache, key, floor);
+      if (changed && typeof zrReapply === 'function') { try { zrReapply(); } catch (e) { /* ignore */ } }
+    };
+    img.onerror = function () { zrCachePut(glassFloorCache, key, GLASS_FLOOR_FALLBACK); };
+    img.src = url;
+  } catch (e) { /* ignore */ }
+  return GLASS_FLOOR_FALLBACK;
+}
+
+function bgCssFor(o) {  var bgUrl = o.bgUrl;
   if (!bgUrl) return '';
   var bgOpacity = o.bgOpacity;
   var bgStyle = o.bgStyle;
@@ -366,7 +440,26 @@ function bgCssFor(o) {
       + sel + ' [class*="_root"]{background-color:transparent !important;}'
       + hiddenInEmpty(sel);
   };
-  return mainRules(mainSel);
+  var glass = (typeof o.glass === 'number') ? Math.max(0, Math.min(100, o.glass)) : 0;
+  if (glass <= 0) return mainRules(mainSel);
+  // 侧栏玻璃（g>0）：同一张底图上移成整窗一层，主栏让出底色，侧栏盖一层 rgba + 模糊。
+  // 只在这一档才改层结构，g=0 时 CSS 与改动前逐字一致（视觉基线不受影响）。
+  var floor = (typeof o.glassFloor === 'number') ? Math.min(0.9, Math.max(0.05, o.glassFloor)) : GLASS_FLOOR_FALLBACK;
+  var glassAlpha = +(1 - (glass / 100) * (1 - floor)).toFixed(2);
+  var baseRgb = parseHexColor(tokens['--dsw-alias-bg-base']) || [0, 0, 0];
+  var sideSel = ':is(div:has(> [data-slot="sidebar"]),[class*="sidebarCol"])';
+  var frameSel = '[class*="_frame"]';
+  var blurCss = 'backdrop-filter:blur(' + GLASS_BLUR_PX + 'px) saturate(110%) !important;';
+  return 'html ' + frameSel + '::before{content:"" !important;' + blendCss + 'position:fixed !important;inset:0 !important;'
+      + 'background-image:url("' + cssUrl(bgUrl) + '") !important;background-size:cover !important;background-position:50% 0% !important;'
+      + 'background-repeat:no-repeat !important;opacity:' + imgOpacity + ' !important;' + invertCss + fadeMask
+      + 'pointer-events:none !important;z-index:0 !important;}'
+    + mainSel + '{background-color:transparent !important;background-image:none !important;}'
+    + mainSel + '::before{display:none !important;}'
+    + mainSel + ' [class*="_root"]{background-color:transparent !important;}'
+    + 'html ' + sideSel + '{background:rgba(' + baseRgb[0] + ',' + baseRgb[1] + ',' + baseRgb[2] + ',' + glassAlpha + ') !important;' + blurCss + '}'
+    + 'html ' + sideSel + ' [class*="_root"]{background-color:transparent !important;}'
+    + hiddenInEmpty('html ' + frameSel) + hiddenInEmpty('html ' + sideSel);
 }
 
 // 表格精细化的 CSS 片段（抽成纯函数，便于无头断言首末列内边距必须补回来）。
@@ -767,7 +860,8 @@ function applyTokens(theme, pref) {
         // 照片：按采样解出对比度上限；底纹：恒 0.7（lighten 只留亮线，实测侵蚀极小）。
         const photoCap = zrPhotoCapFor(bgUrl, tokens['--dsw-alias-label-primary'], tokens['--dsw-alias-bg-base'], bgKind);
         currentPhotoCap = photoCap;
-        const bgCss = bgCssFor({ photoCap: photoCap, bgUrl: bgUrl, bgOpacity: bgOpacity, bgStyle: bgStyle, bgIsImage: !!(specBg && specBg.source === 'image') || pref.bgSource === 'image', bgInvert: bgInvert, bgKind: bgKind, tokens: tokens, scheme: scheme });
+        const glassFloor = zrGlassFloorFor(bgUrl, tokens['--dsw-alias-label-primary'], tokens['--dsw-alias-bg-base'], bgKind);
+        const bgCss = bgCssFor({ photoCap: photoCap, bgUrl: bgUrl, bgOpacity: bgOpacity, bgStyle: bgStyle, bgIsImage: !!(specBg && specBg.source === 'image') || pref.bgSource === 'image', bgInvert: bgInvert, bgKind: bgKind, tokens: tokens, scheme: scheme, glass: pref.sidebarGlass, glassFloor: glassFloor });
         // 每次应用都报一次底图解析事实（仅 debug 开关下），用于定位方案级不可见。
         try {
           const cc0 = document.querySelector('[class*="_centerCol"]');

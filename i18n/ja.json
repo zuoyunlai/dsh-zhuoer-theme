@@ -468,5 +468,8 @@
   "tok.state-success-tertiary": "成功の三次色",
   "tok.state-done-primary": "完了状態の主色",
   "tok.hovercard-state-done": "ホバーカード内の完了色",
-  "tok.json-tree-string": "JSON ツリーの文字列"
+  "tok.json-tree-string": "JSON ツリーの文字列",
+  "panel.bg.glassRow": "サイドバーの透明度",
+  "panel.bg.glassAria": "サイドバーの透明度",
+  "panel.bg.glassHint": "0% = 不透明。100% = 背景が許す最大の透明度（サイドバー部分の明るさから下限を自動計算し、文字が読める範囲に収めます）"
 }

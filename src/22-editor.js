@@ -1391,6 +1391,18 @@
                   ? t('panel.bg.opacityCapCapped', { p: Math.round(currentPhotoCap * 100) })
                   : t('panel.bg.opacityCap'))
               ),
+              h(Row, { label: t('panel.bg.glassRow') },
+                h('input', {
+                  type: 'range', className: 'zp-range', min: 0, max: 100,
+                  value: Number(pref.sidebarGlass) || 0, 'aria-label': t('panel.bg.glassAria'),
+                  style: { '--zp-pct': (Number(pref.sidebarGlass) || 0) + '%' },
+                  onChange: function (ev) { set({ sidebarGlass: Number(ev.target.value) || 0 }); },
+                }),
+                h('span', { className: 'zp-val' }, (Number(pref.sidebarGlass) || 0) + '%'),
+                // 上限不是写死的数字：侧栏那 280px 里照片多亮，决定了还能透多少（左侧天空 vs
+                // 暗山能差一倍）。所以这里只解释语义，具体下限由 zrSolveGlassFloor 现算。
+                h('span', { className: 'zp-hint' }, t('panel.bg.glassHint'))
+              ),
               h(Row, { label: t('panel.bg.showRow') },
                 h('label', { className: 'zp-chk' },
                   h('input', {

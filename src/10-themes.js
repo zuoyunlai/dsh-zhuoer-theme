@@ -224,7 +224,7 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
     function defaultPref() {
       return {
         theme: 'zhuoer', customThemes: [], mode: 'auto', bgSource: 'none', bgStyle: 'fade',
-        bgOpacity: 85, bgImage: '', bgOnEmpty: true, bgOnSession: true, sharp: false,
+        bgOpacity: 85, bgImage: '', bgOnEmpty: true, bgOnSession: true, sidebarGlass: 0, sharp: false,
         a11yHit: false, mdDensity: 'normal', mdHeadSize: 'theme', mdCode: 'none',
         mdTable: 'plain', mdQuote: 'plain', procIconColor: false, mdHeading: 'soft',
         fontScale: 100, chatWidth: 0, accent: '', uiFont: '', quicknav: 'three',
@@ -276,6 +276,7 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
           bgSource: ['none', 'theme', 'image'].indexOf(p.bgSource) !== -1 ? p.bgSource : 'none',
           bgStyle: p.bgStyle === 'full' ? 'full' : 'fade',
           bgOpacity: typeof p.bgOpacity === 'number' && p.bgOpacity >= 0 && p.bgOpacity <= 100 ? p.bgOpacity : 85,
+          sidebarGlass: typeof p.sidebarGlass === 'number' && p.sidebarGlass >= 0 && p.sidebarGlass <= 100 ? p.sidebarGlass : 0,
           // 底图与品牌图都是**用户可控的字符串**，会被拼进注入的样式表。
           // 与 brandImage 同口径校验（data:image/ 前缀）：前者能提前闭合 url(") 并注入任意 CSS。
           bgImage: typeof p.bgImage === 'string' && p.bgImage.indexOf('data:image/') === 0 ? p.bgImage : '',
