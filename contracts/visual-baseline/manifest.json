@@ -20,25 +20,25 @@
       "file": "dialog-dark.png",
       "w": 359,
       "h": 270,
-      "sha256": "667955aea8bfb38d376404c81bebc6b453e88f1bae3b0dce10af2e058fee7eaa"
+      "sha256": "cae8939df4876269e413b573f187419a12e62c176057d19ee7e0db2b0984fe53"
     },
     {
       "file": "dialog-light.png",
       "w": 359,
       "h": 270,
-      "sha256": "c18ddb0126a63ec3fec125ec73ecfcb164734900bf366903bb23cbfee8765ac1"
+      "sha256": "d7396a19f4c5584c90c5b5a1278afb1cb66894b3c808b19883c1fdb00c1949e5"
     },
     {
       "file": "editor-dark.png",
       "w": 392,
       "h": 771,
-      "sha256": "b4371e3cffca0870ad7deabb133f6fed0b37066ff660ee22bef4c61a1104077a"
+      "sha256": "548fbdae6cff78df11bfb3c7651cadc3db85fa89c651303598f108a25c4a6d58"
     },
     {
       "file": "editor-light.png",
       "w": 392,
       "h": 771,
-      "sha256": "36e04f4239d892b3942d6af909b0bbfd6a36f757e359ca1b208303a62c3e15fd"
+      "sha256": "6cc6219e88a21b6d36da7c84a7d1117dabcc177512c3893a6fab388b7ed33686"
     },
     {
       "file": "settings-dark.png",
