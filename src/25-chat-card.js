@@ -220,15 +220,16 @@
     }
 
     // 深色、浅色各取一张：与内置主题一致（BG / BG_SOFT），一张深图铺在浅底上会发闷。
-    // R-01：取回后先按该方案的 bg-base 归一化（对齐底色 + 极性翻转）。
-    // 不做这一步，「浅底 + 暗线」的图在浅色模式里会被 lighten 合成整片吃掉，且没有任何报错。
+    // R-01 / R-12：取回后先按该方案的 bg-base 归一化（对齐底色 + 对齐极性）。
+    // 极性跟着合成方式走：深色方案 lighten 要**亮墨**，浅色方案 multiply 要**暗墨**。
+    // 不这么做，「浅底 + 暗线」的图在浅色模式里会被 lighten 整片吃掉，而且没有任何报错。
     function zrResolveBg(spec) {
       const baseId = zrBaseThemeId();
       return Promise.all([zrFetchTexture(spec && spec.texture), zrFetchTexture(spec && spec.textureLight)])
         .then(function (r) {
           return Promise.all([
-            zrTexNormalizeUrl(r[0], zrTexTargetBg(spec, 'dark', baseId)),
-            zrTexNormalizeUrl(r[1], zrTexTargetBg(spec, 'light', baseId)),
+            zrTexNormalizeUrl(r[0], zrTexTargetBg(spec, 'dark', baseId), false),
+            zrTexNormalizeUrl(r[1], zrTexTargetBg(spec, 'light', baseId), true),
           ]);
         })
         .then(function (n) { return { dark: n[0] || '', light: n[1] || '' }; });

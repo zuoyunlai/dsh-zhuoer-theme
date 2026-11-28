@@ -26,9 +26,14 @@ const PORT = argAt > 0 && process.argv[argAt + 1] ? Number(process.argv[argAt + 
 
 const { THEMES, THEME_IDS } = await import(pathToFileURL(join(root, 'themes.mjs')).href)
 
-// 与 bgCssFor() 保持同源：可见度 100% = 实际 0.7；线稿统一 lighten。
+// 与 bgCssFor() 保持同源：可见度 100% = 实际 0.7；混合方式按方案分（见下）。
 const ALPHA = 0.7
-const BLEND = 'lighten'
+// R-12 / R-13：内置底图是**透明线稿**，运行时不加任何混合——`bgCssFor` 的 blend 只在
+// 「自定义图片」（bgIsImage）上挂，主题自带底图走的是普通 alpha 合成。
+// 所以这里要按 alpha 合成建模（mix = 取图本身的颜色），而不是 lighten/multiply。
+// 浅色现在也不加混合（multiply 会把「图底 = 底色」的满幅图乘成 b²/255，整幅盖灰），
+// 深色仍是 lighten——底色对齐后 max(底,底)=底，两种模型在「线只是略亮/略暗」时数值等价。
+const BLEND_FOR = { dark: 'lighten', light: 'none' }
 const ROLES = ['--dsw-alias-label-primary', '--dsw-alias-label-secondary', '--dsw-alias-label-tertiary']
 // 画布尺寸只在这里声明一次：浏览器侧从模板里取，Node 侧写契约时也用这份常量。
 const CANVAS = '320x200'
@@ -41,7 +46,7 @@ for (const id of THEME_IDS) {
     if (!base) continue
     for (const variant of ['full', 'soft']) {
       const file = 'bg-' + (variant === 'soft' ? 'soft-' : '') + id + '.webp'
-      jobs.push({ theme: id, mode, variant, file, base, texUrl: '/assets/bg/' + file })
+      jobs.push({ theme: id, mode, variant, file, base, blend: BLEND_FOR[mode], texUrl: '/assets/bg/' + file })
     }
   }
 }
@@ -54,7 +59,6 @@ window.onerror = (m,s,l,c) => { OUT.textContent = 'ERR ' + m + ' @' + l + ':' + 
 window.addEventListener('unhandledrejection', (e) => { OUT.textContent = 'REJ ' + (e.reason && e.reason.message || e.reason) })
 const JOBS = ${JSON.stringify(jobs)}
 const ALPHA = ${ALPHA}
-const BLEND = ${JSON.stringify(BLEND)}
 const lum = (r,g,b) => { const f=(v)=>{v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)}; return 0.2126*f(r)+0.7152*f(g)+0.0722*f(b) }
 const hex2rgb = (h) => { const m=String(h||'').replace('#',''); const f=m.length===3?m.split('').map(c=>c+c).join(''):m; return [0,2,4].map(i=>parseInt(f.slice(i,i+2),16)) }
 const pct = (arr,p) => arr[Math.min(arr.length-1, Math.max(0, Math.round((arr.length-1)*p)))]
@@ -73,7 +77,7 @@ for (const job of JOBS) {
   const lums = []
   for (let i = 0; i < d.length; i += 4) {
     const a = ALPHA * (d[i + 3] / 255)
-    const mix = (b, t) => (BLEND === 'multiply' ? (b * t) / 255 : Math.max(b, t))
+    const mix = (b, t) => (job.blend === 'none' ? t : (job.blend === 'multiply' ? (b * t) / 255 : Math.max(b, t)))
     lums.push(lum(a * mix(br, d[i]) + (1 - a) * br, a * mix(bg, d[i + 1]) + (1 - a) * bg, a * mix(bb, d[i + 2]) + (1 - a) * bb))
   }
   lums.sort((x, y) => x - y)
@@ -102,7 +106,7 @@ async function writeContract(rows) {
       '换了纹理文件必须重跑测量——门禁会比对 sha256，没重测就红。',
     ].join(''),
     alpha: ALPHA,
-    blend: BLEND,
+    blend: BLEND_FOR,
     canvas: '320x200',
     generatedAt: new Date().toISOString(),
     // 判据真源在 verify-texture.mjs：这里只是把它抄一份进契约，便于人工核对与 diff 时发现被改。
@@ -113,6 +117,14 @@ async function writeContract(rows) {
     rows,
   }
   const target = join(root, 'contracts', 'texture-luminance.json')
+  // 已知负债必须跟着走：重测会整份重写契约，若不复用旧 knownDebt，
+  // 那些「已明确接受」的绝对地板缺口会在下次 measurement 后变成「新问题」——
+  // 要么把门逼红，要么让人习惯性再跑一次 --accept-debt，两种都是在洗账。
+  let knownDebt = {}
+  try {
+    knownDebt = JSON.parse(await readFile(target, 'utf8')).knownDebt || {}
+  } catch (e) { /* 首次生成没有旧契约 */ }
+  if (Object.keys(knownDebt).length) contract.knownDebt = knownDebt
   await writeFile(target, JSON.stringify(contract, null, 2) + '\n', 'utf8')
   return target
 }

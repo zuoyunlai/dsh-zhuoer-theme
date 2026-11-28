@@ -302,8 +302,14 @@ window.__ModuleLoader__.load({
     // 缓存上限：用户换十几次底图就会在内存里留十几次大字符串（每张 data URL 可到几 MB）。
     // Map 保持插入序，满了丢最旧的（LRU）。
     const ZR_CACHE_MAX = 12;
-  // 底纹归一化的画布上限（R-01）：只影响内存与重编码耗时，不改可见尺寸。
-  const ZR_TEX_NORM_EDGE = 1000;
+  // 底纹归一化的画布上限（R-01 / R-11）：**这条线决定清晰度，不只是耗时**。
+  // 曾经是 1000，注释还写着「不改可见尺寸」——错的。3200×2000 在这里被压成 1000×625，
+  // 然后 CSS 用 `background-size:cover` 铺满主栏（约 977 CSS px，DPR 2 ≈ 1954 设备像素），
+  // 净放大 2.9 倍：标定时要的那层 ±1 级颗粒被拉成 3×3 的软块，看上去就是「模糊色斑」。
+  // 现在取 3200 = 与校准素材同尺寸，正常路径一次都不重采样（只有超过 3200 的才缩）。
+  // 代价说在明处：apply 时一次性多占约 25 MB 像素缓冲、PNG 重编码约 1 秒、
+  // data URL 约 2–2.5 MB（内存缓存 LRU 12 条，靠上面的淘汰策略兜住）。
+  const ZR_TEX_NORM_EDGE = 3200;
     function zrCachePut(map, key, value, protectedKeys) {
       if (map.has(key)) { map.delete(key); map.set(key, value); return value; }
       map.set(key, value);
@@ -5502,12 +5508,14 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
 
     // #endregion palette
     // #region texture-normalize
-    // 底纹归一化（R-01 / F-01 F-02）：把「模型画的图」变成「能按 lighten 合成的线稿」。
+    // 底纹归一化（R-01 / F-01 F-02 / R-12）：把「模型画的图」变成「能按该方案的混合方式合成的线稿」。
     // 为什么必须落在客户端：判定极性与对齐底色都要读像素，服务端没有 canvas。
     // 两个动作：
     //   ① 把图的底色平移到目标 bg-base（原来图底 #16101C 铺在 #0b0518 上，整页偏色 5~10 级）；
-    //   ② 极性翻转——线稿比底色暗时，lighten 合成（只留比底色亮的像素）会把线条整片吃掉，
-    //      表现为「浅色模式看不见底纹」，而且没有任何报错。
+    //   ② 极性对齐——深色模式走 lighten（只留比底色**亮**的像素），浅色模式走 multiply
+    //      （只留比底色**暗**的像素）。极性写反就被整片吃掉，而且没有任何报错。
+    // 为什么浅色要用 multiply（R-12）：浅底明度 229 上下，亮墨只能往 255 走，余量 26 级；
+    // 暗墨能往 0 走，余量就是底色本身。这不是调参能绕开的，是合成方式决定的。
     // 只改内存像素、不碰原图；任何一步失败都回原值（fail-open：归一化是增强，不该让底纹消失）。
 
     // 底色采样：底纹是满幅图，底色一定出现在四条边上；用 16 级分桶取众数，
@@ -5537,7 +5545,10 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
     }
 
     // 平移 + 极性 + 余量压缩。返回统计，供 scripts/test-texture-normalize.mjs 断言。
-    function zrTexNormalizePixels(data, w, h, targetHex) {
+    // wantDark=true 表示这枚图将被 multiply 合成（浅色方案），墨要比底色**暗**；
+    // 缺省 false = 被 lighten 合成（深色方案），墨要比底色亮。
+    function zrTexNormalizePixels(data, w, h, targetHex, wantDark) {
+      const dark = wantDark === true;
       const tgt = parseHexColor(targetHex);
       if (!tgt || !data || !w || !h || data.length < w * h * 4) return { ok: false, reason: 'bad-input' };
       const base = zrTexBaseRgb(data, w, h);
@@ -5557,10 +5568,15 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
           if (off > 6 || off < -6) { inkN++; inkSum += off; }
         }
       }
-      // 线条比底色暗 → 翻转。lighten 只留比底色亮的像素，不翻就等于没有底纹。
-      const flipped = inkN > 0 && (inkSum / inkN) < 0;
-      // 第二遍（抽样）：墨差分布。合成走 lighten，线条最终只会朝 255 那一侧走，
-      // 而浅底（目标亮度 245）只剩 10 级余量：不压缩，翻转后的暗线会被 255 截成一片平白。
+      // 极性：按**这枚图将来怎么被合成**决定，而不是按「浅底配暗线」这种习惯。
+      //   深色方案走 lighten（只留比底色亮的像素）→ 墨必须比底色亮；
+      //   浅色方案走 multiply（只留比底色暗的像素）→ 墨必须比底色暗。
+      // 写反了会被整片吃掉、界面一声不响（0.6.27 那次「自定义底图只在暗色生效」就是这么来的）。
+      const inkMean = inkN > 0 ? inkSum / inkN : 0;
+      const flipped = inkN > 0 && (dark ? inkMean > 0 : inkMean < 0);
+      // 第二遍（抽样）：墨差分布。合成只朝一个方向留墨，所以余量是**单向**的：
+      // 亮墨只能往 255 走（余量 255-底），暗墨只能往 0 走（余量 底）。
+      // 浅底 229 走 multiply 时余量从 26 级变成 229 级——这就是 R-12 要让浅色用暗线的原因。
       // 取 p98 而不是最大值——水印、边角反光这类离群像素不该把整张底纹压到看不见。
       const offs = [];
       for (let y = 0; y < h; y += step) {
@@ -5576,7 +5592,7 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
         offs.sort(function (a, b) { return a - b; });
         p98 = offs[Math.floor(0.98 * (offs.length - 1))] || 0;
       }
-      const lumMargin = Math.max(4, 255 - tgtLum);
+      const lumMargin = Math.max(4, dark ? tgtLum : 255 - tgtLum);
       let k = p98 > 0 ? Math.min(1, (lumMargin * 0.92) / p98) : 1;
       // 下限 0.02：只有亮度余量被压到近乎为零（目标色已贴 255）才会触到，
       // 那时底纹本来就只能极淡，压成更淡没有意义。
@@ -5598,6 +5614,8 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
         ok: true,
         base: zrTexHex(base),
         target: String(targetHex).toLowerCase(),
+        // 这枚图会被哪种混合方式消费：lighten 要亮墨，multiply 要暗墨。
+        blend: dark ? 'multiply' : 'lighten',
         delta: delta,
         flipped: flipped,
         k: Math.round(k * 1000) / 1000,
@@ -5607,7 +5625,9 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
     }
 
     // 把归一化套到一张 data URL 上；失败一律回原 URL。
-    function zrTexNormalizeUrl(url, targetHex) {
+    // wantDark=true 时按 multiply 合成对齐（浅色方案），缺省按 lighten（深色方案）。
+    function zrTexNormalizeUrl(url, targetHex, wantDark) {
+      const dark = wantDark === true;
       return new Promise(function (resolve) {
         if (!url || typeof url !== 'string') { resolve(''); return; }
         if (!targetHex) { resolve(url); return; }
@@ -5626,7 +5646,7 @@ const THEMES = {"zhuoer":{"dark":{"--dsw-alias-bg-base":"#0e1015","--dsw-alias-b
               if (!ctx) { resolve(url); return; }
               ctx.drawImage(img, 0, 0, w, h);
               const id = ctx.getImageData(0, 0, w, h);
-              const rep = zrTexNormalizePixels(id.data, w, h, targetHex);
+              const rep = zrTexNormalizePixels(id.data, w, h, targetHex, dark);
               if (!rep.ok || !rep.changed) { resolve(url); return; }
               ctx.putImageData(id, 0, 0);
               // 必须 PNG：底纹可能是透明线稿，转 JPEG 会把 alpha 压成黑底。
@@ -7424,16 +7444,21 @@ function bgCssFor(o) {
   // 内置底纹是「透明线稿」：实测 p50 = 0（不透明像素只有线条），所以它只画线、不换底。
   // 自定义底纹是满幅图（p50≈30，底色被烘焙进图里），opacity 0.7 会把整块底替换成图的颜色，
   // 面板的半透明层下面于是变成「图」而不是主题底色 —— 这就是琥珀没有、自定义有的差别。
-  // 解法：用混合模式把满幅图降级成线稿——深色 lighten（只留比底色亮的部分），
-  // 浅色 multiply（只留比底色暗的部分）。图里与底色一致的部分自动消失。
+  // 解法：先把图底对齐到 bg-base（R-01 归一化），再按方案决定要不要混合（见下）。
   var isImageBg = !!o.bgIsImage;
-  // 明暗统一 lighten：用户纹理的线条比底色更亮（实测暗色 5→7.4、浅色 238→245 亮度），
-  // lighten 只让「比底色亮」的像素透出——线条留下、图底自动消失。
-  // 之前浅色用 multiply，正好把更亮的线条乘没了，表现为「自定义底图只在暗色生效」。
-  // blend / 反相只对**线稿纹理**生效；手动上传的照片整张显示，不加任何混合，
-  // 否则照片会被「只留比底色亮的像素」吃掉——这就是浅色模式看不见照片的原因。
+  // 混合方式按**方案**定（R-12 / R-13）：
+  //   深色 lighten：只留比底色亮的像素。底色对齐后 max(底,底)=底，图底自动消失，亮线留下。
+  //   浅色 **不加混合**。这里踩过一次坑，值得写死：multiply 对「图底 = 主题底色」的满幅图
+  //   不是恒等变换——multiply(b,b)=b²/255，底色 222 会被乘成 193，整幅盖上一层灰，
+  //   用户看到的是「线图遮住了整个底色」。而 R-01 的归一化已经保证图底等于 bg-base，
+  //   此时普通 alpha 合成才真正恒等：图底处 a·b+(1-a)·b = b，只有墨的位置变。
+  //   所以浅色用 normal + **深墨**：没有灰纱，也没有「亮墨只有 26 级余量」那个天花板。
+  // 归一化的极性跟着合成方式走：浅色要暗墨、深色要亮墨（zrTexNormalizePixels 的 wantDark）。
+  // blend / 反相只对**线稿纹理**生效；手动上传的照片整张显示，不加任何混合。
   var isTexture = o.bgKind === 'texture';
-  var blendCss = (isImageBg && isTexture) ? ('mix-blend-mode:' + (o.bgInvert ? 'multiply' : 'lighten') + ' !important;') : '';
+  var blendMode = o.scheme === 'light' ? 'normal' : 'lighten';
+  var blendCss = (isImageBg && isTexture && blendMode !== 'normal') ? ('mix-blend-mode:' + blendMode + ' !important;') : '';
+  // 反相只用于「同一张图顶两个方案」的兜底（缺浅色图 / 缺深色图）：反相后极性正好相反。
   var invertCss = (o.bgInvert && isTexture) ? 'filter:invert(1);' : '';
   // 照片路径可能被限幅（L1b）：滑块 100% 时实际不透明度 = min(0.7, 解出的上限)。
   var capMax = (typeof o.photoCap === 'number') ? Math.min(PHOTO_CAP_MAX, o.photoCap) : PHOTO_CAP_MAX;
@@ -10999,15 +11024,16 @@ function applyTokens(theme, pref) {
     }
 
     // 深色、浅色各取一张：与内置主题一致（BG / BG_SOFT），一张深图铺在浅底上会发闷。
-    // R-01：取回后先按该方案的 bg-base 归一化（对齐底色 + 极性翻转）。
-    // 不做这一步，「浅底 + 暗线」的图在浅色模式里会被 lighten 合成整片吃掉，且没有任何报错。
+    // R-01 / R-12：取回后先按该方案的 bg-base 归一化（对齐底色 + 对齐极性）。
+    // 极性跟着合成方式走：深色方案 lighten 要**亮墨**，浅色方案 multiply 要**暗墨**。
+    // 不这么做，「浅底 + 暗线」的图在浅色模式里会被 lighten 整片吃掉，而且没有任何报错。
     function zrResolveBg(spec) {
       const baseId = zrBaseThemeId();
       return Promise.all([zrFetchTexture(spec && spec.texture), zrFetchTexture(spec && spec.textureLight)])
         .then(function (r) {
           return Promise.all([
-            zrTexNormalizeUrl(r[0], zrTexTargetBg(spec, 'dark', baseId)),
-            zrTexNormalizeUrl(r[1], zrTexTargetBg(spec, 'light', baseId)),
+            zrTexNormalizeUrl(r[0], zrTexTargetBg(spec, 'dark', baseId), false),
+            zrTexNormalizeUrl(r[1], zrTexTargetBg(spec, 'light', baseId), true),
           ]);
         })
         .then(function (n) { return { dark: n[0] || '', light: n[1] || '' }; });

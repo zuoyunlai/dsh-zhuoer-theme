@@ -319,16 +319,21 @@ function bgCssFor(o) {
   // 内置底纹是「透明线稿」：实测 p50 = 0（不透明像素只有线条），所以它只画线、不换底。
   // 自定义底纹是满幅图（p50≈30，底色被烘焙进图里），opacity 0.7 会把整块底替换成图的颜色，
   // 面板的半透明层下面于是变成「图」而不是主题底色 —— 这就是琥珀没有、自定义有的差别。
-  // 解法：用混合模式把满幅图降级成线稿——深色 lighten（只留比底色亮的部分），
-  // 浅色 multiply（只留比底色暗的部分）。图里与底色一致的部分自动消失。
+  // 解法：先把图底对齐到 bg-base（R-01 归一化），再按方案决定要不要混合（见下）。
   var isImageBg = !!o.bgIsImage;
-  // 明暗统一 lighten：用户纹理的线条比底色更亮（实测暗色 5→7.4、浅色 238→245 亮度），
-  // lighten 只让「比底色亮」的像素透出——线条留下、图底自动消失。
-  // 之前浅色用 multiply，正好把更亮的线条乘没了，表现为「自定义底图只在暗色生效」。
-  // blend / 反相只对**线稿纹理**生效；手动上传的照片整张显示，不加任何混合，
-  // 否则照片会被「只留比底色亮的像素」吃掉——这就是浅色模式看不见照片的原因。
+  // 混合方式按**方案**定（R-12 / R-13）：
+  //   深色 lighten：只留比底色亮的像素。底色对齐后 max(底,底)=底，图底自动消失，亮线留下。
+  //   浅色 **不加混合**。这里踩过一次坑，值得写死：multiply 对「图底 = 主题底色」的满幅图
+  //   不是恒等变换——multiply(b,b)=b²/255，底色 222 会被乘成 193，整幅盖上一层灰，
+  //   用户看到的是「线图遮住了整个底色」。而 R-01 的归一化已经保证图底等于 bg-base，
+  //   此时普通 alpha 合成才真正恒等：图底处 a·b+(1-a)·b = b，只有墨的位置变。
+  //   所以浅色用 normal + **深墨**：没有灰纱，也没有「亮墨只有 26 级余量」那个天花板。
+  // 归一化的极性跟着合成方式走：浅色要暗墨、深色要亮墨（zrTexNormalizePixels 的 wantDark）。
+  // blend / 反相只对**线稿纹理**生效；手动上传的照片整张显示，不加任何混合。
   var isTexture = o.bgKind === 'texture';
-  var blendCss = (isImageBg && isTexture) ? ('mix-blend-mode:' + (o.bgInvert ? 'multiply' : 'lighten') + ' !important;') : '';
+  var blendMode = o.scheme === 'light' ? 'normal' : 'lighten';
+  var blendCss = (isImageBg && isTexture && blendMode !== 'normal') ? ('mix-blend-mode:' + blendMode + ' !important;') : '';
+  // 反相只用于「同一张图顶两个方案」的兜底（缺浅色图 / 缺深色图）：反相后极性正好相反。
   var invertCss = (o.bgInvert && isTexture) ? 'filter:invert(1);' : '';
   // 照片路径可能被限幅（L1b）：滑块 100% 时实际不透明度 = min(0.7, 解出的上限)。
   var capMax = (typeof o.photoCap === 'number') ? Math.min(PHOTO_CAP_MAX, o.photoCap) : PHOTO_CAP_MAX;

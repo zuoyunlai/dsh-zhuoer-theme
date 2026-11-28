@@ -1,9 +1,12 @@
 {
   "$comment": "纹理对比度契约：由 scripts/measure-texture.mjs 在浏览器里逐像素合成生成，门禁 scripts/verify-texture.mjs 只读本文件。为什么存「合成后背景亮度的分位」而不是存纹理本身的均值：局部对比度由最不利的那个像素决定，而线稿纹理绝大多数像素 alpha=0（p50 就是底色），均值会把线条那一小撮完全平均掉。换了纹理文件必须重跑测量——门禁会比对 sha256，没重测就红。",
   "alpha": 0.7,
-  "blend": "lighten",
+  "blend": {
+    "dark": "lighten",
+    "light": "none"
+  },
   "canvas": "320x200",
-  "generatedAt": "2026-11-27T08:26:46.044Z",
+  "generatedAt": "2026-11-28T12:27:02.054Z",
   "floors": {
     "absolute": 4.5,
     "erosionRatio": 0.4
@@ -140,7 +143,7 @@
       "variant": "full",
       "texture": "bg-zhuoer.webp",
       "base": "#f4f1ec",
-      "lumP5": 0.882,
+      "lumP5": 0.87685,
       "lumP50": 0.882,
       "lumP95": 0.882,
       "lumP100": 0.88262
@@ -151,10 +154,10 @@
       "variant": "soft",
       "texture": "bg-soft-zhuoer.webp",
       "base": "#f4f1ec",
-      "lumP5": 0.882,
+      "lumP5": 0.87261,
       "lumP50": 0.882,
       "lumP95": 0.882,
-      "lumP100": 0.88216
+      "lumP100": 0.882
     },
     {
       "theme": "absolutely",
@@ -184,10 +187,10 @@
       "variant": "full",
       "texture": "bg-absolutely.webp",
       "base": "#f7f6f5",
-      "lumP5": 0.92278,
+      "lumP5": 0.91704,
       "lumP50": 0.92278,
       "lumP95": 0.92278,
-      "lumP100": 0.92306
+      "lumP100": 0.92278
     },
     {
       "theme": "absolutely",
@@ -195,10 +198,10 @@
       "variant": "soft",
       "texture": "bg-soft-absolutely.webp",
       "base": "#f7f6f5",
-      "lumP5": 0.92278,
+      "lumP5": 0.91259,
       "lumP50": 0.92278,
       "lumP95": 0.92278,
-      "lumP100": 0.9229
+      "lumP100": 0.92278
     },
     {
       "theme": "beacon",
@@ -231,7 +234,7 @@
       "lumP5": 0.93869,
       "lumP50": 0.93869,
       "lumP95": 0.93869,
-      "lumP100": 0.93935
+      "lumP100": 0.93902
     },
     {
       "theme": "beacon",
@@ -283,7 +286,7 @@
       "variant": "soft",
       "texture": "bg-soft-crt.webp",
       "base": "#f4f4f4",
-      "lumP5": 0.90466,
+      "lumP5": 0.89468,
       "lumP50": 0.90466,
       "lumP95": 0.90466,
       "lumP100": 0.90466
@@ -316,10 +319,10 @@
       "variant": "full",
       "texture": "bg-dash.webp",
       "base": "#ebe5e0",
-      "lumP5": 0.79083,
+      "lumP5": 0.77912,
       "lumP50": 0.79083,
       "lumP95": 0.79083,
-      "lumP100": 0.79131
+      "lumP100": 0.79098
     },
     {
       "theme": "dash",
@@ -327,10 +330,10 @@
       "variant": "soft",
       "texture": "bg-soft-dash.webp",
       "base": "#ebe5e0",
-      "lumP5": 0.79083,
+      "lumP5": 0.77421,
       "lumP50": 0.79083,
       "lumP95": 0.79083,
-      "lumP100": 0.79131
+      "lumP100": 0.79098
     },
     {
       "theme": "knot",
@@ -360,10 +363,10 @@
       "variant": "full",
       "texture": "bg-knot.webp",
       "base": "#f4f4f7",
-      "lumP5": 0.9065,
+      "lumP5": 0.90086,
       "lumP50": 0.9065,
       "lumP95": 0.9065,
-      "lumP100": 0.90677
+      "lumP100": 0.90675
     },
     {
       "theme": "knot",
@@ -404,7 +407,7 @@
       "variant": "full",
       "texture": "bg-manuscript.webp",
       "base": "#f1f0ea",
-      "lumP5": 0.86961,
+      "lumP5": 0.86956,
       "lumP50": 0.86961,
       "lumP95": 0.86961,
       "lumP100": 0.8703
@@ -415,10 +418,10 @@
       "variant": "soft",
       "texture": "bg-soft-manuscript.webp",
       "base": "#f1f0ea",
-      "lumP5": 0.86961,
+      "lumP5": 0.86421,
       "lumP50": 0.86961,
       "lumP95": 0.86961,
-      "lumP100": 0.86968
+      "lumP100": 0.86961
     },
     {
       "theme": "miami",
@@ -451,7 +454,7 @@
       "lumP5": 0.8969,
       "lumP50": 0.8969,
       "lumP95": 0.8969,
-      "lumP100": 0.89781
+      "lumP100": 0.89717
     },
     {
       "theme": "miami",
@@ -462,7 +465,7 @@
       "lumP5": 0.8969,
       "lumP50": 0.8969,
       "lumP95": 0.8969,
-      "lumP100": 0.89703
+      "lumP100": 0.8969
     },
     {
       "theme": "phosphor",
@@ -495,7 +498,7 @@
       "lumP5": 0.89753,
       "lumP50": 0.89753,
       "lumP95": 0.89753,
-      "lumP100": 0.8988
+      "lumP100": 0.89753
     },
     {
       "theme": "phosphor",
@@ -506,7 +509,7 @@
       "lumP5": 0.89753,
       "lumP50": 0.89753,
       "lumP95": 0.89753,
-      "lumP100": 0.89789
+      "lumP100": 0.89753
     },
     {
       "theme": "rose",
@@ -539,7 +542,7 @@
       "lumP5": 0.8579,
       "lumP50": 0.8579,
       "lumP95": 0.8579,
-      "lumP100": 0.85926
+      "lumP100": 0.85902
     },
     {
       "theme": "rose",
@@ -550,7 +553,7 @@
       "lumP5": 0.8579,
       "lumP50": 0.8579,
       "lumP95": 0.8579,
-      "lumP100": 0.858
+      "lumP100": 0.8579
     },
     {
       "theme": "tide",
@@ -583,7 +586,7 @@
       "lumP5": 0.89395,
       "lumP50": 0.89395,
       "lumP95": 0.89395,
-      "lumP100": 0.89437
+      "lumP100": 0.89395
     },
     {
       "theme": "tide",
@@ -594,7 +597,7 @@
       "lumP5": 0.89395,
       "lumP50": 0.89395,
       "lumP95": 0.89395,
-      "lumP100": 0.89416
+      "lumP100": 0.89395
     },
     {
       "theme": "vintage-paper",
@@ -624,10 +627,10 @@
       "variant": "full",
       "texture": "bg-vintage-paper.webp",
       "base": "#f5f1e6",
-      "lumP5": 0.88036,
+      "lumP5": 0.87489,
       "lumP50": 0.88036,
-      "lumP95": 0.88064,
-      "lumP100": 0.88202
+      "lumP95": 0.88036,
+      "lumP100": 0.88186
     },
     {
       "theme": "vintage-paper",
@@ -635,10 +638,22 @@
       "variant": "soft",
       "texture": "bg-soft-vintage-paper.webp",
       "base": "#f5f1e6",
-      "lumP5": 0.88036,
-      "lumP50": 0.88036,
+      "lumP5": 0.81857,
+      "lumP50": 0.86944,
       "lumP95": 0.88036,
       "lumP100": 0.88036
     }
-  ]
+  ],
+  "knownDebt": {
+    "crt/light/soft|tertiary": {
+      "worst": 4.455,
+      "kind": "absolute",
+      "recordedAt": "2026-11-28"
+    },
+    "vintage-paper/light/soft|secondary": {
+      "worst": 4.227,
+      "kind": "absolute",
+      "recordedAt": "2026-11-28"
+    }
+  }
 }

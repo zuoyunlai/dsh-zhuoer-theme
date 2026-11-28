@@ -5,10 +5,11 @@
  * 把 #region derive + #region palette + #region texture-normalize 一起抠出来跑，
  * 测的就是线上那份实现，不复制、不重写。
  *
- * 守三条规则（R-01 / F-01 F-02）：
+ * 守四条规则（R-01 / F-01 F-02 / R-12）：
  *  1) 图的底色被平移到目标 bg-base（否则整页偏色 5~10 级）；
- *  2) 线条比底色暗时翻转极性（lighten 只留比底色亮的像素，不翻等于没有底纹）；
- *  3) 翻转后仍能在剩余余量里留下 >= 4/255 的可见差，且不振荡。
+ *  2) 极性跟着**合成方式**走：lighten（深色方案）要亮墨、multiply（浅色方案）要暗墨；
+ *  3) 对齐后仍能在剩余余量里留下 >= 4/255 的可见差，且不振荡；
+ *  4) 余量是单向的：亮墨看 255-底，暗墨看底色本身——浅底走 multiply 才有足够余量。
  */
 import { readFileSync } from 'node:fs'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -176,6 +177,53 @@ ok('浅底压缩：翻转后不出现整片 255', () => {
   const ink = px(data, W, 0, 5).slice(0, 3)
   assert.ok(ink[0] < 255 || ink[1] < 255 || ink[2] < 255, '不该三通道全被截到 255')
   assert.ok(rep.inkDelta >= 4, '压缩后墨差仍需 >= 4，实得 ' + rep.inkDelta)
+})
+
+// 11) R-12：浅色方案走 multiply，墨必须**暗于**底色
+ok('multiply 方案：浅底暗线不翻转，墨保持暗于底色', () => {
+  const W = 60, H = 60
+  const target = '#dee7e9'
+  const data = mk(W, H, hexToRgb(target), { rgb: [150, 160, 165], rows: [5, 15, 25] })
+  const rep = api.zrTexNormalizePixels(data, W, H, target, true)
+  assert.equal(rep.ok, true)
+  assert.equal(rep.blend, 'multiply')
+  assert.equal(rep.flipped, false, '线已经比底色暗，multiply 下不该翻转')
+  const tgt = hexToRgb(target)
+  const tgtLum = lumOf(tgt)
+  assert.ok(lumOf(px(data, W, 0, 5)) < tgtLum, '线条必须暗于底色（multiply 才留得下）')
+  assert.ok(rep.inkDelta >= 4, '墨差应 >= 4，实得 ' + rep.inkDelta)
+})
+
+// 12) R-12：浅色方案 + 亮线 → 翻成暗线（这正是不改合成时「看不见」的那种图）
+ok('multiply 方案：浅底亮线会被翻成暗线', () => {
+  const W = 60, H = 60
+  const target = '#dee7e9'
+  const data = mk(W, H, hexToRgb(target), { rgb: [250, 252, 253], rows: [5, 15, 25] })
+  const rep = api.zrTexNormalizePixels(data, W, H, target, true)
+  assert.equal(rep.ok, true)
+  assert.equal(rep.flipped, true, '亮线在 multiply 下必须翻成暗线')
+  assert.ok(lumOf(px(data, W, 0, 5)) < lumOf(hexToRgb(target)), '翻转后必须暗于底色')
+})
+
+// 13) R-12：深色方案仍然要亮墨（不能因为新参数把旧行为改坏）
+ok('lighten 方案：深底暗线仍被翻成亮线', () => {
+  const W = 60, H = 60
+  const target = '#101619'
+  const data = mk(W, H, hexToRgb(target), { rgb: [3, 4, 5], rows: [5, 15, 25] })
+  const rep = api.zrTexNormalizePixels(data, W, H, target, false)
+  assert.equal(rep.blend, 'lighten')
+  assert.equal(rep.flipped, true)
+  assert.ok(lumOf(px(data, W, 0, 5)) > lumOf(hexToRgb(target)), '翻转后必须亮于底色')
+})
+
+// 14) R-12：暗墨的余量取「底色本身」而不是「255-底色」——浅底因此能用到 ~40 级
+ok('multiply 方案：浅底暗墨不压缩（余量是底色本身）', () => {
+  const W = 60, H = 60
+  const target = '#dee7e9'
+  const data = mk(W, H, hexToRgb(target), { rgb: [180, 190, 195], rows: [5, 15, 25] })
+  const rep = api.zrTexNormalizePixels(data, W, H, target, true)
+  assert.equal(rep.k, 1, '余量充足时不该压缩，实得 k=' + rep.k)
+  assert.ok(rep.inkDelta >= 30, '浅底暗墨的墨差应明显大于 lighten 的 26 级上限，实得 ' + rep.inkDelta)
 })
 
 console.log('')

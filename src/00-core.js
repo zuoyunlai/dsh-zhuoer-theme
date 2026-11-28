@@ -302,8 +302,14 @@ window.__ModuleLoader__.load({
     // 缓存上限：用户换十几次底图就会在内存里留十几次大字符串（每张 data URL 可到几 MB）。
     // Map 保持插入序，满了丢最旧的（LRU）。
     const ZR_CACHE_MAX = 12;
-  // 底纹归一化的画布上限（R-01）：只影响内存与重编码耗时，不改可见尺寸。
-  const ZR_TEX_NORM_EDGE = 1000;
+  // 底纹归一化的画布上限（R-01 / R-11）：**这条线决定清晰度，不只是耗时**。
+  // 曾经是 1000，注释还写着「不改可见尺寸」——错的。3200×2000 在这里被压成 1000×625，
+  // 然后 CSS 用 `background-size:cover` 铺满主栏（约 977 CSS px，DPR 2 ≈ 1954 设备像素），
+  // 净放大 2.9 倍：标定时要的那层 ±1 级颗粒被拉成 3×3 的软块，看上去就是「模糊色斑」。
+  // 现在取 3200 = 与校准素材同尺寸，正常路径一次都不重采样（只有超过 3200 的才缩）。
+  // 代价说在明处：apply 时一次性多占约 25 MB 像素缓冲、PNG 重编码约 1 秒、
+  // data URL 约 2–2.5 MB（内存缓存 LRU 12 条，靠上面的淘汰策略兜住）。
+  const ZR_TEX_NORM_EDGE = 3200;
     function zrCachePut(map, key, value, protectedKeys) {
       if (map.has(key)) { map.delete(key); map.set(key, value); return value; }
       map.set(key, value);

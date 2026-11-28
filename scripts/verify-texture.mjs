@@ -22,6 +22,8 @@
  *      若 declared 本身就 < 4.5，那是主题设计层面的既有问题，本门只打印不判红
  *      （否则会把「纹理无害」误报成门禁红，反而模糊了归责）。
  *   6. 契约 floors 抄件不得被改写（真源在本脚本）。
+ *   7. 分辨率：每个纹理文件宽度 ≥ 1600（R-11）——素材比显示尺寸小多少就被 cover 放大多少，
+ *      1000 宽的图铺满主栏会放大近 3 倍，颗粒变软块（「模糊色斑」）。
  *
  * 为什么取最不利分位而不是 p50：线稿纹理绝大多数像素 alpha=0，p50 就等于底色，
  * 拿 p50 判等于什么都没验；真正压低对比度的是 p100（暗底浅字被提亮）与 p5（亮底深字被压暗）。
@@ -65,12 +67,45 @@ const fail = (m) => { console.error('FAIL  ' + m); bad++ }
 if (contract.floors && contract.floors.absolute !== ABSOLUTE) fail('契约 floors.absolute = ' + contract.floors.absolute + '，门禁要求 ' + ABSOLUTE)
 if (contract.floors && contract.floors.erosionRatio !== EROSION_RATIO) fail('契约 floors.erosionRatio = ' + contract.floors.erosionRatio + '，门禁要求 ' + EROSION_RATIO)
 
+// 分辨率下限（R-11）：底纹铺满主栏靠 `background-size:cover`，素材比显示尺寸小多少就被放大多少。
+// 1000 宽铺 977 CSS px（DPR 2 ≈ 1954 设备像素）时净放大 2.9 倍，用来压色带的 ±1 级颗粒
+// 会被拉成 3×3 的软块——用户报的「模糊色斑」就是它，而界面不会报任何错。
+// 1600 = 内置素材的现状（assets/bg 全是 1600×997），所以这条线的意思是「不得低于现状」。
+// 只读文件头 30 字节取宽高，不碰像素：零依赖，也不算把解码搬进门禁。
+const MIN_TEX_WIDTH = 1600
+function texWidth(buf) {
+  try {
+    if (buf[0] === 0x89 && buf[1] === 0x50) return buf.readUInt32BE(16)
+    if (buf.toString('ascii', 0, 4) === 'RIFF' && buf.toString('ascii', 8, 12) === 'WEBP') {
+      const t = buf.toString('ascii', 12, 16)
+      if (t === 'VP8X') return 1 + buf.readUIntLE(24, 3)
+      if (t === 'VP8 ') return buf.readUInt16LE(26) & 0x3fff
+      if (t === 'VP8L') return 1 + (buf.readUInt32LE(21) & 0x3fff)
+    }
+    if (buf[0] === 0xff && buf[1] === 0xd8) {
+      let i = 2
+      while (i + 9 < buf.length) {
+        if (buf[i] !== 0xff) { i++; continue }
+        const m = buf[i + 1]
+        if (m >= 0xc0 && m <= 0xc3) return buf.readUInt16BE(i + 7)
+        const len = buf.readUInt16BE(i + 2)
+        if (len < 2) { i++; continue }
+        i += 2 + len
+      }
+    }
+  } catch (e) { /* 头不完整：判不了就报红，不猜通过 */ }
+  return 0
+}
+
 for (const [name, meta] of Object.entries(contract.textures || {})) {
   const p = join(root, 'assets', 'bg', name)
   if (!existsSync(p)) { fail('契约里的纹理不存在：' + name); continue }
   const buf = readFileSync(p)
   if (createHash('sha256').update(buf).digest('hex') !== meta.sha256) fail(name + ' 内容变了（sha256 不符）——换图必须重跑 measure-texture')
   else if (buf.length !== meta.bytes) fail(name + ' 字节数不符')
+  const w = texWidth(buf)
+  if (!w) fail(name + ' 读不出宽度（不是可识别的 PNG/JPEG/WebP 头）')
+  else if (w < MIN_TEX_WIDTH) fail(name + ' 只有 ' + w + 'px 宽（下限 ' + MIN_TEX_WIDTH + '）——底纹被做小了，cover 会把它放大成模糊色斑')
 }
 
 const need = []

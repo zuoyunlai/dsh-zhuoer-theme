@@ -546,12 +546,14 @@
 
     // #endregion palette
     // #region texture-normalize
-    // 底纹归一化（R-01 / F-01 F-02）：把「模型画的图」变成「能按 lighten 合成的线稿」。
+    // 底纹归一化（R-01 / F-01 F-02 / R-12）：把「模型画的图」变成「能按该方案的混合方式合成的线稿」。
     // 为什么必须落在客户端：判定极性与对齐底色都要读像素，服务端没有 canvas。
     // 两个动作：
     //   ① 把图的底色平移到目标 bg-base（原来图底 #16101C 铺在 #0b0518 上，整页偏色 5~10 级）；
-    //   ② 极性翻转——线稿比底色暗时，lighten 合成（只留比底色亮的像素）会把线条整片吃掉，
-    //      表现为「浅色模式看不见底纹」，而且没有任何报错。
+    //   ② 极性对齐——深色模式走 lighten（只留比底色**亮**的像素），浅色模式走 multiply
+    //      （只留比底色**暗**的像素）。极性写反就被整片吃掉，而且没有任何报错。
+    // 为什么浅色要用 multiply（R-12）：浅底明度 229 上下，亮墨只能往 255 走，余量 26 级；
+    // 暗墨能往 0 走，余量就是底色本身。这不是调参能绕开的，是合成方式决定的。
     // 只改内存像素、不碰原图；任何一步失败都回原值（fail-open：归一化是增强，不该让底纹消失）。
 
     // 底色采样：底纹是满幅图，底色一定出现在四条边上；用 16 级分桶取众数，
@@ -581,7 +583,10 @@
     }
 
     // 平移 + 极性 + 余量压缩。返回统计，供 scripts/test-texture-normalize.mjs 断言。
-    function zrTexNormalizePixels(data, w, h, targetHex) {
+    // wantDark=true 表示这枚图将被 multiply 合成（浅色方案），墨要比底色**暗**；
+    // 缺省 false = 被 lighten 合成（深色方案），墨要比底色亮。
+    function zrTexNormalizePixels(data, w, h, targetHex, wantDark) {
+      const dark = wantDark === true;
       const tgt = parseHexColor(targetHex);
       if (!tgt || !data || !w || !h || data.length < w * h * 4) return { ok: false, reason: 'bad-input' };
       const base = zrTexBaseRgb(data, w, h);
@@ -601,10 +606,15 @@
           if (off > 6 || off < -6) { inkN++; inkSum += off; }
         }
       }
-      // 线条比底色暗 → 翻转。lighten 只留比底色亮的像素，不翻就等于没有底纹。
-      const flipped = inkN > 0 && (inkSum / inkN) < 0;
-      // 第二遍（抽样）：墨差分布。合成走 lighten，线条最终只会朝 255 那一侧走，
-      // 而浅底（目标亮度 245）只剩 10 级余量：不压缩，翻转后的暗线会被 255 截成一片平白。
+      // 极性：按**这枚图将来怎么被合成**决定，而不是按「浅底配暗线」这种习惯。
+      //   深色方案走 lighten（只留比底色亮的像素）→ 墨必须比底色亮；
+      //   浅色方案走 multiply（只留比底色暗的像素）→ 墨必须比底色暗。
+      // 写反了会被整片吃掉、界面一声不响（0.6.27 那次「自定义底图只在暗色生效」就是这么来的）。
+      const inkMean = inkN > 0 ? inkSum / inkN : 0;
+      const flipped = inkN > 0 && (dark ? inkMean > 0 : inkMean < 0);
+      // 第二遍（抽样）：墨差分布。合成只朝一个方向留墨，所以余量是**单向**的：
+      // 亮墨只能往 255 走（余量 255-底），暗墨只能往 0 走（余量 底）。
+      // 浅底 229 走 multiply 时余量从 26 级变成 229 级——这就是 R-12 要让浅色用暗线的原因。
       // 取 p98 而不是最大值——水印、边角反光这类离群像素不该把整张底纹压到看不见。
       const offs = [];
       for (let y = 0; y < h; y += step) {
@@ -620,7 +630,7 @@
         offs.sort(function (a, b) { return a - b; });
         p98 = offs[Math.floor(0.98 * (offs.length - 1))] || 0;
       }
-      const lumMargin = Math.max(4, 255 - tgtLum);
+      const lumMargin = Math.max(4, dark ? tgtLum : 255 - tgtLum);
       let k = p98 > 0 ? Math.min(1, (lumMargin * 0.92) / p98) : 1;
       // 下限 0.02：只有亮度余量被压到近乎为零（目标色已贴 255）才会触到，
       // 那时底纹本来就只能极淡，压成更淡没有意义。
@@ -642,6 +652,8 @@
         ok: true,
         base: zrTexHex(base),
         target: String(targetHex).toLowerCase(),
+        // 这枚图会被哪种混合方式消费：lighten 要亮墨，multiply 要暗墨。
+        blend: dark ? 'multiply' : 'lighten',
         delta: delta,
         flipped: flipped,
         k: Math.round(k * 1000) / 1000,
@@ -651,7 +663,9 @@
     }
 
     // 把归一化套到一张 data URL 上；失败一律回原 URL。
-    function zrTexNormalizeUrl(url, targetHex) {
+    // wantDark=true 时按 multiply 合成对齐（浅色方案），缺省按 lighten（深色方案）。
+    function zrTexNormalizeUrl(url, targetHex, wantDark) {
+      const dark = wantDark === true;
       return new Promise(function (resolve) {
         if (!url || typeof url !== 'string') { resolve(''); return; }
         if (!targetHex) { resolve(url); return; }
@@ -670,7 +684,7 @@
               if (!ctx) { resolve(url); return; }
               ctx.drawImage(img, 0, 0, w, h);
               const id = ctx.getImageData(0, 0, w, h);
-              const rep = zrTexNormalizePixels(id.data, w, h, targetHex);
+              const rep = zrTexNormalizePixels(id.data, w, h, targetHex, dark);
               if (!rep.ok || !rep.changed) { resolve(url); return; }
               ctx.putImageData(id, 0, 0);
               // 必须 PNG：底纹可能是透明线稿，转 JPEG 会把 alpha 压成黑底。

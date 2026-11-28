@@ -33,6 +33,7 @@ const DESCRIPTION = [
   'then pass their paths as texturePath / texturePathLight with texture="want".',
   'If the user says no, pass texture="no" and attach nothing.',
   'House texture look: barely-there line work on a near-flat base - not a photograph, not busy.',
+  'Each texture must be at least 1600 px wide (3200x2000 is the calibrated size) - narrower images are rejected, because cover-scaling a small one turns its grain into blurry blotches.',
   'The result is NOT applied automatically: it is shown as a preview card in the chat,',
   'and only takes effect after the user confirms it there.',
   'It returns BOTH a light palette and an explicit dark palette, so light and dark mode each look right.',
@@ -232,6 +233,13 @@ function toMeta(value) {
 // 这样既不把 3 MiB 塞进工具结果（会撑爆 PTC 文本），也不依赖别的插件。
 const TEXTURE_MAX = 3 * 1024 * 1024;
 
+// 底纹最小宽度（R-11）：低于这个数就当场拒收，而不是收下再交给 CSS 去放大。
+// 为什么是 1600：内置素材的现状就是 1600×997（assets/bg/*.webp 全部），
+// 这条线的意思是「不得低于内置水平」。1000 宽的图铺满主栏要被 cover 放大近 3 倍，
+// 用来压色带的 ±1 级颗粒会变成 3×3 的软块——用户看到的是「模糊色斑」，而界面不报任何错。
+// 为什么放在执行期：靠工具描述约束模型等于没约束（R-13 的教训，schema 只校验形状）。
+export const ZR_TEX_MIN_WIDTH = 1600;
+
 function sniffImage(buf) {
   if (!buf || buf.length < 12) return '';
   if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return 'image/jpeg';
@@ -240,8 +248,43 @@ function sniffImage(buf) {
   return '';
 }
 
-// 返回 { name, mime, bytes }；任何不合规都返回 null——宁可没底纹，也不要半坏的主题。
-function stashTexture(srcPath, getDir) {
+// 只读文件头取宽高（零依赖，不解像素）：PNG 的 IHDR、JPEG 的 SOFn、WebP 的三种 chunk。
+// 解码失败返回 null——判不了就当没有，门禁那边同理（不作「猜一个通过」）。
+export function zrTextureSize(buf) {
+  try {
+    if (!buf || buf.length < 32) return null;
+    if (buf[0] === 0x89 && buf[1] === 0x50) {
+      return { w: buf.readUInt32BE(16), h: buf.readUInt32BE(20) };
+    }
+    if (buf[0] === 0xff && buf[1] === 0xd8) {
+      let i = 2;
+      while (i + 9 < buf.length) {
+        if (buf[i] !== 0xff) { i++; continue; }
+        const m = buf[i + 1];
+        if (m >= 0xc0 && m <= 0xc3) return { w: buf.readUInt16BE(i + 7), h: buf.readUInt16BE(i + 5) };
+        const len = buf.readUInt16BE(i + 2);
+        if (len < 2) { i++; continue; }
+        i += 2 + len;
+      }
+      return null;
+    }
+    if (buf.toString('ascii', 0, 4) === 'RIFF' && buf.toString('ascii', 8, 12) === 'WEBP') {
+      const t = buf.toString('ascii', 12, 16);
+      if (t === 'VP8X') return { w: 1 + buf.readUIntLE(24, 3), h: 1 + buf.readUIntLE(27, 3) };
+      if (t === 'VP8 ') return { w: buf.readUInt16LE(26) & 0x3fff, h: buf.readUInt16LE(28) & 0x3fff };
+      if (t === 'VP8L') {
+        const b = buf.readUInt32LE(21);
+        return { w: 1 + (b & 0x3fff), h: 1 + ((b >>> 14) & 0x3fff) };
+      }
+    }
+  } catch (e) { /* 头不完整 / 字段越界：当判不了 */ }
+  return null;
+}
+
+// 返回 { name, mime, bytes }；不合规返回 null 或 { error }。
+// opts.minWidth > 0 时额外要求宽度（底纹用；参考图不做这个要求）。
+function stashTexture(srcPath, getDir, opts) {
+  const minWidth = opts && Number(opts.minWidth) > 0 ? Number(opts.minWidth) : 0;
   if (typeof srcPath !== 'string' || !srcPath.trim()) return null;
   try {
     const p = srcPath.trim();
@@ -250,6 +293,12 @@ function stashTexture(srcPath, getDir) {
     const buf = fs.readFileSync(p);
     const mime = sniffImage(buf);
     if (!mime) return null;
+    if (minWidth) {
+      const size = zrTextureSize(buf);
+      if (!size || size.w < minWidth) {
+        return { error: 'too-small', w: size ? size.w : 0, h: size ? size.h : 0, need: minWidth };
+      }
+    }
     const ext = mime === 'image/png' ? 'png' : mime === 'image/webp' ? 'webp' : 'jpg';
     const d = getDir();
     if (!d) return null;
@@ -334,7 +383,7 @@ export function registerThemeTool(ctx, report, opts) {
         },
         texturePath: {
           type: 'string',
-          description: 'Absolute local path to the DARK background texture image you generated (JPEG/PNG/WebP, <=3 MiB). Required when texture is want, together with texturePathLight.',
+          description: 'Absolute local path to the DARK background texture image you generated (JPEG/PNG/WebP, <=3 MiB, at least 1600 px wide). Required when texture is want, together with texturePathLight. 3200x2000 is the calibrated size: narrower images are rejected at runtime because cover-scaling them turns grain into blurry blotches.',
         },
         imagePath: {
           type: 'string',
@@ -385,6 +434,21 @@ export function registerThemeTool(ctx, report, opts) {
           }
           throw new Error('缺浅色底纹路径 texturePathLight（深色那张不能顶替：深图铺在浅底上会发闷）。先补一张浅色底图再重试。');
         }
+        // R-11：底纹太窄就当场拒。静默收下等于把「模糊色斑」直接送到用户眼前——
+        // cover 会把 1000 宽放大到近 3 倍，压色带的颗粒变成软块，而界面一个字都不提示。
+        // 位置刻意放在「调模型生成配色」之前：尺寸不合规时不该先烧一次模型额度再报错。
+        const takeTexture = (p, key) => {
+          const st = stashTexture(p, textureDir, { minWidth: ZR_TEX_MIN_WIDTH });
+          if (st && st.error === 'too-small') {
+            throw new Error(key + ' 只有 ' + st.w + '×' + st.h + ' px，窄于 ' + st.need
+              + ' 宽：铺满主栏时 cover 会把它放大成模糊色斑（用来压色带的颗粒会变成软块）。'
+              + '请按至少 ' + st.need + '×1000 重画这两张底图（推荐 3200×2000）再重试。');
+          }
+          if (!st) throw new Error(key + ' 不是可读的图片（PNG/JPEG/WebP，≤3 MiB）：' + p);
+          return st;
+        };
+        const texDark = decision === 'want' ? takeTexture(args && args.texturePath, 'texturePath') : null;
+        const texLight = decision === 'want' ? takeTexture(args && args.texturePathLight, 'texturePathLight') : null;
         const prompt = args && typeof args.name === 'string' && args.name.trim()
           ? style + '\n主题名：' + args.name.trim()
           : style;
@@ -413,7 +477,7 @@ export function registerThemeTool(ctx, report, opts) {
         const refPath = String((args && args.imagePath) || '').trim();
         const ref = refPath ? stashTexture(refPath, textureDir) : null;
         if (refPath && !ref) throw new Error('imagePath 不是可读的图片（PNG/JPEG/WebP，≤3 MiB）：' + refPath);
-        return toOutput(spec, decision === 'want' ? stashTexture(args && args.texturePath, textureDir) : null, decision === 'want' ? stashTexture(args && args.texturePathLight, textureDir) : null, decision, ref);
+        return toOutput(spec, texDark, texLight, decision, ref);
       },
     });
 
