@@ -73,7 +73,7 @@ DSH="D:/Programs/DeepSeek Harness/resources/runtime/cli/bin/dsh.cmd"
    `node scripts/verify-css-snapshot.mjs --capture visual/css-current`；
 7. 复验 + 整链：`node scripts/verify-visual.mjs && node scripts/verify-css-snapshot.mjs && npm test`。
 
-### 六个必踩的坑（都真踩过）
+### 必踩的坑（都真踩过）
 
 1. **视口覆盖只在单次自动化会话内有效**（跨调用失效），且必须在弹层**挂载前**设；事后设不重排；
 2. **元素截图会拼接**：面板/抽屉比视口高时，`.zp-root` 元素截图得到「内容 + 空白」，必须用 `clip` 取可见区；
@@ -81,6 +81,13 @@ DSH="D:/Programs/DeepSeek Harness/resources/runtime/cli/bin/dsh.cmd"
 4. **一次性 profile 会弹「预览版说明」**：先点「继续」，否则设置入口点不到；
 5. **图片 URL 不变**（`bg-dash.webp`）→ 浏览器可能用旧图，重启后按一次 `Ctrl+Shift+R`；
 6. **窄视口那次要是没重排**，三张图会字节相同——`shot-docs` 会直接报「与 xx 字节相同」。
+7. **开一次编辑器就多一条草稿主题**（写进 localStorage 的 `customThemes`）。所以三张主图必须**在开抽屉之前**截；
+   截完要么把草稿删掉，要么清 `dsh-zhuoer-theme:v1` 的 `customThemes`——否则面板上会多出「自定义 N」，
+   下次在干净 profile 上重采必然对不上。
+8. **宿主的「DeepSeek · 预览版说明」气泡会飘进面板裁剪区**（首次进入后十几秒内）。等它自己消失再截，
+   或者先给指针挪开；裁进基线就是焊死一块气泡，之后每次比对都在 4% 上下晃。
+9. **`.zp-json` 的祖先里也挂着 `.zp-ed-panel`**：按 class 往上找会拿到抽屉那份 392×771，
+   而导入弹层本身是 359×270。要按 `.zp-json` 自身的 `getBoundingClientRect()` 取，不要按祖先取。
 
 **为什么是面板本体而不是整窗**：整窗截图会把左侧会话列表、时间戳等**场景内容**焊进基线。
 换一个实例重采时，同样的代码也会因为会话历史不同而差异 4% 以上（实测 4.714%），

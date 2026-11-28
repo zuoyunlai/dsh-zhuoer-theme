@@ -8,13 +8,13 @@
       "file": "card-dark.png",
       "w": 134,
       "h": 100,
-      "sha256": "b50ce43cf97ab7003f02d37af2e81cd89cec34a1475f3715ead0d6e85e837952"
+      "sha256": "83b64b8e2cad5f5b0a62684300feba3bf059c9eddf4855b2b0b209b365db53c7"
     },
     {
       "file": "card-light.png",
       "w": 134,
       "h": 100,
-      "sha256": "f191356c3452c173397cc613c4e2c4bc06914f60d5a98e977a78a7557f7c78fb"
+      "sha256": "5584cd53198e8d2649eafde609addf063d202a1eeaf08b61591d2f67f5b1ba82"
     },
     {
       "file": "dialog-dark.png",
@@ -32,31 +32,31 @@
       "file": "editor-dark.png",
       "w": 392,
       "h": 771,
-      "sha256": "548fbdae6cff78df11bfb3c7651cadc3db85fa89c651303598f108a25c4a6d58"
+      "sha256": "43644273883089583f9c2eddb3934384bd458f8d224b7e743a45430f40547b4d"
     },
     {
       "file": "editor-light.png",
       "w": 392,
       "h": 771,
-      "sha256": "6cc6219e88a21b6d36da7c84a7d1117dabcc177512c3893a6fab388b7ed33686"
+      "sha256": "c3107641d50c32942b261cd65e22324533d01788bc9454f9454b4e78cb28a671"
     },
     {
       "file": "settings-dark.png",
       "w": 559,
       "h": 693,
-      "sha256": "3952e7046521713874058d839883c58165761ec444df8529d25c49c377b3b66b"
+      "sha256": "5f8b75252677e1c69f8682f4d6d639116251e610b28202ee660b5be94585f5fe"
     },
     {
       "file": "settings-light.png",
       "w": 559,
       "h": 693,
-      "sha256": "1fb4267d46f5e2eb99ba90c14dcc7a7042d74ef9b22944323df8876f36864a67"
+      "sha256": "16d2a15833d607c30bd6bbac5dbbb1de2953e3b50a5e3dc94b6f0c5c45d7c1fa"
     },
     {
       "file": "settings-narrow.png",
       "w": 323,
       "h": 666,
-      "sha256": "55ea365329c161b0863e81f97d6675430dc04dd41134ee5f5c0d5a11a1fadb89"
+      "sha256": "54a4ec25a36863671d8a888f21f0119436be40997a63ab75cf642277233797dd"
     }
   ]
 }
