@@ -1,0 +1,8 @@
+# 统一行尾：工作区与库内都按 LF 存，避免 core.autocrlf=true 下的假差异
+# （scripts/verify-release-clean.mjs 按字节比工作区与 HEAD，CRLF 会让它假红）
+* text=auto eol=lf
+*.png binary
+*.webp binary
+*.jpg binary
+*.woff2 binary
+*.zip binary
