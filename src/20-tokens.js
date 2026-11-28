@@ -718,11 +718,18 @@ function applyTokens(theme, pref) {
         // 历史：这里原本是 '*{' + decls + '}'，想压过「容器自己重新定义」，代价是 230+ 个属性
         // 对全 DOM 每个元素各算一遍（样式共享失效、每次 apply 全量重算）。
         // 现在只补一条精准兜底：显式在 style 里写了这些变量的元素（真正的重新定义路径）。
-        // 画布颜色也在这里声明一次，但**不抬优先级**（优先级计数是棘轮，只许降不许升）：
-        // 首屏那行（服务端注入的 style 行）给 html,body 写了 background-color，我们的这条
-        // 选择器相同（html,body）但**注入更晚**，同优先级下后来者赢——所以运行时这条接管，
-        // 深色模式切换时画布会跟着变量走，不会卡在首屏色。
-        const css = 'html,body{' + decls + ';background-color:var(--dsw-alias-bg-base)}'
+        // 画布颜色单独一条，**不抬强制优先级**（棘轮只许降不许升），
+        // 靠选择器特异性 + 注入更晚来接管。
+        //
+        // 这里踩过一次并在真机量到了：首屏那行用的选择器是 `html body`（特异性 0,0,2），
+        // 而运行时这条原来是 `html,body`（0,0,1）——低了一档，**后注入也赢不了**。
+        // 症状：面板里把明暗从浅切到深，`html` 拿到 #0e1015、`body` 却仍是首屏的
+        // rgb(244,241,236)（2026-11-28 在 3099 实例上实测 getComputedStyle）。不刷新就一直错。
+        // 所以画布这一条改成与首屏行同特异性的 `html body`，同档下后注入者赢。
+        // 变量那一块仍留在 `html,body`：html 上也可能被读（如顶栏那几条），
+        // 少了 html 会静默取不到变量。
+        const css = 'html,body{' + decls + '}'
+          + 'html body{background-color:var(--dsw-alias-bg-base)}'
           + '[style*="--dsw-alias-"],[style*="--dsw-font-"]{' + decls + '}';
         // 直接覆盖 markdown 内联 code / 代码块背景：
         // dsh-theme-palette 会注入 [class*="_markdown_"] :not(pre) > code{background:var(--dshtp-code-inline)}
