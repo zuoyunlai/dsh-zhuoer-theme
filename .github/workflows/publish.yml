@@ -61,8 +61,24 @@ jobs:
       - name: Gates
         run: npm test
 
+      # 幂等守卫：本地已经用 `npm publish` 发过同一版本时（2026-11-28 的 0.7.0 就是这种情况），
+      # 再推 tag 会让 CI 的 publish 步骤吃 403「cannot publish over」而整体变红，
+      # 连带把后面的 GitHub Release 也跳过。先查 registry，已存在就只补 Release。
+      - name: Check whether this version is already on the registry
+        id: registry
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          set -euo pipefail
+          V="$(node -p "require('./package.json').version")"
+          if npm view "dsh-zhuoer-theme@$V" version --registry=https://registry.npmjs.org/ >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::dsh-zhuoer-theme@$V 已在 registry 上，跳过 npm publish"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Publish to npm (OIDC trusted publishing)
-        if: startsWith(github.ref, 'refs/tags/') && inputs.dry_run != true
+        if: startsWith(github.ref, 'refs/tags/') && inputs.dry_run != true && steps.registry.outputs.exists != 'true'
         run: npm publish --registry=https://registry.npmjs.org/ --access public --provenance
 
       - name: Create GitHub Release
