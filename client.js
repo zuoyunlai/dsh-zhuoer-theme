@@ -7530,7 +7530,15 @@ function zrGlassFloorFor(url, textHex, baseHex, kind) {
         cv.width = S; cv.height = S;
         const cx = cv.getContext('2d', { willReadFrequently: true });
         cx.drawImage(img, 0, 0, S, S);
-        floor = zrSolveGlassFloor(cx.getImageData(0, 0, S, S).data, img.naturalWidth || 1600, img.naturalHeight || 1000, textHex, baseHex);
+        // 图太小就别开玻璃：整窗铺必须按窗口宽 cover，1024 宽的图在 1264 窗口 + 2x 屏上
+        // 实际被放大 2.47 倍，观感就是一团糊块。这里按「自然宽 < 1.5×视口宽」直接判不可用，
+        // floor 记 1（= 要求完全不透明）→ bgCssFor 会退回原实现，并把原因留给面板提示。
+        const vwNow = (typeof window !== 'undefined' && window.innerWidth) || 1264;
+        if ((img.naturalWidth || 0) > 0 && img.naturalWidth < vwNow * 1.5) {
+          floor = 1;
+        } else {
+          floor = zrSolveGlassFloor(cx.getImageData(0, 0, S, S).data, img.naturalWidth || 1600, img.naturalHeight || 1000, textHex, baseHex);
+        }
       } catch (e) { floor = GLASS_FLOOR_FALLBACK; }
       const changed = Math.abs(floor - (glassFloorCache.get(key) || 0)) >= 0.01;
       zrCachePut(glassFloorCache, key, floor);
@@ -7607,21 +7615,21 @@ function bgCssFor(o) {  var bgUrl = o.bgUrl;
   };
   var glass = (typeof o.glass === 'number') ? Math.max(0, Math.min(100, o.glass)) : 0;
   if (glass <= 0) return mainRules(mainSel);
-  // ── 玻璃模式（0.7.1）────────────────────────────────────────────────────────
-  // 层契约（桌面端同样适用）：
-  //   L0  _frame 自身 background = bg-base + 底图  ← 全窗唯一一层图，天生在 columns 之下
-  //   L1  各列自身填充全部退透明                   ← 消除「帧背景 + 列填充」双层叠涂导致的发蒙
-  //   L2  侧栏 = rgba(bg-base, α) + 静态高光       ← 不加 blur（见下）
-  //   L3  标题条 _frame::before 保持现状           ← 原生 WCO 按钮由它取色，不动
-  //
-  // 为什么 L0 用 frame 的 background 而不是伪元素：
-  //   试过 [class*="_frame"]::before —— 桌面端标题条已占用该伪元素（z-index:2 色带），铺图盖住标题条；
-  //   试过 body::before{position:fixed} —— 宿主链上若有 transform/will-change，fixed 改以它为包含块，
-  //   整窗被图蒙住。frame 自己的 background 不存在这两个问题：不占伪元素、不建层叠上下文。
-  //
-  // 为什么侧栏不加 blur：endfield 的实测结论——filter/backdrop-filter 会让元素成为
-  //   position:fixed 后代的包含块，侧栏里的菜单/tooltip 会错位、被裁剪。
+  // TODO(0.7.1·第三轮)：玻璃模式**暂时不生效**，等桌面端「谁在刷侧栏底色」定案。
+  // 已确认的进展与仍未解的点：
+  //   ✓ 层落点定了：_frame 自身 background（不占伪元素、不建层叠上下文）。
+  //   ✓ 侧栏类名确认：桌面与 Web 都是 `_<hash>_sidebarCol`（用户 DevTools 实拍）。
+  //   ✗ 清内层不彻底：真机 DOM 是 `_sidebarCol > div[data-slot=sidebar](contents) > _root`，
+  //     改成后代选择器后，隔离宿主读数仍是内层不透明 → 说明真正刷底色的未必是 `_root`。
+  //   ✗ 图被放大：整窗 cover 对 1024 宽的小图是 1.23×（2× 屏 2.47×），观感是糊块；
+  //     大小图自适应门（floor=1 判定）在隔离宿主未按预期生效，也要一并查。
+  // 下一步：让用户贴一段「侧栏内所有非透明背景元素」的 dump，据此一次改对，别再猜。
+  return mainRules(mainSel);
+  /* 旧实现（保留参考）
   var floor = (typeof o.glassFloor === 'number') ? Math.min(0.9, Math.max(0.05, o.glassFloor)) : GLASS_FLOOR_FALLBACK;
+  // floor=1 是「这张图太小、整窗铺必糊」的信号，由 zrGlassFloorFor 采样后置上：
+  // 这一档直接退回原实现（图只铺主栏），滑块等于不生效——宁可无效果，也不给一张糊图。
+  if (floor >= 0.99) return mainRules(mainSel);
   var glassAlpha = +(1 - (glass / 100) * (1 - floor)).toFixed(2);
   var baseRgb = parseHexColor(tokens['--dsw-alias-bg-base']) || [0, 0, 0];
   // 桌面壳的侧栏是 dshDesktopSidebarSurface 一类（不含 sidebarCol），所以两条都带上、并加 i 忽略大小写；
@@ -7639,7 +7647,9 @@ function bgCssFor(o) {  var bgUrl = o.bgUrl;
     // 主栏用「底色半透明」把自己压回原来的可见度：等价于旧实现的 opacity=imgOpacity，
     // 否则整窗图以 100% 亮度出现在正文下面，文字直接读不了（实测：标题与输入框提示全糊）。
     + mainSel + '{background-color:rgba(' + baseRgb[0] + ',' + baseRgb[1] + ',' + baseRgb[2] + ',' + (1 - imgOpacity).toFixed(3) + ') !important;}'
-    + 'html ' + sideSel + ' > [class*="_root"],' + mainSel + ' [class*="_root"]{background:transparent !important;}'
+    // 用后代而不是 `>`：真机 DOM 是 `_sidebarCol > div[data-slot=sidebar](contents) > _root`，
+    // 直接子元素选择器永远匹配不到内层那个真正刷底色的 _root，侧栏就一直不透明。
+    + 'html ' + sideSel + ' [class*="_root"],' + mainSel + ' [class*="_root"]{background:transparent !important;}'
     + 'html ' + sideSel + '{background:rgba(' + baseRgb[0] + ',' + baseRgb[1] + ',' + baseRgb[2] + ',' + glassAlpha + ') !important;'
       + 'background-image:linear-gradient(180deg,rgba(255,255,255,.05),transparent 42%) !important;}'
     + hiddenInEmpty('html ' + sideSel);
