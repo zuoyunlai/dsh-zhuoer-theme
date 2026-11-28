@@ -125,7 +125,7 @@
 
 ## 5. 回归夹具（随本报告落盘）
 
-本轮实测已产出三个可直接进夹具的脚本，已落 `scripts/`：
+本轮实测产出三个**复算工具**，已落 `scripts/`（**不接入 `npm test`**——它们是取证与对照基线，不是门禁）：
 
 | 脚本 | 作用 | 依赖 |
 |---|---|---|
@@ -133,13 +133,13 @@
 | `scripts/regress-palette-from-photo.py` | 按区域提取（天空 / 云 / 树冠 / 阴影）的对照实现 + 锚点构造 + 对比度校验 | 同上 |
 | `scripts/regress-verify-contrast.py` | 对比度矩阵体检，明暗两套各锚点对底色 / 对白字的实测比率 | 仅标准库 |
 
-**待补（下一轮开工时做）**：本仓的测试体例是 Node + 「抠真实实现来跑」（见 `scripts/test-derive.mjs` 从 `#region palette` 抠函数体 + `new Function`）。上面三个 Python 脚本是**复算工具**，不是最终夹具 —— 应改写为 `scripts/test-palette-sample.mjs`，用真实照片当固定输入，断言：
+参考图已收进仓内 `contracts/palette-sample-ref.webp`（474×315，不触发浏览器缩放，与 canvas 像素级一致）；
+三个脚本通过 `scripts/_palette_sample_path.py` 解析路径，顺序为 `ZR_PALETTE_SAMPLE` 环境变量 → 仓内 `contracts/` → 旧工作区副本，
+不写死任何人的绝对路径，clone 下来即可跑。
 
-- 保真档取色的 6 色含天空蓝量级色、无单色占比 > 60%
-- 明暗两套各 8 组锚点齐全
-- 深底 brand 对底 ≥ 3:1
-
-参考图：`dsh-image-gen/ref-forest.webp`（474×315，不触发浏览器缩放，与 canvas 像素级一致）。
+**本节「待补」已由 §8 的落地批兑现**：本仓体例的 Node 夹具（抠真实实现来跑）已建好并接入 `npm test`——
+`scripts/test-palette-tier.mjs`（快档 / 保真档分档，R-05）、`scripts/test-palette-anchors.mjs`（8 组锚点 + 深底 brand 闸，R-02）。
+原计划里的 `test-palette-sample.mjs` 由这两个脚本分担，不再单建。
 
 ---
 
