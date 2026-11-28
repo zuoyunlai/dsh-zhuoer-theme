@@ -335,6 +335,21 @@
     // （beacon/light 5.02 → 3.82，不是临界而是明显破线）。用 12 换 7 不划算，
     // 且 ΔE 最大 30.8（border-selected 由红变黄），风险远大于收益。
     // 真正的原因是这些文字 token **没进 TEXT_FLOOR**，见下面的地板表扩展——那才是对准的修法。
+    // 暗部饱和封顶（0.7.1 / R-13）：HSL 的饱和度在明度 10% 上下会被放大。
+    // 同一套锚点，暗底 #15120e 派生出的层色 #1e1d17 在屏上被读成橄榄/墨绿
+    // （用户实测：侧栏与卡片发黄绿）。根因不是色相选错，而是这个明度下 HSL 的 S
+    // 与感知色度脱钩——(30,29,23) 只有 7 级通道差，却算成 20%+ 饱和，
+    // 于是「暖褐」在大面积低亮度块面上被读成「黄绿」。
+    // 处理：明度越低允许的饱和越低，L≤0.15 封顶 6%，到 0.22 完全放开。
+    // 只压饱和度、不动明度，所以层次阶梯与对比关系保持原样；
+    // 浅色模式（L≈0.9）与文字类暗色锚点都不受影响。
+    function zrDarkSatCap(l) {
+      if (!(l > 0)) return 0.06;
+      if (l <= 0.15) return 0.06;
+      if (l >= 0.22) return 1;
+      return 0.06 + ((l - 0.15) / 0.07) * 0.94;
+    }
+
     function shiftMember(memberHex, baseAnchorHex, newAnchorHex) {
       const m = hexHsl(memberHex);
       const ba = hexHsl(baseAnchorHex);
@@ -343,7 +358,7 @@
       const dL = m[2] - ba[2];
       const l = Math.max(0.02, Math.min(0.98, na[2] + dL));
       // 饱和度保底取两者较大值，避免原本有色的成员被拉成灰
-      const s = Math.min(1, Math.max(na[1] * 0.9, m[1]));
+      const s = Math.min(1, Math.max(na[1] * 0.9, m[1]), zrDarkSatCap(l));
       return hslHex(na[0], s, l);
     }
 
