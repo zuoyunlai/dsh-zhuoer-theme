@@ -12,6 +12,65 @@
 
 
 
+## 0.6.46 · 修复双装配导致的路由重复注册（2026-11-28）
+
+`plugin-status.json` 曾长期停在 `endpoint-failed`，错误是
+`webserver: duplicate exact route "/dsh-zhuoer-theme/api/report"`。
+
+根因不是路由写错，而是**同一个 server 里插件被装配了两次**（desktop 与 web 两份 profile 各注一次）。
+宿主的 `webServer.register` 对同路径是硬错误，于是后装配的那次在**第一条路由**上就抛：
+它的 nonce 端点、底纹路由全都没注册上，状态还被写成「失败」，看起来像插件坏了。
+
+修法：注册走一层进程级路径表（`Symbol.for('dsh-zhuoer-theme.registered-routes')`），
+谁先注册谁生效、后来者直接跳过；注册成功才记账，失败不占位，另一个实例还有机会补上。
+附带一致性地修掉一个隐患：nonce 端点与 report 端点现在必然来自同一个实例。
+
+回归：`scripts/test-routes.mjs` 用「重复即抛」的假 webServer 装配两次，断言第二次不抛、
+53 条路由各注册一次、状态落成 `endpoint-mounted`。
+
+## 0.6.46 · 独立审计后的精简与口径收口（2026-11-28）
+
+对全仓做了一次独立审计（`plugin_doctor` 体检 + `npm test` 全链 + 11,208 行静态扫描 + 装机副本与运行日志对照），
+结论是**没有功能缺陷，但有不精简与口径不一致**。八条全部修订，详见 `docs/audit-2026-11-28.md`。
+
+1. **生产期探针收进调试闸门**：图标探针原本明写「不受 zrDebug 门控」，每会话最多 6 次 POST，
+   还挂 body 级观察者 120 秒、每次 DOM 变化重扫全部图标（日志已累积 115 条），与 `report()` 的口径矛盾。
+2. **删掉 OKLCH 死代码并改掉误导性注释**：`hexOklch`/`oklchHex` 零调用，注释却称「服务 shiftMember」；
+   而派生其实早在 0.7.0 就改回 HSL（1181 token 对照：修好 12 条 AA、倒退 7 条，ΔE 最大 30.8）。
+3. **颜色换算统一到 `src/08-color.js`**：此前 4 套 hex 解析、2 套亮度、3 份 WCAG 对比度公式并存，
+   且口径不一（`#fff` 简写只被一部分接受；非法输入有的返回 0、有的返回 null）。
+   `verify-contrast.mjs` / `test-palette-anchors.mjs` 里自己重算的那份也一并删掉。
+4. **8 语言终于都可达**：`zrLangFromHost` / `zrRegisterLocale` 原是零调用（0.6.10 骨架遗留），
+   核实后发现对应能力被 quicknav 内联重写了一份且只覆盖 zh/en——ja/es/fr/de/ru/pt 的用户只能拿到英文界面。
+   现在接回这两个助手：宿主语言认全部 8 门，轨道标签也注册全部 8 门。
+5. **生产期 console.info 收进调试闸门**（每次 apply / 每次加载各一行）。
+6. **主题应用失败不再静默吞掉**：预览路径改为 `console.warn`。
+7. **拆分两个超大分片**：`20-tokens-and-panel.js`（3696 行）与 `10-themes.js`（1951 行）拆成 13 片，
+   验收标准是「拼回 `client.js` 逐字节相同」——拆分前后 sha256 一致（`dc845c47…`），行为零变化。
+8. **`serviceOf` 上提一份**（00-core 与 quicknav 各有一份 → factory 层一份）。
+
+另：doctor 的 **K3 是误报**（行号启发式匹配），判读记录写进 `docs/audit-2026-11-28.md`，免得每轮复查。
+
+## 0.6.46 · 入场动效（已撤除，2026-11-28）
+
+这条功能**做过、没做成、已整体删除**，留档避免再走一遍。
+
+起因是「能不能加个启动动画」。三轮实现全部被真机证据否掉：
+
+1. CSS 标记 + 隐藏窗口：主进程 `createWindow(..., show=false)`，等 `enterWorkspace` 才 `window.show()`，
+   动画在隐藏窗口里就播完了。
+2. 改成「可见再挂标记」：探针显示 `enter-apply` 时 `col:false`——apply 早于 React render，内容列还不存在。
+3. Web Animations API 直接驱动元素：探针实测确实在播（`opacity 0.54→0.97`、`translateY 11→0`、`isConnected=1`），
+   但用户看不到；换成自管遮罩（固定层 `opacity 1→0`）后，在真实 web 实例里同一调用内测到
+   `1.000 → 0.989 → 0.829 → 0.546 → 0.382`，用户仍然报告「没有任何变化」。
+
+结论：「能播」与「被看见」之间隔着我们控制不了的绘制/显示时序，继续调参数只是猜。按要求整体撤除——
+默认偏好、读侧、实现模块、面板开关、8 份词条、契约片段、测试脚本、双语 README 全部删净，
+零残留（`grep -i "enterAnim|zrEnter|veil|入场动效"` 0 行）。
+
+同批保留一处**真实修复**：`src/05-i18n.js` 与 `i18n/*.json` 之间 6 个 `panel.chat.*` 键的漂移已回填，
+`verify:keys` 从 311/317 回到 317/317。
+
 ## 0.6.46 发布汇总（2026-11-28：对话出主题链路落地 + 面板交互补齐 + 十七节收口）
 
 这批由「在对话里真跑两轮主题生成」触发，随后把暴露出来的缺口一次收口。十七节：

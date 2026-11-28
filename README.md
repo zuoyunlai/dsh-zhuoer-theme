@@ -284,13 +284,21 @@ npm run dev:sync -- --watch    # 同上，且监听 src/ 与 build.mjs，保存�
 
 目标目录默认 `~/.dsh/profiles/desktop/node_modules/dsh-zhuoer-theme`，可用 `--profile` / `--dir` 覆盖。复制完按一次刷新按钮（dsh-unlag）即换掉客户端代码；`index.js` 与 `cordis.patch.yml` 属于服务端一半，需要插件重载或重启 App 才生效。
 
-客户端代码在 `src/` 下分五片，由 `build.mjs` 按文件名顺序拼成单文件 `client.js`：
+客户端代码在 `src/` 下分 13 片，由 `build.mjs` 按文件名顺序拼成单文件 `client.js`：
 
 ```
 src/00-core.js              运行时开销、版本常量、诊断
 src/05-i18n.js              共享词典（I18N.zh / I18N.en）+ zrT / zrLang / zrSetLang
-src/10-themes.js            THEMES/SHAPES/SHADOWS/字体表/派生纯函数/宿主同步
-src/20-tokens-and-panel.js  applyTokens、面板与编辑器、AI 与取色
+src/08-color.js             颜色换算唯一真源（hex 解析 / 亮度 / WCAG 对比度 / HSL）
+src/10-themes.js            THEMES/SHAPES/SHADOWS/字体表 + 偏好读写
+src/11-palette.js           底图存储、取色、调色板与纹理归一
+src/12-theme-derive.js      风格预设、自定义主题、层次地板与对比地板
+src/13-mode-sync.js         明暗方案同步与宿主状态回写
+src/15-host-text.js         宿主字号表（脚本生成，勿手改）
+src/20-tokens.js            applyTokens：token 计算与注入
+src/21-panel.js             设置面板 UI
+src/22-editor.js            自定义主题编辑器
+src/25-chat-card.js         对话内的主题卡片
 src/30-quicknav.js          右侧快捷导航（独立模块）
 ```
 

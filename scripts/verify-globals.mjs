@@ -35,7 +35,7 @@ for (const [label, file] of targets) {
 if (hits.length) {
   console.error('[verify:globals] 失败：插件状态又挂回 window 了')
   for (const h of hits) console.error('  - ' + h)
-  console.error('  改法：换成模块作用域变量；需要跨闭包接力就用 DOM 标记或对象属性（见 src/20-tokens-and-panel.js 的 ZR_SHEET_MARK）。')
+  console.error('  改法：换成模块作用域变量；需要跨闭包接力就用 DOM 标记或对象属性（见 src/20-tokens.js 的 ZR_SHEET_MARK）。')
   process.exit(1)
 }
 const total = targets.reduce((n, [, f]) => { try { return n + fs.readFileSync(f, 'utf8').length } catch (e) { return n } }, 0)

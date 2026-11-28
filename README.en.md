@@ -284,13 +284,21 @@ npm run dev:sync -- --watch    # same, plus watch src/ and build.mjs: save and i
 
 Default target is `~/.dsh/profiles/desktop/node_modules/dsh-zhuoer-theme`; override with `--profile` or `--dir`. Press the refresh button (dsh-unlag) to swap the client bundle. `index.js` and `cordis.patch.yml` are the server half and need a plugin reload or an app restart.
 
-Client code lives in `src/` as five shards, concatenated in filename order into a single `client.js` by `build.mjs`:
+Client code lives in `src/` as thirteen shards, concatenated in filename order into a single `client.js` by `build.mjs`:
 
 ```
 src/00-core.js              runtime cost, version constant, diagnostics
 src/05-i18n.js              shared dictionary (I18N.zh / I18N.en) + zrT / zrLang / zrSetLang
-src/10-themes.js            THEMES/SHAPES/SHADOWS/font table/derivation/host sync
-src/20-tokens-and-panel.js  applyTokens, panel and editor, AI and palette
+src/08-color.js             single source of colour maths (hex parse / luminance / WCAG contrast / HSL)
+src/10-themes.js            THEMES/SHAPES/SHADOWS/font table + preference I/O
+src/11-palette.js           background storage, colour extraction, palette and texture normalisation
+src/12-theme-derive.js      style presets, custom themes, layer and contrast floors
+src/13-mode-sync.js         light/dark scheme sync and host state write-back
+src/15-host-text.js         host font-size table (generated, do not edit)
+src/20-tokens.js            applyTokens: token computation and injection
+src/21-panel.js             settings panel UI
+src/22-editor.js            custom theme editor
+src/25-chat-card.js         in-chat theme card
 src/30-quicknav.js          right-sidebar quick nav (standalone module)
 ```
 

@@ -3,9 +3,15 @@
   "files": {
     "src/00-core.js": 0,
     "src/05-i18n.js": 0,
-    "src/10-themes.js": 33,
+    "src/08-color.js": 0,
+    "src/10-themes.js": 7,
+    "src/11-palette.js": 5,
+    "src/12-theme-derive.js": 21,
+    "src/13-mode-sync.js": 0,
     "src/15-host-text.js": 0,
-    "src/20-tokens-and-panel.js": 3,
+    "src/20-tokens.js": 1,
+    "src/21-panel.js": 0,
+    "src/22-editor.js": 2,
     "src/25-chat-card.js": 0,
     "src/30-quicknav.js": 10
   },

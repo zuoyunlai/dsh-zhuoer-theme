@@ -23,7 +23,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const bad = []
 
 // 1) 源码侧：Markdown 规则区的容器
-const src = readFileSync(join(root, 'src', '20-tokens-and-panel.js'), 'utf8')
+const src = readFileSync(join(root, 'src', '20-tokens.js'), 'utf8')
 const fine = src.slice(src.indexOf('var MDC ='), src.indexOf('const nextCss = css + extra'))
 // 表格的精细规则已抽进纯函数 zrTableFineCss（便于无头断言），
 // 所以表格相关的检查必须把这段也纳入，否则会误报「没有 border-collapse」。

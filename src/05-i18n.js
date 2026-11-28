@@ -132,12 +132,12 @@
         'panel.chat.fail': '应用失败',
         'panel.chat.limitErr': '自定义主题已达上限（{n} 套），先删一套再试',
         'panel.chat.texOff': '底纹：未启用 · 想要就说「加个底纹」',
-'panel.chat.srcSampled': '配色来源：按图取色',
-'panel.chat.srcModel': '配色来源：模型配色',
-'panel.chat.useSampled': '用取色',
-'panel.chat.useModel': '用模型配色',
-'panel.chat.superseded': '这张已被后面的新主题取代',
-'panel.chat.texMissing': '底纹没取到，已按纯配色应用',
+        'panel.chat.texMissing': '底纹没取到，已按纯配色应用',
+        'panel.chat.srcSampled': '配色来源：按图取色',
+        'panel.chat.srcModel': '配色来源：模型配色',
+        'panel.chat.useModel': '用模型配色',
+        'panel.chat.useSampled': '用取色',
+        'panel.chat.superseded': '这张已被后面的新主题取代',
         'panel.ed.drop': '丢弃',
         'panel.ed.pickFromImage': '从图片取色',
         'panel.ed.picking': '取色中…',
@@ -587,12 +587,12 @@
         'preset.devterm': 'Developer terminal',
         'preset.deepspace': 'Deep space',
         'panel.chat.texOff': 'Texture: not enabled · say "add a texture" if you want one',
-'panel.chat.srcSampled': 'Colors: sampled from image',
-'panel.chat.srcModel': 'Colors: model palette',
-'panel.chat.useSampled': 'Use sampled',
-'panel.chat.useModel': 'Use model palette',
-'panel.chat.superseded': 'Superseded by a newer theme below',
-'panel.chat.texMissing': 'Texture not available - applied colors only',
+        'panel.chat.texMissing': 'Texture not available - applied colors only',
+        'panel.chat.srcSampled': 'Colors: sampled from image',
+        'panel.chat.srcModel': 'Colors: model palette',
+        'panel.chat.useModel': 'Use model palette',
+        'panel.chat.useSampled': 'Use sampled',
+        'panel.chat.superseded': 'Superseded by a newer theme below',
         'panel.mdfine.title': 'Markdown refinement',
         'panel.mdfine.note': 'Element looks only: heading size, code block, table, quote',
         'panel.mdfine.headRow': 'Heading size',
@@ -903,12 +903,12 @@
         'preset.devterm': 'Entwicklerterminal',
         'preset.deepspace': 'Tiefenraum',
         'panel.chat.texOff': 'Textur: nicht aktiviert · sag „Textur hinzufügen“, wenn du eine möchtest',
-'panel.chat.srcSampled': 'Farben: aus dem Bild entnommen',
-'panel.chat.srcModel': 'Farben: Modellpalette',
-'panel.chat.useSampled': 'Entnommene nutzen',
-'panel.chat.useModel': 'Modellpalette nutzen',
-'panel.chat.superseded': 'Durch ein neueres Theme ersetzt',
-'panel.chat.texMissing': 'Textur nicht verfügbar – nur Farben angewendet',
+        'panel.chat.texMissing': 'Textur nicht verfügbar – nur Farben angewendet',
+        'panel.chat.srcSampled': 'Farben: aus dem Bild entnommen',
+        'panel.chat.srcModel': 'Farben: Modellpalette',
+        'panel.chat.useModel': 'Modellpalette nutzen',
+        'panel.chat.useSampled': 'Entnommene nutzen',
+        'panel.chat.superseded': 'Durch ein neueres Theme ersetzt',
         'panel.mdfine.title': 'Markdown-Verfeinerung',
         'panel.mdfine.note': 'Nur das Aussehen: Überschriftengröße, Codeblock, Tabelle, Zitat',
         'panel.mdfine.headRow': 'Überschriftengröße',
@@ -1219,12 +1219,12 @@
         'preset.devterm': 'Terminal de desarrollo',
         'preset.deepspace': 'Espacio profundo',
         'panel.chat.texOff': 'Textura: no activada · di «añade una textura» si la quieres',
-'panel.chat.srcSampled': 'Colores: extraídos de la imagen',
-'panel.chat.srcModel': 'Colores: paleta del modelo',
-'panel.chat.useSampled': 'Usar extraídos',
-'panel.chat.useModel': 'Usar paleta del modelo',
-'panel.chat.superseded': 'Reemplazado por un tema más reciente',
-'panel.chat.texMissing': 'Textura no disponible: solo se aplicaron los colores',
+        'panel.chat.texMissing': 'Textura no disponible: solo se aplicaron los colores',
+        'panel.chat.srcSampled': 'Colores: extraídos de la imagen',
+        'panel.chat.srcModel': 'Colores: paleta del modelo',
+        'panel.chat.useModel': 'Usar paleta del modelo',
+        'panel.chat.useSampled': 'Usar extraídos',
+        'panel.chat.superseded': 'Reemplazado por un tema más reciente',
         'panel.mdfine.title': 'Refinado de Markdown',
         'panel.mdfine.note': 'Solo el aspecto: tamaño de títulos, bloque de código, tabla y cita',
         'panel.mdfine.headRow': 'Tamaño de títulos',
@@ -1535,12 +1535,12 @@
         'preset.devterm': 'Terminal développeur',
         'preset.deepspace': 'Espace profond',
         'panel.chat.texOff': 'Texture : désactivée · dites « ajoute une texture » si vous en voulez une',
-'panel.chat.srcSampled': 'Couleurs : prélevées sur l\'image',
-'panel.chat.srcModel': 'Couleurs : palette du modèle',
-'panel.chat.useSampled': 'Utiliser les prélevées',
-'panel.chat.useModel': 'Utiliser la palette du modèle',
-'panel.chat.superseded': 'Remplacé par un thème plus récent',
-'panel.chat.texMissing': 'Texture indisponible — seules les couleurs ont été appliquées',
+        'panel.chat.texMissing': 'Texture indisponible — seules les couleurs ont été appliquées',
+        'panel.chat.srcSampled': 'Couleurs : prélevées sur l\'image',
+        'panel.chat.srcModel': 'Couleurs : palette du modèle',
+        'panel.chat.useModel': 'Utiliser la palette du modèle',
+        'panel.chat.useSampled': 'Utiliser les prélevées',
+        'panel.chat.superseded': 'Remplacé par un thème plus récent',
         'panel.mdfine.title': 'Finitions Markdown',
         'panel.mdfine.note': 'L\'apparence seule : taille des titres, bloc de code, tableau, citation',
         'panel.mdfine.headRow': 'Taille des titres',
@@ -1851,12 +1851,12 @@
         'preset.devterm': '開発者ターミナル',
         'preset.deepspace': 'ディープスペース',
         'panel.chat.texOff': 'テクスチャ：未使用 · 必要なら「テクスチャを追加」と伝えてください',
-'panel.chat.srcSampled': '配色：画像から取得',
-'panel.chat.srcModel': '配色：モデル',
-'panel.chat.useSampled': '取得色を使う',
-'panel.chat.useModel': 'モデル配色を使う',
-'panel.chat.superseded': '新しいテーマに置き換えられました',
-'panel.chat.texMissing': 'テクスチャを取得できず、配色のみ適用しました',
+        'panel.chat.texMissing': 'テクスチャを取得できず、配色のみ適用しました',
+        'panel.chat.srcSampled': '配色：画像から取得',
+        'panel.chat.srcModel': '配色：モデル',
+        'panel.chat.useModel': 'モデル配色を使う',
+        'panel.chat.useSampled': '取得色を使う',
+        'panel.chat.superseded': '新しいテーマに置き換えられました',
         'panel.mdfine.title': 'Markdown の微調整',
         'panel.mdfine.note': '見た目だけ：見出しサイズ、コードブロック、表、引用',
         'panel.mdfine.headRow': '見出しサイズ',
@@ -2167,12 +2167,12 @@
         'preset.devterm': 'Terminal de programador',
         'preset.deepspace': 'Espaço profundo',
         'panel.chat.texOff': 'Textura: desativada · diga «adiciona uma textura» se quiser uma',
-'panel.chat.srcSampled': 'Cores: extraídas da imagem',
-'panel.chat.srcModel': 'Cores: paleta do modelo',
-'panel.chat.useSampled': 'Usar extraídas',
-'panel.chat.useModel': 'Usar paleta do modelo',
-'panel.chat.superseded': 'Substituído por um tema mais recente',
-'panel.chat.texMissing': 'Textura indisponível — aplicadas apenas as cores',
+        'panel.chat.texMissing': 'Textura indisponível — aplicadas apenas as cores',
+        'panel.chat.srcSampled': 'Cores: extraídas da imagem',
+        'panel.chat.srcModel': 'Cores: paleta do modelo',
+        'panel.chat.useModel': 'Usar paleta do modelo',
+        'panel.chat.useSampled': 'Usar extraídas',
+        'panel.chat.superseded': 'Substituído por um tema mais recente',
         'panel.mdfine.title': 'Refinamento de Markdown',
         'panel.mdfine.note': 'Apenas a aparência: tamanho dos títulos, bloco de código, tabela e citação',
         'panel.mdfine.headRow': 'Tamanho dos títulos',
@@ -2483,12 +2483,12 @@
         'preset.devterm': 'Терминал разработчика',
         'preset.deepspace': 'Глубокий космос',
         'panel.chat.texOff': 'Текстура: не включена · скажите «добавь текстуру», если она нужна',
-'panel.chat.srcSampled': 'Цвета: с изображения',
-'panel.chat.srcModel': 'Цвета: палитра модели',
-'panel.chat.useSampled': 'Взять с изображения',
-'panel.chat.useModel': 'Взять палитру модели',
-'panel.chat.superseded': 'Заменено более новым оформлением',
-'panel.chat.texMissing': 'Текстура недоступна — применены только цвета',
+        'panel.chat.texMissing': 'Текстура недоступна — применены только цвета',
+        'panel.chat.srcSampled': 'Цвета: с изображения',
+        'panel.chat.srcModel': 'Цвета: палитра модели',
+        'panel.chat.useModel': 'Взять палитру модели',
+        'panel.chat.useSampled': 'Взять с изображения',
+        'panel.chat.superseded': 'Заменено более новым оформлением',
         'panel.mdfine.title': 'Тонкая настройка Markdown',
         'panel.mdfine.note': 'Только внешний вид: размер заголовков, блок кода, таблица, цитата',
         'panel.mdfine.headRow': 'Размер заголовков',
@@ -2598,12 +2598,9 @@
      */
     function zrLangFromHost(ctx) {
       try {
-        let loc = null
-        // 可选依赖只走 ctx.get()：直接读 ctx.locale 在未 inject 时会抛
-        // 「cannot get property \"locale\" without inject」（plugin_doctor K1）。
-        if (ctx && typeof ctx.get === 'function') {
-          try { loc = ctx.get('locale') } catch (e) { loc = null }
-        }
+        // 可选依赖只走 serviceOf()（内部先 ctx.get 再 ctx[name]）：直接读 ctx.locale
+        // 在未 inject 时会抛（plugin_doctor K1）。
+        const loc = serviceOf(ctx, 'locale')
         const snap = loc && typeof loc.getSnapshot === 'function' ? loc.getSnapshot() : null
         const active = snap && snap.active ? String(snap.active).toLowerCase() : ''
         if (!active) return null
@@ -2620,12 +2617,8 @@
      */
     function zrRegisterLocale(ctx, ns, keys) {
       try {
-        let loc = null
-        // 可选依赖只走 ctx.get()：直接读 ctx.locale 在未 inject 时会抛
-        // 「cannot get property \"locale\" without inject」（plugin_doctor K1）。
-        if (ctx && typeof ctx.get === 'function') {
-          try { loc = ctx.get('locale') } catch (e) { loc = null }
-        }
+        // 可选依赖只走 serviceOf()（理由同 zrLangFromHost）。
+        const loc = serviceOf(ctx, 'locale')
         if (!loc || typeof loc.register !== 'function') return null
         // 8 种语言全部注册进去：宿主按当前语言挑，缺哪门就回落 en。
         const bundle = {}

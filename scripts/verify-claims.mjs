@@ -65,7 +65,7 @@ expect('README.md', /当前合计 (\d+) 条/, truth.bareChinese, '当前合计 �
 expect('README.en.md', /Currently (\d+) \|/, truth.bareChinese, 'Currently')
 
 // 底图映射必须覆盖全部内置主题：加主题忘了挂底图不会让任何门变红，只会「新主题没图」。
-const panelSrc = read('src/20-tokens-and-panel.js')
+const panelSrc = read('src/20-tokens.js')
 const mapKeys = (name) => {
   const m = panelSrc.match(new RegExp('const ' + name + ' = \\{([\\s\\S]*?)\\};'))
   return m ? [...m[1].matchAll(/"([a-z][a-z-]*)":/g)].map((x) => x[1]) : []

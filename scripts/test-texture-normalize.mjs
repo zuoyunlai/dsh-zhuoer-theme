@@ -35,7 +35,8 @@ const grabFn = (name) => {
 }
 
 const slice = (a, b) => src.slice(src.indexOf('// #region ' + a), src.indexOf('// #endregion ' + b))
-const helpers = grabFn('hexHsl') + '\n' + grabFn('hslHex')
+// 颜色换算统一到 08-color.js：parseHexColor 等已不在 derive region 内，要一并抠进来。
+const helpers = [grabFn('hexHsl'), grabFn('hslHex'), grabFn('zrLin'), grabFn('parseHexColor'), grabFn('toHexColor'), grabFn('zrHexLum'), grabFn('zrRatio'), grabFn('zrContrast')].join('\n')
 // 注意：slice('derive') 里已经带着真的 tokensFor，所以这里不要塞替身（会被后者覆盖）。
 const make = new Function('THEMES', 'THEME_IDS',
   // derive 里已经嵌了 palette 与 texture-normalize（#endregion derive 在文件末尾附近），

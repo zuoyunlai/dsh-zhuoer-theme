@@ -37,25 +37,15 @@ const start = src.indexOf('// #region derive');
 const end = src.indexOf('// #endregion derive');
 if (start < 0 || end < start) throw new Error('client.js 里找不到 #region derive 标记');
 const region = src.slice(start, end);
-const helpers = [grabFn('hexHsl'), grabFn('hslHex'), grabFn('parseHexColor'), grabFn('toHexColor'), grabFn('apcaContrast')].join('\n');
+const helpers = [grabFn('hexHsl'), grabFn('hslHex'), grabFn('zrLin'), grabFn('parseHexColor'), grabFn('toHexColor'), grabFn('apcaContrast'), grabFn('zrHexLum'), grabFn('zrRatio'), grabFn('zrContrast')].join('\n');
 const make = new Function('THEMES', 'THEME_IDS',
-  helpers + '\n' + region + '\nreturn { buildCustomTokens, STYLE_PRESETS, pickOnColor, hexHsl, contrastOn, overrideReport, apcaContrast };');
+  helpers + '\n' + region + '\nreturn { buildCustomTokens, STYLE_PRESETS, pickOnColor, hexHsl, contrastOn, overrideReport, apcaContrast, zrHexLum, zrContrast };');
 const api = make(THEMES, THEME_IDS);
 
-const luminance = (hex) => {
-  const m = String(hex || '').trim().replace('#', '');
-  const full = m.length === 3 ? m.split('').map((c) => c + c).join('') : m;
-  if (!/^[0-9a-fA-F]{6}$/.test(full)) return null;
-  const ch = [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16) / 255);
-  const lin = (v) => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
-  return 0.2126 * lin(ch[0]) + 0.7152 * lin(ch[1]) + 0.0722 * lin(ch[2]);
-};
-const ratio = (a, b) => {
-  const la = luminance(a), lb = luminance(b);
-  if (la === null || lb === null) return null;
-  const hi = Math.max(la, lb), lo = Math.min(la, lb);
-  return (hi + 0.05) / (lo + 0.05);
-};
+// 亮度与对比度不再在脚本里重算一遍：直接用产物里的唯一实现（08-color.js），
+// 否则脚本与线上各走各的口径（这正是本次审计要消掉的那类重复）。
+const luminance = api.zrHexLum;
+const ratio = api.zrContrast;
 
 const MIN = 4.5;
 const bad = [];

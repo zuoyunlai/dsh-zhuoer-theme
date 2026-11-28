@@ -63,31 +63,12 @@
      * 词典与「当前语言」都是模块级共享状态：面板也要用，留在轨道的闭包里取不到。
      * 这里只保留别名，调用点（t('rail.…')）一个字都不用改。 */
 
-    const DICT = I18N
     const t = zrT
 
     /** 轨道实例序号：保证同一 profile 下多个实例的 DOM id 不重复。 */
     let instanceSeq = 0
 
     /* ================= 工具 ================= */
-
-    /** 取服务（惰性解析，读不到当缺失，不崩）。 */
-    function serviceOf(ctx, name) {
-      if (!ctx) return undefined
-      try {
-        if (typeof ctx.get === 'function') {
-          const v = ctx.get(name)
-          if (v !== undefined && v !== null) return v
-        }
-      } catch (e) {
-        /* fallthrough */
-      }
-      try {
-        return ctx[name]
-      } catch (e) {
-        return undefined
-      }
-    }
 
     /** 系统是否要求减弱动效。 */
     function prefersReduced() {
@@ -357,12 +338,10 @@
       useEffect(() => {
         const detectLang = () => {
           try {
-            const loc = serviceOf(ctx, 'locale')
-            const snap = loc && typeof loc.getSnapshot === 'function' ? loc.getSnapshot() : null
-            const active = snap && snap.active ? String(snap.active).toLowerCase() : ''
-            // 宿主有语言偏好就听宿主的：只有 zh* 算中文，其余一律英文
-            // （含 en / en-US 以及宿主以后新增的 ja、es 等，都比中文更可能被看懂）
-            const next = active ? (active.indexOf('zh') === 0 ? 'zh' : 'en') : zrLang()
+            // 宿主有语言偏好就听宿主的：zrLangFromHost 认全部 8 门（= 宿主支持的 UI 语言集，
+            // 认不出来才回落 en）。这里原来只判「zh* → zh，其余 → en」，
+            // 结果 ja/es/fr/de/ru/pt 的用户只能拿到英文界面，与 i18n 已备好的 8 门对不上。
+            const next = zrLangFromHost(ctx) || zrLang()
             if (next !== zrLang()) {
               zrSetLang(next)
               setLangTick((n) => n + 1)
@@ -1121,7 +1100,8 @@
       inject: ['slots', 'sidebarRightTabs', 'sidebarRight'],
       apply(ctx) {
         try {
-          console.info(TAG, 'v' + QUICKNAV_VERSION + ' loaded · rail mode')
+          // 收进调试闸门：每次加载都打一行，生产环境属于噪声。
+          if (zrDebug()) console.info(TAG, 'v' + QUICKNAV_VERSION + ' loaded · rail mode')
         } catch (e) {
           /* ignore */
         }
@@ -1130,26 +1110,18 @@
            注册失败则不声明 locale 字段（声明了却没注册会被宿主判为装配失败）。 */
         let localeReady = false
         try {
-          const loc = serviceOf(ctx, 'locale')
-          if (loc && typeof loc.register === 'function') {
-            const off = loc.register(NS, {
-              en: {
-                'rail.ariaLabel': DICT.en['rail.ariaLabel'],
-                'rail.anchorLabel': DICT.en['rail.anchorLabel'],
-              },
-              zh: {
-                'rail.ariaLabel': DICT.zh['rail.ariaLabel'],
-                'rail.anchorLabel': DICT.zh['rail.anchorLabel'],
-              },
-            })
-            localeReady = true
+          // 8 门全注册（zrRegisterLocale 从 I18N 取值，缺哪门回落 en）：
+          // 这里原来只注册 en/zh 两门，宿主语言是 ja/fr/de/… 时读到的仍是英文。
+          // 返回 null 表示没注册成（宿主没有 locale 服务）；否则注册成功，
+          // 但宿主不一定回 disposer，所以只在它是函数时才登记清理。
+          const off = zrRegisterLocale(ctx, NS, ['rail.ariaLabel', 'rail.anchorLabel'])
+          localeReady = off !== null
+          if (typeof off === 'function') {
             ctx.effect(() => () => {
-              if (typeof off === 'function') {
-                try {
-                  off()
-                } catch (e) {
-                  /* ignore */
-                }
+              try {
+                off()
+              } catch (e) {
+                /* ignore */
               }
             }, 'dsh-rqn: locale disposer')
           }

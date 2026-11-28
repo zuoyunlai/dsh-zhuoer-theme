@@ -33,9 +33,9 @@ const grabConst = (name) => {
 
 const code = [
   grabConst('PHOTO_CONTRAST_TARGET'), grabConst('PHOTO_CAP_MAX'),
-  grabFn('zrLin'), grabFn('zrHexRgb'), grabFn('zrHexLum'), grabFn('zrRatio'), grabFn('zrSolvePhotoCap'),
+  grabFn('zrLin'), grabFn('parseHexColor'), grabFn('zrHexLum'), grabFn('zrRatio'), grabFn('zrSolvePhotoCap'),
 ].join('\n')
-const api = new Function(code + '\nreturn { zrSolvePhotoCap, zrHexLum, zrHexRgb, zrRatio, zrLin, PHOTO_CONTRAST_TARGET, PHOTO_CAP_MAX };')()
+const api = new Function(code + '\nreturn { zrSolvePhotoCap, zrHexLum, parseHexColor, zrRatio, zrLin, PHOTO_CONTRAST_TARGET, PHOTO_CAP_MAX };')()
 const { zrSolvePhotoCap, zrHexLum, zrRatio, PHOTO_CAP_MAX } = api
 
 let bad = 0
@@ -50,7 +50,7 @@ const pix = (r, g, b, n = 256) => {
 }
 // 用解出来的上限复算最不利对比度，验证「解」真的达标（而不是只看数字小）
 const worstAfter = (pixels, textHex, baseHex, cap) => {
-  const t = zrHexLum(textHex); const b = api.zrHexRgb(baseHex)
+  const t = zrHexLum(textHex); const b = api.parseHexColor(baseHex)
   let worst = Infinity
   for (let i = 0; i < pixels.length; i += 4) {
     const l = 0.2126 * api.zrLin(cap * pixels[i] + (1 - cap) * b[0])

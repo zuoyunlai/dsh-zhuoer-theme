@@ -40,25 +40,18 @@ const pEnd = src.indexOf('// #endregion palette')
 // #region palette 嵌在 #region derive 里（#endregion derive 在文件末尾附近），
 // 只抠 derive 一段即可；再拼一次 palette 会让同名 const 重复声明而 SyntaxError。
 const region = src.slice(dStart, dEnd)
-const helpers = grabFn('hexHsl') + '\n' + grabFn('hslHex')
+// 颜色换算统一到 08-color.js：parseHexColor 等已不在 derive region 内，要一并抠进来。
+const helpers = [grabFn('hexHsl'), grabFn('hslHex'), grabFn('zrLin'), grabFn('parseHexColor'), grabFn('zrHexLum'), grabFn('zrRatio'), grabFn('zrContrast')].join('\n')
 
 const make = new Function('THEMES', 'THEME_IDS',
   helpers + '\n' + region +
-  '\nreturn { paletteToAnchors, parseHexColor };')
-const { paletteToAnchors, parseHexColor } = make(THEMES, THEME_IDS)
+  '\nreturn { paletteToAnchors, parseHexColor, zrHexLum, zrContrast };')
+const api = make(THEMES, THEME_IDS)
+const { paletteToAnchors, parseHexColor } = api
 
-const relLum = (hex) => {
-  const c = parseHexColor(hex)
-  if (!c) return null
-  const ch = c.map((v) => { const s = v / 255; return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4) })
-  return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2]
-}
-const ratio = (a, b) => {
-  const la = relLum(a), lb = relLum(b)
-  if (la === null || lb === null) return null
-  const hi = Math.max(la, lb), lo = Math.min(la, lb)
-  return (hi + 0.05) / (lo + 0.05)
-}
+// 亮度与对比度用产物里的唯一实现（08-color.js），不再在脚本里重算一遍。
+const relLum = api.zrHexLum
+const ratio = api.zrContrast
 
 // 一张「森林照片」的主色分布：灰绿主色 + 天空蓝 + 云白 + 深阴影。
 const forest = [

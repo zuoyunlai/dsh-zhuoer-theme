@@ -27,7 +27,8 @@ import { dirname, join } from 'node:path';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
-const FILES = ['src/20-tokens-and-panel.js', 'src/30-quicknav.js'];
+// 分片拆开后覆盖面不变：原来那份 20-tokens-and-panel.js 就是 20/21/22 三片。
+const FILES = ['src/20-tokens.js', 'src/21-panel.js', 'src/22-editor.js', 'src/30-quicknav.js'];
 
 const TYPE_SCALE = [11, 12, 13, 15, 18, 20];
 const RADIUS_SCALE = [0, 2, 3, 4, 6, 8, 10, 12, 14, 16, 999];

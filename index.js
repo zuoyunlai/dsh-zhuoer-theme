@@ -199,8 +199,21 @@ export function apply(ctx, config) {
     let ws = null;
     try { ws = typeof injected.get === 'function' ? injected.get('webServer') : null; } catch (e) { return; }
     if (!ws || typeof ws.register !== 'function') return;
+    // 同一个 server 里插件可能被装配两次（desktop / web 两份 profile 各注一次）。
+    // 宿主的 webServer.register 对同一路径是硬错误（实测 "duplicate exact route"），
+    // 后装配的那次会在第一条路由上就抛，于是它的 nonce / 底纹路由也全没注册上，
+    // 状态文件还被写成 endpoint-failed，看起来像故障。
+    // 用进程级路径表把注册收敛成一次：谁先注册谁生效，后来者直接跳过。
+    const ROUTE_REGISTRY = Symbol.for('dsh-zhuoer-theme.registered-routes');
+    const register = (route) => {
+      const set = globalThis[ROUTE_REGISTRY] || (globalThis[ROUTE_REGISTRY] = new Set());
+      if (set.has(route.path)) return;
+      // 先注册再记账：注册失败不占位，另一个实例还有机会补上。
+      ws.register(route);
+      set.add(route.path);
+    };
     try {
-      ws.register({
+      register({
         kind: 'exact',
         path: '/dsh-zhuoer-theme/api/report',
         handler: (req, res) => {
@@ -241,7 +254,7 @@ export function apply(ctx, config) {
       });
       // 会话随机数领取端点：必须带自定义头（跨站请求会先触发预检，宿主不应答）。
       try {
-        ws.register({
+        register({
           kind: 'exact',
           path: '/dsh-zhuoer-theme/api/nonce',
           handler: (req, res) => {
@@ -257,7 +270,7 @@ export function apply(ctx, config) {
       // 工具把模型产出的图片落到 textures 目录，这里按文件名回传字节。
       // 只认 16 位十六进制 basename + 白名单扩展名，路径穿越无从下手。
       try {
-        ws.register({
+        register({
           kind: 'exact',
           path: '/dsh-zhuoer-theme/api/texture',
           handler: (req, res) => {
@@ -281,7 +294,7 @@ export function apply(ctx, config) {
       // POST：客户端在「应用」成功后回传**最终生效**的色板（已含按图取色与底纹键）。
       // GET ：对话之外（脚本 / 审计 / 另一个 agent）读回同一份，两边的数字对得上。
       try {
-        ws.register({
+        register({
           kind: 'exact',
           path: '/dsh-zhuoer-theme/api/last-theme',
           handler: (req, res) => {
@@ -326,7 +339,7 @@ export function apply(ctx, config) {
       // 调用方式照抄 dsh-pet（已生产验证）：走高层入口 llm.stream()，chunk 取 text-delta。
       // 注意不要用 prepareCall：那是 adapter 层的接缝，dispatch 校验会拒绝插件直接调用。
       try {
-        ws.register({
+        register({
           kind: 'exact',
           path: '/dsh-zhuoer-theme/api/gen-theme',
           // handler 必须同步返回：宿主在 handler 返回后才把 res 置为可写，
@@ -497,7 +510,7 @@ export function apply(ctx, config) {
           };
           for (const fname of fs.readdirSync(diskUrl)) {
             if (!fname.toLowerCase().endsWith(dir.ext)) continue;
-            ws.register({ kind: 'exact', path: dir.url + fname, handler: serve(fname) });
+            register({ kind: 'exact', path: dir.url + fname, handler: serve(fname) });
           }
         } catch (e) { /* 资源路由失败不影响主题 */ }
       }

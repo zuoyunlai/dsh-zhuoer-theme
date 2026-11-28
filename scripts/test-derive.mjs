@@ -37,7 +37,8 @@ const grabFn = (name) => {
   }
   return src.slice(i, j)
 }
-const helpers = grabFn('hexHsl') + '\n' + grabFn('hslHex')
+// 颜色换算统一到 08-color.js：这些函数现在住在 derive region 之外，必须一并抠进来。
+const helpers = [grabFn('hexHsl'), grabFn('hslHex'), grabFn('zrLin'), grabFn('parseHexColor'), grabFn('toHexColor'), grabFn('zrHexLum'), grabFn('zrRatio'), grabFn('zrContrast')].join('\n')
 
 // 取色用的纯函数（medianCut / paletteToAnchors）单独抠出来——它们不碰 DOM
 const pStart = src.indexOf('// #region palette')

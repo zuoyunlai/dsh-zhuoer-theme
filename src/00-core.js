@@ -332,6 +332,26 @@ window.__ModuleLoader__.load({
       return Math.round(n * d) / d;
     }
 
+    /** 取宿主服务（惰性解析，读不到当缺失，不崩）。
+     *  宿主服务只能经 ctx.get 取；直接读 ctx.xxx 在未 inject 时会抛（plugin_doctor K1）。
+     *  上提到 factory 层：i18n 助手与快捷导航都要用，两边各写一份必然漂移。 */
+    function serviceOf(ctx, name) {
+      if (!ctx) return undefined;
+      try {
+        if (typeof ctx.get === 'function') {
+          const v = ctx.get(name);
+          if (v !== undefined && v !== null) return v;
+        }
+      } catch (e) {
+        /* fallthrough */
+      }
+      try {
+        return ctx[name];
+      } catch (e) {
+        return undefined;
+      }
+    }
+
     // ---- 探针资源的回收登记 ----
     // doctor K3 一直报这两处：图标探针与半透明探针各自起 setTimeout + MutationObserver，
     // 且**没有回收路径**——热更新时旧实例的观察者仍在 document.body 上跑，
@@ -363,9 +383,13 @@ window.__ModuleLoader__.load({
 
     // 步骤图标探针：报告图标元素的**实际计算颜色**，用来核对「语义色有没有真的上上去」。
     function zrIconProbe() {
-      // 不受 zrDebug 门控：每次会话最多发 6 次，量的是「图标实际计算颜色」这一个事实。
+      // 收进调试闸门（口径与 report() 一致）：它每会话最多发 6 次 POST，还要挂 body 级
+      // 观察者 120 秒，每次 DOM 变化都重扫全部图标并逐个 getComputedStyle——
+      // 生产环境是纯开销（实测日志已累积 115 条 icon-probe）。
+      // 要复现时开 localStorage['dsh-zhuoer-theme:debug'] = '1' 再刷新。
       // 用 MutationObserver 采样（与 zrHookSemiProbe 同一手法）：插件初始化时聊天区还没渲染，
       // 一次性取样只会得到 0 个图标；等 DOM 稳定后再取，才能覆盖历史上出现过的各类活动。
+      if (!zrDebug()) return;
       if (zrIconProbed) return;
       zrIconProbed = true;
       try {
