@@ -20,6 +20,31 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const git = (args) => execFileSync('git', args, { cwd: root, maxBuffer: 256 * 1024 * 1024 })
 const sha = (buf) => createHash('sha256').update(buf).digest('hex')
 
+/**
+ * 「当前 ref 是不是一次发版 tag」的判定，抽出成纯函数便于无头测试。
+ *
+ * 为什么不能直接拿 GITHUB_REF_NAME 当 tag：workflow_dispatch 跑在**分支**上时，
+ * GITHUB_REF_NAME 是分支名（main / ci/xxx），拿它跟 package.json 的版本号比，
+ * 「只跑门禁、不发布」那条手动路径必然被判死（0.6.46 之后实测：
+ * tag ci/actions-v7 与 package.json 0.6.46 不一致）。
+ *
+ * 判据：
+ *   - 有 GITHUB_REF_TYPE 时，只在它是 'tag' 时才要求「ref 名去掉 v 头 == 版本号」；
+ *   - 没有 GITHUB_REF_TYPE 时（本机手动跑）按「ref 名长得像版本号」判断，
+ *     免得有人手动设了 GITHUB_REF_NAME=main 就被判死；
+ *   - 其余情况（分支 / 空）一律不查。
+ */
+function zrRefTagCheck(refType, refName, version) {
+  const name = String(refName || '')
+  if (!name) return null
+  const type = String(refType || '')
+  const isTag = type ? type === 'tag' : /^v?\d+\.\d+\.\d+/.test(name)
+  if (!isTag) return null
+  const v = name.replace(/^v/, '')
+  if (v === String(version)) return null
+  return 'tag ' + name + ' 与 package.json ' + version + ' 不一致'
+}
+
 const fails = []
 const drift = []
 
@@ -67,15 +92,17 @@ for (const [where, v] of versions) {
   if (v !== pkgWork.version) fails.push(where + ' = ' + v + '，与工作区 package.json ' + pkgWork.version + ' 不一致')
 }
 
-const tag = String(process.env.GITHUB_REF_NAME || '')
-if (tag) {
-  const tagVersion = tag.replace(/^v/, '')
-  if (tagVersion !== pkgWork.version) fails.push('tag ' + tag + ' 与 package.json ' + pkgWork.version + ' 不一致')
-}
+const refName = String(process.env.GITHUB_REF_NAME || '')
+const refProblem = zrRefTagCheck(
+  String(process.env.GITHUB_REF_TYPE || ''),
+  refName,
+  pkgWork.version
+)
+if (refProblem) fails.push(refProblem)
 
 if (fails.length) {
   console.error('[verify:release] 失败')
   for (const f of fails) console.error('  ' + f)
   process.exit(1)
 }
-console.log('OK    发版预检：' + tracked.length + ' 个跟踪文件与 HEAD 内容一致，版本三元组均为 ' + pkgWork.version + (tag ? '（tag ' + tag + '）' : ''))
+console.log('OK    发版预检：' + tracked.length + ' 个跟踪文件与 HEAD 内容一致，版本三元组均为 ' + pkgWork.version + (refName ? '（ref ' + refName + '）' : ''))
