@@ -15,6 +15,7 @@
  */
 import { createServer } from 'node:http'
 import { readFile, writeFile } from 'node:fs/promises'
+import { existsSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { extname, join, dirname } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -45,7 +46,12 @@ for (const id of THEME_IDS) {
     const base = tk['--dsw-alias-bg-base']
     if (!base) continue
     for (const variant of ['full', 'soft']) {
-      const file = 'bg-' + (variant === 'soft' ? 'soft-' : '') + id + '.webp'
+      // 素材可以是位图也可以是矢量（P2 起内置 dash 就是 SVG）。同名前缀按 .svg 优先解析，
+      // 与 BG 映射保持一致——否则门禁会量到一份客户端根本不用的旧位图。
+      // 变量名不能叫 base：循环里 base 是**底色**，之前阴影过一次，结果契约里 base 被写成文件名。
+      const stem = 'bg-' + (variant === 'soft' ? 'soft-' : '') + id
+      const file = [stem + '.svg', stem + '.webp', stem + '.png', stem + '.jpg']
+        .find((n) => existsSync(join(root, 'assets', 'bg', n))) || (stem + '.webp')
       jobs.push({ theme: id, mode, variant, file, base, blend: BLEND_FOR[mode], texUrl: '/assets/bg/' + file })
     }
   }

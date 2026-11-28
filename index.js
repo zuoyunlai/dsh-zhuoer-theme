@@ -18,6 +18,9 @@ const ASSET_DIRS = [
   // 底图会「同名换内容」（补一套主题、加深纹理都改同一个文件名），长缓存会让用户
   // 升级后最长一天看不到变化。5 分钟足够挡重复请求，又不至于把更新藏起来。
   { url: '/dsh-zhuoer-theme/assets/bg/', disk: 'assets/bg/', ext: '.webp', type: 'image/webp', maxAge: 300 },
+  // P2：内置 dash 换成矢量底纹后，同一目录里会有 .svg。分开一条是为了拿到正确的 content-type
+  // （路由是按文件逐个注册的，同前缀不同扩展名互不冲突）。
+  { url: '/dsh-zhuoer-theme/assets/bg/', disk: 'assets/bg/', ext: '.svg', type: 'image/svg+xml', maxAge: 300 },
   { url: '/dsh-zhuoer-theme/assets/fonts/', disk: 'assets/fonts/', ext: '.woff2', type: 'font/woff2', maxAge: 31536000 },
   // 品牌位 logo：svg 是纯文本、只有几 KB，长缓存即可（换图要发新版本，不支持运行时替换）
   { url: '/dsh-zhuoer-theme/assets/logo/', disk: 'assets/logo/', ext: '.svg', type: 'image/svg+xml', maxAge: 31536000 },

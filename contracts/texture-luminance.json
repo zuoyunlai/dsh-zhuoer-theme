@@ -6,7 +6,7 @@
     "light": "none"
   },
   "canvas": "320x200",
-  "generatedAt": "2026-11-28T12:27:02.054Z",
+  "generatedAt": "2026-11-28T12:53:39.685Z",
   "floors": {
     "absolute": 4.5,
     "erosionRatio": 0.4
@@ -49,13 +49,13 @@
       "bytes": 1648,
       "sha256": "51ec5fdf6a79acc9d934c81b3544068cc95d2e22f6eeaa32d63b5f70a5c6f82a"
     },
-    "bg-dash.webp": {
-      "bytes": 29174,
-      "sha256": "02c16c54d61f2ace34baacc3acbb46d0ab62bff86dfdd418469eb44630330f89"
+    "bg-dash.svg": {
+      "bytes": 1114,
+      "sha256": "bd388f5abafc763f9f8d222a197362d5df1be3c133cc50dccce1850b1251bf91"
     },
-    "bg-soft-dash.webp": {
-      "bytes": 24856,
-      "sha256": "771aa1e4df3b69640d827c54270700bddfa809d1632c5178697b028c2da6b359"
+    "bg-soft-dash.svg": {
+      "bytes": 1114,
+      "sha256": "a1c7b27891625cb34815604573ca18a9ae5b239968bb8d41fc2a1f75cbce6a2f"
     },
     "bg-knot.webp": {
       "bytes": 17392,
@@ -295,31 +295,31 @@
       "theme": "dash",
       "mode": "dark",
       "variant": "full",
-      "texture": "bg-dash.webp",
+      "texture": "bg-dash.svg",
       "base": "#1a1210",
       "lumP5": 0.0069,
       "lumP50": 0.0069,
-      "lumP95": 0.00787,
-      "lumP100": 0.01233
+      "lumP95": 0.00789,
+      "lumP100": 0.01515
     },
     {
       "theme": "dash",
       "mode": "dark",
       "variant": "soft",
-      "texture": "bg-soft-dash.webp",
+      "texture": "bg-soft-dash.svg",
       "base": "#1a1210",
       "lumP5": 0.0069,
       "lumP50": 0.0069,
-      "lumP95": 0.00753,
-      "lumP100": 0.01097
+      "lumP95": 0.00777,
+      "lumP100": 0.01286
     },
     {
       "theme": "dash",
       "mode": "light",
       "variant": "full",
-      "texture": "bg-dash.webp",
+      "texture": "bg-dash.svg",
       "base": "#ebe5e0",
-      "lumP5": 0.77912,
+      "lumP5": 0.78276,
       "lumP50": 0.79083,
       "lumP95": 0.79083,
       "lumP100": 0.79098
@@ -328,12 +328,12 @@
       "theme": "dash",
       "mode": "light",
       "variant": "soft",
-      "texture": "bg-soft-dash.webp",
+      "texture": "bg-soft-dash.svg",
       "base": "#ebe5e0",
-      "lumP5": 0.77421,
+      "lumP5": 0.77804,
       "lumP50": 0.79083,
       "lumP95": 0.79083,
-      "lumP100": 0.79098
+      "lumP100": 0.79083
     },
     {
       "theme": "knot",
