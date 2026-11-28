@@ -89,7 +89,7 @@ const res = await fetch('/__result', { method: 'POST', headers: { 'content-type'
 OUT.textContent = res.ok ? 'written ' + rows.length + ' rows' : 'server rejected: ' + (await res.text())
 </script>`
 
-const MIME = { '.html': 'text/html; charset=utf-8', '.webp': 'image/webp', '.json': 'application/json' }
+const MIME = { '.html': 'text/html; charset=utf-8', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.json': 'application/json' }
 
 async function writeContract(rows) {
   const textures = {}

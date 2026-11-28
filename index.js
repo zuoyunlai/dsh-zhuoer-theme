@@ -355,10 +355,19 @@ export function apply(ctx, config) {
             try {
               const u = new URL(req.url || '/', 'http://localhost');
               const name = String(u.searchParams.get('name') || '');
-              if (!/^[a-f0-9]{16}\.(jpg|png|webp)$/.test(name)) { res.writeHead(400); res.end(); return; }
+              if (!/^[a-f0-9]{16}\.(jpg|png|webp|svg)$/.test(name)) { res.writeHead(400); res.end(); return; }
               const buf = fs.readFileSync(path.join(texturesDir(), name));
-              const mime = name.endsWith('.png') ? 'image/png' : name.endsWith('.webp') ? 'image/webp' : 'image/jpeg';
-              res.writeHead(200, { 'content-type': mime, 'content-length': String(buf.length), 'cache-control': 'no-store' });
+              // 矢量底纹按 image/svg+xml 下发：它只会被 CSS url() / <img> 消费（secure static mode），
+              // 脚本不执行、外部资源不加载。nosniff 防浏览器把响应当别的类型解析。
+              const mime = name.endsWith('.png') ? 'image/png'
+                : name.endsWith('.webp') ? 'image/webp'
+                  : name.endsWith('.svg') ? 'image/svg+xml' : 'image/jpeg';
+              res.writeHead(200, {
+                'content-type': mime,
+                'content-length': String(buf.length),
+                'x-content-type-options': 'nosniff',
+                'cache-control': 'no-store',
+              });
               res.end(buf);
             } catch (e) {
               try { res.writeHead(404); res.end(); } catch (e2) { /* ignore */ }

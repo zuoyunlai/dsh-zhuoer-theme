@@ -12,6 +12,37 @@
 
 
 
+## 0.6.46 · P0 底纹支持 SVG 矢量通道（2026-11-28：只收纯线稿，拒绝而不是清洗）
+
+规划见 `docs/svg-texture-plan-2026-11-28.md`（五项决策已拍板）。这一批只做 P0：**能收、能渲染、有校验**。
+
+为什么值得做：拆开内置 dash 底纹看，**不透明像素只占 1.9%、最大 alpha 45、墨色 `#b89a74`/`#987c59`**
+——它本来就是几根线。用 1600×1000 位图存几根线，代价是换分辨率要重出图、放大就发虚（R-11 那条根因）。
+手绘的矢量等价物是 1.1 KB，且任意 DPI 都锐。
+
+改动（四处白名单 + 一处必须跳过的处理）：
+
+- `theme-tool.js`：`sniffImage` 认 `image/svg+xml`；新增 `zrValidateSvg` 与 `ZR_SVG_MAX = 64 KiB`，
+  在**落盘前**做静态校验——必须有 `viewBox`（或 width+height），且拒绝 script / foreignObject /
+  `on*=` / `javascript:` / 外部 href / 内嵌 `<image>`·`<use>` / `<filter>` / `url(http…)` / `@import`。
+  **拒绝而不是清洗**：清洗器漏一条就是一整类风险，而且会让作者以为素材原样生效了。
+- `theme-tool.js`：`stashTexture` 的矢量分支跳过「宽 ≥1600」断言（矢量没有像素宽度），改走校验；
+  文件下限从 64 B 放宽到 32 B（合法极简 SVG 可以更小）。
+- `index.js`：`/api/texture` 白名单加 `svg`、content-type `image/svg+xml`、顺手补 `x-content-type-options: nosniff`。
+- `src/25-chat-card.js`（+ `client.js` build）：客户端白名单加 `svg`，并且**按 data URL 前缀跳过归一化**——
+  canvas 重编码会把矢量存成位图，矢量的分辨率优势当场归零，且一个字都不提示。
+- 新增 `textureMode`（`ask` / `vector` / `raster`）：用户选了哪种就必须给哪种，给错直接报错——
+  问了等于没问是最难查的一类"看起来都正常"。
+- `scripts/verify-texture.mjs`：纹理宽度断言加矢量分支（改判 `viewBox` + ≤64 KiB），为 P2 换内置 dash 铺路。
+- 新增 `scripts/test-svg-texture.mjs`（25 例，接进 `npm test`）：合法的最小/带 XML 声明/带 DOCTYPE/带 BOM/
+  width+height 都放行；script、foreignObject、事件属性、`javascript:`、外部与协议相对 href、内嵌 `<image>`、
+  `<use>`、滤镜元素与属性、CSS 外部 `url()`、`@import`、无根元素、根前垃圾、缺 `viewBox`、超上限逐条拒。
+
+**安全不变量**（已写进 README 与 llms.txt）：SVG **只经 CSS `url()` / `<img>` 使用，永不内联进 DOM**。
+svg-as-image 是 secure static mode（脚本不执行、外部资源不加载），这条比任何清洗都可靠。
+
+**本批没做**：内置 dash 换 SVG（P2，需重测纹理契约）、颗粒进 SVG（P3）、动作底纹（P4，只留伪元素慢位移那一档）。
+
 ## 0.6.46 · R-13 更正 R-12：浅色不能用 multiply（它会给整幅盖一层灰）
 
 用户在浅色界面里一眼看出「这个线图遮住了整个底色」。对的，那是 multiply 的算术问题，不是观感问题：

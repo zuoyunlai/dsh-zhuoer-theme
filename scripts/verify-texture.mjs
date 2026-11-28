@@ -103,6 +103,14 @@ for (const [name, meta] of Object.entries(contract.textures || {})) {
   const buf = readFileSync(p)
   if (createHash('sha256').update(buf).digest('hex') !== meta.sha256) fail(name + ' 内容变了（sha256 不符）——换图必须重跑 measure-texture')
   else if (buf.length !== meta.bytes) fail(name + ' 字节数不符')
+  // 矢量底纹没有"像素宽度"这回事：改判 viewBox 与上限（R-13 的 P2 会把内置 dash 换成 SVG）。
+  const head = buf.toString('utf8', 0, Math.min(buf.length, 512)).replace(/^\uFEFF/, '').trimStart()
+  const isSvg = /^(?:<\?xml[\s\S]*?\?>\s*)?(?:<!DOCTYPE[^>]*>\s*)?<svg[\s>]/i.test(head)
+  if (isSvg) {
+    if (!/\bviewBox\s*=/i.test(head)) fail(name + ' 是 SVG 但没有 viewBox——cover 铺放没有坐标系可依')
+    if (buf.length > 64 * 1024) fail(name + ' 作为底纹 SVG 过大（' + buf.length + ' B > 64 KiB）')
+    continue
+  }
   const w = texWidth(buf)
   if (!w) fail(name + ' 读不出宽度（不是可识别的 PNG/JPEG/WebP 头）')
   else if (w < MIN_TEX_WIDTH) fail(name + ' 只有 ' + w + 'px 宽（下限 ' + MIN_TEX_WIDTH + '）——底纹被做小了，cover 会把它放大成模糊色斑')

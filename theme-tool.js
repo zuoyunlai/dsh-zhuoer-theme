@@ -33,7 +33,10 @@ const DESCRIPTION = [
   'then pass their paths as texturePath / texturePathLight with texture="want".',
   'If the user says no, pass texture="no" and attach nothing.',
   'House texture look: barely-there line work on a near-flat base - not a photograph, not busy.',
-  'Each texture must be at least 1600 px wide (3200x2000 is the calibrated size) - narrower images are rejected, because cover-scaling a small one turns its grain into blurry blotches.',
+  'Also ask which MATERIAL: a pure line-art SVG (stays sharp at any resolution, a few KB, exact stroke colours)',
+  'or a raster bitmap (paper grain, grain texture, hand-drawn brush feel). Pass the answer as textureMode.',
+  'Raster must be at least 1600 px wide (3200x2000 is the calibrated size) - narrow ones are rejected because cover-scaling turns their grain into blurry blotches.',
+  'SVG must be pure line art: needs a viewBox and must not contain script, foreignObject, event handlers, external references, embedded images or filters (64 KiB max).',
   'The result is NOT applied automatically: it is shown as a preview card in the chat,',
   'and only takes effect after the user confirms it there.',
   'It returns BOTH a light palette and an explicit dark palette, so light and dark mode each look right.',
@@ -240,11 +243,63 @@ const TEXTURE_MAX = 3 * 1024 * 1024;
 // 为什么放在执行期：靠工具描述约束模型等于没约束（R-13 的教训，schema 只校验形状）。
 export const ZR_TEX_MIN_WIDTH = 1600;
 
+// 矢量底纹（SVG）的上限：只收**纯线稿**，超了就拒。1–10 KB 是常态，64 KiB 留足余量，
+// 同时挡住「把位图 base64 塞进 SVG」这种绕过方式。
+export const ZR_SVG_MAX = 64 * 1024;
+
+function looksSvg(buf) {
+  const head = buf.toString('utf8', 0, Math.min(buf.length, 512)).replace(/^\uFEFF/, '').trimStart();
+  return /^(?:<\?xml[\s\S]*?\?>\s*)?(?:<!DOCTYPE[^>]*>\s*)?<svg[\s>]/i.test(head);
+}
+
+// SVG 静态校验：**拒绝而不是清洗**。半坏的素材比没有素材更难查，所以每条都给出可读原因。
+// 白名单式的「只允许这些」比黑名单更稳，但这里用黑名单 + 根元素/尺寸硬要求：
+// 真正兜底的是 README 里那条不变量——SVG 只经 CSS url() / <img> 使用，永不内联进 DOM。
+// 导出以便 scripts/test-svg-texture.mjs 直接跑（含"该红必须红"的反向用例）。
+export function zrValidateSvg(text) {
+  const s = String(text == null ? '' : text);
+  const bytes = Buffer.byteLength(s, 'utf8');
+  if (!s.trim()) return { ok: false, reason: 'empty' };
+  if (bytes > ZR_SVG_MAX) return { ok: false, reason: 'too-large', bytes: bytes, max: ZR_SVG_MAX };
+  const head = s.replace(/^\uFEFF/, '').trimStart();
+  const rootAt = head.search(/<svg[\s>]/i);
+  if (rootAt < 0) return { ok: false, reason: 'not-svg-root' };
+  const before = head.slice(0, rootAt).trim();
+  if (before && !/^(?:<\?xml[\s\S]*?\?>\s*<!DOCTYPE[^>]*>\s*$|<\?xml[\s\S]*?\?>\s*$|<!DOCTYPE[^>]*>\s*$)/i.test(before)) {
+    return { ok: false, reason: 'junk-before-root' };
+  }
+  const rootEnd = head.indexOf('>', rootAt);
+  const rootTag = rootEnd > 0 ? head.slice(rootAt, rootEnd + 1) : '';
+  if (!/\bviewBox\s*=/i.test(rootTag) && !(/\bwidth\s*=/i.test(rootTag) && /\bheight\s*=/i.test(rootTag))) {
+    return { ok: false, reason: 'no-viewbox' };
+  }
+  const bad = [
+    [/<script\b/i, 'script'],
+    [/<foreignObject\b/i, 'foreign-object'],
+    [/<!ENTITY\b/i, 'entity'],
+    [/\son[a-z]+\s*=/i, 'event-handler'],
+    [/javascript:/i, 'javascript-url'],
+    // 元素检查放在 href 检查之前：`<image href="data:...">` 的准确原因是"内嵌位图"，
+    // 而不是笼统的"外部引用"——拒绝理由要能直接指导作者改。
+    [/<(?:image|use)\b/i, 'embed-image'],
+    [/(?:xlink:)?href\s*=\s*["']\s*(?:https?:|\/\/|data:)/i, 'external-ref'],
+    [/<filter\b/i, 'filter-element'],
+    [/\bfilter\s*=/i, 'filter-attr'],
+    [/url\(\s*["']?\s*(?:https?:|\/\/)/i, 'external-url'],
+    [/@import\b/i, 'css-import'],
+  ];
+  for (let i = 0; i < bad.length; i++) {
+    if (bad[i][0].test(s)) return { ok: false, reason: bad[i][1] };
+  }
+  return { ok: true, bytes: bytes };
+}
+
 function sniffImage(buf) {
   if (!buf || buf.length < 12) return '';
   if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return 'image/jpeg';
   if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) return 'image/png';
   if (buf.toString('ascii', 0, 4) === 'RIFF' && buf.toString('ascii', 8, 12) === 'WEBP') return 'image/webp';
+  if (looksSvg(buf)) return 'image/svg+xml';
   return '';
 }
 
@@ -289,17 +344,25 @@ function stashTexture(srcPath, getDir, opts) {
   try {
     const p = srcPath.trim();
     const info = fs.statSync(p);
-    if (!info.isFile() || info.size < 64 || info.size > TEXTURE_MAX) return null;
+    // 下限 32 字节：合法的极简 SVG 可以不到 64 字节（`<svg viewBox="0 0 1 1"/>`）。
+    // 真正的形态判断交给 sniffImage + zrValidateSvg，不靠文件大小猜。
+    if (!info.isFile() || info.size < 32 || info.size > TEXTURE_MAX) return null;
     const buf = fs.readFileSync(p);
     const mime = sniffImage(buf);
     if (!mime) return null;
-    if (minWidth) {
+    if (mime === 'image/svg+xml') {
+      // 矢量不走像素归一化（那会把矢量重编码回位图），改在入口做静态校验。
+      const v = zrValidateSvg(buf.toString('utf8'));
+      if (!v.ok) return { error: 'svg-' + v.reason, bytes: v.bytes, max: v.max };
+    } else if (minWidth) {
       const size = zrTextureSize(buf);
       if (!size || size.w < minWidth) {
         return { error: 'too-small', w: size ? size.w : 0, h: size ? size.h : 0, need: minWidth };
       }
     }
-    const ext = mime === 'image/png' ? 'png' : mime === 'image/webp' ? 'webp' : 'jpg';
+    const ext = mime === 'image/png' ? 'png'
+      : mime === 'image/webp' ? 'webp'
+        : mime === 'image/svg+xml' ? 'svg' : 'jpg';
     const d = getDir();
     if (!d) return null;
     const name = crypto.randomBytes(8).toString('hex') + '.' + ext;
@@ -383,11 +446,17 @@ export function registerThemeTool(ctx, report, opts) {
         },
         texturePath: {
           type: 'string',
-          description: 'Absolute local path to the DARK background texture image you generated (JPEG/PNG/WebP, <=3 MiB, at least 1600 px wide). Required when texture is want, together with texturePathLight. 3200x2000 is the calibrated size: narrower images are rejected at runtime because cover-scaling them turns grain into blurry blotches.',
+          description: 'Absolute local path to the DARK background texture. Raster: JPEG/PNG/WebP, <=3 MiB, at least 1600 px wide (3200x2000 is the calibrated size; narrower images are rejected because cover-scaling them turns grain into blurry blotches). Vector: a pure line-art SVG (<=64 KiB, needs a viewBox, no script/foreignObject/event handlers/external refs/embedded images/filters) - it stays sharp at any resolution. Required when texture is want, together with texturePathLight.',
         },
         imagePath: {
           type: 'string',
           description: 'Optional absolute path to a REFERENCE IMAGE for colour sampling (photo, screenshot, anything). When given, the anchors are replaced by colours sampled from that image locally (same algorithm as the panel image picker), so the theme really matches the picture instead of the model\'s guess. Accepts PNG/JPEG/WebP up to 3 MiB.',
+        },
+        // 生成前先问用户要哪一种底纹（矢量线稿 / 位图质感）。缺省 ask = 必须问。
+        // 指定后做一致性校验：选了 vector 却给位图（或反过来）直接报错，避免"问了等于没问"。
+        textureMode: {
+          type: 'string',
+          description: 'Which material the user chose for the background texture. "vector" = a pure line-art SVG (sharp at any resolution, a few KB, exact stroke colours); "raster" = a generated bitmap (paper grain, grain texture, hand-drawn brush feel). Ask the user ONE question first ("矢量线稿还是位图质感？"), then pass their answer. Omit to accept whatever you were given.',
         },
         texturePathLight: {
           type: 'string',
@@ -444,11 +513,29 @@ export function registerThemeTool(ctx, report, opts) {
               + ' 宽：铺满主栏时 cover 会把它放大成模糊色斑（用来压色带的颗粒会变成软块）。'
               + '请按至少 ' + st.need + '×1000 重画这两张底图（推荐 3200×2000）再重试。');
           }
-          if (!st) throw new Error(key + ' 不是可读的图片（PNG/JPEG/WebP，≤3 MiB）：' + p);
+          if (st && typeof st.error === 'string' && st.error.indexOf('svg-') === 0) {
+            throw new Error(key + ' 的 SVG 没通过校验（' + st.error.slice(4) + '）：只收纯线稿矢量——'
+              + '必须有 viewBox，且不能带 script / foreignObject / 事件属性 / 外部引用 / 内嵌位图 / 滤镜；'
+              + '上限 64 KiB。位图（PNG/JPEG/WebP）走另一个通道，不受这条限制。');
+          }
+          if (st && st.error) throw new Error(key + ' 无法作为底纹：' + st.error);
+          if (!st) throw new Error(key + ' 不是可读的图片（PNG/JPEG/WebP/SVG，位图 ≤3 MiB）：' + p);
           return st;
         };
         const texDark = decision === 'want' ? takeTexture(args && args.texturePath, 'texturePath') : null;
         const texLight = decision === 'want' ? takeTexture(args && args.texturePathLight, 'texturePathLight') : null;
+        // P1：用户选了哪一种，就得给哪一种。问了等于没问是最难查的一类"看起来都正常"。
+        const mode = String((args && args.textureMode) || '').trim().toLowerCase();
+        if (mode === 'vector' || mode === 'raster') {
+          for (const t of [texDark, texLight]) {
+            if (!t) continue;
+            const isVec = t.mime === 'image/svg+xml';
+            if (mode === 'vector' && !isVec) throw new Error('用户选了矢量线稿，但底纹是位图（' + t.mime + '）：请产纯线稿 SVG 再重试，或改传 textureMode="raster"。');
+            if (mode === 'raster' && isVec) throw new Error('用户选了位图质感，但底纹是 SVG：请改传位图（PNG/JPEG/WebP），或改传 textureMode="vector"。');
+          }
+        } else if (mode && mode !== 'ask') {
+          say({ phase: 'texture-mode-ignored', value: mode });
+        }
         const prompt = args && typeof args.name === 'string' && args.name.trim()
           ? style + '\n主题名：' + args.name.trim()
           : style;

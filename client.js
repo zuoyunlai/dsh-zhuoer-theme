@@ -10964,7 +10964,7 @@ function applyTokens(theme, pref) {
     function zrFetchTexture(rec) {
       const tb = zrRec(rec);
       const name = tb && typeof tb.name === 'string' ? tb.name : '';
-      if (!/^[a-f0-9]{16}\.(jpg|png|webp)$/.test(name)) return Promise.resolve('');
+      if (!/^[a-f0-9]{16}\.(jpg|png|webp|svg)$/.test(name)) return Promise.resolve('');
       return fetch('/dsh-zhuoer-theme/api/texture?name=' + encodeURIComponent(name), { headers: { 'x-zhuoer-client': '1' } })
         .then(function (r) { return r && r.ok ? r.blob() : null; })
         .then(function (blob) {
@@ -11027,13 +11027,19 @@ function applyTokens(theme, pref) {
     // R-01 / R-12：取回后先按该方案的 bg-base 归一化（对齐底色 + 对齐极性）。
     // 极性跟着合成方式走：深色方案 lighten 要**亮墨**，浅色方案 multiply 要**暗墨**。
     // 不这么做，「浅底 + 暗线」的图在浅色模式里会被 lighten 整片吃掉，而且没有任何报错。
+    // 矢量（SVG）**跳过归一化**：canvas 重编码会把矢量变成位图，R-11 那套分辨率优势当场归零。
+    // 它的颜色对齐由作者/生成方直接写进 stroke，不靠事后逐像素改。
+    function zrIsVector(url) {
+      return typeof url === 'string' && url.indexOf('data:image/svg') === 0;
+    }
     function zrResolveBg(spec) {
       const baseId = zrBaseThemeId();
+      const colorOf = (scheme) => zrTexTargetBg(spec, scheme, baseId);
       return Promise.all([zrFetchTexture(spec && spec.texture), zrFetchTexture(spec && spec.textureLight)])
         .then(function (r) {
           return Promise.all([
-            zrTexNormalizeUrl(r[0], zrTexTargetBg(spec, 'dark', baseId), false),
-            zrTexNormalizeUrl(r[1], zrTexTargetBg(spec, 'light', baseId), true),
+            zrIsVector(r[0]) ? r[0] : zrTexNormalizeUrl(r[0], colorOf('dark'), false),
+            zrIsVector(r[1]) ? r[1] : zrTexNormalizeUrl(r[1], colorOf('light'), true),
           ]);
         })
         .then(function (n) { return { dark: n[0] || '', light: n[1] || '' }; });
