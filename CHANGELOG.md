@@ -23,8 +23,10 @@
 几个取舍：
 
 - **说明单独占一行**，不塞进名字那一列：那一列只有 6.8em，一句话会被挤成竖排。
-- **文案进 i18n**，键为 `tok.<去掉前缀的 token 名>`。中文与英文各自写好；de/es/fr/ja/pt/ru
-  先写英文（`zrT` 缺键本来就回落 en），后续逐条补译即可，不会显示成键名。
+- **文案进 i18n**，键为 `tok.<去掉前缀的 token 名>`。**8 种语言都是真译**（2026-11-28 补齐
+  de/es/fr/ja/pt/ru，各 156 条）：术语按同一张表走——底色/Fläche/fond/fondo/fundo/фон、
+  悬停/Hover/survol/hover/hover/наведение、描边/Rahmen/bordure/borde/borda/обводка，
+  避免同一屏出现两种说法。校验方式：各语言与 en 逐键比对，**0 条与英文相同**（相同即说明漏填）。
 - **缺键不显示**，而不是印出 `tok.xxx`：`zrT` 缺键返回键名本身，拿它当「没有说明」的判据。
 - **新增覆盖率门** `scripts/test-token-notes.mjs`（已接进 `npm test`）：对账
   「`ANCHOR_GROUPS` 里的 token」与「`i18n/*.json` 里的 `tok.*` 键」——缺说明、孤立键、
