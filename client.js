@@ -7627,7 +7627,12 @@ function bgCssFor(o) {  var bgUrl = o.bgUrl;
   // 底部渐隐：mask 会连子元素一起遮，所以叠一层「透明 → 底色」的渐变在同一个 background 栈里。
   var baseOpaque = 'rgba(' + baseRgb[0] + ',' + baseRgb[1] + ',' + baseRgb[2] + ',1)';
   var fadeLayer = 'linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,0) calc(100% - 320px),' + baseOpaque + ' calc(100% - 60px))';
-  return 'html [class*="_frame"]{background-image:' + fadeLayer + ',url("' + cssUrl(bgUrl) + '") !important;'
+  // ⚠️ `_frame` 在宿主里**不唯一**：真机 dump 显示同一页面有 mP3x-q_frame(1970×1071，真 AppFrame)、
+  // nV4vHZW_frame(1684×11379 的滚动容器)、以及一堆 240×131 的卡片。把图铺到 `[class*="_frame"]` 上，
+  // 那一万多像素高的容器一 cover 就是「无限放大 + 色块 + 和侧栏错位」。
+  // 按 skins ADR-0009 的结构化锚定：直接子元素里有 sidebarCol 的才是 AppFrame。
+  var appFrame = '[class*="_frame"]:has(> [class*="sidebarCol" i])';
+  return 'html ' + appFrame + '{background-image:' + fadeLayer + ',url("' + cssUrl(bgUrl) + '") !important;'
       + 'background-size:cover,cover !important;background-position:50% 0,50% 0 !important;'
       + 'background-repeat:no-repeat,no-repeat !important;}'
     + mainSel + '::before{display:none !important;}'
