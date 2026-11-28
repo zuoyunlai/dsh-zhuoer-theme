@@ -6,7 +6,7 @@
     "light": "none"
   },
   "canvas": "320x200",
-  "generatedAt": "2026-11-28T13:42:17.912Z",
+  "generatedAt": "2026-11-28T13:53:40.062Z",
   "floors": {
     "absolute": 4.5,
     "erosionRatio": 0.4
@@ -50,12 +50,12 @@
       "sha256": "51ec5fdf6a79acc9d934c81b3544068cc95d2e22f6eeaa32d63b5f70a5c6f82a"
     },
     "bg-dash.svg": {
-      "bytes": 12403,
-      "sha256": "f530007169cee3b147ecffef14d018c167f40645f1a140451f241942c732c0de"
+      "bytes": 13126,
+      "sha256": "0cd082d2f7a798af855a8d5709af3bc821e90434a3bbfcc1ed614f2fa0bceddc"
     },
     "bg-soft-dash.svg": {
-      "bytes": 12392,
-      "sha256": "38161d092b1beca3632a0b317534e246f9bb721601379b9860011429187e33dd"
+      "bytes": 13315,
+      "sha256": "7940c4e5db8773bfd7f8fb1b34e94ad6b2447f9328d9691758853f26d1404a4d"
     },
     "bg-knot.webp": {
       "bytes": 17392,
@@ -299,8 +299,8 @@
       "base": "#1a1210",
       "lumP5": 0.0069,
       "lumP50": 0.0069,
-      "lumP95": 0.00749,
-      "lumP100": 0.01174
+      "lumP95": 0.0069,
+      "lumP100": 0.01315
     },
     {
       "theme": "dash",
@@ -310,8 +310,8 @@
       "base": "#1a1210",
       "lumP5": 0.0069,
       "lumP50": 0.0069,
-      "lumP95": 0.00698,
-      "lumP100": 0.01187
+      "lumP95": 0.0069,
+      "lumP100": 0.01074
     },
     {
       "theme": "dash",
@@ -319,10 +319,10 @@
       "variant": "full",
       "texture": "bg-dash.svg",
       "base": "#ebe5e0",
-      "lumP5": 0.78294,
+      "lumP5": 0.79083,
       "lumP50": 0.79083,
       "lumP95": 0.79083,
-      "lumP100": 0.79098
+      "lumP100": 0.79152
     },
     {
       "theme": "dash",
@@ -330,10 +330,10 @@
       "variant": "soft",
       "texture": "bg-soft-dash.svg",
       "base": "#ebe5e0",
-      "lumP5": 0.78592,
+      "lumP5": 0.79083,
       "lumP50": 0.79083,
       "lumP95": 0.79083,
-      "lumP100": 0.79083
+      "lumP100": 0.79136
     },
     {
       "theme": "knot",
