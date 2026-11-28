@@ -14,3 +14,5 @@ __pycache__/
 
 # 图片生成工具的工作目录（不是本仓产物）：jpg/png 会撑大仓库，且 verify:release 要求工作区干净
 /dsh-image-gen/
+# 仓库根的临时截图（调试取证用；正式素材在 docs/images 下）
+/*.png
