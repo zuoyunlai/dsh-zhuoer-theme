@@ -389,10 +389,10 @@
     },
     {
       "key": "zhuoer/light label-tertiary",
-      "fg": "#716c65",
+      "fg": "#6e6963",
       "bg": "#f4f1ec",
-      "ratio": 4.619,
-      "lc": 67.67,
+      "ratio": 4.824,
+      "lc": 68.97,
       "decor": false
     },
     {
@@ -421,10 +421,10 @@
     },
     {
       "key": "zhuoer/dark label-tertiary",
-      "fg": "#7c7c85",
+      "fg": "#83838b",
       "bg": "#0e1015",
-      "ratio": 4.602,
-      "lc": -32.75,
+      "ratio": 5.06,
+      "lc": -36.04,
       "decor": false
     },
     {
@@ -485,10 +485,10 @@
     },
     {
       "key": "absolutely/dark label-tertiary",
-      "fg": "#85857f",
+      "fg": "#8a8a84",
       "bg": "#1b1b1a",
-      "ratio": 4.645,
-      "lc": -35.51,
+      "ratio": 4.965,
+      "lc": -37.95,
       "decor": false
     },
     {
@@ -613,10 +613,10 @@
     },
     {
       "key": "crt/dark label-tertiary",
-      "fg": "#7c7c7c",
+      "fg": "#808080",
       "bg": "#090a09",
-      "ratio": 4.751,
-      "lc": -32.74,
+      "ratio": 5.021,
+      "lc": -34.63,
       "decor": false
     },
     {
@@ -677,10 +677,10 @@
     },
     {
       "key": "dash/dark label-tertiary",
-      "fg": "#8e7d6f",
+      "fg": "#9b8d80",
       "bg": "#1a1210",
-      "ratio": 4.669,
-      "lc": -34.02,
+      "ratio": 5.726,
+      "lc": -41.5,
       "decor": false
     },
     {
@@ -741,10 +741,10 @@
     },
     {
       "key": "knot/dark label-tertiary",
-      "fg": "#7a7a83",
+      "fg": "#7d7d86",
       "bg": "#080808",
-      "ratio": 4.71,
-      "lc": -32.18,
+      "ratio": 4.911,
+      "lc": -33.58,
       "decor": false
     },
     {
@@ -805,10 +805,10 @@
     },
     {
       "key": "manuscript/dark label-tertiary",
-      "fg": "#8f856e",
+      "fg": "#948c75",
       "bg": "#211e18",
-      "ratio": 4.549,
-      "lc": -35.65,
+      "ratio": 4.96,
+      "lc": -38.86,
       "decor": false
     },
     {
@@ -869,10 +869,10 @@
     },
     {
       "key": "miami/dark label-tertiary",
-      "fg": "#8278a1",
+      "fg": "#887ea5",
       "bg": "#140f1e",
-      "ratio": 4.612,
-      "lc": -33.13,
+      "ratio": 4.991,
+      "lc": -35.88,
       "decor": false
     },
     {
@@ -997,10 +997,10 @@
     },
     {
       "key": "rose/dark label-tertiary",
-      "fg": "#86839c",
+      "fg": "#8e8ca3",
       "bg": "#191724",
-      "ratio": 4.826,
-      "lc": -36.29,
+      "ratio": 5.406,
+      "lc": -40.53,
       "decor": false
     },
     {
@@ -3477,10 +3477,10 @@
     },
     {
       "key": "预设:cyber/zhuoer/dark 正文",
-      "fg": "#eef9f1",
+      "fg": "#e5f5e9",
       "bg": "#003a0f",
-      "ratio": 12.069,
-      "lc": -96.31,
+      "ratio": 11.518,
+      "lc": -92.88,
       "decor": false
     },
     {
@@ -3509,10 +3509,10 @@
     },
     {
       "key": "预设:cyber/vintage-paper/dark 正文",
-      "fg": "#f1faf3",
+      "fg": "#e5f5e9",
       "bg": "#003a0f",
-      "ratio": 12.225,
-      "lc": -97.28,
+      "ratio": 11.518,
+      "lc": -92.88,
       "decor": false
     },
     {
@@ -3541,10 +3541,10 @@
     },
     {
       "key": "预设:cyber/beacon/dark 正文",
-      "fg": "#fdfefd",
+      "fg": "#fafdfb",
       "bg": "#003a0f",
-      "ratio": 12.885,
-      "lc": -101.3,
+      "ratio": 12.721,
+      "lc": -100.31,
       "decor": false
     },
     {
