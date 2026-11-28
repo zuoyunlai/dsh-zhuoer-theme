@@ -9,7 +9,7 @@ A skin plugin that recolours the whole DSH UI: **12 built-in themes + 12 style p
 - Colours go through the host theme service: `ctx.theme.overrideTokens()` maps each theme onto DSH's `--dsw-alias-*` tokens (224 per theme). No DOM hijacking, no injected host components.
 - **Fully local**: no account, no telemetry, no external network calls. The only network activity is the host's own model when you press "Generate" in the editor.
 - Light / dark / follow-system is **two-way synced** with the host's Settings → Appearance: changing either side updates the other.
-- Current version **0.6.46**, MIT.
+- Current version **0.7.0**, MIT.
 
 ## At a glance
 
@@ -168,7 +168,7 @@ Usage: **Plugins → Experimental plugins → enable “Custom plugin index” �
 
 Fallback: mirror [`market/index.json`](market/index.json) to any static host you can reach (object storage, your own server, a LAN http server; plain HTTP is fine) and add that URL instead.
 
-The index lists only the three safe versions (0.6.46 / 0.6.45 / 0.6.44) and deliberately skips 0.6.11, which shipped a broken settings panel. Run `npm run verify:market` after editing — it checks the official schema (LocalizedText must contain `en`, exact SemVer, `source.type`, `engines.dsh`) and cross-checks it against this package’s `package.json`.
+The index lists only the three safe versions (0.7.0 / 0.6.46 / 0.6.45) and deliberately skips 0.6.11, which shipped a broken settings panel. Run `npm run verify:market` after editing — it checks the official schema (LocalizedText must contain `en`, exact SemVer, `source.type`, `engines.dsh`) and cross-checks it against this package’s `package.json`.
 
 Run `npm run verify:market` after editing — it checks the official schema (LocalizedText must contain `en`, exact SemVer, `source.type`, `engines.dsh`) and cross-checks it against this package’s `package.json`.
 
@@ -195,8 +195,9 @@ A few things worth knowing:
 - **Texture strength can be requested too**: `textureWeight` (0/1/2, default 0) — 1 presses the light base to lightness 87.8% so the texture stops being compressed away (+57% visibility measured), 2 goes to the ceiling (+80%). It only applies with `texture=want`, and the pressing happens on the client before writing, so the sampled-from-photo path benefits as well.
 - **At most 4 direct token keys**: the 8 anchors cover 156 tokens; the model may add up to 4 extra `--dsw-*` keys for spot fixes.
 - **Both textures are mandatory**: with `texture=want` you must pass dark `texturePath` and light `texturePathLight` together; one alone is rejected (the other cannot substitute — reusing an inverted copy tints the whole light mode).
-- **Textures have a resolution floor**: at least 1600 px wide (the built-ins ship at 1600×997); 3200×2000 is the recommended generation size. Anything narrower is **rejected at generation time** with a readable reason. Normalisation no longer shrinks a texture to 1000 — that cap used to turn 3200×2000 into 1000×625, which `cover` then scaled up 2.9× on the main column, smearing the anti-banding grain into soft blotches.
-- **Textures are normalised**: on the client the image base is shifted onto that theme's `bg-base`, and strokes darker than the base are flipped to brighter than the base — otherwise the light-mode composite eats the lines entirely.
+- **Ask about the material first**: `textureMode` (`ask` / `vector` / `raster`) — defaults to `ask`, so you are asked "vector line art or a bitmap texture?" before anything is generated; the material you pick must match what is passed, otherwise the call is rejected. Vector stays sharp at any resolution and weighs a few KB; bitmaps keep grain and hand-drawn brush feel — both channels ship side by side.
+- **Textures have a resolution floor** (raster only): at least 1600 px wide (the built-in raster textures ship at 1600×997; `dash`/Amber has moved to vector); 3200×2000 is the recommended generation size. Anything narrower is **rejected at generation time** with a readable reason. Normalisation no longer shrinks a texture to 1000 — that cap used to turn 3200×2000 into 1000×625, which `cover` then scaled up 2.9× on the main column, smearing the anti-banding grain into soft blotches.
+- **Raster textures are normalised**: on the client the image base is shifted onto that theme's `bg-base`, and strokes darker than the base are flipped to brighter than the base — otherwise the light-mode composite eats the lines entirely. Vector files skip this step (next bullet).
 - **Two texture materials**: raster (PNG/JPEG/WebP, ≥1600 px wide, ≤3 MiB) or a **pure line-art SVG** (≤64 KiB, needs a `viewBox`, no script / foreignObject / event handlers / external refs / embedded images / filters). SVG is never pixel-normalised (that would rasterise it); stroke colours are written by the author, and it stays sharp at any resolution.
 - **Textures draw lines, not a new base**: the blend follows the scheme — dark uses `mix-blend-mode: lighten` (only pixels brighter than the base survive); light uses **no blend at all**, just darker ink. Light must not use multiply: `multiply(b,b)=b²/255` darkens a full-bleed image whose base equals the base colour (222 → 193) and veils the whole surface. Since R-01 normalisation already guarantees the image base equals `bg-base`, plain alpha compositing is the identity there, and darker ink still shows through. Normalisation matches the composite (light ⇒ darker ink).
 - **SVG is used as an image only**: it reaches the page through CSS `url()` / `<img>` (secure static mode — no scripting, no external loads) and is **never inlined into the DOM**, which would open a script surface.
@@ -431,7 +432,7 @@ contracts/           host contract lists (positives / negatives), texture-lumina
 visual/              local capture area: current/ screenshots, css-current/ injected CSS
 docs/                design notes and runbooks: i18n-plan.md, live-verify.md, troubleshooting.md, color-derivation.md, official-requirements.md, git-integrity.md
 assets/fonts/        23 woff2 files (14 Latin families + 3 CJK subsets) plus provenance
-assets/bg/           24 theme backgrounds (webp)
+assets/bg/           24 theme backgrounds (webp) + 2 vector ones (svg, used by dash/Amber)
 assets/logo/         zhuoer.svg (brand-slot logo, served under /assets/logo/)
 assets/icon-180.png  market card icon (180×180, rasterised from zhuoer.svg)
 icon.svg             plugin page icon (referenced by package.json "icon")
