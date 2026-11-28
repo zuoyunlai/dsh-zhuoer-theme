@@ -7607,15 +7607,43 @@ function bgCssFor(o) {  var bgUrl = o.bgUrl;
   };
   var glass = (typeof o.glass === 'number') ? Math.max(0, Math.min(100, o.glass)) : 0;
   if (glass <= 0) return mainRules(mainSel);
-  // 侧栏玻璃（g>0）：同一张底图上移成整窗一层，主栏让出底色，侧栏盖一层 rgba + 模糊。
-  // 只在这一档才改层结构，g=0 时 CSS 与改动前逐字一致（视觉基线不受影响）。
+  // ── 玻璃模式（0.7.1）────────────────────────────────────────────────────────
+  // 层契约（桌面端同样适用）：
+  //   L0  _frame 自身 background = bg-base + 底图  ← 全窗唯一一层图，天生在 columns 之下
+  //   L1  各列自身填充全部退透明                   ← 消除「帧背景 + 列填充」双层叠涂导致的发蒙
+  //   L2  侧栏 = rgba(bg-base, α) + 静态高光       ← 不加 blur（见下）
+  //   L3  标题条 _frame::before 保持现状           ← 原生 WCO 按钮由它取色，不动
+  //
+  // 为什么 L0 用 frame 的 background 而不是伪元素：
+  //   试过 [class*="_frame"]::before —— 桌面端标题条已占用该伪元素（z-index:2 色带），铺图盖住标题条；
+  //   试过 body::before{position:fixed} —— 宿主链上若有 transform/will-change，fixed 改以它为包含块，
+  //   整窗被图蒙住。frame 自己的 background 不存在这两个问题：不占伪元素、不建层叠上下文。
+  //
+  // 为什么侧栏不加 blur：endfield 的实测结论——filter/backdrop-filter 会让元素成为
+  //   position:fixed 后代的包含块，侧栏里的菜单/tooltip 会错位、被裁剪。
   var floor = (typeof o.glassFloor === 'number') ? Math.min(0.9, Math.max(0.05, o.glassFloor)) : GLASS_FLOOR_FALLBACK;
   var glassAlpha = +(1 - (glass / 100) * (1 - floor)).toFixed(2);
   var baseRgb = parseHexColor(tokens['--dsw-alias-bg-base']) || [0, 0, 0];
-  var sideSel = ':is(div:has(> [data-slot="sidebar"]),[class*="sidebarCol"])';
-  var frameSel = '[class*="_frame"]';
+  var sideSel = '[class*="sidebarCol"]';
+  return 'html [class*="_frame"]{background-image:url("' + cssUrl(bgUrl) + '") !important;background-size:cover !important;'
+      + 'background-position:50% 0% !important;background-repeat:no-repeat !important;}'
+    + mainSel + '::before{display:none !important;}'
+    // 主栏用「底色半透明」把自己压回原来的可见度：等价于旧实现的 opacity=imgOpacity，
+    // 否则整窗图以 100% 亮度出现在正文下面，文字直接读不了（实测：标题与输入框提示全糊）。
+    + mainSel + '{background-color:rgba(' + baseRgb[0] + ',' + baseRgb[1] + ',' + baseRgb[2] + ',' + (1 - imgOpacity).toFixed(3) + ') !important;}'
+    + 'html ' + sideSel + ' > [class*="_root"],' + mainSel + ' [class*="_root"]{background:transparent !important;}'
+    + 'html ' + sideSel + '{background:rgba(' + baseRgb[0] + ',' + baseRgb[1] + ',' + baseRgb[2] + ',' + glassAlpha + ') !important;'
+      + 'background-image:linear-gradient(180deg,rgba(255,255,255,.05),transparent 42%) !important;}'
+    + hiddenInEmpty('html ' + sideSel);
+  /* 旧实现（保留行号参考）
+  var floor = (typeof o.glassFloor === 'number') ? Math.min(0.9, Math.max(0.05, o.glassFloor)) : GLASS_FLOOR_FALLBACK;
+  var glassAlpha = +(1 - (glass / 100) * (1 - floor)).toFixed(2);
+  var baseRgb = parseHexColor(tokens['--dsw-alias-bg-base']) || [0, 0, 0];
+  var sideSel = '[class*="sidebarCol"]';
   var blurCss = 'backdrop-filter:blur(' + GLASS_BLUR_PX + 'px) saturate(110%) !important;';
-  return 'html ' + frameSel + '::before{content:"" !important;' + blendCss + 'position:fixed !important;inset:0 !important;'
+  // 底图层挂 body::before，**不能**用 [class*="_frame"]::before：桌面端标题条已经占着那个伪元素
+  // （z-index:2 的色带），同一伪元素再铺一张 fixed 全窗图，标题条会被图盖住、整条顶部变糊。
+  return 'html body::before{content:"" !important;' + blendCss + 'position:fixed !important;inset:0 !important;'
       + 'background-image:url("' + cssUrl(bgUrl) + '") !important;background-size:cover !important;background-position:50% 0% !important;'
       + 'background-repeat:no-repeat !important;opacity:' + imgOpacity + ' !important;' + invertCss + fadeMask
       + 'pointer-events:none !important;z-index:0 !important;}'
@@ -7624,7 +7652,8 @@ function bgCssFor(o) {  var bgUrl = o.bgUrl;
     + mainSel + ' [class*="_root"]{background-color:transparent !important;}'
     + 'html ' + sideSel + '{background:rgba(' + baseRgb[0] + ',' + baseRgb[1] + ',' + baseRgb[2] + ',' + glassAlpha + ') !important;' + blurCss + '}'
     + 'html ' + sideSel + ' [class*="_root"]{background-color:transparent !important;}'
-    + hiddenInEmpty('html ' + frameSel) + hiddenInEmpty('html ' + sideSel);
+    + hiddenInEmpty('html body') + hiddenInEmpty('html ' + sideSel);
+  */
 }
 
 // 表格精细化的 CSS 片段（抽成纯函数，便于无头断言首末列内边距必须补回来）。
